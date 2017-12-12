@@ -12,7 +12,7 @@ Basically a software to create real-world drawings from schematics:
 ## What is wrong with Kicad?  
 
 - No component based approach (Hierarchical sheets just work wrong)
-- Bugfixes takes years. 
+- Bugfixe takes years. 
 - So hard to install Kicad, so hard to install libraries that we need another project [for that purpose](https://github.com/aktos-io/kicad-install)
 - Versions can be incompatible with the previous versions. You may loose your projects that you made 6 months ago. 
 
