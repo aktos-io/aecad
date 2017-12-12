@@ -13,8 +13,8 @@ Basically a software to create real-world drawings from schematics:
 
 - No component based approach (Hierarchical sheets just work wrong)
 - Bugfixes take years. 
-- So hard to install Kicad, so hard to install libraries that we need another project [for that purpose](https://github.com/aktos-io/kicad-install)
-- Versions can be incompatible with the previous versions. You may loose your projects that you made 6 months ago. 
+- So hard to install both Kicad and required libraries that that we need another project [for that purpose](https://github.com/aktos-io/kicad-install)
+- New versions can be incompatible with the previous versions without any compatibility mode. You may loose your projects that you made 6 months ago. 
 
 ### Schematic Editor 
 
