@@ -45,7 +45,7 @@ Basically a software to create real-world drawings from schematics:
   - Component based approach: You will be able to re-use your existing PCB drawings 
   - Multiple association of PCB drawings for the same schematic: You may draw more than one PCB for the same schematic. You will be able to use any of them, or create a new design. 
   - Inherit from Kicad: 
-    - Routes will push eachother
+    - [Push and shove routing](https://www.youtube.com/watch?v=kzro0Jc70xI)
     - Net classes 
     
     
