@@ -1,6 +1,6 @@
 # aeda
 
-## What is it 
+## What is it?
 
 Electronic Design Automation software, like Kicad, but using the web technologies like EasyEDA, with offline installation support. It will be like [Onshape](https://www.onshape.com/) to Solidworks.
 
