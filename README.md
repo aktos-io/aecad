@@ -20,7 +20,7 @@ Basically a software to create real-world drawings from schematics:
 
 - No correct component based approach (started with hierarchical sheets, but it does only a basic job)
 - Hard to use (IMHO)
-- Changing grid size make 
+- (Changing grid size prevents you to edit your schematic](https://forum.kicad.info/t/shematic-wire-can-not-be-connected/2891)
 
 ### PCB Editor
 
