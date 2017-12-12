@@ -33,6 +33,7 @@ Basically a software to create real-world drawings from schematics:
 ## What features will AEDA have?
 
 - Web based collaboration
+- Versioning support for drawings out of the box: You may produce some PCB's and you may update the schematics later on. PCB's will include an automatically tracked schematic version.
 
 ### Schematic editor 
   - Create new components easily 
