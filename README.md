@@ -39,6 +39,7 @@ Basically a software to create real-world drawings from schematics:
   - Create new components easily 
   - Component based design: You will use your existing components to create sub-circuits
     - Dependency tracking for sub-components
+  - Intelligent components: A component make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`. 
     
 ### PCB editor 
   - A complete graphics editor (including align tool, rulers, etc.)
@@ -47,6 +48,7 @@ Basically a software to create real-world drawings from schematics:
   - Inherit from Kicad: 
     - [Push and shove routing](https://www.youtube.com/watch?v=kzro0Jc70xI)
     - Net classes 
+  - Extra pcb layers with components: A zero ohm resistor might be used just like a jumper. 
     
     
 # TO BE CONTINUED
