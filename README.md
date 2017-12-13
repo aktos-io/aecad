@@ -48,6 +48,7 @@ Basically a software to create real-world drawings from schematics:
   - Inherit from Kicad: 
     - [Push and shove routing](https://www.youtube.com/watch?v=kzro0Jc70xI)
     - Net classes 
+    - [Highlight net](https://github.com/ceremcem/aeda/issues/2)
   - Extra pcb layers with components: A zero ohm resistor might be used just like a jumper. 
     
     
