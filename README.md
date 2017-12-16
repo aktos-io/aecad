@@ -54,6 +54,7 @@ Basically a software to create real-world drawings from schematics:
     - Net classes 
     - [Highlight net](https://github.com/ceremcem/aeda/issues/2)
   - Extra pcb layers with components: A zero ohm resistor might be used just like a jumper. 
+  - Class based footprint association: Declare your technology, overwrite any of the components when needed.
     
     
 # TO BE CONTINUED
