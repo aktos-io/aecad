@@ -39,7 +39,7 @@ Basically a software to create real-world drawings from schematics:
   - Create new components easily 
   - Component based design: You will use your existing components to create sub-circuits
     - Dependency tracking for sub-components
-  - Intelligent components: A component make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`. 
+  - Component based DRC (design rule checking): A component make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`. 
   - Human readable Netlist syntax: Any schematic can be read in text mode.
     
 ### PCB editor 
