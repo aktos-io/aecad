@@ -1,4 +1,4 @@
-# aeda (Draft)
+# AECAD (Draft)
 
 ## What is it?
 
@@ -31,7 +31,7 @@ Basically a software to create real-world drawings from schematics:
 - Hard to use (IMHO)
 
 
-## What features will AEDA have?
+## What features will AECAD have?
 
 - Web based collaboration
 - Versioning support for drawings out of the box: You may produce some PCB's and you may update the schematics later on. PCB's will include an automatically tracked schematic version.
