@@ -1,4 +1,4 @@
-# AECAD (Draft)
+# aecad (DRAFT)
 
 ## What is it?
 
