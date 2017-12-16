@@ -41,7 +41,8 @@ Basically a software to create real-world drawings from schematics:
   - Component based design: You will use your existing components to create sub-circuits
     - Dependency tracking for sub-components
   - Component based DRC (design rule checking): A component make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`. 
-  - Human readable Netlist syntax: Any schematic can be read in text mode.
+  - Human readable Netlist syntax: Any schematic can be read in text mode and can be edited by hand, with a text editor.
+  - Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
     
 ### PCB editor 
   - A complete graphics editor (including align tool, rulers, etc.)
