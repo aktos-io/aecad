@@ -41,6 +41,7 @@ Basically a software to create real-world drawings from schematics:
   - Extra pcb layers with components: A zero ohm resistor might be used just like a jumper. 
   - Class based footprint association: Declare your technology, overwrite any of the components when needed.
   - Virtual layers: Grouping some drawings at the same physical layer
+  - Allow designing modular pcb design. 
     
     
 # TO BE CONTINUED
