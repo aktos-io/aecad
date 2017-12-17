@@ -2,8 +2,9 @@
 
 - No component based approach 
   - Hierarchical sheets just work wrong [¹](https://github.com/aktos-io/kicad-tools/blob/master/fix-copy-hsheet))
-  - Not handling circular dependencies 
-  - Importing other schematics does not append its hierarchical sheets (no dependency tracking)
+    - Not handling circular dependencies 
+    - Importing other schematics does not append its hierarchical sheets (no dependency tracking)
+    - Weird reference design: Component references are stored in the hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project. 
 - Bugfixes take centuries. 
 - [Feature requests are not welcome.](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821/14?u=ceremcem)
 - It's so hard to install both Kicad and the libraries that that we needed [a separate project for that purpose](https://github.com/aktos-io/kicad-install)
