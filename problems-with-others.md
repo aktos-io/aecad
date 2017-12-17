@@ -17,12 +17,12 @@
 ### Schematic Editor 
 
 - No correct component based approach (started with hierarchical sheets, but it does only a basic job)
-- Hard to use (IMHO)
 - [Changing grid size prevents you to edit your schematic](https://forum.kicad.info/t/shematic-wire-can-not-be-connected/2891)
+- No copy-n-paste from another schematic editor. Select+copy+paste simply don't work between open windows.
 
 ### PCB Editor
 
 - Only basic support for alignment, no rulers etc.
 - No component-based design [(you can not re-use your pcb drawings in another projects)](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821)
 - Lack of manufacturing mode: You can not create multiple drawings to print out at the same time.
-- Hard to use (IMHO)
+- No copy-n-paste from another pcbnew editor.
