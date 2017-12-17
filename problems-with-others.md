@@ -1,11 +1,12 @@
 ## What is wrong with Kicad?  
 
-- No component based approach 
+- No component based design approach: 
   - Hierarchical sheets just work wrong:
     - Can not assign correct references when duplicating a hierarchical sheet[**¹**](https://github.com/aktos-io/kicad-tools/blob/master/kicad-fix-refs).
     - Can not handle circular dependencies 
     - Importing other schematics does not append its hierarchical sheets (no dependency tracking)
     - Weird reference design: Component references are stored in the hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project. 
+      - Hard to create new tools for handling the problem.
 - Bugfixes take centuries. 
 - [Feature requests are not welcome.](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821/14?u=ceremcem)
 - It's so hard to install both Kicad and the libraries that that we needed [a separate project for that purpose](https://github.com/aktos-io/kicad-install)
