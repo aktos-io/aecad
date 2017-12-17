@@ -44,6 +44,7 @@ Basically a software to create real-world drawings from schematics:
   - Component based DRC (design rule checking): A component make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`. 
   - Human readable Netlist syntax: Any schematic can be read in text mode and can be edited by hand, with a text editor.
   - Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
+  - Virtual layers: Grouping some drawings at the same physical layer
     
 ### PCB editor 
   - A complete graphics editor (including align tool, rulers, etc.)
@@ -55,6 +56,7 @@ Basically a software to create real-world drawings from schematics:
     - [Highlight net](https://github.com/ceremcem/aeda/issues/2)
   - Extra pcb layers with components: A zero ohm resistor might be used just like a jumper. 
   - Class based footprint association: Declare your technology, overwrite any of the components when needed.
+  - Virtual layers: Grouping some drawings at the same physical layer
     
     
 # TO BE CONTINUED
