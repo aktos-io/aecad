@@ -8,28 +8,9 @@ Basically a software to create real-world drawings from schematics:
 
 ![image](https://user-images.githubusercontent.com/6639874/33883344-862bcbd6-df4c-11e7-84c9-7a077be731a9.png)
 
+## Why Another Software?
 
-## What is wrong with Kicad?  
-
-- No component based approach (Hierarchical sheets just work wrong [¹](https://github.com/aktos-io/kicad-tools/blob/master/fix-copy-hsheet))
-- Bugfixes take centuries. 
-- [Feature requests are not welcome.](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821/14?u=ceremcem)
-- It's so hard to install both Kicad and the libraries that that we needed [a separate project for that purpose](https://github.com/aktos-io/kicad-install)
-- New versions can be incompatible with the previous versions without any compatibility mode. You may loose your projects that you made 6 months ago. 
-
-### Schematic Editor 
-
-- No correct component based approach (started with hierarchical sheets, but it does only a basic job)
-- Hard to use (IMHO)
-- [Changing grid size prevents you to edit your schematic](https://forum.kicad.info/t/shematic-wire-can-not-be-connected/2891)
-
-### PCB Editor
-
-- Only basic support for alignment, no rulers etc.
-- No component-based design [(you can not re-use your pcb drawings in another projects)](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821)
-- Lack of manufacturing mode: You can not create multiple drawings to print out at the same time.
-- Hard to use (IMHO)
-
+- See [What is wrong with Kicad](./problems-with-others.md)
 
 ## What features will AECAD have?
 
@@ -45,6 +26,9 @@ Basically a software to create real-world drawings from schematics:
   - Human readable Netlist syntax: Any schematic can be read in text mode and can be edited by hand, with a text editor.
   - Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
   - Virtual layers: Grouping some drawings at the same physical layer
+  - Printable schematics:
+    - Cross references (like in EPlan)
+    - Separate annotation table which is open for editing by hand. 
     
 ### PCB editor 
   - A complete graphics editor (including align tool, rulers, etc.)
