@@ -1,8 +1,9 @@
 ## What is wrong with Kicad?  
 
 - No component based approach 
-  - Hierarchical sheets just work wrong [¹](https://github.com/aktos-io/kicad-tools/blob/master/fix-copy-hsheet))
-    - Not handling circular dependencies 
+  - Hierarchical sheets just work wrong:
+    - Can not assign correct references when duplicating a hierarchical sheet[**¹**](https://github.com/aktos-io/kicad-tools/blob/master/kicad-fix-refs).
+    - Can not handle circular dependencies 
     - Importing other schematics does not append its hierarchical sheets (no dependency tracking)
     - Weird reference design: Component references are stored in the hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project. 
 - Bugfixes take centuries. 
