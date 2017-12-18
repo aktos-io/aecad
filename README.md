@@ -17,6 +17,8 @@ Basically a software to create real-world drawings from schematics:
 - Web based collaboration
 - Versioning support for drawings out of the box: You may produce some PCB's and you may update the schematics later on. PCB's will include an automatically tracked schematic version.
 - Support for Test Driven Development: Every subproject might require its own test procedure. Test procedures will be defined within schematics and concatenated as a checklist on demand. 
+- Inherit from Kicad 
+  - Selecting a component in schematic/PCB will show where it is located on PCB/schematic.
 
 ### Schematic editor 
   - Create new components easily 
