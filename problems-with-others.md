@@ -1,11 +1,12 @@
 ## What is wrong with Kicad?  
 
-- No component based design approach: 
+- No component based design approach: Broken by design.
   - Hierarchical sheets just work wrong:
     - Can not assign correct references when duplicating a hierarchical sheet[**¹**](https://github.com/aktos-io/kicad-tools/blob/master/kicad-fix-refs).
     - Can not handle circular dependencies 
+    - Does not perform a cleanup for deleted/moved HSheets. 
     - Importing other schematics does not append its hierarchical sheets (no dependency tracking)
-    - Weird reference design: Component references are stored in the hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project. 
+    - Weird design for storing instance references: HSheet instance references are stored in their own hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project, duplicate a HSheet in the same project and rename it, etc... 
       - Hard to create new tools for handling the problem.
 - Bugfixes take centuries. 
 - [Feature requests are not welcome.](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821/14?u=ceremcem)
