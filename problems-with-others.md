@@ -4,7 +4,7 @@
   - Hierarchical sheets just work wrong:
     - Can not assign correct references when duplicating a hierarchical sheet[**¹**](https://github.com/aktos-io/kicad-tools/blob/master/kicad-fix-refs).
     - Can not handle circular dependencies 
-    - Does not perform a cleanup for deleted/moved HSheets. 
+    - Does not perform a cleanup for deleted/moved HSheets. We need [a separate tool for that purpose](https://github.com/aktos-io/kicad-tools/blob/master/kicad-cleanup-sheets). 
     - Importing other schematics does not append its hierarchical sheets (no dependency tracking)
     - Weird design for storing instance references: HSheet instance references are stored in their own hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project, duplicate a HSheet in the same project and rename it, etc... 
       - Hard to create new tools for handling the problem.
