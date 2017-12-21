@@ -30,7 +30,8 @@ Basically a software to create real-world drawings from schematics:
   - Virtual layers: Grouping some drawings at the same physical layer
   - Printable schematics:
     - Cross references (like in EPlan)
-    - Separate annotation table which is open for editing by hand. 
+    - Separate footprint annotation table which is open for editing by hand. 
+    - PCB Design rule definitions: You are not allowed to place your components onto the PCB freely, for example manufacturer requires you to place parasitic capacitors as close as possible to the MCU pins. This should (and will) be possible at the definition (schematic) step.
     
 ### PCB editor 
   - A complete graphics editor (including align tool, rulers, etc.)
