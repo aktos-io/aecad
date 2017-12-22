@@ -2,7 +2,7 @@
 
 ## What is it?
 
-Electronic Design Automation software, like Kicad, but using the web technologies like EasyEDA, with offline installation support. It will be like [Onshape](https://www.onshape.com/) to Solidworks.
+Electronic Design Automation software, like Kicad, but using the web technologies (runs in the browser or desktop via [ElectronJS](https://electronjs.org/)) like EasyEDA, with offline installation support. It will be like [Onshape](https://www.onshape.com/) to Solidworks.
 
 Basically a software to create real-world drawings from schematics:
 
@@ -59,6 +59,10 @@ Basically a software to create real-world drawings from schematics:
 # Technology 
 
 Core of AeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). Specific libraries will be built/chosen accordingly.
+
+# TODO
+
+* Get the good design specs from [Horizon](https://github.com/carrotIndustries/horizon/wiki/Feature-overview).
 
 # TO BE CONTINUED
   
