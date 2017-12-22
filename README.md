@@ -39,6 +39,7 @@ Basically a software to create real-world drawings from schematics:
 - Printable schematics:
   - Cross references (like in EPlan)
   - Separate footprint annotation table which is open for editing by hand. 
+- Wire/label representation of a connection (like in Siemens Logo Comfort), but highlight as wire on hover.
     
 ### PCB editor 
 - A complete graphics editor (including align tool, rulers, etc.)
