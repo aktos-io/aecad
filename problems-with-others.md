@@ -27,7 +27,7 @@
 - No component-based design [(you can not re-use your pcb drawings in another projects)](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821)
 - Lack of manufacturing mode: You can not create multiple drawings to print out at the same time.
 - No copy-n-paste from another pcbnew editor.
-- Footprint associations is a pain
+- Footprint associations are painful:
   - Doubleclick just changes a footprint, without confirmation or undo option. 
   - You can not unassign a footprint association, only option is deleting everything
   - No footprint association table that you can freely edit
