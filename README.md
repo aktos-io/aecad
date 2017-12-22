@@ -24,19 +24,18 @@ Basically a software to create real-world drawings from schematics:
 - Hotkeys: 
   - Keyboard focused hotkeys: Hotkeys should be bound to physical keys on the keyboard, not letters, because main purpose of hotkeys is make usage faster and if keyboard layout is different from US (or like), "hotkeys" might not be "hot" enough. 
   - It will be possible to bind macros to hotkeys (press a `KEY` to do that, do this and do some other thing).
+- Visual representation of two versions of a drawing, like `git diff` but more visual form like in [Meld](https://user-images.githubusercontent.com/6639874/34307383-f1242316-e758-11e7-8f10-ec4fb162899b.png). 
 
 ### Schematic editor 
 - Create new components easily 
-- Component based design: You will be able to use your existing components (sub-circuits) in your PCB design (as if they are [castellated circuits](https://user-images.githubusercontent.com/6639874/34306391-e57154d0-e753-11e7-8079-a435ea0059cb.png))
-  - It will be possible to assign multiple PCB designs for a sub-circuit (component) schema (like one for single sided PCB, one for double sided, one for 4 layer setup, etc...) and of course along with the free placement option.
+- Component based design: You will be able to use your existing components (sub-circuits) in your PCB design (as if they are modules)
   - Dependency tracking for sub-circuits 
-- Design rules
+- Advanced design rules
   - Component based DRC (design rule checking): A component will be able to make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`.
   - PCB Design rule definitions: You are not always allowed to place your components onto the PCB freely in real-world applications. For example the manufacturer of an MCU requires you to place parasitic capacitors as close as possible to the MCU pins. Moreover, they require some specific capacitors to be placed close to some specific pins. This should (and will) be possible at the definition (schematic/sub-circuit) step.
-
 - Human readable Netlist syntax: Any schematic can be read in text mode and can be edited by hand, with a text editor.
 - Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
-- Virtual layers: Grouping some drawings at the same physical layer
+- Virtual layers: Grouping some drawings at the same physical layer, like the [layers in Gimp](https://user-images.githubusercontent.com/6639874/34307018-2d156fc6-e757-11e7-8ceb-582ee74d99af.png).
 - Printable schematics:
   - Cross references (like in EPlan)
   - Separate footprint annotation table which is open for editing by hand. 
@@ -44,8 +43,10 @@ Basically a software to create real-world drawings from schematics:
     
 ### PCB editor 
 - A complete graphics editor (including align tool, rulers, etc.)
-- Component based approach: You will be able to re-use your existing PCB drawings 
-- Multiple association of PCB drawings for the same schematic: You may draw more than one PCB for the same schematic. You will be able to use any of them, or create a new design. 
+- Component based approach: 
+  - You will be able to re-use your existing PCB drawings for a schematic component (as if they are [castellated circuits](https://user-images.githubusercontent.com/6639874/34306391-e57154d0-e753-11e7-8079-a435ea0059cb.png)).
+  - Multiple association of PCB drawings for the same schematic: You may draw more than one PCB for the same schematic. You will be able to use any of them, or create a new design. For example, you may define PCB layouts for the same schematic for single sided PCB placement, for double sided PCB placement, for 4 layer setup, etc... over time and use any of them later on. 
+
 - Inherit from Kicad: 
   - [Push and shove routing](https://www.youtube.com/watch?v=kzro0Jc70xI)
   - Net classes 
