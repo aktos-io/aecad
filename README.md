@@ -27,8 +27,9 @@ Basically a software to create real-world drawings from schematics:
 
 ### Schematic editor 
 - Create new components easily 
-- Component based design: You will use your existing components to create sub-circuits
-  - Dependency tracking for sub-components
+- Component based design: You will be able to use your existing components (sub-circuits) in your PCB design (as if they are [castellated circuits](https://user-images.githubusercontent.com/6639874/34306391-e57154d0-e753-11e7-8079-a435ea0059cb.png))
+  - It will be possible to assign multiple PCB designs for a sub-circuit (component) schema (like one for single sided PCB, one for double sided, one for 4 layer setup, etc...) and of course along with the free placement option.
+  - Dependency tracking for sub-circuits 
 - Design rules
   - Component based DRC (design rule checking): A component will be able to make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`.
   - PCB Design rule definitions: You are not always allowed to place your components onto the PCB freely in real-world applications. For example the manufacturer of an MCU requires you to place parasitic capacitors as close as possible to the MCU pins. Moreover, they require some specific capacitors to be placed close to some specific pins. This should (and will) be possible at the definition (schematic/sub-circuit) step.
