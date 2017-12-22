@@ -26,14 +26,16 @@ Basically a software to create real-world drawings from schematics:
   - Create new components easily 
   - Component based design: You will use your existing components to create sub-circuits
     - Dependency tracking for sub-components
-  - Component based DRC (design rule checking): A component make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`. 
+  - Design rules
+    - Component based DRC (design rule checking): A component will be able to make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`.
+    - PCB Design rule definitions: You are not always allowed to place your components onto the PCB freely in real-world applications. For example the manufacturer of an MCU requires you to place parasitic capacitors as close as possible to the MCU pins. Moreover, they require some specific capacitors to be placed close to some specific pins. This should (and will) be possible at the definition (schematic/sub-circuit) step.
+
   - Human readable Netlist syntax: Any schematic can be read in text mode and can be edited by hand, with a text editor.
   - Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
   - Virtual layers: Grouping some drawings at the same physical layer
   - Printable schematics:
     - Cross references (like in EPlan)
     - Separate footprint annotation table which is open for editing by hand. 
-    - PCB Design rule definitions: You are not allowed to place your components onto the PCB freely, for example manufacturer requires you to place parasitic capacitors as close as possible to the MCU pins. This should (and will) be possible at the definition (schematic) step.
     
 ### PCB editor 
   - A complete graphics editor (including align tool, rulers, etc.)
