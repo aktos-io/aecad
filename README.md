@@ -21,6 +21,7 @@ Basically a software to create real-world drawings from schematics:
 - Inherit from Kicad 
   - Selecting a component in schematic/PCB will show where it is located on PCB/schematic.
 - "How do I" section: It will be possible to "record" full/portion of a drawing which will be used for tutorial purposes. That will make it possible to create tutorials from real-world applications. 
+- Keyboard focused hotkeys: Hotkeys should be bound to physical keys on the keyboard, not letters, because main purpose of hotkeys is make usage faster and if keyboard layout is different from US (or like), "hotkeys" might not be "hot" enough. 
 
 ### Schematic editor 
   - Create new components easily 
