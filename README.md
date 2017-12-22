@@ -51,8 +51,10 @@ Basically a software to create real-world drawings from schematics:
 - Extra pcb layers with components: A zero ohm resistor might be used just like a jumper. 
 - Class based footprint association: Declare your technology, overwrite any of the components when needed.
 - Virtual layers: Grouping some drawings at the same physical layer
-- Allow designing modular pcb design. 
+- Modular PCB design: 
+  - A design may include another project as a module. Pin connections should point the outer project's specified pins. 
+  - A design may be made up of more than one PCB (modules). Allow cabling layer for that purpose.
+- Collision dedection: A realtime checking process that checks if PCB can fit in the physical case. 
 
-    
 # TO BE CONTINUED
   
