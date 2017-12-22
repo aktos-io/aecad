@@ -10,7 +10,8 @@ Basically a software to create real-world drawings from schematics:
 
 ## Why Another Software?
 
-- See [What is wrong with Kicad](./problems-with-others.md)
+- See [What is wrong with Kicad](./problems-with-others.md#what-is-wrong-with-kicad)
+- See [What is wrong with EasyEDA](./problems-with-others.md#what-is-wrong-with-easyeda)
 
 ## What features will AECAD have?
 
