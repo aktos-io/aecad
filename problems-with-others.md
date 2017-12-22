@@ -1,4 +1,4 @@
-## What is wrong with Kicad?  
+# What is wrong with Kicad?  
 
 - No component based design approach: Broken by design.
   - Hierarchical sheets just work wrong:
@@ -31,3 +31,8 @@
   - Doubleclick just changes a footprint, without confirmation or undo option. 
   - You can not unassign a footprint association, only option is deleting everything
   - No footprint association table that you can freely edit
+
+# What is wrong with EasyEDA?
+
+- Not open source. 
+- No offline ability. 
