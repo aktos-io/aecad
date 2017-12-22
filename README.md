@@ -1,4 +1,4 @@
-# aecad (DRAFT)
+# AeCAD (DRAFT)
 
 ## What is it?
 
@@ -55,6 +55,10 @@ Basically a software to create real-world drawings from schematics:
   - A design may include another project as a module. Pin connections should point the outer project's specified pins. 
   - A design may be made up of more than one PCB (modules). Allow cabling layer for that purpose.
 - Collision dedection: A realtime checking process that checks if PCB can fit in the physical case. 
+
+# Technology 
+
+Core of AeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). Specific libraries will be built/chosen accordingly.
 
 # TO BE CONTINUED
   
