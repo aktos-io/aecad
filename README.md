@@ -88,5 +88,9 @@ Core of AeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). 
 * Get the good design bits from [Horizon](https://github.com/carrotIndustries/horizon/wiki/Feature-overview).
 * Get the good design bits from [pcb-rnd](http://repo.hu/projects/pcb-rnd/index.html)
 
+# Similar Projects 
+
+* [MeowCAD](https://meowcad.com): This effort might be merged with this project.
+
 > TO BE CONTINUED
   
