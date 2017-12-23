@@ -48,7 +48,7 @@ Basically a software to create real-world drawings from schematics:
 - Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
 - Printable schematics:
   - Cross references (like in EPlan)
-  - Separate footprint annotation table which is open for editing by hand. 
+  - A separate, well structured annotation table which will let you to edit the printed version of the schematic by hand and pass both the annotation table and the schematics to the software.
 - Wire/label representation of a connection (like in Siemens Logo Comfort), but highlight as wire on hover.
     
 ### PCB editor 
