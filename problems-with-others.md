@@ -10,7 +10,7 @@
       - Hard to create new tools for handling the problem.
 - Bugfixes take centuries. 
 - ~~[Feature requests are not welcome.](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821/14?u=ceremcem)~~ Apparently this was not exactly true. 
-  > Some very active community members act like they have rights to talk in behalf of Kicad in KicadForum, which misguides people (including me) to interpret the case like so. 
+  > Some very active community members act like they have rights to talk on behalf of Kicad in KicadForum, which misguides people (including me) to interpret the case like so. 
 - It's so hard to install both Kicad and the libraries that that we needed [a separate project for that purpose](https://github.com/aktos-io/kicad-install)
 - New versions can be incompatible with the previous versions without any compatibility mode. You may loose your projects that you made 6 months ago. 
 - Unhelpful error messages:
