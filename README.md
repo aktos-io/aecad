@@ -21,7 +21,10 @@ Basically a software to create real-world drawings from schematics:
 - Support for Test Driven Development: Every subproject might require its own test procedure. Test procedures will be defined within schematics and concatenated as a checklist on demand. 
 - Inherit from Kicad 
   - Selecting a component in schematic/PCB will show where it is located on PCB/schematic.
-- "How do I" section: It will be possible to "record" full/portion of a drawing which will be used for tutorial purposes. That will make it possible to create tutorials from real-world applications. 
+- Drawing records: Any drawing will be able to recorded programmatically
+  - "How to" support out of the box: Send a portion of a real drawing to a colleauge/user that will serve as a mini tutorial. 
+  - Infinite undo/redo operations
+  - Create tutorials from real works
 - Hotkeys: 
   - Keyboard focused hotkeys: Hotkeys should be bound to physical keys on the keyboard, not letters, because main purpose of hotkeys is make usage faster and if keyboard layout is different from US (or like), "hotkeys" might not be "hot" enough. 
   - It will be possible to bind macros to hotkeys (press a `KEY` to do that, do this and do some other thing).
