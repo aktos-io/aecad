@@ -22,10 +22,11 @@ Basically a software to create real-world drawings from schematics:
 - Inherit from Kicad 
   - Selecting a component in schematic/PCB will show where it is located on PCB/schematic.
 - Drawing records: Any drawing will be able to recorded programmatically
-  - "How to" support out of the box: Send a portion of a real drawing to a colleauge/user that will serve as a mini tutorial. 
+  - "How to" support out of the box: Send a portion of a real *drawing record* to a colleauge/user that will serve as a mini tutorial. 
     - Makes it possible to search in tutorial "videos"
   - Infinite undo/redo operations
   - Create tutorials from real works
+  - Edit to strip down a *drawing record video* by a text editor (or online) to make HowTo's shorter.
 - Hotkeys: 
   - Keyboard focused hotkeys: Hotkeys should be bound to physical keys on the keyboard, not letters, because main purpose of hotkeys is make usage faster and if keyboard layout is different from US (or like), "hotkeys" might not be "hot" enough. 
   - It will be possible to bind macros to hotkeys (press a `KEY` to do that, do this and do some other thing).
