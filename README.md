@@ -23,6 +23,7 @@ Basically a software to create real-world drawings from schematics:
   - Selecting a component in schematic/PCB will show where it is located on PCB/schematic.
 - Drawing records: Any drawing will be able to recorded programmatically
   - "How to" support out of the box: Send a portion of a real drawing to a colleauge/user that will serve as a mini tutorial. 
+    - Makes it possible to search in tutorial "videos"
   - Infinite undo/redo operations
   - Create tutorials from real works
 - Hotkeys: 
