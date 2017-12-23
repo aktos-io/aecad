@@ -91,6 +91,4 @@ Core of AeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). 
 # Similar Projects 
 
 * [MeowCAD](https://meowcad.com): This effort might be merged with this project.
-
-> TO BE CONTINUED
   
