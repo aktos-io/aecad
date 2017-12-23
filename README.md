@@ -63,7 +63,7 @@ Basically a software to create real-world drawings from schematics:
   - A design may include another project as a module. Pin connections should point the outer project's specified pins. 
   - A design may be made up of more than one PCB (modules). Allow a free cabling layer for that purpose.
 
-### Design rules 
+### Design Rules 
 
 - Schematic time design rules 
   - Component based DRC (design rule checking): A component will be able to make you warn if you connect a pin to any wrong ping (for example, a warning will be thrown if you connect `VDD` to `GND`.
@@ -80,7 +80,8 @@ Core of AeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). 
 
 # TODO
 
-* Get the good design specs from [Horizon](https://github.com/carrotIndustries/horizon/wiki/Feature-overview).
+* Get the good design bits from [Horizon](https://github.com/carrotIndustries/horizon/wiki/Feature-overview).
+* Get the good design bits from [pcb-rnd](http://repo.hu/projects/pcb-rnd/index.html)
 
 > TO BE CONTINUED
   
