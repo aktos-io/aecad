@@ -35,7 +35,8 @@ Basically a software to create real-world drawings from schematics:
   - You will be able to use your existing components (sub-circuits) in your PCB design (as if they are modules)
     - Copy-n-paste will create another instance of a sub-circuit. References will be stored as changes in each instance.
     - Any instance will be made unique (like in SketchUP)
-    - Any instance's class can be changed to another class (sub-circuit). 
+    - Any instance's class can be changed to another class (sub-circuit).
+    - Any selection can be turned into a sub-circuit in-place.
   - Dependency tracking for sub-circuits 
 - Schematic time design rules (see Advanced desing rules)
 - Human readable Netlist syntax: Any schematic can be read in text mode and can be edited by hand, with a text editor.
