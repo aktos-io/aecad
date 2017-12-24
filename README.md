@@ -27,10 +27,11 @@ Basically a software to create real-world drawings from schematics:
   - Infinite undo/redo operations
   - Create tutorials from real works
   - Edit to strip down a *drawing record video* by a text editor (or online) to make HowTo's shorter.
+  - Visual representation of two versions of a drawing, like `git diff` but more visual form like in [Meld](https://user-images.githubusercontent.com/6639874/34307383-f1242316-e758-11e7-8f10-ec4fb162899b.png), step by step (like a motion capture video)
+
 - Hotkeys: 
   - Keyboard focused hotkeys: Hotkeys should be bound to physical keys on the keyboard, not letters, because main purpose of hotkeys is make usage faster and if keyboard layout is different from US (or like), "hotkeys" might not be "hot" enough. 
   - It will be possible to bind macros to hotkeys (press a `KEY` to do that, do this and do some other thing).
-- Visual representation of two versions of a drawing, like `git diff` but more visual form like in [Meld](https://user-images.githubusercontent.com/6639874/34307383-f1242316-e758-11e7-8f10-ec4fb162899b.png). 
 - Virtual layers: Grouping some drawings at the same physical layer, like the [layers in Gimp](https://user-images.githubusercontent.com/6639874/34307018-2d156fc6-e757-11e7-8ceb-582ee74d99af.png).
 - A complete graphics editor (including align tool, rulers, etc.)
 
