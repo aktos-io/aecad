@@ -42,6 +42,7 @@ Basically a software to create real-world drawings from schematics:
     - Copy-n-paste will create another instance of a sub-circuit. References will be stored as changes in each instance.
     - Any instance will be made unique (like in SketchUP)
     - Any instance's class can be changed to another class (sub-circuit).
+      - Current references may or may not be changed. This will be left to the user.
     - Any selection can be turned into a sub-circuit in-place.
   - Dependency tracking for sub-circuits 
 - Schematic time design rules (see Advanced desing rules)
@@ -49,8 +50,8 @@ Basically a software to create real-world drawings from schematics:
 - Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
 - Printable schematics:
   - Cross references (like in EPlan)
-  - A separate, well structured annotation table which will let you to edit the printed version of the schematic by hand and pass both the annotation table and the schematics to the software.
-- Wire/label representation of a connection (like in Siemens Logo Comfort), but highlight as wire on hover.
+  - A separate, well structured annotation table which will let you to edit the printed version of the schematic by hand and pass both the annotation table and the schematics to the software from printed version, lazily.
+- Wire/label representation of a connection (like in Siemens Logo Comfort), but highlight the connection as wire on hover.
     
 ### PCB editor 
 - Component based approach: 
