@@ -82,9 +82,16 @@ Basically a software to create real-world drawings from schematics:
     - Clearance definition 
 
 
-# Technology 
+# Technology Decision
 
 Core of AeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). Specific libraries will be built/chosen accordingly.
+
+# Status
+
+This is a project in design step. Feel free to open issues if you think 
+
+* An important design consideration should be taken into account now
+* An important feature is missing in the above list 
 
 # TODO
 
