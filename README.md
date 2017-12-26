@@ -30,6 +30,7 @@ Basically a software to create real-world drawings from schematics:
   - Create tutorials from real works
   - Edit to strip down a *drawing record video* by a text editor (or online) to make HowTo's shorter.
   - Visual representation of two versions of a drawing, like `git diff` but more visual form like in [Meld](https://user-images.githubusercontent.com/6639874/34307383-f1242316-e758-11e7-8f10-ec4fb162899b.png), step by step (like a motion capture video)
+  - Replay since last commit: A quick and smooth replay from last commit helps developer what he is changed so far, thus will allow a proper commit message
 
 - Hotkeys: 
   - Keyboard focused hotkeys: Hotkeys should be bound to physical keys on the keyboard, not letters, because main purpose of hotkeys is make usage faster and if keyboard layout is different from US (or like), "hotkeys" might not be "hot" enough. 
