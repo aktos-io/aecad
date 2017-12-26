@@ -55,7 +55,13 @@ Basically a software to create real-world drawings from schematics:
   - Cross references (like in EPlan)
   - A separate, well structured annotation table which will let you to edit the printed version of the schematic by hand and pass both the annotation table and the schematics to the software from printed version, lazily.
 - Wire/label representation of a connection (like in Siemens Logo Comfort), but highlight the connection as wire on hover.
-    
+
+### Footprints
+
+- Components that will be used in a single footprint should be assigned independently from schematic. For example, a schematic may include 4 different opamps and these opamps might be chosen 4 different IC's or 1 IC with 4 opamps. This difference is independent from schematic, thus must be adjusted independently from schematic time. (This is mandatory if we want to use multiple components in a IC package when these components are part of multiple sub-circuits)
+
+
+
 ### PCB editor 
 - Component based approach: 
   - You will be able to re-use your existing PCB drawings for a schematic component (as if they are [castellated circuits](https://user-images.githubusercontent.com/6639874/34306391-e57154d0-e753-11e7-8079-a435ea0059cb.png)).
