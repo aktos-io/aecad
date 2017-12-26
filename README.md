@@ -50,7 +50,7 @@ Basically a software to create real-world drawings from schematics:
   - Dependency tracking for sub-circuits 
 - Schematic time design rules (see Advanced desing rules)
 - Human readable Netlist syntax: Any schematic can be read in text mode and can be edited by hand, with a text editor.
-- Topological versioning: Schematic file might be changed (added/removed/moved something) but topology might stay intact. This topological version is important, schematic file version is not. So schematic editor will provide this version for printing onto the PCB. 
+- Topological versioning: Schematic file itself might be changed somehow (added/removed/moved a wire, for example) but topology might stay intact. This topological version is important, schematic file version (the SHA1 of the file, for example) is not. So schematic editor should provide this topological version for printing onto the PCB. 
 - Printable schematics:
   - Cross references (like in EPlan)
   - A separate, well structured annotation table which will let you to edit the printed version of the schematic by hand and pass both the annotation table and the schematics to the software from printed version, lazily.
