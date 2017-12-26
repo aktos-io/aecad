@@ -8,6 +8,7 @@
     - Importing other schematics does not append its hierarchical sheets (no dependency tracking)
     - Weird design for storing instance references: HSheet instance references are stored in their own hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project, duplicate a HSheet in the same project and rename it, etc... 
       - Hard to create new tools for handling the problem.
+    - Including HSheets from another directory is not possible
 - Bugfixes take centuries. 
 - ~~[Feature requests are not welcome.](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821/14?u=ceremcem)~~ Apparently this was not exactly true. 
   > Some very active community members act like they have rights to talk on behalf of Kicad in KicadForum, which misguides people (including me) to interpret the case like so. 
