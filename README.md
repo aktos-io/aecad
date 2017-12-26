@@ -59,6 +59,9 @@ Basically a software to create real-world drawings from schematics:
 ### Footprints
 
 - Components that will be used in a single footprint should be assigned independently from schematic. For example, a schematic may include 4 different opamps and these opamps might be chosen 4 different IC's or 1 IC with 4 opamps. This difference is independent from schematic, thus must be adjusted independently from schematic time. (This is mandatory if we want to use multiple components in a IC package when these components are part of multiple sub-circuits)
+- Class based footprint association: 
+  - Declare your technology (eg. "I'll use SMD_1206 packages for resistors, etc.), overwrite any of the components when needed.
+  - Change your technology definition later if needed (eg. "I'll use 805 packages instead of 1206 packages" and it will handle the rest)
 
 
 
@@ -73,12 +76,9 @@ Basically a software to create real-world drawings from schematics:
     - Allow to freely select any netclass on each tracing. 
   - [Highlight net](https://github.com/ceremcem/aeda/issues/2)
 - Components as PCB layers: A zero ohm resistor or a piece of wire might be used just like a jumper. 
-- Class based footprint association: 
-  - Declare your technology (eg. "I'll use SMD_1206 packages for resistors, etc.), overwrite any of the components when needed.
-  - Change your technology definition later if needed (eg. "I'll use 805 packages instead of 1206 packages" and it will handle the rest)
 - Modular PCB design: 
   - A design may include another project as a module. Pin connections should point the outer project's specified pins. 
-  - A design may be made up of more than one PCB (modules). Allow a free cabling layer for that purpose.
+  - A design may be made up of more than one PCB (modules). Provide a free cabling layer for that purpose.
 
 ### Design Rules 
 
