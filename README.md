@@ -21,6 +21,8 @@ Basically a software to create real-world drawings from schematics:
 - Support for Test Driven Development: Every subproject might require its own test procedure. Test procedures will be defined within schematics and concatenated as a checklist on demand. 
 - Inherit from Kicad 
   - Selecting a component in schematic/PCB will show where it is located on PCB/schematic.
+    - Smooth camera change between components
+    - Distincly visible cursor for schematics (and pcb)
 - Drawing records: Any drawing will be able to recorded programmatically
   - "How to" support out of the box: Send a portion of a real *drawing record* to a colleauge/user that will serve as a mini tutorial. 
     - Makes it possible to search in tutorial "videos"
