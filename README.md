@@ -75,6 +75,7 @@ Basically a software to create real-world drawings from schematics:
   - Net classes 
     - Allow to freely select any netclass on each tracing. 
   - [Highlight net](https://github.com/ceremcem/aeda/issues/2)
+    - Highlight net when a wire or component is clicked in schematic
 - Components as PCB layers: A zero ohm resistor or a piece of wire might be used just like a jumper. 
 - Modular PCB design: 
   - A design may include another project as a module. Pin connections should point the outer project's specified pins. 
