@@ -112,3 +112,6 @@ This is a project in design step. Feel free to open issues if you think
 
 * [MeowCAD](https://meowcad.com): This effort might be merged with this project.
   
+# Roadmap 
+
+1. Create an online footprint editor, something like [this](https://jsfiddle.net/ceremcem/8geb3vc0/). 
