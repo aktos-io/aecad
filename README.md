@@ -114,4 +114,6 @@ This is a project in design step. Feel free to open issues if you think
   
 # Roadmap 
 
-1. Create an online footprint editor, something like [this](https://jsfiddle.net/ceremcem/8geb3vc0/). 
+1. Decide on-disk file format, like [this](https://gist.github.com/ceremcem/14b3c1105a12f434b6f829fa88e23109)
+2. Create an online footprint editor, something like [this](https://jsfiddle.net/ceremcem/8geb3vc0/). 
+3. Create a 3D viewer, like [this](http://jsfiddle.net/ceremcem/v0g7f3p1/2/)
