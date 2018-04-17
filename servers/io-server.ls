@@ -9,5 +9,6 @@ create-io-proxies do
             driver: 'IoSimulatorDriver'
             handles:
                 there: {}
+                name: {}
 
 new DcsTcpClient port: 4002 .login {user: "public", password: "public"}
