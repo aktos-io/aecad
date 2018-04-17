@@ -1,8 +1,7 @@
 require! <[ path express dcs dcs/browser ]>
 
 # configuration
-webserver-port = 4001
-dcs-port = 4002
+require! '../config': {webserver-port, dcs-port}
 
 # Create an in-memory authentication database
 users = dcs.as-docs do
@@ -33,24 +32,3 @@ new browser.DcsSocketIOServer http, {db}
 
 # create a TCP DCS Service
 new dcs.DcsTcpServer {port: dcs-port, db}
-
-# Create the test io handlers
-require! 'dcs/proxy-actors': {create-io-proxies}
-require! 'dcs/drivers/simulator': {IoSimulatorDriver}
-create-io-proxies do
-    drivers: {IoSimulatorDriver}
-    devices:
-        hello:
-            driver: 'IoSimulatorDriver'
-            handles:
-                there: {}
-
-# Optionally, monitor the whole traffic
-class Monitor extends dcs.Actor
-    action: ->
-        @log.log "Monitor started..."
-        @subscribe '**'
-        @on \receive, (msg) ~>
-            if \payload of msg
-                @log.log "payload: ", msg.payload, "topic: #{msg.topic}"
-new Monitor!
