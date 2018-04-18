@@ -97,18 +97,18 @@ When we need a custom hardware, following actions must be taken in order:
 
 1. Design/choose or optimize the device housing.
 2. Get the connectors' 3D designs, place them onto the housing in 3D design workbench or software.
-  Getting the connectors' 3D design files: 
-  1. A drawing might exist in a git repo, go fetch it. 
-  2. Create a 3D component
-    1. Get/draw the 3D component: 
-      1. Original drawing might be published by manufacturer, use the drawing (eg. the STEP file)
-      2. Draw the 3D from blueprints.
-      3. Reverse engineer from physical device or its image.
-    2. Create its footprint or match with an existing footprint
-    3. Create a git repo
-3. PCB edge cuts and connector placements should be determined by now. 
-4. Draw the routes on the PCB
-5. If any optimization is needed, go to step 1. 
+    Getting the connectors' 3D design files: 
+    1. A drawing might exist in a git repo, go fetch it. 
+    2. Create a 3D component
+        1. Get/draw the 3D component: 
+            1. Original drawing might be published by manufacturer, use the drawing (eg. the STEP file)
+            2. Draw the 3D from blueprints.
+            3. Reverse engineer from physical device or its image.
+        2. Create its footprint or match with an existing footprint
+        3. Create a git repo
+3. PCB edge cuts, connector placements on the PCB and mechanical keep out areas should be determined by now. Pass the limits to PCB design workbench.
+4. Place the electronic components on the PCB and draw the PCB routes.
+5. If any optimization is required (because of component collision, insufficient PCB space, etc...), go to step 1. 
 6. Produce a prototype PCB with toner transfer technique.
 7. Finalize the design and create fabrication files (Gerber files etc.)
 
