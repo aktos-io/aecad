@@ -1,16 +1,5 @@
 h1.ui.header Terminal Block Definition 
 
-.ui.segment 
-    ul 
-        +each('terminalGroups as terminals, @key as blockGroup, @index as groupIndex')
-            li 
-                | Group: {{blockGroup}}
-                ul
-                    +each('terminals as terminal, @key as label')
-                        li label: {{label}} outer index: {{groupIndex}}, index: {{@index}}
-                
-
-
 +partial('terminal')
     +with('150 as height, (width || 20) as width, (text || "hello") as text, (index || 0) as index')
         svg(border="1" width="{{width}}" height="{{height}}" x="{{x + index * width}}" y="{{y}}")

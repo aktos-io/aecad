@@ -1,34 +1,23 @@
-require! <[ path express dcs dcs/browser ]>
+require! \path
+require! \express
+require! 'dcs/services/dcs-proxy': {AuthDB, DcsSocketIOServer, DcsTcpServer}
 
 # configuration
 require! '../config': {webserver-port, dcs-port}
 
-# Create an in-memory authentication database
-users = dcs.as-docs do
-    'public':
-        # hash algorithm is: sha512 =>
-        #   `echo -n "public" | sha512sum`
-        passwd-hash: "
-            d32997e9747b65a3ecf65b82533a4c843c4e16dd30cf371e8c81ab60a341de00051
-            da422d41ff29c55695f233a1e06fac8b79aeb0a4d91ae5d3d18c8e09b8c73"
-        roles:
-          \guest-permissions
-
-permissions = dcs.as-docs do
-    'guest-permissions':
-        rw:
-            \hello.**
-
-db = new dcs.AuthDB users, permissions
-
-# Create a webserver and a SocketIO bridge
+# Create a webserver
 app = express!
 http = require \http .Server app
 app.use "/", express.static path.resolve "../scada.js/build/main"
-http.listen webserver-port, ->
+http.listen webserver-port, "0.0.0.0", ->
     console.log "webserver is listening on *:#{webserver-port}"
 
-new browser.DcsSocketIOServer http, {db}
+# Create auth db
+db = new AuthDB (require './users' .users)
+# use ..update(users) to add more users in the runtime
 
-# create a TCP DCS Service
-new dcs.DcsTcpServer {port: dcs-port, db}
+# Create a SocketIO bridge
+new DcsSocketIOServer http, {db}
+
+# Create a TCP DCS Service
+new DcsTcpServer {port: dcs-port, db}
