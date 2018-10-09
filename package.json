@@ -1,0 +1,22 @@
+{
+  "name": "aecad",
+  "version": "0.0.1",
+  "description": "## What is it?",
+  "main": "scada.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ceremcem/aeda.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ceremcem/aeda/issues"
+  },
+  "homepage": "https://github.com/ceremcem/aeda#readme",
+  "dependencies": {
+    "paper": "^0.11.5"
+  }
+}

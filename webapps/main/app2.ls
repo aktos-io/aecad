@@ -1,7 +1,11 @@
 try
     require! 'aea/defaults'
     require! 'components'
+
+    # App scenes
     require! './terminal-block'
+    require! './sketcher'
+
     new Ractive do
         el: \body
         template: RACTIVE_PREPARSE('app.pug')

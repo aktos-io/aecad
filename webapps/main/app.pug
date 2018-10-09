@@ -1,5 +1,20 @@
 aktos-dcs 
-router
+router(offset="50")
 
+scene(name="NOTFOUND")
+    .ui.message.red 
+        .content.
+            No such page can be found. 
+            No one created #[b {{@shared.router.scene}}] scene yet.
+
+.ui.fixed.inverted.menu
+    a.inverted.green.item(href="#/terminal-block") Terminal 
+    a.inverted.green.item(href="#/sketcher") Sketcher
+    a.inverted.green.item(href="#/webcad") WebCAD
+                
 scene(name="terminal-block" default public)
     terminal-block  
+
+scene(name="sketcher" public)
+    sketcher
+    
