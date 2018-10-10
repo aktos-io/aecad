@@ -6,5 +6,7 @@
                 btn(on-click="exportSVG") Export SVG
                 file-button(on-read="importDXF" type="text") Import DXF
                 btn(on-click="exportDXF") Export DXF
+                
+            btn(on-click="clear") Clear
     .row
         canvas#draw(resize)

@@ -21,6 +21,9 @@ Ractive.components['sketcher'] = Ractive.extend do
             ..onMouseDrag = (event) ~>
                 path.add(event.point);
 
+            ..onMouseDown = (event) ~>
+                path.add(event.point);
+
         @on do
             exportSVG: (ctx) ~>
                 svg = paper.project.exportSVG {+asString}
@@ -46,15 +49,13 @@ Ractive.components['sketcher'] = Ractive.extend do
                         for attr, val of obj.attrs
                             switch attr
                             | \d =>
-                                console.log "value is: ", val
                                 walk = parsePath val |> makeAbsolute
                                 for step in walk
                                     switch step.command
-                                    | "moveto" =>
-                                        # FIXME: do not draw line, just move there
-                                        drawer.drawLine(step.x0, step.y0, step.x, step.y)
-                                    | "lineto" =>
-                                        drawer.drawLine(step.x0, step.y0, step.x, step.y)
+                                    | "moveto" => continue
+                                    | step.command in <[ l L h H v V ]> =>
+                                        drawer.drawLine(step.x0, -step.y0, step.x, -step.y)
+                                    |_ => console.warn "what is that: ", step.command
 
                     if obj.childs?
                         for child in obj.childs
@@ -64,3 +65,6 @@ Ractive.components['sketcher'] = Ractive.extend do
                 json-to-dxf res, drawing
                 dxf-out = drawing.toDxfString!
                 create-download "export.dxf", dxf-out
+
+            clear: (ctx) ~>
+                paper.project.clear!
