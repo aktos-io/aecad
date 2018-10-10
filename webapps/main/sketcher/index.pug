@@ -1,3 +1,9 @@
-p hello sketcher
-button(on-click="exportSVG") Export SVG
-canvas#draw(resize)
+.ui.grid
+    .row
+        .column
+            .ui.buttons 
+                btn(on-click="exportSVG") Export SVG
+                file-button(on-read="importSVG" type="text") Import SVG
+                file-button(on-read="importDXF" type="text") Import DXF
+    .row
+        canvas#draw(resize)

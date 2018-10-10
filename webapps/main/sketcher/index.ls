@@ -1,6 +1,6 @@
 require! paper
-paper.install window
 require! 'aea': {create-download}
+require! './dxfToSvg': {dxfToSvg}
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -22,3 +22,16 @@ Ractive.components['sketcher'] = Ractive.extend do
             exportSVG: (ctx) ~>
                 svg = paper.project.exportSVG {+asString}
                 create-download "myexport.svg", svg
+
+            importSVG: (ctx, file, next) ~>
+                paper.project.clear!
+                <~ paper.project.importSVG file.raw
+                next!
+
+            importDXF: (ctx, file, next) ~>
+                svg = dxfToSvg file.raw
+                paper.project.clear!
+                paper.project.importSVG svg
+                next!
+
+                
