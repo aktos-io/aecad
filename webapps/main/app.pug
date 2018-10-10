@@ -9,11 +9,23 @@ scene(name="NOTFOUND")
             No one created #[b {{@shared.router.scene}}] scene yet.
 
 .ui.fixed.inverted.menu
+    a.inverted.green.item(href="#/") Home
     a.inverted.green.item(href="#/terminal-block") Terminal 
     a.inverted.green.item(href="#/sketcher") Sketcher
     a.inverted.green.item(href="#/webcad") WebCAD
+    
+scene(name="home" default public)
+  .ui.container 
+        .ui.grid
+            .row
+                .centered.column 
+                    .ui.huge.message.page.grid        
+                        h1.ui.header AeCAD 
+            .row
+                .column 
+                    .ui.p See #[a(href="https://github.com/ceremcem/aecad") https://github.com/ceremcem/aecad]
                 
-scene(name="terminal-block" default public)
+scene(name="terminal-block" public)
     terminal-block  
 
 scene(name="sketcher" public)
