@@ -5,6 +5,7 @@ try
     # App scenes
     require! './terminal-block'
     require! './sketcher'
+    require! './webcad'
 
     new Ractive do
         el: \body
