@@ -1,6 +1,9 @@
 require! paper
 require! 'aea': {create-download}
 require! './dxfToSvg': {dxfToSvg}
+require! 'svgson'
+require! 'dxf-writer'
+require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -34,4 +37,30 @@ Ractive.components['sketcher'] = Ractive.extend do
                 paper.project.importSVG svg
                 next!
 
-                
+            exportDXF: (ctx) ~>
+                svg = paper.project.exportSVG {+asString}
+                res <~ svgson svg, {}
+                json-to-dxf = (obj, drawer) ->
+                    switch obj.name
+                    | \path =>
+                        for attr, val of obj.attrs
+                            switch attr
+                            | \d =>
+                                console.log "value is: ", val
+                                walk = parsePath val |> makeAbsolute
+                                for step in walk
+                                    switch step.command
+                                    | "moveto" =>
+                                        # FIXME: do not draw line, just move there
+                                        drawer.drawLine(step.x0, step.y0, step.x, step.y)
+                                    | "lineto" =>
+                                        drawer.drawLine(step.x0, step.y0, step.x, step.y)
+
+                    if obj.childs?
+                        for child in obj.childs
+                            json-to-dxf child, drawer
+
+                drawing = new dxf-writer!
+                json-to-dxf res, drawing
+                dxf-out = drawing.toDxfString!
+                create-download "export.dxf", dxf-out

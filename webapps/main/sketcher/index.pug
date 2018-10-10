@@ -2,8 +2,9 @@
     .row
         .column
             .ui.buttons 
-                btn(on-click="exportSVG") Export SVG
                 file-button(on-read="importSVG" type="text") Import SVG
+                btn(on-click="exportSVG") Export SVG
                 file-button(on-read="importDXF" type="text") Import DXF
+                btn(on-click="exportDXF") Export DXF
     .row
         canvas#draw(resize)
