@@ -8,3 +8,4 @@ launch-service $(calc-session-name "$0")
 run-in-tmux 'xdg-open .' 'atom .'
 run-in-tmux "cd scada.js" "./watch.sh main"
 run-in-tmux "cd servers" './run-ls webserver.ls'
+run-in-tmux "cd servers" './run-ls occ-service.ls'
