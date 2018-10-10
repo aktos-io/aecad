@@ -1,0 +1,49 @@
+h1.ui.header Terminal Block Definition 
+
++partial('terminal')
+    +with('150 as height, (width || 20) as width, (text || "hello") as text, (index || 0) as index')
+        svg(border="1" width="{{width}}" height="{{height}}" x="{{x + index * width}}" y="{{y}}")
+            g(style="fill:red")
+                circle(
+                    cx="{{width/2}}" 
+                    cy="{{width/2}}" 
+                    r="{{width / 2 - 2}}" stroke="black" stroke-width="1" fill="yellow")
+
+                rect(
+                    x="0" 
+                    y="0" 
+                    width="{{width}}" 
+                    height="{{height}}"
+                    style="fill:white;stroke:black;stroke-width:2;opacity:0.5"
+                    )
+
+                text(
+                    x="10" 
+                    y="{{height / 2}}" 
+                    fill="green"
+                    style="writing-mode: tb; glyph-orientation-vertical: 90;"
+                    ) {{text}}
+
+assign(left="{{groupMargin}}" right="2")
+.ui.segment 
+    //- 
+        +apply('terminal 40 as width')
+        +apply('terminal "x" as text')
+
+    assign(left="{{sofar}}" right="{{0}}")
+    svg(width="400" height="400")
+        +each('terminalGroups as terminals, @key as blockGroup, @index as groupIndex')
+            g
+                +with('20 as width')
+                    +with('Object.keys(terminals).length * width as groupWidth')
+                        +with('~/cumulative(groupIndex) as padding')
+                            rect(
+                                x="{{padding}}" y="0" 
+                                width="{{groupWidth + (groupMargin * 2)}}" 
+                                height="55"
+                                style="fill:white;stroke:black;stroke-width:2;opacity:0.5"
+                                stroke-dasharray="1, 5"
+                                )
+                            text(x="{{padding + 3}}" y="15" fill="red") {{blockGroup}}
+                            +each('terminals as terminal, @key as label')
+                                +apply('terminal label as text, padding + groupMargin as x, @index as index, 30 as y, width as width')

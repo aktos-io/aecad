@@ -1,0 +1,3 @@
+[submodule "scada.js"]
+	path = scada.js
+	url = https://github.com/aktos-io/scada.js

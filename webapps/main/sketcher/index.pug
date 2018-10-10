@@ -1,0 +1,16 @@
+.ui.grid
+    .row
+        .column
+            .ui.buttons 
+                file-button(on-read="importSVG" type="text") Import SVG
+                btn(on-click="exportSVG") Export SVG
+                
+            .ui.buttons
+                file-button(on-read="importDXF" type="text") Import DXF
+                file-button(on-read="importDXF2" type="text") Import DXF (2)
+                
+                btn(on-click="exportDXF") Export DXF
+                
+            btn.red(on-click="clear") Clear
+    .row
+        canvas#draw(resize)
