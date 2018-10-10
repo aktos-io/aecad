@@ -4,6 +4,7 @@ require! './dxfToSvg': {dxfToSvg}
 require! 'svgson'
 require! 'dxf-writer'
 require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
+require! 'dxf'
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -12,12 +13,8 @@ Ractive.components['sketcher'] = Ractive.extend do
         paper.setup canvas
         path = new paper.Path();
         path.strokeColor = 'black';
-        start = new paper.Point(100, 100);
-        path.moveTo(start);
-        path.lineTo(start.add([ 200, -50 ]));
-        paper.view.draw();
 
-        line-tool = new paper.Tool!
+        freehand = new paper.Tool!
             ..onMouseDrag = (event) ~>
                 path.add(event.point);
 
@@ -35,7 +32,16 @@ Ractive.components['sketcher'] = Ractive.extend do
                 next!
 
             importDXF: (ctx, file, next) ~>
+                # FIXME: Splines can not be recognized
                 svg = dxfToSvg file.raw
+                paper.project.clear!
+                paper.project.importSVG svg
+                next!
+
+            importDXF2: (ctx, file, next) ~>
+                # FIXME: Implement conversion spline to arc
+                parsed = dxf.parseString file.raw
+                svg = dxf.toSVG(parsed)
                 paper.project.clear!
                 paper.project.importSVG svg
                 next!
@@ -51,11 +57,12 @@ Ractive.components['sketcher'] = Ractive.extend do
                             | \d =>
                                 walk = parsePath val |> makeAbsolute
                                 for step in walk
-                                    switch step.command
-                                    | "moveto" => continue
-                                    | step.command in <[ l L h H v V ]> =>
+                                    if step.command is \moveto
+                                        continue
+                                    else if step.code in <[ l L h H v V Z ]> =>
                                         drawer.drawLine(step.x0, -step.y0, step.x, -step.y)
-                                    |_ => console.warn "what is that: ", step.command
+                                    else
+                                        console.warn "what is that: ", step.command
 
                     if obj.childs?
                         for child in obj.childs
