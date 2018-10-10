@@ -21,6 +21,7 @@
     "dxf-writer": "^1.1.0",
     "paper": "^0.11.5",
     "svg-path-parser": "^1.1.0",
-    "svgson": "^2.1.1"
+    "svgson": "^2.1.1",
+    "three": "^0.97.0"
   }
 }

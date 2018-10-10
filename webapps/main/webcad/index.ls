@@ -1,14 +1,40 @@
+require! 'three': THREE
+
 Ractive.components['webcad'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
-    on:
-        updateModel: (ctx) ->
-            btn = ctx.component
-            btn.state \doing
-            err, msg <~ ctx.actor.send-request \@occ-worker.updateModel, {script: @get \model}
-            if err
-                return btn.error err
-            console.log "Response: ", msg.data
-            btn.state \done...
+    onrender: ->
+        view = @find '#graphical_view'
+        scene = new THREE.Scene()
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000 )
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( 600, 600 )
+        view.appendChild( renderer.domElement )
+
+        # FIXME: load the response here
+        geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        cube = new THREE.Mesh( geometry, material );
+        console.log "cube is: ", cube
+        scene.add( cube );
+        camera.position.z = 5;
+
+        animate = ->
+            requestAnimationFrame( animate );
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render( scene, camera );
+
+        animate();
+
+        @on do
+            updateModel: (ctx) ->
+                btn = ctx.component
+                btn.state \doing
+                err, msg <~ ctx.actor.send-request \@occ-worker.updateModel, {script: @get \model}
+                if err
+                    return btn.error err
+                console.log "FIXME: Response: ", msg.data
+                btn.state \done...
 
     data:
         model: """
