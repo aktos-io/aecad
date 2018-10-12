@@ -1,4 +1,5 @@
 require! 'three': THREE
+require! 'aea': {create-download}
 
 Ractive.components['webcad'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -10,21 +11,7 @@ Ractive.components['webcad'] = Ractive.extend do
         renderer.setSize( 600, 600 )
         view.appendChild( renderer.domElement )
 
-        # FIXME: load the response here
-        geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-        cube = new THREE.Mesh( geometry, material );
-        console.log "cube is: ", cube
-        scene.add( cube );
-        camera.position.z = 5;
-
-        animate = ->
-            requestAnimationFrame( animate );
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            renderer.render( scene, camera );
-
-        animate();
+        loader = new THREE.JSONLoader();
 
         @on do
             updateModel: (ctx) ->
@@ -34,6 +21,7 @@ Ractive.components['webcad'] = Ractive.extend do
                 if err
                     return btn.error err
                 console.log "FIXME: Response: ", msg.data
+                create-download "model.json", JSON.stringify msg.data.solids.0
                 btn.state \done...
 
     data:
