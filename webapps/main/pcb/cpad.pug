@@ -1,0 +1,14 @@
+//- circular pad 
+circle(
+    cx="{{x}}mm" 
+    cy="{{y}}mm" 
+	r="{{dia/2}}mm" 
+    fill="black")    
+
+circle(
+    cx="{{x}}mm" 
+    cy="{{y}}mm" 
+	r="{{hole/2}}mm" 
+    fill="red")
+    
+handle(bind-x bind-y)

@@ -6,6 +6,7 @@ try
     require! './terminal-block'
     require! './sketcher'
     require! './webcad'
+    require! './pcb'
 
     new Ractive do
         el: \body

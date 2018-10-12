@@ -1,0 +1,13 @@
+svg(as-drag="'position'" x="{{position.left * 0.26}}mm" y="{{position.top * 0.26}}mm")
+    //-text(x="0" y="15" fill="red") pos: {{position.left}}
+    +each('Array(edgePins), @index as yIndex')
+        +each('Array(edgePins), @index as xIndex')
+            +if('xIndex < circleCount || \
+                xIndex >= (edgePins - circleCount) || \
+                (yIndex < circleCount || yIndex >= edgePins - circleCount)')
+                cpad(
+                    x="{{10 + xIndex * pinDistance}}"
+                    y="{{10 + yIndex * pinDistance}}"
+                    dia="{{radius * 2}}"
+                    hole="1"
+                    )
