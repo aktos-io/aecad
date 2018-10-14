@@ -3,14 +3,18 @@
         .column
             .ui.buttons 
                 file-button(on-read="importSVG" type="text") Import SVG
-                btn(on-click="exportSVG") Export SVG
-                
-            .ui.buttons
                 file-button(on-read="importDXF" type="text") Import DXF
                 file-button(on-read="importDXF2" type="text") Import DXF (2)
                 
+            .ui.buttons.green
+                btn(on-click="exportSVG") Export SVG
                 btn(on-click="exportDXF") Export DXF
+                //- ack-button(on-click="exportKicad") Export Kicad_Pcb
                 
             btn.red(on-click="clear") Clear
-    .row
-        canvas#draw(resize)
+    .equal.width.row
+        .column 
+            ace-editor(code="{{drawingLs}}" mode="livescript")
+            pre {{output}}
+        .column
+            canvas#draw(resize)

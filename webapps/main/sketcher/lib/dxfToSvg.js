@@ -9,6 +9,8 @@ require('./positional-format');
  * @param {string} dxfString The DXF string to be converted.
  * @returns {string|null} The converted SVG string or null if the conversion was unsuccessful.
  */
+
+module.exports = {dxfToSvg}
 function dxfToSvg(dxfString)
 {
     "use strict";
@@ -143,5 +145,3 @@ function dxfToSvg(dxfString)
 
     return svg.format('viewBox="' + viewBoxValue + '"');
 }
-
-module.exports = {dxfToSvg}
