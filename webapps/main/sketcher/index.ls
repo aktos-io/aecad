@@ -1,4 +1,5 @@
-require! paper
+require! 'paper'
+window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download}
 require! './lib/dxfToSvg': {dxfToSvg}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
@@ -7,6 +8,7 @@ require! 'dxf-writer'
 require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 require! 'dxf'
 require! 'livescript': lsc
+
 
 json-to-dxf = (obj, drawer) ->
     switch obj.name
@@ -37,8 +39,12 @@ Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
     onrender: ->
         canvas = @find '#draw'
-        paper.setup canvas
-        paper.install window
+        pcb = paper.setup canvas
+        pcb.activate!
+
+        gui = new pcb.Layer!
+
+        script-layer = new pcb.Layer!
 
         path = null
         freehand = new paper.Tool!
@@ -46,7 +52,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                 path.add(event.point);
 
             ..onMouseDown = (event) ~>
-                path := new paper.Path();
+                gui.activate!
+                path := new pcb.Path();
                 path.strokeColor = 'black';
                 path.add(event.point);
 
@@ -61,8 +68,11 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             if compiled
                 try
-                    paper.project.clear!
-                    paper.execute js
+                    #pcb.project.clear!
+                    script-layer
+                        ..activate!
+                        ..clear!
+                    pcb.execute js
                 catch
                     @set \output, "#{e}\n\n#{js}"
 
@@ -100,13 +110,12 @@ Ractive.components['sketcher'] = Ractive.extend do
                 create-download "export.dxf", dxf-out
 
             clear: (ctx) ~>
-                paper.project.clear!
+                gui.clear!
+                #paper.project.clear!
 
             exportKicad: (ctx) ~>
-                debugger
                 svg = paper.project.exportSVG {+asString}
                 #svgString, title, layer, translationX, translationY, kicadPcbToBeAppended, yAxisInverted)
-                debugger
                 try
                     kicad = svgToKicadPcb svg, 'hello', \Edge.Cuts, 0, 0, null, false
                 catch
