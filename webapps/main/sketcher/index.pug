@@ -17,4 +17,9 @@
             ace-editor(code="{{drawingLs}}" mode="livescript")
             pre {{output}}
         .column
-            canvas#draw(resize)
+            radio-buttons(on-select="changeTool")
+                .ui.buttons
+                    radio-button Fh
+                    radio-button(default) Tr
+
+            canvas#draw

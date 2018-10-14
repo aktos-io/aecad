@@ -9,7 +9,6 @@ require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 require! 'dxf'
 require! 'livescript': lsc
 
-
 json-to-dxf = (obj, drawer) ->
     switch obj.name
     | \svg => # do nothing
@@ -39,15 +38,18 @@ Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
     onrender: ->
         canvas = @find '#draw'
+        canvas.width = 400
+        canvas.height = 400
+
         pcb = paper.setup canvas
         pcb.activate!
 
         gui = new pcb.Layer!
-
         script-layer = new pcb.Layer!
+        external = new pcb.Layer!
 
         path = null
-        freehand = new paper.Tool!
+        freehand = new pcb.Tool!
             ..onMouseDrag = (event) ~>
                 path.add(event.point);
 
@@ -56,6 +58,27 @@ Ractive.components['sketcher'] = Ractive.extend do
                 path := new pcb.Path();
                 path.strokeColor = 'black';
                 path.add(event.point);
+
+        trace-line = null
+        trace-tool = new pcb.Tool!
+            ..onMouseDown = (event) ~>
+                gui.activate!
+                unless trace-line
+                    trace-line := new pcb.Path(event.point, event.point)
+                    trace-line.strokeColor = 'red'
+                    trace-line.strokeWidth = 3
+                else
+                    trace-line.add(event.point)
+
+            ..onMouseMove = (event) ~>
+                if trace-line
+                    trace-line.segments[* - 1].point = event.point
+
+            ..onKeyDown = (event) ~>
+                if event.key is \escape
+                    x = trace-line
+                    x.removeSegment (x.segments.length - 1)
+                    trace-line := null
 
         @observe \drawingLs, (_new) ~>
             compiled = no
@@ -77,29 +100,45 @@ Ractive.components['sketcher'] = Ractive.extend do
                     @set \output, "#{e}\n\n#{js}"
 
         @on do
-            exportSVG: (ctx) ~>
-                svg = paper.project.exportSVG {+asString}
-                create-download "myexport.svg", svg
+            changeTool: (ctx, tool, proceed) ~>
+                console.log "Changing tool to: #{tool}"
+                switch tool
+                | \Tr => trace-tool.activate!
+                | \Fh => freehand.activate!
+                proceed!
 
             importSVG: (ctx, file, next) ~>
-                paper.project.clear!
-                <~ paper.project.importSVG file.raw
+                #paper.project.clear!
+                external
+                    ..activate!
+                    ..clear!
+                <~ pcb.project.importSVG file.raw
                 next!
 
             importDXF: (ctx, file, next) ~>
                 # FIXME: Splines can not be recognized
                 svg = dxfToSvg file.raw
-                paper.project.clear!
-                paper.project.importSVG svg
+                #paper.project.clear!
+                external
+                    ..activate!
+                    ..clear!
+                pcb.project.importSVG svg
                 next!
 
             importDXF2: (ctx, file, next) ~>
                 # FIXME: Implement conversion spline to arc
                 parsed = dxf.parseString file.raw
                 svg = dxf.toSVG(parsed)
-                paper.project.clear!
-                paper.project.importSVG svg
+                #paper.project.clear!
+                external
+                    ..activate!
+                    ..clear!
+                pcb.project.importSVG svg
                 next!
+
+            exportSVG: (ctx) ~>
+                svg = paper.project.exportSVG {+asString}
+                create-download "myexport.svg", svg
 
             exportDXF: (ctx) ~>
                 svg = paper.project.exportSVG {+asString}
