@@ -8,6 +8,7 @@ require! 'dxf-writer'
 require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 require! 'dxf'
 require! 'livescript': lsc
+require! 'prelude-ls': {abs}
 
 json-to-dxf = (obj, drawer) ->
     switch obj.name
@@ -72,7 +73,21 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             ..onMouseMove = (event) ~>
                 if trace-line
-                    trace-line.segments[* - 1].point = event.point
+                    lp = trace-line.segments[* - 1].point
+                    l-pinned-p = trace-line.segments[* - 2].point
+                    y-diff = l-pinned-p.y - event.point.y
+                    x-diff = l-pinned-p.x - event.point.x
+                    tolerance = 10
+                    if abs(y-diff) < tolerance
+                        # x direction
+                        lp.x = event.point.x
+                        lp.y = l-pinned-p.y
+                    else if abs(x-diff) < tolerance
+                        # y direction
+                        lp.y = event.point.y
+                        lp.x = l-pinned-p.x
+                    else
+                        trace-line.segments[* - 1].point = event.point
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
