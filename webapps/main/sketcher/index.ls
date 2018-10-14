@@ -60,40 +60,58 @@ Ractive.components['sketcher'] = Ractive.extend do
                 path.strokeColor = 'black';
                 path.add(event.point);
 
-        trace-line = null
+        trace =
+            line: null
+            snap-x: false
+            snap-y: false
         trace-tool = new pcb.Tool!
             ..onMouseDown = (event) ~>
                 gui.activate!
-                unless trace-line
-                    trace-line := new pcb.Path(event.point, event.point)
-                    trace-line.strokeColor = 'red'
-                    trace-line.strokeWidth = 3
+                unless trace.line
+                    trace.line = new pcb.Path(event.point, event.point)
+                    trace.line.strokeColor = 'red'
+                    trace.line.strokeWidth = 3
                 else
-                    trace-line.add(event.point)
+                    trace.line.add(event.point)
 
             ..onMouseMove = (event) ~>
-                if trace-line
-                    lp = trace-line.segments[* - 1].point
-                    l-pinned-p = trace-line.segments[* - 2].point
+                if trace.line
+                    lp = trace.line.segments[* - 1].point
+                    l-pinned-p = trace.line.segments[* - 2].point
                     y-diff = l-pinned-p.y - event.point.y
                     x-diff = l-pinned-p.x - event.point.x
                     tolerance = 10
-                    if abs(y-diff) < tolerance
+
+                    snap-y = false
+                    snap-x = false
+                    if event.modifiers.shift
+                        angle = lp.subtract l-pinned-p .angle
+                        console.log "angle is: ", angle 
+                        if angle is 90 or angle is -90
+                            snap-y = true
+                        else if angle is 0 or angle is 180
+                            snap-x = true
+
+                    if abs(y-diff) < tolerance or snap-x
                         # x direction
                         lp.x = event.point.x
                         lp.y = l-pinned-p.y
-                    else if abs(x-diff) < tolerance
+                    else if abs(x-diff) < tolerance or snap-y
                         # y direction
                         lp.y = event.point.y
                         lp.x = l-pinned-p.x
+                    else if abs(x-diff - y-diff) < tolerance
+                        # 45 degrees
+                        trace.line.segments[* - 1].point = event.point
+                        trace.line.strokeColor = 'green'
                     else
-                        trace-line.segments[* - 1].point = event.point
+                        trace.line.segments[* - 1].point = event.point
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
-                    x = trace-line
+                    x = trace.line
                     x.removeSegment (x.segments.length - 1)
-                    trace-line := null
+                    trace.line = null
 
         @observe \drawingLs, (_new) ~>
             compiled = no
