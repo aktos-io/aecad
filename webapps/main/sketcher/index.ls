@@ -143,27 +143,32 @@ Ractive.components['sketcher'] = Ractive.extend do
 
                     # collision detection
                     search-hit = (src, target) ->
+                        hits = []
                         if target.hasChildren!
                             for target.children
                                 if search-hit src, ..
-                                    return that
+                                    hits ++= that
                         else
-                            if target .intersects src
+                            if src .is-close target.bounds.center, 10
                                 # http://paperjs.org/reference/shape/
-                                if src .is-inside target
-                                    debugger
                                 if target.constructor?.name in <[ Shape Path ]>
-                                    console.warn "Hit! ", target
-                                    return target
+                                    if target.constructor.name is \Path and not target.closed
+                                        null
+                                    else
+                                        #console.warn "Hit! ", target
+                                        hits.push target
                                 else
                                     console.log "Skipping hit: ", target
-                        null
+                        hits
 
                     for layer in pcb.project.getItems!
                         for obj in layer.children
-                            if trace.line `search-hit` obj
-                                lp .set that.bounds.center
-
+                            for hit in event.point `search-hit` obj
+                                if (dist = hit.bounds.center .subtract event.point .length) > 100
+                                    console.log "skipping, too far ", dist
+                                    continue
+                                console.log "Snapping to ", hit
+                                lp .set hit.bounds.center
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
