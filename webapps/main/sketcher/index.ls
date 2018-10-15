@@ -9,6 +9,7 @@ require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 require! 'dxf'
 require! 'livescript': lsc
 require! 'prelude-ls': {abs}
+require('jquery-mousewheel')($);
 
 json-to-dxf = (obj, drawer) ->
     switch obj.name
@@ -49,6 +50,29 @@ Ractive.components['sketcher'] = Ractive.extend do
         script-layer = new pcb.Layer!
         external = new pcb.Layer!
 
+        changeZoom = (oldZoom, delta) ->
+              factor = 1.05
+              if delta < 0
+                return oldZoom / factor
+              if delta > 0
+                return oldZoom * factor
+              oldZoom
+
+        changeZoomPointer = (oldZoom, delta, c, p) ->
+          newZoom = changeZoom oldZoom, delta
+          beta = oldZoom / newZoom
+          pc = p.subtract c
+          a = p.subtract(pc.multiply(beta)).subtract c
+          [newZoom, a]
+
+        $ canvas .mousewheel (event) ->
+            mousePosition = new pcb.Point event.offsetX, event.offsetY
+            viewPosition = pcb.view.viewToProject(mousePosition)
+            [newZoom, offset] = changeZoomPointer pcb.view.zoom, event.deltaY, pcb.view.center, viewPosition
+            pcb.view.zoom = newZoom
+            pcb.view.center = pcb.view.center.add offset
+            event.preventDefault()
+
         path = null
         freehand = new pcb.Tool!
             ..onMouseDrag = (event) ~>
@@ -64,15 +88,24 @@ Ractive.components['sketcher'] = Ractive.extend do
             line: null
             snap-x: false
             snap-y: false
+            seg-count: null
+
         trace-tool = new pcb.Tool!
-            ..onMouseDown = (event) ~>
+            ..onMouseDrag = (event) ~>
+                offset = event.downPoint .subtract event.point
+                pcb.view.center = pcb.view.center .add offset
+                trace.panning = yes
+
+            ..onMouseUp = (event) ~>
                 gui.activate!
-                unless trace.line
-                    trace.line = new pcb.Path(event.point, event.point)
-                    trace.line.strokeColor = 'red'
-                    trace.line.strokeWidth = 3
-                else
-                    trace.line.add(event.point)
+                unless trace.panning
+                    unless trace.line
+                        trace.line = new pcb.Path(event.point, event.point)
+                        trace.line.strokeColor = 'red'
+                        trace.line.strokeWidth = 3
+                    else
+                        trace.line.add(event.point)
+                trace.panning = no
 
             ..onMouseMove = (event) ~>
                 if trace.line
@@ -86,7 +119,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                     snap-x = false
                     if event.modifiers.shift
                         angle = lp.subtract l-pinned-p .angle
-                        console.log "angle is: ", angle 
+                        console.log "angle is: ", angle
                         if angle is 90 or angle is -90
                             snap-y = true
                         else if angle is 0 or angle is 180
@@ -106,6 +139,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                         trace.line.strokeColor = 'green'
                     else
                         trace.line.segments[* - 1].point = event.point
+                        trace.line.strokeColor = 'red'
+
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
