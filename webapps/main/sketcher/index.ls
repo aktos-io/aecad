@@ -159,8 +159,6 @@ Ractive.components['sketcher'] = Ractive.extend do
                                         hits.push target
                                 else
                                     console.log "Skipping hit: ", target
-                        unless empty hits
-                            console.warn "Found hits: ", hits, [..bounds.center for hits].join '::'
                         hits
 
                     closest = {}
@@ -171,8 +169,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                                 if dist > 100
                                     console.log "skipping, too far ", dist
                                     continue
-                                console.log "Snapping to ", hit
-                                if not closest.hit or dist < closest.dist 
+                                #console.log "Snapping to ", hit
+                                if not closest.hit or dist < closest.dist
                                     closest
                                         ..hit = hit
                                         ..dist = dist
