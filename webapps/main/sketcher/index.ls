@@ -142,16 +142,32 @@ Ractive.components['sketcher'] = Ractive.extend do
                         trace.line.strokeColor = 'red'
 
                     # collision detection
+                    search-hit = (src, target) ->
+                        if target.hasChildren!
+                            for target.children
+                                if search-hit src, ..
+                                    return that
+                        else
+                            if target .intersects src
+                                # http://paperjs.org/reference/shape/
+                                if src .is-inside target
+                                    debugger
+                                if target.constructor?.name in <[ Shape Path ]>
+                                    console.warn "Hit! ", target
+                                    return target
+                                else
+                                    console.log "Skipping hit: ", target
+                        null
+
                     for layer in pcb.project.getItems!
                         for obj in layer.children
-                            if obj.intersects trace.line
-                                lp.set obj.bounds.center
-                                console.warn "hit! object: ", obj
+                            if trace.line `search-hit` obj
+                                lp .set that.bounds.center
+
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
-                    x = trace.line
-                    x.removeSegment (x.segments.length - 1)
+                    trace.line?.removeSegment (trace.line.segments.length - 1)
                     trace.line = null
 
         @observe \drawingLs, (_new) ~>
