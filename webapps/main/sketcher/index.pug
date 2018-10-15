@@ -12,14 +12,15 @@
                 //- ack-button(on-click="exportKicad") Export Kicad_Pcb
                 
             btn.red(on-click="clear") Clear
+    .row
+        radio-buttons(on-select="changeTool")
+            .ui.buttons
+                radio-button Fh
+                radio-button(default) Tr
+
     .equal.width.row
+        .column
+            canvas#draw
         .column 
             ace-editor(code="{{drawingLs}}" mode="livescript")
             pre {{output}}
-        .column
-            radio-buttons(on-select="changeTool")
-                .ui.buttons
-                    radio-button Fh
-                    radio-button(default) Tr
-
-            canvas#draw

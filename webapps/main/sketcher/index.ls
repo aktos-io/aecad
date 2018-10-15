@@ -40,7 +40,7 @@ Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
     onrender: ->
         canvas = @find '#draw'
-        canvas.width = 400
+        canvas.width = 600
         canvas.height = 400
 
         pcb = paper.setup canvas
@@ -113,7 +113,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                     l-pinned-p = trace.line.segments[* - 2].point
                     y-diff = l-pinned-p.y - event.point.y
                     x-diff = l-pinned-p.x - event.point.x
-                    tolerance = 10
+                    tolerance = 5
 
                     snap-y = false
                     snap-x = false
@@ -135,10 +135,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                         lp.x = l-pinned-p.x
                     else if abs(x-diff - y-diff) < tolerance
                         # 45 degrees
-                        trace.line.segments[* - 1].point = event.point
+                        lp.set event.point
                         trace.line.strokeColor = 'green'
                     else
-                        trace.line.segments[* - 1].point = event.point
+                        lp.set event.point
                         trace.line.strokeColor = 'red'
 
 
