@@ -92,7 +92,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
         trace-tool = new pcb.Tool!
             ..onMouseDrag = (event) ~>
-                # panning 
+                # panning
                 offset = event.downPoint .subtract event.point
                 pcb.view.center = pcb.view.center .add offset
                 trace.panning = yes
@@ -102,8 +102,11 @@ Ractive.components['sketcher'] = Ractive.extend do
                 unless trace.panning
                     unless trace.line
                         trace.line = new pcb.Path(event.point, event.point)
-                        trace.line.strokeColor = 'red'
-                        trace.line.strokeWidth = 3
+                            ..strokeColor = 'red'
+                            ..strokeWidth = 3
+                            ..strokeCap = 'round'
+                            ..strokeJoin = 'round'
+
                     else
                         trace.line.add(event.point)
                 trace.panning = no
