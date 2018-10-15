@@ -8,7 +8,7 @@ require! 'dxf-writer'
 require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 require! 'dxf'
 require! 'livescript': lsc
-require! 'prelude-ls': {abs}
+require! 'prelude-ls': {abs, empty}
 require('jquery-mousewheel')($);
 
 json-to-dxf = (obj, drawer) ->
@@ -159,16 +159,25 @@ Ractive.components['sketcher'] = Ractive.extend do
                                         hits.push target
                                 else
                                     console.log "Skipping hit: ", target
+                        unless empty hits
+                            console.warn "Found hits: ", hits, [..bounds.center for hits].join '::'
                         hits
 
+                    closest = {}
                     for layer in pcb.project.getItems!
                         for obj in layer.children
                             for hit in event.point `search-hit` obj
-                                if (dist = hit.bounds.center .subtract event.point .length) > 100
+                                dist = hit.bounds.center .subtract event.point .length
+                                if dist > 100
                                     console.log "skipping, too far ", dist
                                     continue
                                 console.log "Snapping to ", hit
-                                lp .set hit.bounds.center
+                                if not closest.hit or dist < closest.dist 
+                                    closest
+                                        ..hit = hit
+                                        ..dist = dist
+                    if closest.hit
+                        lp .set closest.hit.bounds.center
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
