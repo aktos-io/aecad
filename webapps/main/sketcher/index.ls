@@ -92,6 +92,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
         trace-tool = new pcb.Tool!
             ..onMouseDrag = (event) ~>
+                # panning 
                 offset = event.downPoint .subtract event.point
                 pcb.view.center = pcb.view.center .add offset
                 trace.panning = yes
