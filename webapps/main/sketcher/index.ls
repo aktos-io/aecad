@@ -8,33 +8,11 @@ require! 'dxf-writer'
 require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 require! 'dxf'
 require! 'livescript': lsc
-require! 'prelude-ls': {abs, empty}
 require('jquery-mousewheel')($);
-
-json-to-dxf = (obj, drawer) ->
-    switch obj.name
-    | \svg => # do nothing
-    | \g => # there are no groups in DXF, right?
-    | \defs => # currently we don't have anything to do with defs
-    | \path =>
-        for attr, val of obj.attrs
-            switch attr
-            | \d =>
-                walk = parsePath val |> makeAbsolute
-                for step in walk
-                    if step.command is \moveto
-                        continue
-                    else if step.code in <[ l L h H v V Z ]> =>
-                        drawer.drawLine(step.x0, -step.y0, step.x, -step.y)
-                    else
-                        console.warn "what is that: ", step.command
-    | \circle =>
-        debugger
-    |_ => debugger
-    if obj.childs?
-        for child in obj.childs
-            json-to-dxf child, drawer
-
+require! './zooming': {paperZoom}
+require! './tools/trace-tool': {TraceTool}
+require! './tools/freehand': {Freehand}
+require! './lib/json-to-dxf': {json-to-dxf}
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -44,154 +22,16 @@ Ractive.components['sketcher'] = Ractive.extend do
         canvas.height = 400
 
         pcb = paper.setup canvas
-        pcb.activate!
 
         gui = new pcb.Layer!
         script-layer = new pcb.Layer!
         external = new pcb.Layer!
 
-        changeZoom = (oldZoom, delta) ->
-              factor = 1.05
-              if delta < 0
-                return oldZoom / factor
-              if delta > 0
-                return oldZoom * factor
-              oldZoom
-
-        changeZoomPointer = (oldZoom, delta, c, p) ->
-          newZoom = changeZoom oldZoom, delta
-          beta = oldZoom / newZoom
-          pc = p.subtract c
-          a = p.subtract(pc.multiply(beta)).subtract c
-          [newZoom, a]
-
         $ canvas .mousewheel (event) ->
-            mousePosition = new pcb.Point event.offsetX, event.offsetY
-            viewPosition = pcb.view.viewToProject(mousePosition)
-            [newZoom, offset] = changeZoomPointer pcb.view.zoom, event.deltaY, pcb.view.center, viewPosition
-            pcb.view.zoom = newZoom
-            pcb.view.center = pcb.view.center.add offset
-            event.preventDefault()
+            paperZoom pcb, event
 
-        path = null
-        freehand = new pcb.Tool!
-            ..onMouseDrag = (event) ~>
-                path.add(event.point);
-
-            ..onMouseDown = (event) ~>
-                gui.activate!
-                path := new pcb.Path();
-                path.strokeColor = 'black';
-                path.add(event.point);
-
-        trace =
-            line: null
-            snap-x: false
-            snap-y: false
-            seg-count: null
-            tolerance: (x) -> 10 / pcb.view.zoom
-
-        trace-tool = new pcb.Tool!
-            ..onMouseDrag = (event) ~>
-                # panning
-                offset = event.downPoint .subtract event.point
-                pcb.view.center = pcb.view.center .add offset
-                trace.panning = yes
-
-            ..onMouseUp = (event) ~>
-                gui.activate!
-                unless trace.panning
-                    unless trace.line
-                        trace.line = new pcb.Path(event.point, event.point)
-                            ..strokeColor = 'red'
-                            ..strokeWidth = 3
-                            ..strokeCap = 'round'
-                            ..strokeJoin = 'round'
-
-                    else
-                        trace.line.add(event.point)
-                trace.panning = no
-
-            ..onMouseMove = (event) ~>
-                if trace.line
-                    lp = trace.line.segments[* - 1].point
-                    l-pinned-p = trace.line.segments[* - 2].point
-                    y-diff = l-pinned-p.y - event.point.y
-                    x-diff = l-pinned-p.x - event.point.x
-                    tolerance = trace.tolerance!
-
-                    snap-y = false
-                    snap-x = false
-                    if event.modifiers.shift
-                        angle = lp.subtract l-pinned-p .angle
-                        console.log "angle is: ", angle
-                        if angle is 90 or angle is -90
-                            snap-y = true
-                        else if angle is 0 or angle is 180
-                            snap-x = true
-
-                    if abs(y-diff) < tolerance or snap-x
-                        # x direction
-                        lp.x = event.point.x
-                        lp.y = l-pinned-p.y
-                    else if abs(x-diff) < tolerance or snap-y
-                        # y direction
-                        lp.y = event.point.y
-                        lp.x = l-pinned-p.x
-                    else if abs(x-diff - y-diff) < tolerance
-                        # 45 degrees
-                        lp.set event.point
-                        trace.line.strokeColor = 'green'
-                    else
-                        lp.set event.point
-                        trace.line.strokeColor = 'red'
-
-                    # collision detection
-                    search-hit = (src, target) ->
-                        hits = []
-                        if target.hasChildren!
-                            for target.children
-                                if search-hit src, ..
-                                    hits ++= that
-                        else
-                            target.selected = no
-                            type-ok = if target.type is \circle
-                                yes
-                            else if target.closed
-                                yes
-                            else
-                                no
-                            if src .is-close target.bounds.center, 10
-                                if type-ok
-                                    # http://paperjs.org/reference/shape/
-                                    #console.warn "Hit! ", target
-                                    hits.push target
-                                else
-                                    debugger
-                        hits
-
-                    closest = {}
-                    for layer in pcb.project.getItems!
-                        for obj in layer.children
-                            for hit in event.point `search-hit` obj
-                                dist = hit.bounds.center .subtract event.point .length
-                                if dist > tolerance
-                                    console.log "skipping, too far ", dist
-                                    continue
-                                #console.log "Snapping to ", hit
-                                if not closest.hit or dist < closest.dist
-                                    closest
-                                        ..hit = hit
-                                        ..dist = dist
-                    if closest.hit
-                        console.log "snapped to the closest hit:", that, "zoom: ", pcb.view.zoom
-                        lp .set that.bounds.center
-                        that.selected = yes
-
-            ..onKeyDown = (event) ~>
-                if event.key is \escape
-                    trace.line?.removeSegment (trace.line.segments.length - 1)
-                    trace.line = null
+        trace-tool = TraceTool.call this, pcb, gui
+        freehand = Freehand.call this, pcb, gui
 
         @observe \drawingLs, (_new) ~>
             compiled = no
@@ -216,11 +56,15 @@ Ractive.components['sketcher'] = Ractive.extend do
             changeTool: (ctx, tool, proceed) ~>
                 console.log "Changing tool to: #{tool}"
                 switch tool
-                | \Tr =>
+                | \tr =>
                     trace-tool.activate!
                     canvas.style.cursor = \cell
-                | \Fh =>
+                | \fh =>
                     freehand.activate!
+                    canvas.style.cursor = \default
+                | \mp =>
+                    debugger
+                    move-tool.activate!
                     canvas.style.cursor = \default
                 proceed!
 

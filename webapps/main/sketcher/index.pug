@@ -13,10 +13,13 @@
                 
             btn.red(on-click="clear") Clear
     .row
-        radio-buttons(on-select="changeTool")
-            .ui.buttons
-                radio-button Fh
-                radio-button(default) Tr
+        .column 
+            radio-buttons(on-select="changeTool")
+                .ui.buttons
+                    radio-button.icon(tooltip="Freehand tool" value="fh"): icon.pencil.alternate
+                    radio-button.icon(tooltip="Trace route" value="tr" default): icon.crosshairs
+                    radio-button.icon(tooltip="Move" value="mp"): icon.mouse.pointer
+                    
 
     .equal.width.row
         .column
