@@ -155,14 +155,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                         else
                             if src .is-close target.bounds.center, 10
                                 # http://paperjs.org/reference/shape/
-                                if target.constructor?.name in <[ Shape Path ]>
-                                    if target.constructor.name is \Path and not target.closed
-                                        null
-                                    else
-                                        #console.warn "Hit! ", target
-                                        hits.push target
-                                else
-                                    console.log "Skipping hit: ", target
+                                #console.warn "Hit! ", target
+                                hits.push target
                         hits
 
                     closest = {}
