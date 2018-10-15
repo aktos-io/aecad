@@ -12,26 +12,39 @@ require('jquery-mousewheel')($);
 require! './zooming': {paperZoom}
 require! './tools/trace-tool': {TraceTool}
 require! './tools/freehand': {Freehand}
+require! './tools/move-tool': {MoveTool}
 require! './lib/json-to-dxf': {json-to-dxf}
+
+help = """
+    Trace:
+        Esc: break last segment
+        Drag: pan pcb
+    """
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
     onrender: ->
+        # output container
         canvas = @find '#draw'
         canvas.width = 600
         canvas.height = 400
 
+        # scope
         pcb = paper.setup canvas
 
+        # layers
         gui = new pcb.Layer!
         script-layer = new pcb.Layer!
         external = new pcb.Layer!
 
+        # zooming
         $ canvas .mousewheel (event) ->
             paperZoom pcb, event
 
+        # tools
         trace-tool = TraceTool.call this, pcb, gui
         freehand = Freehand.call this, pcb, gui
+        move-tool = MoveTool.call this, pcb, gui
 
         @observe \drawingLs, (_new) ~>
             compiled = no
@@ -63,7 +76,6 @@ Ractive.components['sketcher'] = Ractive.extend do
                     freehand.activate!
                     canvas.style.cursor = \default
                 | \mp =>
-                    debugger
                     move-tool.activate!
                     canvas.style.cursor = \default
                 proceed!
@@ -156,3 +168,5 @@ Ractive.components['sketcher'] = Ractive.extend do
             \Eco1.User
             \Eco2.User
             \Edge.Cuts
+
+        help: help
