@@ -2,7 +2,7 @@
 DIR=$(dirname "$(readlink -f "$0")")
 
 $DIR/pull.sh
+[[ $1 = "--less" ]] || { ./scada.js/install-modules.sh; npm i; }
 cd scada.js
-[[ $1 = "--less" ]] || ./install-modules.sh
 gulp --webapp main --production
 
