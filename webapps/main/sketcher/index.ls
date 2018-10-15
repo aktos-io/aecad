@@ -141,6 +141,12 @@ Ractive.components['sketcher'] = Ractive.extend do
                         lp.set event.point
                         trace.line.strokeColor = 'red'
 
+                    # collision detection
+                    for layer in pcb.project.getItems!
+                        for obj in layer.children
+                            if obj.intersects trace.line
+                                lp.set obj.bounds.center
+                                console.warn "hit! object: ", obj
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
