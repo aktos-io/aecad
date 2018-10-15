@@ -89,6 +89,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             snap-x: false
             snap-y: false
             seg-count: null
+            tolerance: (x) -> 10 / pcb.view.zoom
 
         trace-tool = new pcb.Tool!
             ..onMouseDrag = (event) ~>
@@ -117,7 +118,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                     l-pinned-p = trace.line.segments[* - 2].point
                     y-diff = l-pinned-p.y - event.point.y
                     x-diff = l-pinned-p.x - event.point.x
-                    tolerance = 5
+                    tolerance = trace.tolerance!
 
                     snap-y = false
                     snap-x = false
@@ -153,10 +154,20 @@ Ractive.components['sketcher'] = Ractive.extend do
                                 if search-hit src, ..
                                     hits ++= that
                         else
+                            target.selected = no
+                            type-ok = if target.type is \circle
+                                yes
+                            else if target.closed
+                                yes
+                            else
+                                no
                             if src .is-close target.bounds.center, 10
-                                # http://paperjs.org/reference/shape/
-                                #console.warn "Hit! ", target
-                                hits.push target
+                                if type-ok
+                                    # http://paperjs.org/reference/shape/
+                                    #console.warn "Hit! ", target
+                                    hits.push target
+                                else
+                                    debugger
                         hits
 
                     closest = {}
@@ -164,7 +175,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                         for obj in layer.children
                             for hit in event.point `search-hit` obj
                                 dist = hit.bounds.center .subtract event.point .length
-                                if dist > 100
+                                if dist > tolerance
                                     console.log "skipping, too far ", dist
                                     continue
                                 #console.log "Snapping to ", hit
@@ -173,7 +184,9 @@ Ractive.components['sketcher'] = Ractive.extend do
                                         ..hit = hit
                                         ..dist = dist
                     if closest.hit
-                        lp .set closest.hit.bounds.center
+                        console.log "snapped to the closest hit:", that, "zoom: ", pcb.view.zoom
+                        lp .set that.bounds.center
+                        that.selected = yes
 
             ..onKeyDown = (event) ~>
                 if event.key is \escape
@@ -203,8 +216,12 @@ Ractive.components['sketcher'] = Ractive.extend do
             changeTool: (ctx, tool, proceed) ~>
                 console.log "Changing tool to: #{tool}"
                 switch tool
-                | \Tr => trace-tool.activate!
-                | \Fh => freehand.activate!
+                | \Tr =>
+                    trace-tool.activate!
+                    canvas.style.cursor = \cell
+                | \Fh =>
+                    freehand.activate!
+                    canvas.style.cursor = \default
                 proceed!
 
             importSVG: (ctx, file, next) ~>
