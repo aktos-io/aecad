@@ -1,3 +1,5 @@
+require! 'prelude-ls': {empty}
+
 export MoveTool = (scope, layer) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
 
@@ -28,5 +30,20 @@ export MoveTool = (scope, layer) ->
                     all.for-each (.selected = yes)
                     cache.selected = all
 
+        ..onKeyDown = (event) ~>
+            if event.key is \delete
+                # FIXME: It's interesting to be forced to re-check
+                # cache.selected array.
+                for i in [til cache.selected.length]
+                    item = cache.selected.pop!
+                    if item.remove!
+                        console.log ".........deleted: ", item
+                    else
+                        console.error "couldn't remove item: ", item
+                        cache.selected.push item
+
+                unless empty cache.selected
+                    console.error "Why didn't we erase those selected items?: ", cache.selected
+                    debugger
 
     {move-tool, cache}
