@@ -92,12 +92,19 @@ Ractive.components['sketcher'] = Ractive.extend do
                 external
                     ..activate!
                     ..clear!
-                <~ pcb.project.importSVG file.raw
+                json <~ pcb.project.importSVG file.raw
+                console.log "....", JSON.stringify(json, null, 2) 
                 next!
 
             exportSVG: (ctx) ~>
                 svg = pcb.project.exportSVG {+asString}
+                @set \psvg, svg  # for debugging purposes
                 create-download "myexport.svg", svg
+
+            exportJSON: (ctx) ~>
+                json = pcb.project.exportJSON!
+                @set \pjson, json  # for debugging purposes
+                create-download "myexport.json", json
 
             importDXF: (ctx, file, next) ~>
                 # FIXME: Splines can not be recognized
@@ -121,6 +128,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 next!
 
             exportDXF: (ctx) ~>
+                # cleanup me: paper.js already has exportJSON
                 svg = pcb.project.exportSVG {+asString}
                 res <~ svgson svg, {}
                 drawing = new dxf-writer!

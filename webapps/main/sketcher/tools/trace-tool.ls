@@ -36,7 +36,7 @@ export TraceTool = (scope, layer) ->
                         ..strokeCap = 'round'
                         ..strokeJoin = 'round'
                         ..selected = yes
-
+                        ..data.project = {layer: 'gui'}
                 else
                     trace.line.add(event.point)
             trace.panning = no

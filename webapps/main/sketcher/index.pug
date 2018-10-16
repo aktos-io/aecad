@@ -9,14 +9,19 @@
                         file-button(on-read="importDXF" type="text") DXF
                         file-button(on-read="importDXF2" type="text") DXF (2)
 
-                btn.icon(on-click="clearImport"): icon.trash Clear Import
+                btn.icon.red(on-click="clearImport" tooltip="Clear imported drawing"): icon.trash
 
+            | &nbsp;
             .ui.button.icon.green(as-inline-popup="{position: 'right center'}"): icon.download Export
             .ui.popup.top.transition.hidden
                 .ui.vertical.buttons 
                     btn(on-click="exportSVG") SVG
                     btn(on-click="exportDXF") DXF
+                    btn(on-click="exportJSON") JSON
                     //- ack-button(on-click="exportKicad") Export Kicad_Pcb
+                    
+            debug-obj(obj="{{pjson}}" title="Project JSON output" public)
+            debug-obj(obj="{{psvg}}" title="Project SVG output" public)
                         
 
                 
@@ -47,7 +52,6 @@
                 
             ace-editor(code="{{drawingLs}}" mode="livescript" style="height: 400px")
             pre {{output}}
-
 
 .ui.message
     h3 Help 

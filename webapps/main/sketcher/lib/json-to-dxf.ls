@@ -1,6 +1,9 @@
 require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 
 export json-to-dxf = (obj, drawer) ->
+    '''
+    Uses svgson output
+    '''
     switch obj.name
     | \svg => # do nothing
     | \g => # there are no groups in DXF, right?
