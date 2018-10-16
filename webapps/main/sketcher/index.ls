@@ -33,7 +33,6 @@ Ractive.components['sketcher'] = Ractive.extend do
         script-layer = new pcb.Layer!
         external = new pcb.Layer!
 
-
         # zooming
         $ canvas .mousewheel (event) ->
             paperZoom pcb, event
@@ -96,6 +95,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                 <~ pcb.project.importSVG file.raw
                 next!
 
+            exportSVG: (ctx) ~>
+                svg = pcb.project.exportSVG {+asString}
+                create-download "myexport.svg", svg
+
             importDXF: (ctx, file, next) ~>
                 # FIXME: Splines can not be recognized
                 svg = dxfToSvg file.raw
@@ -117,12 +120,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                 pcb.project.importSVG svg
                 next!
 
-            exportSVG: (ctx) ~>
-                svg = paper.project.exportSVG {+asString}
-                create-download "myexport.svg", svg
-
             exportDXF: (ctx) ~>
-                svg = paper.project.exportSVG {+asString}
+                svg = pcb.project.exportSVG {+asString}
                 res <~ svgson svg, {}
                 drawing = new dxf-writer!
                 json-to-dxf res, drawing
@@ -139,7 +138,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 script-layer.clear!
 
             exportKicad: (ctx) ~>
-                svg = paper.project.exportSVG {+asString}
+                svg = pcb.project.exportSVG {+asString}
                 #svgString, title, layer, translationX, translationY, kicadPcbToBeAppended, yAxisInverted)
                 try
                     kicad = svgToKicadPcb svg, 'hello', \Edge.Cuts, 0, 0, null, false

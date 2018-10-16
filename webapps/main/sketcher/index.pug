@@ -2,16 +2,23 @@
     .row
         .column
             .ui.buttons 
-                file-button(on-read="importSVG" type="text") Import SVG
-                file-button(on-read="importDXF" type="text") Import DXF
-                file-button(on-read="importDXF2" type="text") Import DXF (2)
-                
-            .ui.buttons.green
-                btn(on-click="exportSVG") Export SVG
-                btn(on-click="exportDXF") Export DXF
-                //- ack-button(on-click="exportKicad") Export Kicad_Pcb
+                .ui.button.icon.purple(as-inline-popup="{position: 'right center'}"): icon.upload Import
+                .ui.popup.top.transition.hidden
+                    .ui.vertical.buttons 
+                        file-button(on-read="importSVG" type="text") SVG
+                        file-button(on-read="importDXF" type="text") DXF
+                        file-button(on-read="importDXF2" type="text") DXF (2)
 
-            btn.red(on-click="clearImport") Clear Import
+                btn.icon(on-click="clearImport"): icon.trash Clear Import
+
+            .ui.button.icon.green(as-inline-popup="{position: 'right center'}"): icon.download Export
+            .ui.popup.top.transition.hidden
+                .ui.vertical.buttons 
+                    btn(on-click="exportSVG") SVG
+                    btn(on-click="exportDXF") DXF
+                    //- ack-button(on-click="exportKicad") Export Kicad_Pcb
+                        
+
                 
     .row
         .column 
