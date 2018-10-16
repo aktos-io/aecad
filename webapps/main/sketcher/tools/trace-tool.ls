@@ -118,9 +118,12 @@ export TraceTool = (scope, layer) ->
                 if trace.line
                     that.removeSegment (trace.line.segments.length - 1)
                     that.selected = no
+                    trace.line = null
+                else
+                    # select the move tool
+                    @find-id \toolChanger .fire \select, {}, \mv
 
                 trace.last-esc = Date.now!
-                trace.line = null
 
 
     return trace-tool
