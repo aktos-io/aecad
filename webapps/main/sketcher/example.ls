@@ -7,7 +7,9 @@ S = (a, b) -> new Size (a |> mm2px), (b |> mm2px)
 pad = (width, height, position=P(10mm, 10mm)) ->
     p = new Rectangle position, S(width, height)
     pad = new Path.Rectangle p
-    pad.fillColor = 'black'
+        ..fillColor = 'black'
+        ..rect = p
+        ..data.project = {layer: 'scripting'}
     pad
 
 do ->

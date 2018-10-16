@@ -29,18 +29,19 @@ Ractive.components['sketcher'] = Ractive.extend do
         #pcb.view.scaling = 96 / 25.4
 
         # layers
-        gui = new pcb.Layer!
-        script-layer = new pcb.Layer!
-        external = new pcb.Layer!
+        layers =
+            gui: new pcb.Layer!
+            scripting: new pcb.Layer!
+            ext: new pcb.Layer!
 
         # zooming
         $ canvas .mousewheel (event) ->
             paperZoom pcb, event
 
         # tools
-        trace-tool = TraceTool.call this, pcb, gui
-        freehand = Freehand.call this, pcb, gui
-        {move-tool, cache} = MoveTool.call this, pcb, gui
+        trace-tool = TraceTool.call this, pcb, layers.gui
+        freehand = Freehand.call this, pcb, layers.gui
+        {move-tool, cache} = MoveTool.call this, pcb, layers.gui
 
         move-tool.on 'mousedrag', (event) ~>
             @set \moving, cache.selected.0
@@ -58,7 +59,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             if compiled
                 try
                     #pcb.project.clear!
-                    script-layer
+                    layers.scripting
                         ..activate!
                         ..clear!
                     pcb.execute js
@@ -89,11 +90,21 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             importSVG: (ctx, file, next) ~>
                 #paper.project.clear!
-                external
+                layers.ext
                     ..activate!
                     ..clear!
                 json <~ pcb.project.importSVG file.raw
-                console.log "....", JSON.stringify(json, null, 2) 
+                process-objects = (o) ->
+                    if o.hasChildren!
+                        for o.children
+                            process-objects ..
+                    else
+                        if project = o.data?project
+                            # set the project properties
+                            if project.layer
+                                layers[project.layer].addChild o
+                for layer in pcb.project.getItems!
+                    process-objects layer
                 next!
 
             exportSVG: (ctx) ~>
@@ -110,7 +121,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 # FIXME: Splines can not be recognized
                 svg = dxfToSvg file.raw
                 #paper.project.clear!
-                external
+                layers.ext
                     ..activate!
                     ..clear!
                 pcb.project.importSVG svg
@@ -121,7 +132,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 parsed = dxf.parseString file.raw
                 svg = dxf.toSVG(parsed)
                 #paper.project.clear!
-                external
+                layers.ext
                     ..activate!
                     ..clear!
                 pcb.project.importSVG svg
@@ -137,13 +148,13 @@ Ractive.components['sketcher'] = Ractive.extend do
                 create-download "export.dxf", dxf-out
 
             clear: (ctx) ~>
-                gui.clear!
+                layers.gui.clear!
 
             clearImport: (ctx) ~>
-                external.clear!
+                layers.ext.clear!
 
             clearScript: (ctx) ~>
-                script-layer.clear!
+                layers.scripting.clear!
 
             exportKicad: (ctx) ~>
                 svg = pcb.project.exportSVG {+asString}

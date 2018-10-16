@@ -1,26 +1,22 @@
 require! 'prelude-ls': {abs}
 
 export TraceTool = (scope, layer) ->
-    # pcb is the scope
-    pcb = scope
-    gui = layer
-
     trace =
         line: null
         snap-x: false
         snap-y: false
         seg-count: null
-        tolerance: (x) -> 10 / pcb.view.zoom
+        tolerance: (x) -> 10 / scope.view.zoom
 
-    trace-tool = new pcb.Tool!
+    trace-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
             # panning
             offset = event.downPoint .subtract event.point
-            pcb.view.center = pcb.view.center .add offset
+            scope.view.center = scope.view.center .add offset
             trace.panning = yes
 
         ..onMouseUp = (event) ~>
-            gui.activate!
+            layer.activate!
             unless trace.panning
                 unless trace.line
                     snap = event.point
@@ -30,7 +26,7 @@ export TraceTool = (scope, layer) ->
                         snap = new scope.Point that.bounds.center
                         console.log "snapping to ", snap
 
-                    trace.line = new pcb.Path(snap, event.point)
+                    trace.line = new scope.Path(snap, event.point)
                         ..strokeColor = 'red'
                         ..strokeWidth = 3
                         ..strokeCap = 'round'
@@ -98,7 +94,7 @@ export TraceTool = (scope, layer) ->
                     hits
 
                 closest = {}
-                for layer in pcb.project.getItems!
+                for layer in scope.project.getItems!
                     for obj in layer.children
                         for hit in event.point `search-hit` obj
                             dist = hit.bounds.center .subtract event.point .length
@@ -111,7 +107,7 @@ export TraceTool = (scope, layer) ->
                                     ..hit = hit
                                     ..dist = dist
                 if closest.hit
-                    console.log "snapped to the closest hit:", that, "zoom: ", pcb.view.zoom
+                    console.log "snapped to the closest hit:", that, "zoom: ", scope.view.zoom
                     lp .set that.bounds.center
                     that.selected = yes
 

@@ -1,15 +1,11 @@
 export Freehand = (scope, layer) ->
-    # pcb is the scope
-    pcb = scope
-    gui = layer
-
     path = null
-    freehand = new pcb.Tool!
+    freehand = new scope.Tool!
         ..onMouseDrag = (event) ~>
             path.add(event.point);
 
         ..onMouseDown = (event) ~>
-            gui.activate!
-            path := new pcb.Path();
+            layer.activate!
+            path := new scope.Path();
             path.strokeColor = 'black';
             path.add(event.point);
