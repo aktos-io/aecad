@@ -5,7 +5,6 @@ require! './lib/dxfToSvg': {dxfToSvg}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
 require! 'svgson'
 require! 'dxf-writer'
-require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
 require! 'dxf'
 require! 'livescript': lsc
 require('jquery-mousewheel')($);
@@ -14,12 +13,6 @@ require! './tools/trace-tool': {TraceTool}
 require! './tools/freehand': {Freehand}
 require! './tools/move-tool': {MoveTool}
 require! './lib/json-to-dxf': {json-to-dxf}
-
-help = """
-    Trace:
-        Esc: break last segment
-        Drag: pan pcb
-    """
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -32,10 +25,14 @@ Ractive.components['sketcher'] = Ractive.extend do
         # scope
         pcb = paper.setup canvas
 
+        # see https://stackoverflow.com/a/52830469/1952991
+        #pcb.view.scaling = 96 / 25.4
+
         # layers
         gui = new pcb.Layer!
         script-layer = new pcb.Layer!
         external = new pcb.Layer!
+
 
         # zooming
         $ canvas .mousewheel (event) ->
@@ -44,13 +41,17 @@ Ractive.components['sketcher'] = Ractive.extend do
         # tools
         trace-tool = TraceTool.call this, pcb, gui
         freehand = Freehand.call this, pcb, gui
-        move-tool = MoveTool.call this, pcb, gui
+        {move-tool, cache} = MoveTool.call this, pcb, gui
 
-        @observe \drawingLs, (_new) ~>
+        move-tool.on 'mousedrag', (event) ~>
+            @set \moving, cache.selected.0
+            @set \d, JSON.stringify(cache.selected.0)
+
+        runScript = (content) ~>
             compiled = no
             @set \output, ''
             try
-                js = lsc.compile _new, {+bare, -header}
+                js = lsc.compile content, {+bare, -header}
                 compiled = yes
             catch err
                 @set \output, err.to-string!
@@ -65,7 +66,14 @@ Ractive.components['sketcher'] = Ractive.extend do
                 catch
                     @set \output, "#{e}\n\n#{js}"
 
+        @observe \drawingLs, (_new) ~>
+            unless @get \autoCompile => return
+            runScript _new
+
         @on do
+            compileScript: (ctx) ~>
+                runScript @get \drawingLs
+
             changeTool: (ctx, tool, proceed) ~>
                 console.log "Changing tool to: #{tool}"
                 switch tool
@@ -123,7 +131,12 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             clear: (ctx) ~>
                 gui.clear!
-                #paper.project.clear!
+
+            clearImport: (ctx) ~>
+                external.clear!
+
+            clearScript: (ctx) ~>
+                script-layer.clear!
 
             exportKicad: (ctx) ~>
                 svg = paper.project.exportSVG {+asString}
@@ -135,23 +148,9 @@ Ractive.components['sketcher'] = Ractive.extend do
                 create-download "myexport.kicad_pcb", kicad
 
     data: ->
-        drawingLs: '''
-            pad = (point=new Point(10, 10), size=new Size(20,20)) ->
-                p = new Rectangle point, size
-                pad = new Path.Rectangle p
-                pad.fillColor = 'black'
-                pad
-
-            mm2px = ( / 25.4 * 96)
-
-            P = (x, y) -> new Point (x |> mm2px), (y |> mm2px)
-            S = (a, b) -> new Size (a |> mm2px), (b |> mm2px)
-
-            do ->
-                p1 = pad P(4mm, 2mm), S(2mm, 4mm)
-                pad P(p1.bounds.left, p1.bounds.bottom + (5 |> mm2px))
-            '''
-
+        autoCompile: yes
+        selectAllLayer: yes
+        drawingLs: require './example' .script
         kicadLayers:
             \F.Cu
             \B.Cu
@@ -168,5 +167,3 @@ Ractive.components['sketcher'] = Ractive.extend do
             \Eco1.User
             \Eco2.User
             \Edge.Cuts
-
-        help: help

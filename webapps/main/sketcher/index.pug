@@ -10,20 +10,45 @@
                 btn(on-click="exportSVG") Export SVG
                 btn(on-click="exportDXF") Export DXF
                 //- ack-button(on-click="exportKicad") Export Kicad_Pcb
+
+            btn.red(on-click="clearImport") Clear Import
                 
-            btn.red(on-click="clear") Clear
     .row
         .column 
             radio-buttons(on-select="changeTool")
                 .ui.buttons
                     radio-button.icon(tooltip="Freehand tool" value="fh"): icon.pencil.alternate
-                    radio-button.icon(tooltip="Trace route" value="tr"): icon.crosshairs
+                    radio-button.icon(tooltip="Trace route" value="tr"): icon.bars
                     radio-button.icon(default tooltip="Move" value="mp"): icon.mouse.pointer
-                    
+
+            btn.red(on-click="clear") Clear
+    .row
+        .column 
+            //-checkbox(checked="{{editAssembly}}" tooltip="Edit current assembly") Edit Assembly
+            checkbox(
+                checked="{{selectAllLayer}}" 
+                tooltip="Select all objects in current layer") Select Layer
 
     .equal.width.row
         .column
             canvas#draw
         .column 
-            ace-editor(code="{{drawingLs}}" mode="livescript")
+            .ui.buttons 
+                btn.red(on-click="clearScript" tooltip="Clear Output"): icon.trash 
+                checkbox(checked="{{autoCompile}}") Auto Compile
+                btn.icon(disabled="{{autoCompile}}" on-click="compileScript"): icon.play
+                
+            ace-editor(code="{{drawingLs}}" mode="livescript" style="height: 400px")
             pre {{output}}
+
+
+.ui.message
+    h3 Help 
+    
+    ul
+        li Trace:
+            ul
+                li Esc: break last segment
+                li Drag: pan pcb
+
+    
