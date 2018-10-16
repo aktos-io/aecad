@@ -1,3 +1,5 @@
+require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
+
 export json-to-dxf = (obj, drawer) ->
     switch obj.name
     | \svg => # do nothing
