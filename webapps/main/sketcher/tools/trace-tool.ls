@@ -111,6 +111,8 @@ export TraceTool = (scope, layer) ->
                     lp .set that.bounds.center
                     that.selected = yes
 
+                trace.line.selected = yes
+
         ..onKeyDown = (event) ~>
             if event.key is \escape
                 if trace.line
