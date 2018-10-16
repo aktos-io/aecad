@@ -23,11 +23,19 @@ export TraceTool = (scope, layer) ->
             gui.activate!
             unless trace.panning
                 unless trace.line
-                    trace.line = new pcb.Path(event.point, event.point)
+                    snap = event.point
+                    # TODO: hitTest is not correct, check if inside the geometry
+                    hit = scope.project.hitTest event.point
+                    if hit?item
+                        snap = new scope.Point that.bounds.center
+                        console.log "snapping to ", snap
+
+                    trace.line = new pcb.Path(snap, event.point)
                         ..strokeColor = 'red'
                         ..strokeWidth = 3
                         ..strokeCap = 'round'
                         ..strokeJoin = 'round'
+                        ..selected = yes
 
                 else
                     trace.line.add(event.point)
@@ -62,10 +70,8 @@ export TraceTool = (scope, layer) ->
                 else if abs(x-diff - y-diff) < tolerance
                     # 45 degrees
                     lp.set event.point
-                    trace.line.strokeColor = 'green'
                 else
                     lp.set event.point
-                    trace.line.strokeColor = 'red'
 
                 # collision detection
                 search-hit = (src, target) ->
@@ -111,7 +117,11 @@ export TraceTool = (scope, layer) ->
 
         ..onKeyDown = (event) ~>
             if event.key is \escape
-                trace.line?.removeSegment (trace.line.segments.length - 1)
+                if trace.line
+                    that.removeSegment (trace.line.segments.length - 1)
+                    that.selected = no
+
+                trace.last-esc = Date.now!
                 trace.line = null
 
 
