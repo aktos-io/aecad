@@ -1,0 +1,7 @@
+.ui.buttons 
+    btn.red(on-click="clearScript" tooltip="Clear Output"): icon.trash 
+    checkbox(checked="{{autoCompile}}") Auto Compile
+    btn.icon(disabled="{{autoCompile}}" on-click="compileScript"): icon.play
+    
+ace-editor(code="{{drawingLs}}" mode="livescript" style="height: 400px; width: 100%")
+pre {{output}}

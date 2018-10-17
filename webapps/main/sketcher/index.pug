@@ -1,74 +1,17 @@
 div(style="padding: 20px")
-    .ui.stackable.grid
+    .ui.grid
         .row
             .column
-                .ui.buttons 
-                    .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.upload Import
-                    .ui.popup.top.transition.hidden
-                        .ui.vertical.buttons 
-                            file-button(on-read="importSVG" type="text") SVG
-                            file-button(on-read="importDXF" type="text") DXF
-                            file-button(on-read="importDXF2" type="text") DXF (2)
-
-                    btn.icon.red(on-click="clearImport" tooltip="Clear imported drawing"): icon.trash
-
-                | &nbsp;
-                .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.download Export
-                .ui.popup.top.transition.hidden
-                    .ui.vertical.buttons 
-                        btn(on-click="exportSVG") SVG
-                        btn(on-click="exportDXF") DXF
-                        btn(on-click="exportJSON") JSON
-                        //- ack-button(on-click="exportKicad") Export Kicad_Pcb
-                
-                //-        
-                    debug-obj(obj="{{pjson}}" title="Project JSON output" public)
-                    debug-obj(obj="{{psvg}}" title="Project SVG output" public)
-                            
-
-                    
+                include ./gui/project-control.pug
         .row
-            .column 
-                radio-buttons#toolChanger(on-select="changeTool")
-                    .ui.buttons
-                        radio-button.icon(tooltip="Freehand tool" value="fh"): icon.pencil.alternate
-                        radio-button.icon(tooltip="Trace route" value="tr"): icon.bars
-                        radio-button.icon#move-tool(default tooltip="Move" value="mv"): icon.arrows.alternate
-
-                btn.red(on-click="clear") Clear
-        .row
-            .column 
-                //-checkbox(checked="{{editAssembly}}" tooltip="Edit current assembly") Edit Assembly
-                checkbox(
-                    checked="{{selectAllLayer}}" 
-                    tooltip="Select all objects in current layer") Select Layer
-
-        .equal.width.row
-            .column
-                canvas#draw
-            .column 
-                .ui.buttons 
-                    btn.red(on-click="clearScript" tooltip="Clear Output"): icon.trash 
-                    checkbox(checked="{{autoCompile}}") Auto Compile
-                    btn.icon(disabled="{{autoCompile}}" on-click="compileScript"): icon.play
-                    
-                ace-editor(code="{{drawingLs}}" mode="livescript" style="height: 400px")
-                pre {{output}}
-
+            .two.wide.column 
+                | here is project tree 
+            .fourteen.wide.column
+                .ui.stackable.grid 
+                    .row 
+                        .nine.wide.column 
+                            include ./gui/canvas.pug
+                        .seven.wide.column 
+                            include ./gui/scripting.pug
     .ui.message
-        h3 Help 
-        
-        ul
-            li Trace:
-                ul
-                    li #[.ui.label.basic Esc]: break last segment
-                    li Click: add trace segment 
-                    li Drag: pan pcb (while tracing or not)
-                    
-            li Move: 
-                ul 
-                    li Select + #[.ui.basic.label Del]: Delete selected items
-                    li #[.ui.label.basic Esc] while moving: Cancel movement 
-                    li Click outside of objects + drag: Pan 
-
-        
+        include ./gui/help.pug
