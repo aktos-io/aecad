@@ -9,19 +9,31 @@ export MoveTool = (scope, layer) ->
         last-drag-point: null
 
     deselect-all = ->
-        for move.selected => ..selected = no
-        move.selected = []
-        move.dragging = null
+        for move.selected
+            ..selected = no
+
+        move
+            ..selected = []
+            ..dragging = null
+            ..pan = no
 
     move-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
-            for move.selected
-                ..position.set (..position .add event.delta)
+            unless empty move.selected
+                for move.selected
+                    ..position.set (..position .add event.delta)
 
-            move.dragging = (move.dragging or new scope.Point(0, 0)) .add event.delta
+                move.dragging = (move.dragging or new scope.Point(0, 0)) .add event.delta
+            else
+                # panning
+                if move.pan
+                    offset = event.downPoint .subtract event.point
+                    scope.view.center = scope.view.center .add offset
+
 
         ..onMouseUp = (event) ~>
             move.dragging = null
+            move.pan = no
 
         ..onMouseDown = (event) ~>
             layer.activate!
@@ -38,6 +50,10 @@ export MoveTool = (scope, layer) ->
                     console.log "...will select all items in current layer", all
                     all.for-each (.selected = yes)
                     move.selected = all
+            else
+                # Pan mode if no hit + drag
+                # TODO: change cursor to grab
+                move.pan = yes
 
         ..onKeyDown = (event) ~>
             # delete an item with Delete key
