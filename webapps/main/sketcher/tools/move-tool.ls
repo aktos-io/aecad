@@ -16,13 +16,9 @@ export MoveTool = (scope, layer) ->
     move-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
             for move.selected
-                ..position
-                    ..x += event.delta.x
-                    ..y += event.delta.y
+                ..position.set (..position .add event.delta)
 
-            move.dragging =
-                origin: event.downPoint
-                diff: (move.dragging?diff or new scope.Point(0, 0)) .add event.delta
+            move.dragging = (move.dragging or new scope.Point(0, 0)) .add event.delta
 
         ..onMouseUp = (event) ~>
             move.dragging = null
@@ -60,15 +56,9 @@ export MoveTool = (scope, layer) ->
 
             # Press Esc to cancel a move
             if (event.key is \escape) and move.dragging?
-                try
-                    for move.selected
-                        ..position
-                            ..x -= move.dragging.diff.x
-                            ..y -= move.dragging.diff.y
-
-                    deselect-all!
-                catch
-                    debugger
+                for move.selected
+                    ..position.set (..position .subtract move.dragging)
+                deselect-all!
 
 
     {move-tool, cache: move}
