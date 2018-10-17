@@ -1,17 +1,11 @@
-.ui.grid 
-    .row 
-        .column 
-            radio-buttons#toolChanger(on-select="changeTool")
-                .ui.buttons
-                    radio-button.icon(tooltip="Freehand tool" value="fh"): icon.pencil.alternate
-                    radio-button.icon(tooltip="Trace route" value="tr"): icon.bars
-                    radio-button.icon#move-tool(default tooltip="Move" value="mv"): icon.arrows.alternate
+radio-buttons#toolChanger(on-select="changeTool")
+    .ui.buttons
+        radio-button.icon(tooltip="Freehand tool" value="fh"): icon.pencil.alternate
+        radio-button.icon(tooltip="Trace route" value="tr"): icon.bars
+        radio-button.icon#move-tool(default tooltip="Move" value="mv"): icon.arrows.alternate
 
-            btn.red(on-click="clear") Clear
-            checkbox(
-                checked="{{selectAllLayer}}" 
-                tooltip="Select all objects in current layer") Select Layer
-
-    .row
-        .column 
-            canvas#draw
+btn.red(on-click="clear") Clear
+checkbox(
+    checked="{{selectAllLayer}}" 
+    tooltip="Select all objects in current layer") Select Layer
+canvas#draw
