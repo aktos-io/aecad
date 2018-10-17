@@ -1,5 +1,11 @@
-radio-buttons(value="{{phyLayer}}")
+radio-buttons(value="{{currLayer}}")
     .ui.vertical.buttons
         radio-button(default value="F.Cu" true-color="red") #[.ui.circle.red.label] F.Cu
         radio-button(value="B.Cu" true-color="green") #[.ui.circle.green.label] B.Cu
             
+
+//- Property window 
+table
+    tr 
+        td I
+        td: .ui.input: input(value="{{currTrace.width}}")

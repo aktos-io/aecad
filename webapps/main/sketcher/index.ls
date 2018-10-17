@@ -189,11 +189,11 @@ Ractive.components['sketcher'] = Ractive.extend do
                 create-download "myexport.kicad_pcb", kicad
 
     computed:
-        currLayer:
+        currProps:
             get: ->
-                name = @get('phyLayer')
-                layer-info = @get('layers')[name]
-                layer-info.name = name
+                layer = @get('currLayer')
+                layer-info = @get('layers')[layer]
+                layer-info.name = layer
                 layer-info
     data: ->
         autoCompile: yes
@@ -204,9 +204,9 @@ Ractive.components['sketcher'] = Ractive.extend do
                 color: 'red'
             'B.Cu':
                 color: 'green'
-
-        phyLayer: 'F.Cu'
-
+        currLayer: 'F.Cu'
+        currTrace:
+            width: 3
         kicadLayers:
             \F.Cu
             \B.Cu
