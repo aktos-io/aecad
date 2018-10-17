@@ -26,13 +26,14 @@ export TraceTool = (scope, layer) ->
                         snap = new scope.Point that.bounds.center
                         console.log "snapping to ", snap
 
+                    curr-layer = @get('currLayer')
                     trace.line = new scope.Path(snap, event.point)
-                        ..strokeColor = 'red'
+                        ..strokeColor = curr-layer.color
                         ..strokeWidth = 3
                         ..strokeCap = 'round'
                         ..strokeJoin = 'round'
                         ..selected = yes
-                        ..data.project = {layer: 'gui'}
+                        ..data.project = {layer: curr-layer.name}
                 else
                     trace.line.add(event.point)
             trace.panning = no

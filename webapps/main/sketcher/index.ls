@@ -59,7 +59,6 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             if compiled
                 try
-                    #pcb.project.clear!
                     layers.scripting
                         ..activate!
                         ..clear!
@@ -90,7 +89,6 @@ Ractive.components['sketcher'] = Ractive.extend do
                 proceed?!
 
             importSVG: (ctx, file, next) ~>
-                #paper.project.clear!
                 layers.ext
                     ..activate!
                     ..clear!
@@ -190,10 +188,25 @@ Ractive.components['sketcher'] = Ractive.extend do
                     return ctx.component.error e.message
                 create-download "myexport.kicad_pcb", kicad
 
+    computed:
+        currLayer:
+            get: ->
+                name = @get('phyLayer')
+                layer-info = @get('layers')[name]
+                layer-info.name = name
+                layer-info
     data: ->
         autoCompile: yes
         selectAllLayer: yes
         drawingLs: require './example' .script
+        layers:
+            'F.Cu':
+                color: 'red'
+            'B.Cu':
+                color: 'green'
+
+        phyLayer: 'F.Cu'
+
         kicadLayers:
             \F.Cu
             \B.Cu
