@@ -4,8 +4,10 @@ radio-buttons#toolChanger(on-select="changeTool")
         radio-button.icon(tooltip="Trace route" value="tr"): icon.bars
         radio-button.icon#move-tool(default tooltip="Move" value="mv"): icon.arrows.alternate
 
-btn.red(on-click="clear") Clear
+| &nbsp;
+btn.red.icon(on-click="clear" tooltip="Clear gui layer"): icon.trash 
+| &nbsp;
 checkbox(
     checked="{{selectAllLayer}}" 
-    tooltip="Select all objects in current layer") Select Layer
+    tooltip="Select all objects in current layer") Immutable Layer
 canvas#draw
