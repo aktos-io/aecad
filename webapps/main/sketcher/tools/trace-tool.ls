@@ -116,11 +116,13 @@ export TraceTool = (scope, layer) ->
                     that.selected = yes
 
                 trace.line.selected = yes
+                trace.curr = event
 
         ..onKeyDown = (event) ~>
-            if event.key is \escape
+            switch event.key
+            | \escape =>
                 if trace.line
-                    that.removeSegment (trace.line.segments.length - 1)
+                    trace.line.removeSegment (trace.line.segments.length - 1)
                     that.selected = no
                     trace.line = null
                 else
@@ -128,6 +130,18 @@ export TraceTool = (scope, layer) ->
                     @find-id \toolChanger .fire \select, {}, \mv
 
                 trace.last-esc = Date.now!
+            | 'v' =>
+                # Place a 'via'
+                via = new scope.Path.Circle(trace.curr.point, 5)
+                    ..fill-color = \orange
+
+                # Toggle the layers
+                # TODO: make this cleaner
+                @set \currLayer, switch @get \currLayer
+                | 'F.Cu' => 'B.Cu'
+                | 'B.Cu' => 'F.Cu'
+                trace.line = null
+                trace-tool.emit \mouseup, trace.curr
 
 
     return trace-tool
