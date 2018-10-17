@@ -1,9 +1,10 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
-require! 'aea': {create-download}
+require! 'aea': {create-download, htmlDecode}
 require! './lib/dxfToSvg': {dxfToSvg}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
-require! 'svgson'
+#require! 'svgson'
+require! 'svgson-next': svgson
 require! 'dxf-writer'
 require! 'dxf'
 require! 'livescript': lsc
@@ -108,9 +109,33 @@ Ractive.components['sketcher'] = Ractive.extend do
                 next!
 
             exportSVG: (ctx) ~>
+                # VERY IMPORTANT: Might be needed by a bug.
+                # changing view.zoom adds <g scale(...) />, so everything
+                # is printed scaled
+                old-zoom = pcb.view.zoom
+                pcb.view.zoom = 1
                 svg = pcb.project.exportSVG {+asString}
-                @set \psvg, svg  # for debugging purposes
-                create-download "myexport.svg", svg
+
+                mm2px = (/ 25.4 * 96)
+                px2mm = (* 1 / mm2px it)
+                transformNode = (node) ->
+                    if node.name is \svg
+                        attr = node.attributes
+                        node.attributes.viewBox = "0 0 #{attr.width} #{attr.height}"
+                    # Do something with entity specific data if needed
+                    #if node.attributes["data-paper-data"]
+                    #    node.attributes["data-paper-data"] = JSON.parse htmlDecode that
+                    #console.log node
+                    node
+
+                json <~ svgson.parse svg, {transformNode} .then
+                pcb.view.zoom = old-zoom # continue above workaround
+
+                svg2 = svgson.stringify json
+                #console.log "JSON format: ", JSON.stringify json
+                #console.log "SVG format: ", svg2
+                create-download "project.svg", svg2
+
 
             exportJSON: (ctx) ~>
                 json = pcb.project.exportJSON!
