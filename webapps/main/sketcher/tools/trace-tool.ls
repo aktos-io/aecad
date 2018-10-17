@@ -117,6 +117,7 @@ export TraceTool = (scope, layer) ->
 
                 trace.line.selected = yes
                 trace.curr = event
+                    ..point = lp 
 
         ..onKeyDown = (event) ~>
             switch event.key
