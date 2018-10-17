@@ -83,10 +83,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                 | \fh =>
                     freehand.activate!
                     canvas.style.cursor = \default
-                | \mp =>
+                | \mv =>
                     move-tool.activate!
-                    canvas.style.cursor = \default
-                proceed!
+                    canvas.style.cursor = \default # \move
+                proceed?!
 
             importSVG: (ctx, file, next) ~>
                 #paper.project.clear!

@@ -3,7 +3,7 @@ div(style="padding: 20px")
         .row
             .column
                 .ui.buttons 
-                    .ui.button.icon.purple(as-inline-popup="{position: 'right center'}"): icon.upload Import
+                    .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.upload Import
                     .ui.popup.top.transition.hidden
                         .ui.vertical.buttons 
                             file-button(on-read="importSVG" type="text") SVG
@@ -13,26 +13,27 @@ div(style="padding: 20px")
                     btn.icon.red(on-click="clearImport" tooltip="Clear imported drawing"): icon.trash
 
                 | &nbsp;
-                .ui.button.icon.green(as-inline-popup="{position: 'right center'}"): icon.download Export
+                .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.download Export
                 .ui.popup.top.transition.hidden
                     .ui.vertical.buttons 
                         btn(on-click="exportSVG") SVG
                         btn(on-click="exportDXF") DXF
                         btn(on-click="exportJSON") JSON
                         //- ack-button(on-click="exportKicad") Export Kicad_Pcb
-                        
-                debug-obj(obj="{{pjson}}" title="Project JSON output" public)
-                debug-obj(obj="{{psvg}}" title="Project SVG output" public)
+                
+                //-        
+                    debug-obj(obj="{{pjson}}" title="Project JSON output" public)
+                    debug-obj(obj="{{psvg}}" title="Project SVG output" public)
                             
 
                     
         .row
             .column 
-                radio-buttons(on-select="changeTool")
+                radio-buttons#toolChanger(on-select="changeTool")
                     .ui.buttons
                         radio-button.icon(tooltip="Freehand tool" value="fh"): icon.pencil.alternate
                         radio-button.icon(tooltip="Trace route" value="tr"): icon.bars
-                        radio-button.icon(default tooltip="Move" value="mp"): icon.mouse.pointer
+                        radio-button.icon#move-tool(default tooltip="Move" value="mv"): icon.arrows.alternate
 
                 btn.red(on-click="clear") Clear
         .row
@@ -60,7 +61,12 @@ div(style="padding: 20px")
         ul
             li Trace:
                 ul
-                    li Esc: break last segment
-                    li Drag: pan pcb
+                    li #[.ui.label.basic Esc]: break last segment
+                    li Click: add trace segment 
+                    li Drag: pan pcb (while tracing or not)
+                    
+            li Move: 
+                ul 
+                    li #[.ui.basic.label Del]: delete selected items
 
         
