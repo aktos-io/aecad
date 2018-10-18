@@ -22,7 +22,7 @@ export class Trace
         @history = []
 
     get-tolerance: ->
-        10 / @scope.view.zoom
+        20 / @scope.view.zoom
 
     end: ->
         if @line
@@ -31,8 +31,10 @@ export class Trace
 
         @line = null
         @continues = no
-        @snap-x = false
-        @snap-y = false
+        @snap-x = false             # snap to -- direction
+        @snap-y = false             # snap to | direction
+        @snap-slash = false         # snap to / direction
+        @snap-backslash = false     # snap to \ direction
         @flip-side = false
         @uuid = null
 
@@ -106,6 +108,8 @@ export class Trace
 
             snap-y = false
             snap-x = false
+            snap-slash = false
+            snap-backslash = false
             if @modifiers.shift
                 angle = @moving-point.subtract @last-point .angle
                 console.log "angle is: ", angle
@@ -113,6 +117,10 @@ export class Trace
                     snap-y = true
                 else if angle is 0 or angle is 180
                     snap-x = true
+                else if angle is -45 or angle is 135
+                    snap-slash = true
+                else if angle is 45 or angle is -135
+                    snap-backslash = true
 
             if abs(y-diff) < tolerance or snap-x
                 # x direction
@@ -122,9 +130,19 @@ export class Trace
                 # y direction
                 @moving-point.y = point.y
                 @moving-point.x = @last-point.x
-            else if abs(x-diff - y-diff) < tolerance
-                # 45 degrees
-                @moving-point.set point
+            else if abs(x-diff - y-diff) < tolerance or snap-backslash
+                # backslash
+                d = @last-point.x - point.x
+                @moving-point
+                    ..x = point.x
+                    ..y = @last-point.y - d
+
+            else if abs(x-diff + y-diff) < tolerance or snap-slash
+                # slash
+                d = @last-point.x - point.x
+                @moving-point
+                    ..x = point.x
+                    ..y = @last-point.y + d
             else
                 @moving-point.set point
 
