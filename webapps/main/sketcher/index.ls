@@ -14,6 +14,7 @@ require! './tools/trace-tool': {TraceTool}
 require! './tools/freehand': {Freehand}
 require! './tools/move-tool': {MoveTool}
 require! './lib/json-to-dxf': {json-to-dxf}
+require! 'pretty'
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -112,7 +113,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 # is printed scaled
                 old-zoom = pcb.view.zoom
                 pcb.view.zoom = 1
-                svg = pcb.project.exportSVG {+asString}
+                _svg = pcb.project.exportSVG {+asString}
 
                 mm2px = (/ 25.4 * 96)
                 px2mm = (* 1 / mm2px it)
@@ -120,19 +121,18 @@ Ractive.components['sketcher'] = Ractive.extend do
                     if node.name is \svg
                         attr = node.attributes
                         node.attributes.viewBox = "0 0 #{attr.width} #{attr.height}"
-                    # Do something with entity specific data if needed
-                    #if node.attributes["data-paper-data"]
-                    #    node.attributes["data-paper-data"] = JSON.parse htmlDecode that
-                    #console.log node
+                    if node.attributes["data-paper-data"]
+                        node.attributes["data-paper-data"] = JSON.parse htmlDecode that
                     node
 
-                json <~ svgson.parse svg, {transformNode} .then
+                json <~ svgson.parse _svg, {transformNode} .then
+                console.log JSON.stringify json, null, 2
                 pcb.view.zoom = old-zoom # continue above workaround
 
-                svg2 = svgson.stringify json
-                #console.log "JSON format: ", JSON.stringify json
-                #console.log "SVG format: ", svg2
-                create-download "project.svg", svg2
+                svg = svgson.stringify json |> pretty
+                #console.log "SVG format: ", svg
+
+                create-download "project.svg", svg
 
 
             exportJSON: (ctx) ~>
