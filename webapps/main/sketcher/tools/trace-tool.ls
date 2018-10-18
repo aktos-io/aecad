@@ -1,6 +1,6 @@
 require! './lib/trace': {Trace}
 
-export TraceTool = (scope, layer) ->
+export TraceTool = (scope, layer, canvas) ->
     ractive = this
 
     trace = new Trace scope, ractive
@@ -9,11 +9,13 @@ export TraceTool = (scope, layer) ->
             # panning
             offset = event.downPoint .subtract event.point
             scope.view.center = scope.view.center .add offset
+            canvas.style.cursor = 'grabbing'
             trace.pause!
 
         ..onMouseUp = (event) ~>
             layer.activate!
             trace.add-segment event.point
+            canvas.style.cursor = 'cell'
             trace.resume!
 
         ..onMouseMove = (event) ~>

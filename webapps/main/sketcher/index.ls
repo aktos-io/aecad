@@ -42,13 +42,10 @@ Ractive.components['sketcher'] = Ractive.extend do
             paperZoom pcb, event
 
         # tools
-        trace-tool = TraceTool.call this, pcb, layers.gui
-        freehand = Freehand.call this, pcb, layers.gui
-        {move-tool, cache} = MoveTool.call this, pcb, layers.gui
-        {select-tool} = SelectTool.call this, pcb, layers.gui
-
-        move-tool.on 'mousedrag', (event) ~>
-            @set \moving, cache.selected.0
+        trace-tool = TraceTool.call this, pcb, layers.gui, canvas
+        freehand = Freehand.call this, pcb, layers.gui, canvas
+        move-tool = MoveTool.call this, pcb, layers.gui, canvas
+        select-tool = SelectTool.call this, pcb, layers.gui, canvas
 
         runScript = (content) ~>
             compiled = no

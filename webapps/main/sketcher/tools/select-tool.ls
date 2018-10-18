@@ -1,7 +1,7 @@
 require! 'prelude-ls': {empty, flatten, filter, map}
 require! './lib/selection': {Selection}
 
-export SelectTool = (scope, layer) ->
+export SelectTool = (scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
 
     selection = new Selection
@@ -66,4 +66,4 @@ export SelectTool = (scope, layer) ->
             if (event.key is \escape)
                 selection.deselect!
 
-    {select-tool}
+    select-tool

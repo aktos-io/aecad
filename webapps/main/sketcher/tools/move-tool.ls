@@ -1,6 +1,6 @@
 require! 'prelude-ls': {empty}
 
-export MoveTool = (scope, layer) ->
+export MoveTool = (scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
 
     move =
@@ -24,16 +24,19 @@ export MoveTool = (scope, layer) ->
                     ..position.set (..position .add event.delta)
 
                 move.dragging = (move.dragging or new scope.Point(0, 0)) .add event.delta
+                canvas.style.cursor = 'move'
             else
                 # panning
                 if move.pan
                     offset = event.downPoint .subtract event.point
                     scope.view.center = scope.view.center .add offset
+                    canvas.style.cursor = 'grabbing'
 
 
         ..onMouseUp = (event) ~>
             move.dragging = null
             move.pan = no
+            canvas.style.cursor = 'default'
 
         ..onMouseDown = (event) ~>
             layer.activate!
@@ -77,4 +80,4 @@ export MoveTool = (scope, layer) ->
                 deselect-all!
 
 
-    {move-tool, cache: move}
+    move-tool
