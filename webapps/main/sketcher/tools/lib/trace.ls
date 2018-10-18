@@ -20,6 +20,7 @@ export class Trace
         @continues = no         # trace is continuing or not
         @modifiers = {}
         @history = []
+        @trace-id = 0
 
     get-tolerance: ->
         20 / @scope.view.zoom
@@ -59,7 +60,8 @@ export class Trace
             @flip-side = false
             unless @line
                 # starting a new trace
-                null
+                # assign a new trace id for next trace
+                @trace-id++
 
             # TODO: hitTest is not the correct way to go,
             # check if inside the geometry
@@ -79,8 +81,9 @@ export class Trace
                 ..strokeCap = 'round'
                 ..strokeJoin = 'round'
                 ..selected = yes
-                ..data.project =
+                ..data.aecad =
                     layer: curr.layer.name
+                    tid: @trace-id
 
         else
             @line.add(point)
@@ -167,7 +170,8 @@ export class Trace
                             #console.warn "Hit! ", target
                             hits.push target
                         else
-                            console.log "Skipped hit because of type not ok:", target
+                            #console.log "Skipped hit because of type not ok:", target
+                            null
                 hits
 
             closest = {}

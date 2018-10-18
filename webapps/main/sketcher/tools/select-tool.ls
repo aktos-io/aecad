@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty}
+require! 'prelude-ls': {empty, flatten, filter, map}
 
 export SelectTool = (scope, layer) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
@@ -24,7 +24,6 @@ export SelectTool = (scope, layer) ->
                 offset = event.downPoint .subtract event.point
                 scope.view.center = scope.view.center .add offset
 
-
         ..onMouseUp = (event) ~>
             cache.dragging = null
             cache.pan = no
@@ -37,20 +36,32 @@ export SelectTool = (scope, layer) ->
             if hit?item
                 that.selected = yes
                 cache.selected.push that
-                console.warn "Hit: ", hit
-
+                #console.warn "Hit: ", hit
+                matched = []
                 if @get \selectAllLayer
-                    all = hit.item.getLayer().children
-                    console.log "...will select all items in current layer", all
-                    all.for-each (.selected = yes)
-                    cache.selected = all
+                    if hit.item.data.aecad?tid
+                        # this is a trace, select only segments belong to this trace
+                        console.log "Selected a trace with tid: ", that
+                        #for layers in scope.project.getItems (.data.aecad?.tid is that)
+                        matched = scope.project.getItems!
+                            |> map (.children)
+                            |> flatten
+                            |> filter (.data.aecad?.tid is that)
+                        console.log "filtered items:", matched
+                    else
+                        matched = hit.item.getLayer().children
+                        console.log "...will select all items in current layer", matched
+
+                    # mark selected items
+                    matched.for-each (.selected = yes)
+                    cache.selected = matched
 
         ..onKeyDown = (event) ~>
             # delete an item with Delete key
             if event.key is \delete
                 for i in [til cache.selected.length]
                     item = cache.selected.pop!
-                    if item.recache!
+                    if item.remove!
                         console.log ".........deleted: ", item
                     else
                         console.error "couldn't recache item: ", item
