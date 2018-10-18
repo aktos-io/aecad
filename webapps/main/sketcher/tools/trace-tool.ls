@@ -27,8 +27,8 @@ export TraceTool = (scope, layer) ->
                 if trace.continues
                     trace.end!
                 else
-                    # select the move tool
-                    @find-id \toolChanger .fire \select, {}, \mv
+                    #ractive.find-id \toolChanger .fire \select, {}, \sl
+                    ractive.set \currTool, \sl
             | 'v' =>
                 trace.add-via!
             | 'e' =>

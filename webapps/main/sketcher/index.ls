@@ -13,6 +13,7 @@ require! './zooming': {paperZoom}
 require! './tools/trace-tool': {TraceTool}
 require! './tools/freehand': {Freehand}
 require! './tools/move-tool': {MoveTool}
+require! './tools/select-tool': {SelectTool}
 require! './lib/json-to-dxf': {json-to-dxf}
 require! 'pretty'
 
@@ -44,10 +45,10 @@ Ractive.components['sketcher'] = Ractive.extend do
         trace-tool = TraceTool.call this, pcb, layers.gui
         freehand = Freehand.call this, pcb, layers.gui
         {move-tool, cache} = MoveTool.call this, pcb, layers.gui
+        {select-tool} = SelectTool.call this, pcb, layers.gui
 
         move-tool.on 'mousedrag', (event) ~>
             @set \moving, cache.selected.0
-            @set \d, JSON.stringify(cache.selected.0)
 
         runScript = (content) ~>
             compiled = no
@@ -71,6 +72,10 @@ Ractive.components['sketcher'] = Ractive.extend do
             unless @get \autoCompile => return
             runScript _new
 
+        # workaround for
+        @observe \currTool, (tool) ~>
+            @fire \changeTool, {}, tool
+
         @on do
             compileScript: (ctx) ~>
                 runScript @get \drawingLs
@@ -86,7 +91,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                     canvas.style.cursor = \default
                 | \mv =>
                     move-tool.activate!
-                    canvas.style.cursor = \default # \move
+                    canvas.style.cursor = \default
+                | \sl =>
+                    select-tool.activate!
+                    canvas.style.cursor = \default
                 proceed?!
 
             importSVG: (ctx, file, next) ~>

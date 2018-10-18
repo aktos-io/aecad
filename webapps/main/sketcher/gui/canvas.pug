@@ -1,4 +1,5 @@
-radio-buttons#toolChanger(on-select="changeTool")
+radio-buttons#toolChanger(value="{{currTool}}") 
+    //- (on-select="changeTool")
     .ui.buttons
         radio-button.icon(
             tooltip="Freehand tool" 
@@ -13,6 +14,10 @@ radio-buttons#toolChanger(on-select="changeTool")
             tooltip="Move" 
             value="mv")
             icon.arrows.alternate
+        radio-button.icon(
+            tooltip="Select" 
+            value="sl")
+            icon.mouse.pointer
 
 | &nbsp;
 btn.red.icon(on-click="clear" tooltip="Clear gui layer"): icon.trash 
