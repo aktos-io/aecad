@@ -2,22 +2,26 @@ radio-buttons#toolChanger(value="{{currTool}}")
     //- (on-select="changeTool")
     .ui.buttons
         radio-button.icon(
-            tooltip="Freehand tool" 
-            value="fh")
-            icon.pencil.alternate
+            default
+            tooltip="Select" 
+            value="sl"
+            )
+            icon.mouse.pointer
         radio-button.icon(
             tooltip="Trace route" 
             value="tr"
-            default)
+            )
             icon.bars
         radio-button.icon(
             tooltip="Move" 
-            value="mv")
+            value="mv"
+            )
             icon.arrows.alternate
         radio-button.icon(
-            tooltip="Select" 
-            value="sl")
-            icon.mouse.pointer
+            tooltip="Freehand tool" 
+            value="fh"
+            )
+            icon.pencil.alternate
 
 | &nbsp;
 btn.red.icon(on-click="clear" tooltip="Clear gui layer"): icon.trash 
