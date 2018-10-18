@@ -1,4 +1,4 @@
-require! 'prelude-ls': {abs}
+require! 'prelude-ls': {abs, min}
 
 export class Trace
     @instance = null
@@ -19,6 +19,7 @@ export class Trace
         @last-point = null      # last point which is placed
         @continues = no         # trace is continuing or not
         @modifiers = {}
+        @history = []
 
     get-tolerance: ->
         10 / @scope.view.zoom
@@ -34,6 +35,16 @@ export class Trace
         @snap-y = false
         @flip-side = false
         @uuid = null
+
+    remove-last-point: ->
+        last-pinned = @line.segments.length - 2
+        if last-pinned > 0
+            @line.removeSegment last-pinned
+        else
+            @end!
+
+    undo: ->
+        # to be implemented
 
     pause: ->
         @paused = yes

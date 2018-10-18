@@ -25,11 +25,13 @@ export TraceTool = (scope, layer) ->
             switch event.key
             | \escape =>
                 if trace.continues
-                    trace.end! # TODO: change this to trace.remove-last-point!
+                    trace.end!
                 else
                     # select the move tool
                     @find-id \toolChanger .fire \select, {}, \mv
             | 'v' =>
                 trace.add-via!
+            | 'e' =>
+                trace.remove-last-point!
 
     return trace-tool
