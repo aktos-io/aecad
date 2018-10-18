@@ -1,21 +1,10 @@
 require! 'prelude-ls': {empty, flatten, filter, map}
+require! './lib/selection': {Selection}
 
 export SelectTool = (scope, layer) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
 
-    cache =
-        selected: []
-        dragging: null
-        last-drag-point: null
-
-    deselect-all = ->
-        for cache.selected
-            ..selected = no
-
-        cache
-            ..selected = []
-            ..dragging = null
-            ..pan = no
+    selection = new Selection
 
     select-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
@@ -24,57 +13,57 @@ export SelectTool = (scope, layer) ->
                 offset = event.downPoint .subtract event.point
                 scope.view.center = scope.view.center .add offset
 
-        ..onMouseUp = (event) ~>
-            cache.dragging = null
-            cache.pan = no
-
         ..onMouseDown = (event) ~>
             layer.activate!
-            deselect-all!
+            selection.deselect!
 
             hit = scope.project.hitTest event.point
             if hit?item
-                that.selected = yes
-                cache.selected.push that
-                #console.warn "Hit: ", hit
-                matched = []
-                if @get \selectAllLayer
-                    if hit.item.data.aecad?tid
-                        # this is a trace, select only segments belong to this trace
-                        console.log "Selected a trace with tid: ", that
-                        #for layers in scope.project.getItems (.data.aecad?.tid is that)
-                        matched = scope.project.getItems!
-                            |> map (.children)
-                            |> flatten
-                            |> filter (.data.aecad?.tid is that)
-                        console.log "filtered items:", matched
-                    else
-                        matched = hit.item.getLayer().children
-                        console.log "...will select all items in current layer", matched
+                if event.modifiers.control and hit.item.data.aecad?tid
+                    # select only that specific segment
+                    curves = hit.item.getCurves!
+                    nearest = null
+                    dist = null
+                    for i, curve of curves
+                        _dist = curve.getNearestPoint(event.point).getDistance(event.point)
+                        if _dist < dist or not nearest?
+                            nearest = i
+                            dist = _dist
 
-                    # mark selected items
-                    matched.for-each (.selected = yes)
-                    cache.selected = matched
+                    curve = curves[nearest]
+                        ..selected = yes
+
+                    selection.add curve
+                else
+                    hit.item.selected = yes
+                    selection.add hit.item
+                    #console.warn "Hit: ", hit
+                    if @get('selectAllLayer')
+                        matched = []
+                        if hit.item.data.aecad?tid
+                            # this is a trace, select only segments belong to this trace
+                            console.log "Selected a trace with tid: ", that
+                            #for layers in scope.project.getItems (.data.aecad?.tid is that)
+                            matched = scope.project.getItems!
+                                |> map (.children)
+                                |> flatten
+                                |> filter (.data.aecad?.tid is that)
+                            console.log "filtered items:", matched
+                        else
+                            matched = hit.item.getLayer().children
+                            console.log "...will select all items in current layer", matched
+
+                        # mark selected items
+                        matched.for-each (.selected = yes)
+                        selection.add matched
 
         ..onKeyDown = (event) ~>
             # delete an item with Delete key
             if event.key is \delete
-                for i in [til cache.selected.length]
-                    item = cache.selected.pop!
-                    if item.remove!
-                        console.log ".........deleted: ", item
-                    else
-                        console.error "couldn't recache item: ", item
-                        cache.selected.push item
-
-                unless empty cache.selected
-                    console.error "Why didn't we erase those selected items?: ", cache.selected
-                    debugger
+                selection.delete!
 
             # Press Esc to cancel a cache
-            if (event.key is \escape) and cache.dragging?
-                for cache.selected
-                    ..position.set (..position .subtract cache.dragging)
-                deselect-all!
+            if (event.key is \escape)
+                selection.deselect!
 
     {select-tool}
