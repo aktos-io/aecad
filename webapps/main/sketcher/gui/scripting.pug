@@ -2,6 +2,12 @@
     btn.red(on-click="clearScript" tooltip="Clear Output"): icon.trash 
     checkbox(checked="{{autoCompile}}") Auto Compile
     btn.icon(disabled="{{autoCompile}}" on-click="compileScript"): icon.play
+        
+dropdown(
+    object-data="{{drawingLs}}" 
+    selected-key="{{mydata}}" 
+    on-select="scriptSelected")
+btn.icon.red(on-click="@.set('mydata', null)"): icon.eraser
     
-ace-editor(code="{{drawingLs}}" mode="livescript" style="height: 400px; width: 100%")
+ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%")
 pre {{output}}

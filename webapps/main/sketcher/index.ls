@@ -51,10 +51,13 @@ Ractive.components['sketcher'] = Ractive.extend do
             compiled = no
             @set \output, ''
             try
+                if typeof! content isnt \String
+                    throw new Error "Content is not string!"
                 js = lsc.compile content, {+bare, -header}
                 compiled = yes
             catch err
-                @set \output, err.to-string!
+                @set \output, "Compile error: #{err.to-string!}"
+                console.error "Compile error: #{err.to-string!}"
 
             if compiled
                 try
@@ -65,7 +68,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 catch
                     @set \output, "#{e}\n\n#{js}"
 
-        @observe \drawingLs, (_new) ~>
+        @observe \editorContent, (_new) ~>
             unless @get \autoCompile => return
             runScript _new
 
@@ -74,6 +77,12 @@ Ractive.components['sketcher'] = Ractive.extend do
             @fire \changeTool, {}, tool
 
         @on do
+            scriptSelected: (ctx, item, progress) ~>
+                @set \editorContent, item.content
+                unless item.content
+                    layers.scripting.clear!
+                progress!
+
             compileScript: (ctx) ~>
                 runScript @get \drawingLs
 
