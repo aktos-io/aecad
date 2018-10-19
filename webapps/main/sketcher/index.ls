@@ -175,9 +175,6 @@ Ractive.components['sketcher'] = Ractive.extend do
                 dxf-out = drawing.toDxfString!
                 create-download "export.dxf", dxf-out
 
-            clear: (ctx) ~>
-                layers.gui.clear!
-
             clearImport: (ctx) ~>
                 layers.ext.clear!
 
