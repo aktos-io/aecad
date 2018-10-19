@@ -9,3 +9,11 @@ table
     tr 
         td Trace width
         td: div(contenteditable="true" value="{{currTrace.width}}" style="padding: 0 2px")
+
+    tr
+        td(colspan="2") LAYERS 
+
+radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
+    .ui.buttons.vertical
+        +each('project.layers')
+            radio-button(value="{{@key}}") {{@key}}

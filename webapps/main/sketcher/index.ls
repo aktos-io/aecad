@@ -34,8 +34,11 @@ Ractive.components['sketcher'] = Ractive.extend do
         # layers
         layers =
             gui: new pcb.Layer!
-            scripting: new pcb.Layer!
             ext: new pcb.Layer!
+
+        for <[ gui scripting import ]>
+            @set "project.layers.#{..}", new pcb.Layer!
+        @fire \activateLayer, {}, \gui
 
         # zooming
         $ canvas .mousewheel (event) ->
@@ -50,7 +53,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         runScript = (content) ~>
             compiled = no
             @set \output, ''
-            try                
+            try
                 if content and typeof! content isnt \String
                     throw new Error "Content is not string!"
                 js = lsc.compile content, {+bare, -header}
@@ -61,7 +64,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             if compiled
                 try
-                    layers.scripting
+                    @get \project.layers.scripting
                         ..activate!
                         ..clear!
                     pcb.execute js
@@ -80,7 +83,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             scriptSelected: (ctx, item, progress) ~>
                 @set \editorContent, item.content
                 unless item.content
-                    layers.scripting.clear!
+                    @get \project.layers.scripting .clear!
                 progress!
 
             compileScript: (ctx) ~>
@@ -104,10 +107,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                 proceed?!
 
             importSVG: (ctx, file, next) ~>
-                layers.ext
-                    ..activate!
-                    ..clear!
+                <~ @fire \activateLayer, ctx, \import
+                @get \project.layers.import .clear!
                 json <~ pcb.project.importSVG file.raw
+                debugger
                 process-objects = (o) ->
                     if o.hasChildren!
                         for o.children
@@ -128,7 +131,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 old-zoom = pcb.view.zoom
                 pcb.view.zoom = 1
                 _svg = pcb.project.exportSVG {+asString}
-
+                
                 mm2px = (/ 25.4 * 96)
                 px2mm = (* 1 / mm2px it)
                 transformNode = (node) ->
@@ -136,7 +139,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                         attr = node.attributes
                         node.attributes.viewBox = "0 0 #{attr.width} #{attr.height}"
                     if node.attributes["data-paper-data"]
-                        node.attributes["data-paper-data"] = JSON.parse htmlDecode that
+                        node.attributes["data-paper-data"] = htmlDecode that
                     node
 
                 json <~ svgson.parse _svg, {transformNode} .then
@@ -188,7 +191,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 layers.ext.clear!
 
             clearScript: (ctx) ~>
-                layers.scripting.clear!
+                @get \project.layers.scripting .clear!
 
             exportKicad: (ctx) ~>
                 svg = pcb.project.exportSVG {+asString}
@@ -198,6 +201,14 @@ Ractive.components['sketcher'] = Ractive.extend do
                 catch
                     return ctx.component.error e.message
                 create-download "myexport.kicad_pcb", kicad
+
+            activate-layer: (ctx, name, proceed) ->
+                if @get "project.layers.#{name}"
+                    that.activate!
+                else
+                    @set "project.layers.#{name}", new pcb.Layer!
+                @set \activeLayer, name
+                proceed!
 
     computed:
         currProps:
@@ -215,6 +226,11 @@ Ractive.components['sketcher'] = Ractive.extend do
                 color: 'red'
             'B.Cu':
                 color: 'green'
+        project:
+            # logical layers
+            layers: {}
+
+        activeLayer: 'gui'
         currLayer: 'F.Cu'
         currTrace:
             width: 3
