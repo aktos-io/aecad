@@ -62,7 +62,7 @@ export class Trace
         for @prev-hover
             @prev-hover.pop!
                 ..selected = no
-        console.log "hit: ", hit
+        #console.log "hit: ", hit
         for hit
             ..item.selected = yes
             @prev-hover.push ..item
