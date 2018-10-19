@@ -48,5 +48,9 @@ export MoveTool = (scope, layer, canvas) ->
             if (event.key is \escape) and move.dragging?
                 for selection.selected
                     ..position.set (..position .subtract move.dragging)
+            if event.key is \ı
+                # rotate the top level group
+                angle = if event.modifiers.shift => 45 else 90
+                selection.getTopItem!.rotate angle
 
     move-tool

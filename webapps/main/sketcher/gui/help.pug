@@ -1,6 +1,12 @@
 h3 Help 
 
 ul
+    //- Select 
+    li #[.ui.icon.label.green: icon.mouse.pointer Select]
+        ul 
+            li #[.ui.basic.label Shift] + Drag: Pan
+
+    //- Trace
     li #[.ui.icon.label.green: icon.bars Trace]
         ul
             li Click: Add trace segment 
@@ -9,12 +15,10 @@ ul
             li Drag: Pan pcb (while tracing or not)
             li #[.ui.label.basic v]: Place a via
             
+    //- Move 
     li #[.ui.icon.label.green: icon.arrows.alternate Move]
         ul 
             li Select + #[.ui.basic.label Del]: Delete selected items
             li #[.ui.label.basic Esc] while moving: Cancel movement 
             li Click outside of objects + drag: Pan 
-
-    li #[.ui.icon.label.green: icon.mouse.pointer Select]
-        ul 
-            li #[.ui.basic.label Shift] + Drag: Pan
+            li #[.ui.label.basic ı]: Rotate CW

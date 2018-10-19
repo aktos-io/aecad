@@ -36,3 +36,6 @@ export class Selection
         unless empty @selected
             console.error "Why didn't we erase those selected items?: ", @selected
             debugger
+
+    get-top-item: ->
+        @selected.0
