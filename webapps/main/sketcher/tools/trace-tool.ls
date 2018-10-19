@@ -36,6 +36,9 @@ export TraceTool = (scope, layer, canvas) ->
             | 'v' =>
                 trace.add-via!
             | 'e' =>
-                trace.remove-last-point!
+                unless event.modifiers.shift
+                    trace.remove-last-point!
+                else
+                    trace.remove-last-point \undo
 
     return trace-tool

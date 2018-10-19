@@ -22,6 +22,7 @@ export class Trace
         @history = []
         @trace-id = 0
         @prev-hover = []
+        @removed-last-segment = null  # TODO: undo functionality will replace this
 
     get-tolerance: ->
         20 / @scope.view.zoom
@@ -39,13 +40,20 @@ export class Trace
         @snap-backslash = false     # snap to \ direction
         @flip-side = false
         @uuid = null
+        @removed-last-segment = null
 
-    remove-last-point: ->
-        last-pinned = @line.segments.length - 2
-        if last-pinned > 0
-            @line.removeSegment last-pinned
+    remove-last-point: (undo) ->
+        if undo
+            if @removed-last-segment
+                @line.insert(@removed-last-segment.0, @removed-last-segment.1)
+                @removed-last-segment = null
         else
-            @end!
+            last-pinned = @line.segments.length - 2
+            if last-pinned > 0
+                @removed-last-segment = [last-pinned, @line.segments[last-pinned]]
+                @line.removeSegment last-pinned
+            else
+                @end!
 
     undo: ->
         # to be implemented
