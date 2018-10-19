@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty}
+require! 'prelude-ls': {empty, flatten}
 
 export class Selection
     @instance = null
@@ -19,14 +19,10 @@ export class Selection
         @selected = []
 
     add: (items, opts={}) ->
-        if typeof! items is \Array
-            @selected ++= items
-        else
-            @selected.push items
-
-        if opts.select
-            for @selected
-                ..selected = yes
+        for flatten [items]
+            @selected.push .. unless ..selected
+            ..selected = yes
+        console.log "Selected items so far: ", @selected
 
     delete: ->
         for i in [til @selected.length]

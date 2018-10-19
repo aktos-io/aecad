@@ -32,8 +32,6 @@ export SelectTool = (scope, layer, canvas) ->
                             dist = _dist
 
                     curve = curves[nearest]
-                        ..selected = yes
-
                     selection.add curve
                 else
                     matched = []
@@ -53,8 +51,6 @@ export SelectTool = (scope, layer, canvas) ->
                     else
                         matched.push hit.item
 
-                    # mark selected items
-                    matched.for-each (.selected = yes)
                     selection.add matched
 
         ..onKeyDown = (event) ~>
