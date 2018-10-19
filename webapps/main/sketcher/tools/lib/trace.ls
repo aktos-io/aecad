@@ -72,8 +72,14 @@ export class Trace
                 ..selected = no
         #console.log "hit: ", hit
         for hit
-            ..item.selected = yes
-            @prev-hover.push ..item
+            if ..item.hasChildren!
+                for ..item.children
+                    if ..hitTest point
+                        ..selected = yes
+                        @prev-hover.push ..
+            else
+                ..item.selected = yes
+                @prev-hover.push ..item
 
     add-segment: (point) ->
         if not @line or @flip-side
