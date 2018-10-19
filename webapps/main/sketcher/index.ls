@@ -1,7 +1,7 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download, htmlDecode}
-require! 'prelude-ls': {min}
+require! 'prelude-ls': {min, ceiling}
 require! './lib/dxfToSvg': {dxfToSvg}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
 #require! 'svgson'
@@ -81,6 +81,21 @@ Ractive.components['sketcher'] = Ractive.extend do
         @observe \currTool, (tool) ~>
             @fire \changeTool, {}, tool
 
+        calc-bounds = (scope) ->
+            fit = {}
+            for layer in scope.project.layers
+                for item in layer.children
+                    for <[ top left ]>
+                        if item.bounds[..] < fit[..] or not fit[..]?
+                            fit[..] = item.bounds[..]
+                    for <[ bottom right ]>
+                        if item.bounds[..] > fit[..] or not fit[..]?
+                            fit[..] = item.bounds[..]
+            #console.log "fit bounds: ", fit
+            top-left = new scope.Point fit.left, fit.top
+            bottom-right = new scope.Point fit.right, fit.bottom
+            new scope.Rectangle top-left, bottom-right
+
         @on do
             scriptSelected: (ctx, item, progress) ~>
                 @set \editorContent, item.content
@@ -93,18 +108,10 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             fitAll: (ctx) !~>
                 selection = new Selection
-                fit = {}
                 for layer in pcb.project.layers
                     selection.add layer, {+select}
-                    for item in layer.children
-                        for <[ top left ]>
-                            if item.bounds[..] < fit[..] or not fit[..]?
-                                fit[..] = item.bounds[..]
-                        for <[ bottom right ]>
-                            if item.bounds[..] > fit[..] or not fit[..]?
-                                fit[..] = item.bounds[..]
                 #console.log "fit bounds: ", fit
-                fitRect = new pcb.Rectangle (new pcb.Point fit.left, fit.top), (new pcb.Point fit.right, fit.bottom)
+                fitRect = calc-bounds pcb
                 # set center
                 pcb.view.center = fitRect.center
 
@@ -156,6 +163,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                 # is printed scaled
                 old-zoom = pcb.view.zoom
                 pcb.view.zoom = 1
+                fitRect = calc-bounds pcb
+
                 _svg = pcb.project.exportSVG {+asString}
 
                 mm2px = (/ 25.4 * 96)
@@ -163,7 +172,12 @@ Ractive.components['sketcher'] = Ractive.extend do
                 transformNode = (node) ->
                     if node.name is \svg
                         attr = node.attributes
-                        node.attributes.viewBox = "0 0 #{attr.width} #{attr.height}"
+                        width = fitRect.width |> ceiling
+                        height = fitRect.height |> ceiling
+                        node.attributes
+                            ..viewBox = "#{fitRect.left} #{fitRect.top} #{width} #{height}"
+                            ..width = width
+                            ..height = height
                     if node.attributes["data-paper-data"]
                         node.attributes["data-paper-data"] = htmlDecode that
                     node
