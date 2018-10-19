@@ -50,8 +50,8 @@ Ractive.components['sketcher'] = Ractive.extend do
         runScript = (content) ~>
             compiled = no
             @set \output, ''
-            try
-                if typeof! content isnt \String
+            try                
+                if content and typeof! content isnt \String
                     throw new Error "Content is not string!"
                 js = lsc.compile content, {+bare, -header}
                 compiled = yes
