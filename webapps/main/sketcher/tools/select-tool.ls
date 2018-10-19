@@ -19,8 +19,9 @@ export SelectTool = (scope, layer, canvas) ->
 
             hit = scope.project.hitTest event.point
             if hit?item
+                #console.warn "Hit: ", hit
                 if event.modifiers.control and hit.item.data.aecad?tid
-                    # select only that specific segment
+                    # select only that specific curve
                     curves = hit.item.getCurves!
                     nearest = null
                     dist = null
@@ -35,11 +36,8 @@ export SelectTool = (scope, layer, canvas) ->
 
                     selection.add curve
                 else
-                    hit.item.selected = yes
-                    selection.add hit.item
-                    #console.warn "Hit: ", hit
+                    matched = []
                     if @get('selectAllLayer')
-                        matched = []
                         if hit.item.data.aecad?tid
                             # this is a trace, select only segments belong to this trace
                             console.log "Selected a trace with tid: ", that
@@ -52,10 +50,12 @@ export SelectTool = (scope, layer, canvas) ->
                         else
                             matched = hit.item.getLayer().children
                             console.log "...will select all items in current layer", matched
+                    else
+                        matched.push hit.item
 
-                        # mark selected items
-                        matched.for-each (.selected = yes)
-                        selection.add matched
+                    # mark selected items
+                    matched.for-each (.selected = yes)
+                    selection.add matched
 
         ..onKeyDown = (event) ~>
             # delete an item with Delete key

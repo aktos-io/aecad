@@ -1,38 +1,27 @@
 require! 'prelude-ls': {empty}
+require! './lib/selection': {Selection}
 
 export MoveTool = (scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
 
+    selection = new Selection
     move =
-        selected: []
-        dragging: null
-        last-drag-point: null
-
-    deselect-all = ->
-        for move.selected
-            ..selected = no
-
-        move
-            ..selected = []
-            ..dragging = null
-            ..pan = no
+        dragging: null  # total drag vector
 
     move-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
-            unless empty move.selected
-                for move.selected
+            if move.pan
+                # panning
+                offset = event.downPoint .subtract event.point
+                scope.view.center = scope.view.center .add offset
+            else
+                # move all selected items
+                for selection.selected
                     ..position.set (..position .add event.delta)
 
+                # backup the movement vector for a possible cancel
                 move.dragging = (move.dragging or new scope.Point(0, 0)) .add event.delta
-                canvas.style.cursor = 'move'
-            else
-                # panning
-                if move.pan
-                    offset = event.downPoint .subtract event.point
-                    scope.view.center = scope.view.center .add offset
-                    canvas.style.cursor = 'grabbing'
-
-
+    
         ..onMouseUp = (event) ~>
             move.dragging = null
             move.pan = no
@@ -40,44 +29,18 @@ export MoveTool = (scope, layer, canvas) ->
 
         ..onMouseDown = (event) ~>
             layer.activate!
-            deselect-all!
-
             hit = scope.project.hitTest event.point
-            if hit?item
-                that.selected = yes
-                move.selected.push that
-                console.warn "Hit: ", hit
-
-                if @get \selectAllLayer
-                    all = hit.item.getLayer().children
-                    console.log "...will select all items in current layer", all
-                    all.for-each (.selected = yes)
-                    move.selected = all
+            if hit?.item.selected
+                # we are going to move these items
+                canvas.style.cursor = 'move'
             else
-                # Pan mode if no hit + drag
-                # TODO: change cursor to grab
                 move.pan = yes
+                canvas.style.cursor = 'grabbing'
 
         ..onKeyDown = (event) ~>
-            # delete an item with Delete key
-            if event.key is \delete
-                for i in [til move.selected.length]
-                    item = move.selected.pop!
-                    if item.remove!
-                        console.log ".........deleted: ", item
-                    else
-                        console.error "couldn't remove item: ", item
-                        move.selected.push item
-
-                unless empty move.selected
-                    console.error "Why didn't we erase those selected items?: ", move.selected
-                    debugger
-
             # Press Esc to cancel a move
             if (event.key is \escape) and move.dragging?
-                for move.selected
+                for selection.selected
                     ..position.set (..position .subtract move.dragging)
-                deselect-all!
-
 
     move-tool
