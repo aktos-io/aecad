@@ -89,7 +89,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 progress!
 
             compileScript: (ctx) ~>
-                runScript @get \drawingLs
+                runScript @get \editorContent
 
             fitAll: (ctx) !~>
                 selection = new Selection
@@ -103,7 +103,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                         for <[ bottom right ]>
                             if item.bounds[..] > fit[..] or not fit[..]?
                                 fit[..] = item.bounds[..]
-                console.log "fit bounds: ", fit
+                #console.log "fit bounds: ", fit
                 fitRect = new pcb.Rectangle (new pcb.Point fit.left, fit.top), (new pcb.Point fit.right, fit.bottom)
                 # set center
                 pcb.view.center = fitRect.center
@@ -213,8 +213,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                 dxf-out = drawing.toDxfString!
                 create-download "export.dxf", dxf-out
 
-            clearImport: (ctx) ~>
-                layers.ext.clear!
+            clearActiveLayer: (ctx) ~>
+                @get \project.layers .[@get 'activeLayer'] .clear!
 
             clearScript: (ctx) ~>
                 @get \project.layers.scripting .clear!

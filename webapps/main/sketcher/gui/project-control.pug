@@ -1,14 +1,10 @@
-.ui.buttons 
-    .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.upload Import
-    .ui.popup.top.transition.hidden
-        .ui.vertical.buttons 
-            file-button(on-read="importSVG" type="text") SVG
-            file-button(on-read="importDXF" type="text") DXF
-            file-button(on-read="importDXF2" type="text") DXF (2)
+.ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.upload Import
+.ui.popup.top.transition.hidden
+    .ui.vertical.buttons 
+        file-button(on-read="importSVG" type="text") SVG
+        file-button(on-read="importDXF" type="text") DXF
+        file-button(on-read="importDXF2" type="text") DXF (2)
 
-    btn.icon.red(on-click="clearImport" tooltip="Clear imported drawing"): icon.trash
-
-| &nbsp;
 .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.download Export
 .ui.popup.top.transition.hidden
     .ui.vertical.buttons 
@@ -16,6 +12,8 @@
         btn(on-click="exportDXF") DXF
         btn(on-click="exportJSON") JSON
         //- ack-button(on-click="exportKicad") Export Kicad_Pcb
-
-| &nbsp;
-.ui.blue.label Active: {{activeLayer}}    
+            
++space
+.ui.buttons 
+    .ui.button {{activeLayer}}    
+    btn.icon.red(on-click="clearActiveLayer" tooltip="Clear {{activeLayer}} layer"): icon.trash
