@@ -23,8 +23,12 @@ radio-buttons#toolChanger(value="{{currTool}}")
             )
             icon.pencil.alternate
 
-| &nbsp;
++space
 checkbox(
     checked="{{selectAllLayer}}" 
     tooltip="Select all objects in current layer") Immutable Layer
+    
++space
+btn.icon(on-click="fitAll" tooltip="Fit all"): icon.world
+
 canvas#draw

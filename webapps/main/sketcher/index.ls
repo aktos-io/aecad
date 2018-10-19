@@ -1,6 +1,7 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download, htmlDecode}
+require! 'prelude-ls': {min}
 require! './lib/dxfToSvg': {dxfToSvg}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
 #require! 'svgson'
@@ -16,6 +17,7 @@ require! './tools/move-tool': {MoveTool}
 require! './tools/select-tool': {SelectTool}
 require! './lib/json-to-dxf': {json-to-dxf}
 require! 'pretty'
+require! './tools/lib/selection': {Selection}
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -89,6 +91,27 @@ Ractive.components['sketcher'] = Ractive.extend do
             compileScript: (ctx) ~>
                 runScript @get \drawingLs
 
+            fitAll: (ctx) !~>
+                selection = new Selection
+                fit = {}
+                for layer in pcb.project.layers
+                    selection.add layer, {+select}
+                    for item in layer.children
+                        for <[ top left ]>
+                            if item.bounds[..] < fit[..] or not fit[..]?
+                                fit[..] = item.bounds[..]
+                        for <[ bottom right ]>
+                            if item.bounds[..] > fit[..] or not fit[..]?
+                                fit[..] = item.bounds[..]
+                console.log "fit bounds: ", fit
+                fitRect = new pcb.Rectangle (new pcb.Point fit.left, fit.top), (new pcb.Point fit.right, fit.bottom)
+                # set center
+                pcb.view.center = fitRect.center
+
+                # set zoom
+                curr = pcb.view.bounds
+                pcb.view.zoom = 0.8 * min (curr.width / fitRect.width), (curr.height / fitRect.height)
+
             changeTool: (ctx, tool, proceed) ~>
                 console.log "Changing tool to: #{tool}"
                 switch tool
@@ -108,9 +131,10 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             importSVG: (ctx, file, next) ~>
                 <~ @fire \activateLayer, ctx, \import
-                @get \project.layers.import .clear!
-                json <~ pcb.project.importSVG file.raw
-                debugger
+                import-layer = @get \project.layers.import
+                    ..clear!
+                    ..activate!
+                <~ pcb.project.importSVG file.raw
                 process-objects = (o) ->
                     if o.hasChildren!
                         for o.children
@@ -120,8 +144,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                             # set the project properties
                             if project.layer
                                 layers[project.layer].addChild o
-                for layer in pcb.project.getItems!
-                    process-objects layer
+
+                console.log "svg is imported: ", pcb.project
+                #for layer in pcb.project.getItems!
+                #    process-objects layer
                 next!
 
             exportSVG: (ctx) ~>
@@ -131,7 +157,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 old-zoom = pcb.view.zoom
                 pcb.view.zoom = 1
                 _svg = pcb.project.exportSVG {+asString}
-                
+
                 mm2px = (/ 25.4 * 96)
                 px2mm = (* 1 / mm2px it)
                 transformNode = (node) ->

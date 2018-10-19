@@ -18,11 +18,15 @@ export class Selection
 
         @selected = []
 
-    add: (items) ->
+    add: (items, opts={}) ->
         if typeof! items is \Array
             @selected ++= items
         else
             @selected.push items
+
+        if opts.select
+            for @selected
+                ..selected = yes
 
     delete: ->
         for i in [til @selected.length]
