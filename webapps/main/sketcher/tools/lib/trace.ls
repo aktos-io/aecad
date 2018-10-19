@@ -21,6 +21,7 @@ export class Trace
         @modifiers = {}
         @history = []
         @trace-id = 0
+        @prev-hover = []
 
     get-tolerance: ->
         20 / @scope.view.zoom
@@ -54,6 +55,17 @@ export class Trace
 
     resume: ->
         @paused = no
+
+    highlight-target: (point) ->
+        hit = @scope.project.hitTestAll point
+
+        for @prev-hover
+            @prev-hover.pop!
+                ..selected = no
+        console.log "hit: ", hit
+        for hit
+            ..item.selected = yes
+            @prev-hover.push ..item
 
     add-segment: (point) ->
         if not @line or @flip-side

@@ -21,6 +21,8 @@ export TraceTool = (scope, layer, canvas) ->
         ..onMouseMove = (event) ~>
             if trace.continues
                 trace.follow event.point
+            else
+                trace.highlight-target event.point
 
         ..onKeyDown = (event) ~>
             trace.set-modifiers event.modifiers
