@@ -17,11 +17,17 @@ export MoveTool = (scope, layer, canvas) ->
             else
                 # move all selected items
                 for selection.selected
-                    ..position.set (..position .add event.delta)
+                    if ..getClassName! is \Curve
+                        # this must be a trace curve
+                        console.log "will move this curve:", ..
+                        ..point1.set (..point1 .add event.delta)
+                        ..point2.set (..point2 .add event.delta)
+                    else
+                        ..position.set (..position .add event.delta)
 
                 # backup the movement vector for a possible cancel
                 move.dragging = (move.dragging or new scope.Point(0, 0)) .add event.delta
-    
+
         ..onMouseUp = (event) ~>
             move.dragging = null
             move.pan = no
