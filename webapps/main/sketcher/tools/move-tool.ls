@@ -3,10 +3,9 @@ require! './lib/selection': {Selection}
 
 export MoveTool = (scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
-
+    ractive = this
     selection = new Selection
-    move =
-        dragging: null  # total drag vector
+    move = dragging: null  # total drag vector
 
     move-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
@@ -45,9 +44,15 @@ export MoveTool = (scope, layer, canvas) ->
 
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move
-            if (event.key is \escape) and move.dragging?
-                for selection.selected
-                    ..position.set (..position .subtract move.dragging)
+            if event.key is \escape
+                if move.dragging?
+                    # cancel last movement
+                    for selection.selected
+                        ..position.set (..position .subtract move.dragging)
+                else
+                    # activate selection tool
+                    ractive.set \currTool, \sl
+
             if event.key is \ı
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
