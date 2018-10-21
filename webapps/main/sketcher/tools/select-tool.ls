@@ -16,7 +16,6 @@ export SelectTool = (scope, layer, canvas) ->
         ..onMouseDown = (event) ~>
             layer.activate!
             selection.deselect!
-
             hit = scope.project.hitTest event.point
             if hit?item
                 #console.warn "Hit: ", hit

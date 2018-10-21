@@ -2,10 +2,22 @@ require! '../lib/dxfToSvg': {dxfToSvg}
 
 export import_ = (ctx, file, next) ->
     pcb = @get \pcb
+
+    if file.ext is \json
+        pcb.project.importJSON file.raw
+        for layer in pcb.project.layers
+            if layer.name
+                @set "project.layers.#{layer.name}", layer
+            else
+                console.log "No name layer: with #{layer.children.length} items: ", layer
+            for item in layer.getChildren!
+                item.selected = no
+        next!
+        return
+
     <~ @fire \activateLayer, ctx, file.basename
-    import-layer = @get \project.layers.import
-        ..clear!
-        ..activate!
+    pcb.project.getActiveLayer!.clear!
+
     switch file.ext.to-lower-case!
     | 'svg' =>
         <~ pcb.project.importSVG file.raw
@@ -27,6 +39,10 @@ export import_ = (ctx, file, next) ->
         # FIXME: Splines can not be recognized
         svg = dxfToSvg file.raw
         pcb.project.importSVG svg
+        next!
+    | 'json' =>
+        debugger
+        pcb.project.importJSON file.raw
         next!
 
 importDXF2 = (ctx, file, next) ~>

@@ -120,8 +120,9 @@ Ractive.components['sketcher'] = Ractive.extend do
                 pcb.view.center = fitRect.center
 
                 # set zoom
-                curr = pcb.view.bounds
-                pcb.view.zoom = 0.8 * min (curr.width / fitRect.width), (curr.height / fitRect.height)
+                if fitRect.width > 0 and fitRect.height > 0
+                    curr = pcb.view.bounds
+                    pcb.view.zoom = 0.8 * min (curr.width / fitRect.width), (curr.height / fitRect.height)
 
             changeTool: (ctx, tool, proceed) ~>
                 console.log "Changing tool to: #{tool}"
@@ -153,7 +154,9 @@ Ractive.components['sketcher'] = Ractive.extend do
                 if @get "project.layers.#{name}"
                     that.activate!
                 else
-                    @set "project.layers.#{name}", new pcb.Layer!
+                    layer = new pcb.Layer!
+                        ..name = name
+                    @set "project.layers.#{name}", layer
                 @set \activeLayer, name
                 proceed!
 

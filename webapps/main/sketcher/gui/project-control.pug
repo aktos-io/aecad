@@ -15,4 +15,7 @@
 
 +space
 +space
-.ui.input: input(value="{{project.name}}")
+.ui.input.right.labeled
+    input(value="{{project.name}}")
+    btn.icon.green.label(on-click="['export', project.name + '.json']")
+        icon.download Export JSON
