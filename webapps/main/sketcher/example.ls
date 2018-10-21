@@ -1,4 +1,21 @@
 export script =
+    "lib":
+        '''
+        mm2px = ( / 25.4 * 96)
+        px2mm = (x) -> 1 / mm2px(x)
+        P = (x, y) -> new Point (x |> mm2px), (y |> mm2px)
+        S = (a, b) -> new Size (a |> mm2px), (b |> mm2px)
+
+        pad = (width, height, position=P(10mm, 10mm)) ->
+            p = new Rectangle position, S(width, height)
+            pad = new Path.Rectangle p
+                ..fillColor = 'black'
+                ..rect = p
+                ..data.project = {layer: 'scripting'}
+            pad
+
+        
+        '''
     "LM 2576":
         '''
         mm2px = ( / 25.4 * 96)
