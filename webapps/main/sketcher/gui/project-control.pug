@@ -1,19 +1,18 @@
-.ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.upload Import
-.ui.popup.top.transition.hidden
-    .ui.vertical.buttons 
-        file-button(on-read="importSVG" type="text") SVG
-        file-button(on-read="importDXF" type="text") DXF
-        file-button(on-read="importDXF2" type="text") DXF (2)
-
-.ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.download Export
-.ui.popup.top.transition.hidden
-    .ui.vertical.buttons 
-        btn(on-click="exportSVG") SVG
-        btn(on-click="exportDXF") DXF
-        btn(on-click="exportJSON") JSON
-        //- ack-button(on-click="exportKicad") Export Kicad_Pcb
-            
-+space
 .ui.buttons 
-    .ui.button {{activeLayer}}    
-    btn.icon.red(on-click="clearActiveLayer" tooltip="Clear {{activeLayer}} layer"): icon.trash
+    file-button.icon(on-read="import" type="text"): icon.upload Import
+    btn.icon(on-click="export"): icon.download Export
+
+//-file-button(on-read="importDXF2" type="text") DXF (2)
+
+//-
+    .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.download Export
+    .ui.popup.top.transition.hidden
+        .ui.vertical.buttons 
+            btn(on-click="exportSVG") SVG
+            btn(on-click="exportDXF") DXF
+            btn(on-click="exportJSON") JSON
+            //- ack-button(on-click="exportKicad") Export Kicad_Pcb
+
++space
++space
+.ui.input: input(value="{{project.name}}")

@@ -1,11 +1,8 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
-require! 'aea': {create-download, htmlDecode}
+require! 'aea': {create-download, VLogger}
 require! 'prelude-ls': {min, ceiling}
-require! './lib/dxfToSvg': {dxfToSvg}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
-#require! 'svgson'
-require! 'svgson-next': svgson
 require! 'dxf-writer'
 require! 'dxf'
 require! 'livescript': lsc
@@ -16,12 +13,15 @@ require! './tools/freehand': {Freehand}
 require! './tools/move-tool': {MoveTool}
 require! './tools/select-tool': {SelectTool}
 require! './lib/json-to-dxf': {json-to-dxf}
-require! 'pretty'
 require! './tools/lib/selection': {Selection}
+
+mm2px = (/ 25.4 * 96)
+px2mm = (* 1 / mm2px it)
+
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
-    onrender: ->
+    onrender: (ctx) ->
         # output container
         canvas = @find '#draw'
         canvas.width = 600
@@ -29,6 +29,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
         # scope
         pcb = paper.setup canvas
+        @set \pcb, pcb
 
         # see https://stackoverflow.com/a/52830469/1952991
         #pcb.view.scaling = 96 / 25.4
@@ -37,6 +38,8 @@ Ractive.components['sketcher'] = Ractive.extend do
         layers =
             gui: new pcb.Layer!
             ext: new pcb.Layer!
+
+        @set \vlog, new VLogger this
 
         for <[ gui scripting import ]>
             @set "project.layers.#{..}", new pcb.Layer!
@@ -112,6 +115,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                     selection.add layer, {+select}
                 #console.log "fit bounds: ", fit
                 fitRect = calc-bounds pcb
+
                 # set center
                 pcb.view.center = fitRect.center
 
@@ -136,111 +140,14 @@ Ractive.components['sketcher'] = Ractive.extend do
                     canvas.style.cursor = \default
                 proceed?!
 
-            importSVG: (ctx, file, next) ~>
-                <~ @fire \activateLayer, ctx, \import
-                import-layer = @get \project.layers.import
-                    ..clear!
-                    ..activate!
-                <~ pcb.project.importSVG file.raw
-                process-objects = (o) ->
-                    if o.hasChildren!
-                        for o.children
-                            process-objects ..
-                    else
-                        if project = o.data?project
-                            # set the project properties
-                            if project.layer
-                                layers[project.layer].addChild o
-
-                console.log "svg is imported: ", pcb.project
-                #for layer in pcb.project.getItems!
-                #    process-objects layer
-                next!
-
-            exportSVG: (ctx) ~>
-                # VERY IMPORTANT: Might be needed by a bug.
-                # changing view.zoom adds <g scale(...) />, so everything
-                # is printed scaled
-                old-zoom = pcb.view.zoom
-                pcb.view.zoom = 1
-                fitRect = calc-bounds pcb
-
-                _svg = pcb.project.exportSVG {+asString}
-
-                mm2px = (/ 25.4 * 96)
-                px2mm = (* 1 / mm2px it)
-                transformNode = (node) ->
-                    if node.name is \svg
-                        attr = node.attributes
-                        width = fitRect.width |> ceiling
-                        height = fitRect.height |> ceiling
-                        node.attributes
-                            ..viewBox = "#{fitRect.left} #{fitRect.top} #{width} #{height}"
-                            ..width = width
-                            ..height = height
-                    if node.attributes["data-paper-data"]
-                        node.attributes["data-paper-data"] = htmlDecode that
-                    node
-
-                json <~ svgson.parse _svg, {transformNode} .then
-                console.log JSON.stringify json, null, 2
-                pcb.view.zoom = old-zoom # continue above workaround
-
-                svg = svgson.stringify json |> pretty
-                #console.log "SVG format: ", svg
-
-                create-download "project.svg", svg
-
-
-            exportJSON: (ctx) ~>
-                json = pcb.project.exportJSON!
-                @set \pjson, json  # for debugging purposes
-                create-download "myexport.json", json
-
-            importDXF: (ctx, file, next) ~>
-                # FIXME: Splines can not be recognized
-                svg = dxfToSvg file.raw
-                #paper.project.clear!
-                layers.ext
-                    ..activate!
-                    ..clear!
-                pcb.project.importSVG svg
-                next!
-
-            importDXF2: (ctx, file, next) ~>
-                # FIXME: Implement conversion spline to arc
-                parsed = dxf.parseString file.raw
-                svg = dxf.toSVG(parsed)
-                #paper.project.clear!
-                layers.ext
-                    ..activate!
-                    ..clear!
-                pcb.project.importSVG svg
-                next!
-
-            exportDXF: (ctx) ~>
-                # cleanup me: paper.js already has exportJSON
-                svg = pcb.project.exportSVG {+asString}
-                res <~ svgson svg, {}
-                drawing = new dxf-writer!
-                json-to-dxf res, drawing
-                dxf-out = drawing.toDxfString!
-                create-download "export.dxf", dxf-out
+            import: require './handlers/import' .import_
+            export: require './handlers/export' .export_
 
             clearActiveLayer: (ctx) ~>
                 @get \project.layers .[@get 'activeLayer'] .clear!
 
             clearScript: (ctx) ~>
                 @get \project.layers.scripting .clear!
-
-            exportKicad: (ctx) ~>
-                svg = pcb.project.exportSVG {+asString}
-                #svgString, title, layer, translationX, translationY, kicadPcbToBeAppended, yAxisInverted)
-                try
-                    kicad = svgToKicadPcb svg, 'hello', \Edge.Cuts, 0, 0, null, false
-                catch
-                    return ctx.component.error e.message
-                create-download "myexport.kicad_pcb", kicad
 
             activate-layer: (ctx, name, proceed) ->
                 if @get "project.layers.#{name}"
@@ -269,6 +176,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         project:
             # logical layers
             layers: {}
+            name: 'Project'
 
         activeLayer: 'gui'
         currLayer: 'F.Cu'

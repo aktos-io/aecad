@@ -11,7 +11,13 @@ table
         td: div(contenteditable="true" value="{{currTrace.width}}" style="padding: 0 2px")
 
     tr
-        td(colspan="2") LAYERS 
+        td(colspan="2") 
+            .ui.basic.label LAYERS
+            btn.icon.red(
+                on-click="clearActiveLayer" 
+                tooltip="Clear active layer"
+                )
+                icon.trash
 
 radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
     .ui.buttons.vertical
