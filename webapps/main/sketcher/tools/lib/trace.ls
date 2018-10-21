@@ -32,6 +32,9 @@ export class Trace
             that.removeSegment (@line.segments.length - 1)
             that.selected = no
 
+        if @line.segments.length is 1
+            @line.remove!
+
         @line = null
         @continues = no
         @snap-x = false             # snap to -- direction
