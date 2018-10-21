@@ -15,12 +15,13 @@ export script =
             pad
 
         do ->
-            H = 16.02mm
-            d1 = {w: 8.38mm, h: 10.66mm}
-            d2 = {w: 3.05mm, h: 1.016mm}
+            # From: http://www.ti.com/lit/ds/symlink/lm2576.pdf
+            H = 14.17mm
+            d1 = {w: 8mm, h: 10.8mm}
+            d2 = {w: 2.16mm, h: 1.07mm}
             pd = 1.702mm
 
-            _x = H - d1.w - d2.w
+            _x = H - d1.w - d2.w/2
 
             p1 = pad d1.w, d1.h
             p2 = pad d2.w, d2.h, new Point(\
