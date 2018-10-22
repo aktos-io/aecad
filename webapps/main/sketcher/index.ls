@@ -1,7 +1,7 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download, VLogger}
-require! 'prelude-ls': {min, ceiling}
+require! 'prelude-ls': {min, ceiling, flatten}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
 require! 'dxf-writer'
 require! 'dxf'
@@ -85,19 +85,12 @@ Ractive.components['sketcher'] = Ractive.extend do
             @fire \changeTool, {}, tool
 
         calc-bounds = (scope) ->
-            fit = {}
-            for layer in scope.project.layers
-                for item in layer.children
-                    for <[ top left ]>
-                        if item.bounds[..] < fit[..] or not fit[..]?
-                            fit[..] = item.bounds[..]
-                    for <[ bottom right ]>
-                        if item.bounds[..] > fit[..] or not fit[..]?
-                            fit[..] = item.bounds[..]
-            #console.log "fit bounds: ", fit
-            top-left = new scope.Point fit.left, fit.top
-            bottom-right = new scope.Point fit.right, fit.bottom
-            new scope.Rectangle top-left, bottom-right
+            items = flatten [..getItems! for scope.project.layers]
+            bounds = items.reduce ((bbox, item) ->
+                unless bbox => item.bounds else bbox.unite item.bounds
+                ), null
+            console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
+            return bounds
 
         @on do
             scriptSelected: (ctx, item, progress) ~>
@@ -114,15 +107,18 @@ Ractive.components['sketcher'] = Ractive.extend do
                 for layer in pcb.project.layers
                     selection.add layer, {+select}
                 #console.log "fit bounds: ", fit
-                fitRect = calc-bounds pcb
+                fit = calc-bounds pcb
+                if fit
+                    # set center
+                    pcb.view.center = fit.center
 
-                # set center
-                pcb.view.center = fitRect.center
-
-                # set zoom
-                if fitRect.width > 0 and fitRect.height > 0
-                    curr = pcb.view.bounds
-                    pcb.view.zoom = 0.8 * min (curr.width / fitRect.width), (curr.height / fitRect.height)
+                    # set zoom
+                    if fit.width > 0 and fit.height > 0
+                        curr = pcb.view.bounds
+                        padding = 0.8
+                        pcb.view.zoom *= padding * min(
+                            (curr.width / fit.width),
+                            (curr.height / fit.height))
 
             changeTool: (ctx, tool, proceed) ~>
                 console.log "Changing tool to: #{tool}"
