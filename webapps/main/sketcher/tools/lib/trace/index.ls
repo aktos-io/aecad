@@ -128,10 +128,10 @@ export class Trace
                     layer: curr.layer.name
                     tid: @trace-id
 
-            @line.add snap 
+            @line.add snap
 
             if new-trace
-                @set-helpers snap
+                @set-helpers point
             @update-helpers snap
 
         else
