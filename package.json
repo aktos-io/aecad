@@ -21,6 +21,7 @@
     "dxf-writer": "^1.2.0",
     "paper": "^0.11.5",
     "pretty": "^2.0.0",
+    "shortid": "^2.2.13",
     "svg-path-parser": "^1.1.0",
     "svgson-next": "^4.2.0",
     "three": "^0.97.0"

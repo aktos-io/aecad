@@ -15,14 +15,37 @@ export class Selection
                 ..getPath!.selected = no
             else
                 ..selected = no
+            if ..data?.tmp
+                #console.log "removing temporary path: ", ..
+                ..remove!
 
         @selected = []
 
-    add: (items, opts={}) ->
+    add: (items, opts={select: yes}) ->
         for flatten [items]
-            @selected.push .. unless ..selected
-            ..selected = yes
-        console.log "Selected items so far: ", @selected
+            try
+                switch ..getClassName!
+                | \Path => \ok
+                | \Curve => \ok
+                | \Segment => \ok
+                | \Group => \ok
+                | \Point => \ok
+                |_ =>
+                    console.warn "unrecognized", ..
+                    throw
+            catch
+                console.warn ".........unrecognized selection: ", ..
+                continue
+            if ..id? and find (.id is ..id), @selected
+                console.log "duplicate item, not adding: ", ..
+                continue
+            if ..selected
+                console.log "already selected, not adding"
+                continue
+            @selected.push ..
+            if opts.select
+                ..selected = yes
+        console.log "Selected items so far: #{@selected.length}"
 
     delete: ->
         for i in [til @selected.length]

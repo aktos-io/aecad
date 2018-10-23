@@ -1,4 +1,6 @@
 require! 'prelude-ls': {abs, min}
+require! 'shortid'
+require! './selection': {Selection}
 
 export class Trace
     @instance = null
@@ -14,15 +16,15 @@ export class Trace
         @snap-x = false
         @snap-y = false
         @flip-side = false
-        @uuid = 0
         @moving-point = null    # point that *tries* to follow the pointer (might be currently snapped)
         @last-point = null      # last point which is placed
         @continues = no         # trace is continuing or not
         @modifiers = {}
         @history = []
-        @trace-id = 0
+        @trace-id = null
         @prev-hover = []
         @removed-last-segment = null  # TODO: undo functionality will replace this
+        @selection = new Selection
 
     get-tolerance: ->
         20 / @scope.view.zoom
@@ -42,7 +44,6 @@ export class Trace
         @snap-slash = false         # snap to / direction
         @snap-backslash = false     # snap to \ direction
         @flip-side = false
-        @uuid = null
         @removed-last-segment = null
 
     remove-last-point: (undo) ->
@@ -90,7 +91,7 @@ export class Trace
             unless @line
                 # starting a new trace
                 # assign a new trace id for next trace
-                @trace-id++
+                @trace-id = shortid.generate!
 
             # TODO: hitTest is not the correct way to go,
             # check if inside the geometry
@@ -121,6 +122,9 @@ export class Trace
     add-via: ->
         via = new @scope.Path.Circle(@moving-point, 5)
             ..fill-color = \orange
+            ..data.aecad =
+                tid: @trace-id
+                type: \via
 
         # Toggle the layers
         # TODO: make this cleaner
@@ -219,9 +223,10 @@ export class Trace
             if closest.hit
                 console.log "snapped to the closest hit:", that, "zoom: ", @scope.view.zoom
                 @moving-point .set that.bounds.center
-                that.selected = yes
+                @selection.add that
 
-            @line.selected = yes
+            unless @line.selected
+                @selection.add @line
             @curr = event
                 ..point = @moving-point
 

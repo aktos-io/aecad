@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty}
+require! 'prelude-ls': {empty, flatten}
 require! './lib/selection': {Selection}
 
 export MoveTool = (scope, layer, canvas) ->
@@ -15,13 +15,22 @@ export MoveTool = (scope, layer, canvas) ->
                 scope.view.center = scope.view.center .add offset
             else
                 # move all selected items
+                i = 0
                 for selection.selected
-                    if ..getClassName! is \Curve
-                        # this must be a trace curve
-                        console.log "will move this curve:", ..
-                        ..point1.set (..point1 .add event.delta)
-                        ..point2.set (..point2 .add event.delta)
-                    else
+                    console.log "moving selected: #{++i} ", ..
+                    switch ..getClassName!
+                    | 'Curve' =>
+                        console.log "...moving curve #{i}"
+                        for [..segment1, ..segment2]
+                            ..point.set (..point .add event.delta)
+                    | 'Path' =>
+                        console.log "...moving path #{i}..."
+                        for ..getSegments!
+                            ..point.set (..point .add event.delta)
+                    | 'Point' =>
+                        ..set (..add event.delta)
+                    |_ =>
+                        debugger
                         ..position.set (..position .add event.delta)
 
                 # backup the movement vector for a possible cancel
@@ -34,13 +43,15 @@ export MoveTool = (scope, layer, canvas) ->
 
         ..onMouseDown = (event) ~>
             layer.activate!
-            hit = scope.project.hitTest event.point
-            if hit?.item.selected
-                # we are going to move these items
-                canvas.style.cursor = 'move'
-            else
-                move.pan = yes
-                canvas.style.cursor = 'grabbing'
+            hits = scope.project.hitTestAll event.point
+            for flatten hits
+                console.log "found hit: ", ..
+                if ..item.selected
+                    console.log "...found selected on hit."
+                    canvas.style.cursor = 'move'
+                    return
+            move.pan = yes
+            canvas.style.cursor = 'grabbing'
 
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move

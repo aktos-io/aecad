@@ -1,6 +1,8 @@
 require! 'prelude-ls': {empty, flatten, filter, map}
 require! './lib/selection': {Selection}
 
+get-tid = (.data?.aecad?.tid)
+
 export SelectTool = (scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
 
@@ -14,43 +16,52 @@ export SelectTool = (scope, layer, canvas) ->
                 scope.view.center = scope.view.center .add offset
 
         ..onMouseDown = (event) ~>
-            layer.activate!
             selection.deselect!
+            matched = []
             hit = scope.project.hitTest event.point
-            if hit?item
-                #console.warn "Hit: ", hit
-                if event.modifiers.control and hit.item.data.aecad?tid
-                    # select only that specific curve
-                    curves = hit.item.getCurves!
-                    nearest = null
-                    dist = null
-                    for i, curve of curves
-                        _dist = curve.getNearestPoint(event.point).getDistance(event.point)
-                        if _dist < dist or not nearest?
-                            nearest = i
-                            dist = _dist
+            if hit?location and (trace-id=(get-tid hit.item))
+                # select only that specific curve of the trace
+                curve = hit.location.curve
+                console.log "actual curve parent: #{hit.item.id}"
+                #selection.add curve, {select: no} # we don't want to highlight
+                workaround = new scope.Path.Line do
+                    from: curve.point1
+                    to: curve.point2
+                    data: {+tmp}
+                    strokeWidth: 3
+                    strokeColor: \blue
+                console.log "adding workaround line: id: #{workaround.id}"
+                selection.add workaround
 
-                    curve = curves[nearest]
-                    selection.add curve
-                else
-                    matched = []
-                    if @get('selectAllLayer')
-                        if hit.item.data.aecad?tid
-                            # this is a trace, select only segments belong to this trace
-                            console.log "Selected a trace with tid: ", that
-                            #for layers in scope.project.getItems (.data.aecad?.tid is that)
-                            matched = scope.project.getItems!
-                                |> map (.children)
-                                |> flatten
-                                |> filter (.data.aecad?.tid is that)
-                            console.log "filtered items:", matched
-                        else
-                            matched = hit.item.getLayer().children
-                            console.log "...will select all items in current layer", matched
+                items = flatten [..getItems! for scope.project.layers]
+                i = 1
+                for part in items when (get-tid part) is trace-id
+                    console.log "found trace part: #{part.id}", part
+                    p1 = curve.point1
+                    p2 = curve.point2
+                    if part.data?.aecad?.type is \via
+                        c = part.bounds.center
+                        if (c.equals p1) or (c.equals p2)
+                            # add this via to selection
+                            selection.add part, {select: no}
                     else
-                        matched.push hit.item
+                        for part.getSegments!
+                            # search in segments
+                            if (p1.equals ..point) or (p2.equals ..point)
+                                console.log "adding coincident: #{i++}, id: #{part.id}"
+                                selection.add ..point, {select: no}
 
-                    selection.add matched
+
+            else if hit?item
+                #console.warn "Hit: ", hit
+                if @get('selectAllLayer')
+                    matched = hit.item.getLayer().children
+                    console.log "...will select all items in current layer", matched
+                else
+                    # select the item
+                    matched.push hit.item
+
+            selection.add matched
 
         ..onKeyDown = (event) ~>
             # delete an item with Delete key
