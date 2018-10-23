@@ -45,10 +45,7 @@ export MoveTool = (_scope, layer, canvas) ->
 
         ..onMouseDown = (event) ~>
             layer.activate!
-            scope.get-tool \select
-                ..activate!
-                ..emit \mousedown, event
-            move-tool.activate!
+            scope.get-tool \select .onMouseDown event
             hits = scope.project.hitTestAll event.point
             for flatten hits
                 console.log "found hit: ", ..
