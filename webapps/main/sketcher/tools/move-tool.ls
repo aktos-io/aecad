@@ -46,15 +46,20 @@ export MoveTool = (_scope, layer, canvas) ->
         ..onMouseDown = (event) ~>
             layer.activate!
             scope.get-tool \select .onMouseDown event
-            hits = scope.project.hitTestAll event.point
+            hits = scope.project.hitTestAll event.point, do
+                tolerance: 3
+                fill: true
+                stroke: true
+                segments: true
+
             for flatten hits
                 console.log "found hit: ", ..
                 if ..item.selected
                     console.log "...found selected on hit."
-                    canvas.style.cursor = 'move'
+                    scope.cursor \move
                     return
             move.pan = yes
-            canvas.style.cursor = 'grabbing'
+            scope.cursor \grabbing
 
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move

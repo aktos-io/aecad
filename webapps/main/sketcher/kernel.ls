@@ -32,3 +32,6 @@ export class PaperDraw
 
     get-tool: (name) ->
         @tools[name]
+
+    cursor: (name) ->
+        @canvas.style.cursor = name 

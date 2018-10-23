@@ -19,7 +19,12 @@ export SelectTool = (_scope, layer, canvas) ->
         ..onMouseDown = (event) ~>
             selection.deselect!
             matched = []
-            hit = scope.project.hitTest event.point
+            hit = scope.project.hitTest event.point, do
+                tolerance: 0
+                fill: true
+                stroke: true
+                segments: true
+
             if hit?location and (trace-id=(get-tid hit.item))
                 # select only that specific curve of the trace
                 curve = hit.location.curve
@@ -31,6 +36,7 @@ export SelectTool = (_scope, layer, canvas) ->
                     data: {+tmp}
                     strokeWidth: 3
                     strokeColor: \blue
+                    
                 console.log "adding workaround line: id: #{workaround.id}"
                 selection.add workaround
 
