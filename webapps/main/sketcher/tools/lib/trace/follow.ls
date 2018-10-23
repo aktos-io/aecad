@@ -4,7 +4,8 @@ export _default =
     follow: (point) ->
         if @line
             @moving-point = @line.segments[* - 1].point
-            @last-point = @line.segments[* - 2].point
+            a = if @corr-point? => 1 else 0
+            @last-point = @line.segments[* - 2 - a].point
             y-diff = @last-point.y - point.y
             x-diff = @last-point.x - point.x
             tolerance = @get-tolerance!
@@ -55,18 +56,18 @@ export _default =
             else
                 @moving-point.set point
                 # calculate correction path
-                route-over = if abs(x-diff) > abs(y-diff)
-                    if x-diff * y-diff > 0
-                        "x-s"
-                    else
-                        "x-bs"
-                else if abs(y-diff) > abs(x-diff)
-                    if x-diff * y-diff > 0
-                        "y-s"
-                    else
-                        "y-bs"
+            route-over = if abs(x-diff) > abs(y-diff)
+                if x-diff * y-diff > 0
+                    "x-s"
                 else
-                    null
+                    "x-bs"
+            else if abs(y-diff) > abs(x-diff)
+                if x-diff * y-diff > 0
+                    "y-s"
+                else
+                    "y-bs"
+            else
+                null
 
 
             @update-helpers @moving-point, <[ s bs ]>
@@ -81,7 +82,16 @@ export _default =
                     @helpers[..].stroke-width = 0
 
             if route-over
-                breaking-point = @helpers[that].bounds.center
+                bpoint = @helpers[that].bounds.center
+                unless @corr-point
+                    # insert a new correction point
+                    @corr-point = bpoint.clone!
+                    @line.insert (@line.segments.length - 2), @corr-point
+                else
+                    @line.segments[* - 2].point.set bpoint
+            else if @corr-point
+                @line.removeSegment (@line.segments.length - 2)
+                @corr-point = null
 
 
             # collision detection
@@ -92,7 +102,9 @@ export _default =
                         if search-hit src, ..
                             hits ++= that
                 else
+                    # FIXME: this prevents trace selection!!
                     target.selected = no
+
                     type-ok = if target.type is \circle
                         yes
                     else if target.closed
@@ -129,5 +141,6 @@ export _default =
 
             unless @line.selected
                 @selection.add @line
+
             @curr = event
                 ..point = @moving-point

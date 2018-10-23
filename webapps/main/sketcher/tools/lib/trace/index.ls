@@ -128,8 +128,7 @@ export class Trace
                     layer: curr.layer.name
                     tid: @trace-id
 
-            #@line.add new @scope.Point snap
-            @line.add point
+            @line.add snap 
 
             if new-trace
                 @set-helpers snap
@@ -139,6 +138,7 @@ export class Trace
             @update-helpers (@moving-point or point)
             @line.add(point)
 
+        @corr-point = null
         @continues = yes
 
     add-via: ->
