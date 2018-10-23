@@ -259,37 +259,8 @@ export class Trace
                 backslash: abs(x-diff - y-diff)
                 slash: abs(x-diff + y-diff)
 
-            min-dist = 0
-            direction = null
-            for dir, dist of sdir
-                if not direction or dist < min-dist
-                    direction = dir
-                    min-dist = dist
-            #console.log "most likely direction is #{direction}"
-            route-over = if abs(x-diff) > abs(y-diff)
-                if x-diff * y-diff > 0
-                    "x-s"
-                else
-                    "x-bs"
-            else if abs(y-diff) > abs(x-diff)
-                if x-diff * y-diff > 0
-                    "y-s"
-                else
-                    "y-bs"
-            else
-                null
-
-            # only for visualization
-            for <[ x-s x-bs y-s y-bs ]>
-                if route-over and .. is route-over
-                    @helpers[..]
-                        ..stroke-color = 'red'
-                        ..stroke-width = 3
-                else
-                    @helpers[..].stroke-width = 0
-
-
-
+            route-over = null 
+            # decide snap axis
             if snap-x or sdir.x < tolerance
                 @moving-point.x = point.x
                 @moving-point.y = @last-point.y
@@ -308,11 +279,33 @@ export class Trace
                     ..y = @last-point.y + d
             else
                 @moving-point.set point
+                # calculate correction path
+                route-over = if abs(x-diff) > abs(y-diff)
+                    if x-diff * y-diff > 0
+                        "x-s"
+                    else
+                        "x-bs"
+                else if abs(y-diff) > abs(x-diff)
+                    if x-diff * y-diff > 0
+                        "y-s"
+                    else
+                        "y-bs"
+                else
+                    null
+
 
             @update-helpers @moving-point, <[ s bs ]>
 
+            # only for visualization
+            for <[ x-s x-bs y-s y-bs ]>
+                if route-over and .. is route-over
+                    @helpers[..]
+                        ..stroke-color = 'red'
+                        ..stroke-width = 3
+                else
+                    @helpers[..].stroke-width = 0
+
             if route-over
-                # update correction point
                 c = @helpers[that].bounds.center
                 #@corr-point.set c
                 console.log "setting correction point to #{that}:", c
