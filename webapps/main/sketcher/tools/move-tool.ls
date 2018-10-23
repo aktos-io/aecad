@@ -1,10 +1,12 @@
 require! 'prelude-ls': {empty, flatten}
 require! './lib/selection': {Selection}
+require! '../kernel': {PaperDraw}
 
-export MoveTool = (scope, layer, canvas) ->
+export MoveTool = (_scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
     ractive = this
     selection = new Selection
+    scope = new PaperDraw
     move = dragging: null  # total drag vector
 
     move-tool = new scope.Tool!
@@ -43,6 +45,10 @@ export MoveTool = (scope, layer, canvas) ->
 
         ..onMouseDown = (event) ~>
             layer.activate!
+            scope.get-tool \select
+                ..activate!
+                ..emit \mousedown, event
+            move-tool.activate!
             hits = scope.project.hitTestAll event.point
             for flatten hits
                 console.log "found hit: ", ..

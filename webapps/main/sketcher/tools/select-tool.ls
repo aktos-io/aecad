@@ -1,11 +1,12 @@
 require! 'prelude-ls': {empty, flatten, filter, map}
 require! './lib/selection': {Selection}
+require! '../kernel': {PaperDraw}
 
 get-tid = (.data?.aecad?.tid)
 
-export SelectTool = (scope, layer, canvas) ->
+export SelectTool = (_scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
-
+    scope = new PaperDraw
     selection = new Selection
 
     select-tool = new scope.Tool!
@@ -72,4 +73,5 @@ export SelectTool = (scope, layer, canvas) ->
             if (event.key is \escape)
                 selection.deselect!
 
+    scope.add-tool \select, select-tool
     select-tool

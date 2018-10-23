@@ -14,6 +14,7 @@ require! './tools/move-tool': {MoveTool}
 require! './tools/select-tool': {SelectTool}
 require! './lib/json-to-dxf': {json-to-dxf}
 require! './tools/lib/selection': {Selection}
+require! './kernel': {PaperDraw}
 
 mm2px = (/ 25.4 * 96)
 px2mm = (* 1 / mm2px it)
@@ -28,7 +29,11 @@ Ractive.components['sketcher'] = Ractive.extend do
         canvas.height = 400
 
         # scope
-        pcb = paper.setup canvas
+        pcb = new PaperDraw do
+            scope: paper.setup canvas
+            ractive: this
+            canvas: canvas
+
         @set \pcb, pcb
 
         # see https://stackoverflow.com/a/52830469/1952991
@@ -37,13 +42,11 @@ Ractive.components['sketcher'] = Ractive.extend do
         # layers
         layers =
             gui: new pcb.Layer!
-            ext: new pcb.Layer!
 
         @set \vlog, new VLogger this
 
-        for <[ gui scripting import ]>
-            @set "project.layers.#{..}", new pcb.Layer!
-        @fire \activateLayer, {}, \gui
+        pcb.add-layer \scripting 
+        pcb.use-layer \gui
 
         # zooming
         $ canvas .mousewheel (event) ->
@@ -147,13 +150,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 @get \project.layers.scripting .clear!
 
             activate-layer: (ctx, name, proceed) ->
-                if @get "project.layers.#{name}"
-                    that.activate!
-                else
-                    layer = new pcb.Layer!
-                        ..name = name
-                    @set "project.layers.#{name}", layer
-                @set \activeLayer, name
+                pcb.use-layer name
                 proceed!
 
     computed:
