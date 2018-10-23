@@ -100,8 +100,18 @@ export class Trace
             opacity: 0.8
             dashArray: [10, 4]
 
-        for <[ x y s bs ]>
-            @helpers[..] = new @scope.Path.Line helper-opts
+        for axis in <[ x y s bs ]>
+            @helpers[axis] = new @scope.Path.Line helper-opts
+
+
+        for axis in <[ x y ]>
+            for axis2 in <[ s bs ]>
+                # create intersections
+                @helpers["#{axis}-#{axis2}"] = new @scope.Path.Circle do
+                    center: point
+                    radius: 5
+                    stroke-width: 3
+                    stroke-color: \green
 
     remove-helpers: ->
         for h, p of @helpers
@@ -147,6 +157,13 @@ export class Trace
 
                     ..rotate(-45, point)
 
+        for axis in <[ x y ]>
+            for axis2 in <[ s bs ]>
+                name = "#{axis}-#{axis2}"
+                isec = @helpers[axis].getIntersections @helpers[axis2]
+                if isec.length > 1
+                    console.warn "how come: ", isec
+                @helpers[name].position = isec.0.point 
 
     add-segment: (point) ->
         new-trace = no
