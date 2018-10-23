@@ -26,6 +26,7 @@ export class Trace
         @removed-last-segment = null  # TODO: undo functionality will replace this
         @selection = new Selection
         @helpers = {}
+        @corr-point = null # correcting point
 
 
     get-tolerance: ->
@@ -163,7 +164,7 @@ export class Trace
                 isec = @helpers[axis].getIntersections @helpers[axis2]
                 if isec.length > 1
                     console.warn "how come: ", isec
-                @helpers[name].position = isec.0.point 
+                @helpers[name].position = isec.0?.point
 
     add-segment: (point) ->
         new-trace = no
@@ -187,7 +188,7 @@ export class Trace
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
 
-            @line = new @scope.Path(snap, point)
+            @line = new @scope.Path(snap)
                 ..strokeColor = curr.layer.color
                 ..strokeWidth = curr.trace.width
                 ..strokeCap = 'round'
@@ -196,6 +197,9 @@ export class Trace
                 ..data.aecad =
                     layer: curr.layer.name
                     tid: @trace-id
+
+            #@line.add new @scope.Point snap
+            @line.add point
 
             if new-trace
                 @set-helpers snap
@@ -262,6 +266,29 @@ export class Trace
                     direction = dir
                     min-dist = dist
             #console.log "most likely direction is #{direction}"
+            route-over = if abs(x-diff) > abs(y-diff)
+                if x-diff * y-diff > 0
+                    "x-s"
+                else
+                    "x-bs"
+            else if abs(y-diff) > abs(x-diff)
+                if x-diff * y-diff > 0
+                    "y-s"
+                else
+                    "y-bs"
+            else
+                null
+
+            # only for visualization
+            for <[ x-s x-bs y-s y-bs ]>
+                if route-over and .. is route-over
+                    @helpers[..]
+                        ..stroke-color = 'red'
+                        ..stroke-width = 3
+                else
+                    @helpers[..].stroke-width = 0
+
+
 
             if snap-x or sdir.x < tolerance
                 @moving-point.x = point.x
@@ -283,6 +310,12 @@ export class Trace
                 @moving-point.set point
 
             @update-helpers @moving-point, <[ s bs ]>
+
+            if route-over
+                # update correction point
+                c = @helpers[that].bounds.center
+                #@corr-point.set c
+                console.log "setting correction point to #{that}:", c
 
             # collision detection
             search-hit = (src, target) ->
