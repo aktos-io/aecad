@@ -47,18 +47,15 @@ export class Selection
                 ..selected = yes
         console.log "Selected items so far: #{@selected.length}"
 
-    delete: ->
-        for i in [til @selected.length]
-            item = @selected.pop!
-            if item.remove!
-                console.log ".........deleted: ", item
-            else
-                console.error "couldn't recache item: ", item
-                @selected.push item
+    delete: !->
+        for i, item of @selected
+            console.log "item is: ", item
+            try
+                item.remove!
+            catch
+                item._owner.remove!
 
-        unless empty @selected
-            console.error "Why didn't we erase those selected items?: ", @selected
-            debugger
+        @selected.length = 0 
 
     get-top-item: ->
         @selected.0
