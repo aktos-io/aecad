@@ -36,7 +36,7 @@ export SelectTool = (_scope, layer, canvas) ->
                     data: {+tmp}
                     strokeWidth: 3
                     strokeColor: \blue
-                    
+                    opacity: 0.01
                 console.log "adding workaround line: id: #{workaround.id}"
                 selection.add workaround
 

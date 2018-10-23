@@ -25,6 +25,8 @@ export class Trace
         @prev-hover = []
         @removed-last-segment = null  # TODO: undo functionality will replace this
         @selection = new Selection
+        @helpers = {}
+
 
     get-tolerance: ->
         20 / @scope.view.zoom
@@ -45,6 +47,7 @@ export class Trace
         @snap-backslash = false     # snap to \ direction
         @flip-side = false
         @removed-last-segment = null
+        @remove-helpers!
 
     remove-last-point: (undo) ->
         if undo
@@ -85,13 +88,75 @@ export class Trace
                 ..item.selected = yes
                 @prev-hover.push ..item
 
+    set-helpers: (point) ->
+        @remove-helpers!
+
+        helper-opts =
+            from: point
+            to: point
+            data: {+tmp}
+            strokeWidth: 1
+            strokeColor: \blue
+            opacity: 0.8
+            dashArray: [10, 4]
+
+        for <[ x y s bs ]>
+            @helpers[..] = new @scope.Path.Line helper-opts
+
+    remove-helpers: ->
+        for h, p of @helpers
+            p.remove!
+
+    update-helpers: (point, names=<[ x y s bs ]>) ->
+        for name, h of @helpers when name in names
+            switch name
+            | 'x' =>
+                h
+                    ..firstSegment.point
+                        ..x = -1000
+                        ..y = point.y
+                    ..lastSegment.point
+                        ..x = 1000
+                        ..y = point.y
+            | 'y' =>
+                h
+                    ..firstSegment.point
+                        ..x = point.x
+                        ..y = -1000
+                    ..lastSegment.point
+                        ..x = point.x
+                        ..y = 1000
+            | 's' =>
+                h
+                    ..firstSegment.point
+                        ..x = -1000
+                        ..y = point.y
+                    ..lastSegment.point
+                        ..x = 1000
+                        ..y = point.y
+
+                    ..rotate(45, point)
+            | 'bs' =>
+                h
+                    ..firstSegment.point
+                        ..x = -1000
+                        ..y = point.y
+                    ..lastSegment.point
+                        ..x = 1000
+                        ..y = point.y
+
+                    ..rotate(-45, point)
+
+
     add-segment: (point) ->
+        new-trace = no
         if not @line or @flip-side
             @flip-side = false
             unless @line
                 # starting a new trace
                 # assign a new trace id for next trace
                 @trace-id = shortid.generate!
+                new-trace = yes
 
             # TODO: hitTest is not the correct way to go,
             # check if inside the geometry
@@ -115,8 +180,14 @@ export class Trace
                     layer: curr.layer.name
                     tid: @trace-id
 
+            if new-trace
+                @set-helpers snap
+            @update-helpers snap
+
         else
             @line.add(point)
+            @update-helpers point
+
         @continues = yes
 
     add-via: ->
@@ -175,23 +246,26 @@ export class Trace
                     min-dist = dist
             #console.log "most likely direction is #{direction}"
 
-
-            if direction is \x or snap-x
+            if snap-x or sdir.x < tolerance
                 @moving-point.x = point.x
                 @moving-point.y = @last-point.y
-            else if direction is \y or snap-y
+            else if snap-y or sdir.y < tolerance
                 @moving-point.y = point.y
                 @moving-point.x = @last-point.x
-            else if direction is \backslash or snap-backslash
+            else if snap-backslash or sdir.backslash < tolerance
                 d = @last-point.x - point.x
                 @moving-point
                     ..x = point.x
                     ..y = @last-point.y - d
-            else if direction is \slash or snap-slash
+            else if snap-slash or sdir.slash < tolerance
                 d = @last-point.x - point.x
                 @moving-point
                     ..x = point.x
                     ..y = @last-point.y + d
+            else
+                @moving-point.set point
+
+            @update-helpers @moving-point, <[ s bs ]>
 
             # collision detection
             search-hit = (src, target) ->
