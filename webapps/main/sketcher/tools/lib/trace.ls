@@ -206,8 +206,8 @@ export class Trace
             @update-helpers snap
 
         else
+            @update-helpers (@moving-point or point)
             @line.add(point)
-            @update-helpers point
 
         @continues = yes
 
@@ -259,7 +259,7 @@ export class Trace
                 backslash: abs(x-diff - y-diff)
                 slash: abs(x-diff + y-diff)
 
-            route-over = null 
+            route-over = null
             # decide snap axis
             if snap-x or sdir.x < tolerance
                 @moving-point.x = point.x
