@@ -53,15 +53,18 @@ export class Trace
         @remove-helpers!
 
     remove-last-point: (undo) ->
+        a = if @corr-point => 1 else 0
         if undo
             if @removed-last-segment
                 @line.insert(@removed-last-segment.0, @removed-last-segment.1)
                 @removed-last-segment = null
+                @update-helpers @line.segments[* - 2 - a].point
         else
-            last-pinned = @line.segments.length - 2
+            last-pinned = @line.segments.length - 2 - a
             if last-pinned > 0
                 @removed-last-segment = [last-pinned, @line.segments[last-pinned]]
                 @line.removeSegment last-pinned
+                @update-helpers @line.segments[last-pinned - 1].point
             else
                 @end!
 
