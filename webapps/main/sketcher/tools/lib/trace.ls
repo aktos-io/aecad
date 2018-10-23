@@ -146,7 +146,9 @@ export class Trace
             snap-x = false
             snap-slash = false
             snap-backslash = false
+
             if @modifiers.shift
+                # lock into current snap
                 angle = @moving-point.subtract @last-point .angle
                 console.log "angle is: ", angle
                 if angle is 90 or angle is -90
@@ -158,29 +160,38 @@ export class Trace
                 else if angle is 45 or angle is -135
                     snap-backslash = true
 
-            if abs(y-diff) < tolerance or snap-x
-                # x direction
+            # find the most likely snap direction
+            sdir =
+                x: abs(y-diff)
+                y: abs(x-diff)
+                backslash: abs(x-diff - y-diff)
+                slash: abs(x-diff + y-diff)
+
+            min-dist = 0
+            direction = null
+            for dir, dist of sdir
+                if not direction or dist < min-dist
+                    direction = dir
+                    min-dist = dist
+            #console.log "most likely direction is #{direction}"
+
+
+            if direction is \x or snap-x
                 @moving-point.x = point.x
                 @moving-point.y = @last-point.y
-            else if abs(x-diff) < tolerance or snap-y
-                # y direction
+            else if direction is \y or snap-y
                 @moving-point.y = point.y
                 @moving-point.x = @last-point.x
-            else if abs(x-diff - y-diff) < tolerance or snap-backslash
-                # backslash
+            else if direction is \backslash or snap-backslash
                 d = @last-point.x - point.x
                 @moving-point
                     ..x = point.x
                     ..y = @last-point.y - d
-
-            else if abs(x-diff + y-diff) < tolerance or snap-slash
-                # slash
+            else if direction is \slash or snap-slash
                 d = @last-point.x - point.x
                 @moving-point
                     ..x = point.x
                     ..y = @last-point.y + d
-            else
-                @moving-point.set point
 
             # collision detection
             search-hit = (src, target) ->
