@@ -46,7 +46,10 @@ export snap-move = (start-point, curr, opts={}) ->
         slash: abs(x-diff + y-diff)
 
     # decide snap axis
-    if snap-x or sdir.x < opts.tolerance
+    if sdir.x < opts.tolerance and sdir.y < opts.tolerance
+        # snap to original point
+        moving-point = start-point 
+    else if snap-x or sdir.x < opts.tolerance
         moving-point.x = curr.x
         moving-point.y = start-point.y
     else if snap-y or sdir.y < opts.tolerance
