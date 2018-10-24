@@ -1,8 +1,7 @@
 require! 'prelude-ls': {empty, flatten, filter, map}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
-
-get-tid = (.data?.aecad?.tid)
+require! './lib/trace/lib': {get-tid, set-tid}
 
 export SelectTool = (_scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
@@ -17,58 +16,76 @@ export SelectTool = (_scope, layer, canvas) ->
                 scope.view.center = scope.view.center .add offset
 
         ..onMouseDown = (event) ~>
-            selection.deselect!
-            matched = []
-            hit = scope.project.hitTest event.point, do
-                tolerance: 0
-                fill: true
-                stroke: true
-                segments: true
+            hit = scope.project.hitTest event.point
+            console.log "hit result is: ", hit
+            unless hit
+                selection.deselect!
+            else
+                if hit.item.data?tmp
+                    return
 
-            if hit?location and (trace-id=(get-tid hit.item))
-                # select only that specific curve of the trace
-                curve = hit.location.curve
-                console.log "actual curve parent: #{hit.item.id}"
-                #selection.add curve, {select: no} # we don't want to highlight
-                workaround = new scope.Path.Line do
-                    from: curve.point1
-                    to: curve.point2
-                    data: {+tmp, for: \trace}
-                    strokeWidth: 3
-                    strokeColor: \blue
-                    opacity: 0.01
-                console.log "adding workaround line: id: #{workaround.id}"
-                selection.add workaround
+                matched = []
+                trace-id = get-tid hit.item
+                handle-data = {+tmp, role: \handle}
+                handle-opacity = 0.5
+                set-tid handle-data, trace-id
 
-                items = flatten [..getItems! for scope.project.layers]
-                i = 1
-                for part in items when (get-tid part) is trace-id
-                    console.log "found trace part: #{part.id}", part
-                    p1 = curve.point1
-                    p2 = curve.point2
-                    if part.data?.aecad?.type is \via
-                        c = part.bounds.center
-                        if (c.equals p1) or (c.equals p2)
-                            # add this via to selection
-                            selection.add part, {select: no}
+                if (hit.segment or hit.item?data?segment) and trace-id
+                    # segment of a trace
+                    unless hit.item?data?segment
+                        workaround = new scope.Path.Circle do
+                            center: hit.segment.point
+                            radius: 4
+                            data: handle-data <<< {geo: \c, segment: hit.segment}
+                            strokeWidth: 3
+                            strokeColor: \blue
+                            opacity: handle-opacity
+
+                        selection.add workaround
+
+                else if hit.location and trace-id
+                    # select only that specific curve of the trace
+                    curve = hit.location.curve
+
+                    console.log "................................adding curve with this hit:", hit
+                    # handle
+                    workaround = new scope.Path.Line do
+                        from: curve.point1
+                        to: curve.point2
+                        data: handle-data <<< {curve: hit.location.curve}
+                        strokeWidth: 3
+                        strokeColor: \blue
+                        opacity: handle-opacity
+                    console.log "adding workaround line: id: #{workaround.id}"
+                    selection.add workaround
+
+                    for part in scope.get-all! when (get-tid part) is trace-id
+                        continue if part.data?.role is \handle
+                        console.log "found trace part: #{part.id}", part
+                        p1 = curve.point1
+                        p2 = curve.point2
+                        if part.data?.aecad?.type is \via
+                            c = part.bounds.center
+                            if (c.equals p1) or (c.equals p2)
+                                # add this via to selection
+                                selection.add part, {select: no}
+                        else
+                            for part.getSegments!
+                                # search in segments
+                                if (p1.equals ..point) or (p2.equals ..point)
+                                    console.log "adding coincident: id: #{part.id}"
+                                    selection.add ..point, {select: no}
+                else if hit.item
+                    console.warn "Hit: will select everything", hit
+
+                    if @get('selectAllLayer')
+                        matched = hit.item.getLayer().children
+                        console.log "...will select all items in current layer", matched
                     else
-                        for part.getSegments!
-                            # search in segments
-                            if (p1.equals ..point) or (p2.equals ..point)
-                                console.log "adding coincident: #{i++}, id: #{part.id}"
-                                selection.add ..point, {select: no}
+                        # select the item
+                        matched.push hit.item
 
-
-            else if hit?item
-                #console.warn "Hit: ", hit
-                if @get('selectAllLayer')
-                    matched = hit.item.getLayer().children
-                    console.log "...will select all items in current layer", matched
-                else
-                    # select the item
-                    matched.push hit.item
-
-            selection.add matched
+                selection.add matched
 
         ..onKeyDown = (event) ~>
             # delete an item with Delete key

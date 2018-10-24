@@ -1,3 +1,5 @@
+require! 'prelude-ls': {flatten}
+
 export class PaperDraw
     @instance = null
     (opts={}) ->
@@ -14,6 +16,8 @@ export class PaperDraw
 
     get-all: ->
         # returns all items
+        flatten [..getItems! for @project.layers]
+
 
     add-layer: (name) ->
         @use-layer name
@@ -34,4 +38,4 @@ export class PaperDraw
         @tools[name]
 
     cursor: (name) ->
-        @canvas.style.cursor = name 
+        @canvas.style.cursor = name
