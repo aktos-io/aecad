@@ -36,11 +36,14 @@ export class Trace
 
     end: ->
         if @line
-            that.removeSegment (@line.segments.length - 1)
-            that.selected = no
+            # remove moving point
+            @line.removeSegment (@line.segments.length - 1)
+            if @corr-point
+                @line.removeSegment (@line.segments.length - 1)
+                @corr-point = null
+            @line.selected = no
 
-        a = if @corr-point => 1 else 0
-        if @line.segments.length is 1 + a 
+        if @line.segments.length is 1
             @line.remove!
 
         @line = null
