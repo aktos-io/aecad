@@ -33,7 +33,7 @@ export SelectTool = (_scope, layer, canvas) ->
                 workaround = new scope.Path.Line do
                     from: curve.point1
                     to: curve.point2
-                    data: {+tmp}
+                    data: {+tmp, for: \trace}
                     strokeWidth: 3
                     strokeColor: \blue
                     opacity: 0.01
