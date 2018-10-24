@@ -4,10 +4,11 @@ require! 'prelude-ls': {abs}
 session = null
 prev = null
 
-export snap-move = (start-point, curr, opts) ->
-    unless opts
-        opts =
-            tolerance: 10
+export snap-move = (start-point, curr, opts={}) ->
+    _defaults =
+        tolerance: 20
+
+    opts = _defaults <<< opts
 
     if not session or not session.equals start-point
         session := start-point.clone!
