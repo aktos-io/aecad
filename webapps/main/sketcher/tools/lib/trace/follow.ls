@@ -70,7 +70,6 @@ export _default =
                 null
 
 
-            @update-helpers @moving-point, <[ s bs ]>
 
             # only for visualization
             for <[ x-s x-bs y-s y-bs ]>
@@ -138,6 +137,8 @@ export _default =
                 console.log "snapped to the closest hit:", that, "zoom: ", @scope.view.zoom
                 @moving-point .set that.bounds.center
                 @selection.add that
+
+            @update-helpers @moving-point, <[ s bs ]>
 
             unless @line.selected
                 @selection.add @line
