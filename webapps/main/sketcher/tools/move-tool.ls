@@ -1,6 +1,21 @@
-require! 'prelude-ls': {empty, flatten}
+require! 'prelude-ls': {empty, flatten, and-list}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
+
+shift-items = (items, delta, op="add") ->
+    for items
+        switch ..getClassName!
+        | 'Curve' =>
+            for [..segment1, ..segment2]
+                ..point.set (..point .[op] delta)
+        | 'Path' =>
+            for ..getSegments!
+                ..point.set (..point .[op] delta)
+        | 'Point' =>
+            ..set (..[op] delta)
+        |_ =>
+            console.log "moving #{..getClassName!}"
+            ..position.set (..position .[op] delta)
 
 export MoveTool = (_scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
@@ -17,24 +32,8 @@ export MoveTool = (_scope, layer, canvas) ->
                 scope.view.center = scope.view.center .add offset
             else
                 # move all selected items
-                i = 0
-                for selection.selected
-                    console.log "moving selected: #{++i} ", ..
-                    switch ..getClassName!
-                    | 'Curve' =>
-                        console.log "...moving curve #{i}"
-                        for [..segment1, ..segment2]
-                            ..point.set (..point .add event.delta)
-                    | 'Path' =>
-                        console.log "...moving path #{i}..."
-                        for ..getSegments!
-                            ..point.set (..point .add event.delta)
-                    | 'Point' =>
-                        ..set (..add event.delta)
-                    |_ =>
-                        debugger
-                        ..position.set (..position .add event.delta)
-
+                is-trace = and-list [..data?aecad?tid? for selection.selected]
+                shift-items selection.selected, event.delta
                 # backup the movement vector for a possible cancel
                 move.dragging = (move.dragging or new scope.Point(0, 0)) .add event.delta
 
@@ -46,12 +45,7 @@ export MoveTool = (_scope, layer, canvas) ->
         ..onMouseDown = (event) ~>
             layer.activate!
             scope.get-tool \select .onMouseDown event
-            hits = scope.project.hitTestAll event.point, do
-                tolerance: 3
-                fill: true
-                stroke: true
-                segments: true
-
+            hits = scope.project.hitTestAll event.point
             for flatten hits
                 console.log "found hit: ", ..
                 if ..item.selected
@@ -66,8 +60,7 @@ export MoveTool = (_scope, layer, canvas) ->
             if event.key is \escape
                 if move.dragging?
                     # cancel last movement
-                    for selection.selected
-                        ..position.set (..position .subtract move.dragging)
+                    shift-items selection.selected, move.dragging, "subtract"
                 else
                     # activate selection tool
                     ractive.set \currTool, \sl
