@@ -4,7 +4,11 @@ require! 'prelude-ls': {abs}
 session = null
 prev = null
 
-export snap-move = (start-point, curr, opts={}) ->
+export snap-move = (start-point, curr, opts) ->
+    unless opts
+        opts =
+            tolerance: 10
+
     if not session or not session.equals start-point
         session := start-point.clone!
         prev := null
@@ -15,14 +19,13 @@ export snap-move = (start-point, curr, opts={}) ->
 
     y-diff = curr.y - start-point.y
     x-diff = curr.x - start-point.x
-    tolerance = 10
 
     snap-y = false
     snap-x = false
     snap-slash = false
     snap-backslash = false
 
-    if opts.shift and prev 
+    if opts.shift and prev
         # lock into current snap
         angle = prev.subtract start-point .angle
         console.log "angle is: ", angle
@@ -42,18 +45,18 @@ export snap-move = (start-point, curr, opts={}) ->
         slash: abs(x-diff + y-diff)
 
     # decide snap axis
-    if snap-x or sdir.x < tolerance
+    if snap-x or sdir.x < opts.tolerance
         moving-point.x = curr.x
         moving-point.y = start-point.y
-    else if snap-y or sdir.y < tolerance
+    else if snap-y or sdir.y < opts.tolerance
         moving-point.y = curr.y
         moving-point.x = start-point.x
-    else if snap-backslash or sdir.backslash < tolerance
+    else if snap-backslash or sdir.backslash < opts.tolerance
         d = start-point.x - curr.x
         moving-point
             ..x = curr.x
             ..y = start-point.y - d
-    else if snap-slash or sdir.slash < tolerance
+    else if snap-slash or sdir.slash < opts.tolerance
         d = start-point.x - curr.x
         moving-point
             ..x = curr.x
@@ -77,4 +80,4 @@ export snap-move = (start-point, curr, opts={}) ->
     delta = moving-point.subtract prev
     prev := moving-point.clone!
 
-    return {delta, route-over}
+    return {delta, route-over, snapped: moving-point}
