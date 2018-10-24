@@ -39,7 +39,8 @@ export class Trace
             that.removeSegment (@line.segments.length - 1)
             that.selected = no
 
-        if @line.segments.length is 1
+        a = if @corr-point => 1 else 0
+        if @line.segments.length is 1 + a 
             @line.remove!
 
         @line = null
