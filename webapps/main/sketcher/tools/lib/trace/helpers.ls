@@ -1,19 +1,23 @@
-export _default = 
+export _default =
     set-helpers: (point) ->
         @remove-helpers!
 
         helper-opts =
-            from: point
-            to: point
+            from: [-1000, point.y]
+            to: [1000, point.y]
             data: {+tmp}
-            strokeWidth: 1
+            strokeWidth: 0.5
             strokeColor: \blue
             opacity: 0.8
-            dashArray: [10, 4]
+            dashArray: [10, 1, 1, 1]
 
-        for axis in <[ x y s bs ]>
-            @helpers[axis] = new @scope.Path.Line helper-opts
-
+        @helpers.x = new @scope.Path.Line helper-opts
+        @helpers.y = @helpers.x.clone!
+            ..rotate 90, point
+        @helpers.s = @helpers.x.clone!
+            ..rotate 45, point
+        @helpers.bs = @helpers.x.clone!
+            ..rotate -45, point
 
         for axis in <[ x y ]>
             for axis2 in <[ s bs ]>
@@ -42,11 +46,12 @@ export _default =
             | 'y' =>
                 h
                     ..firstSegment.point
-                        ..x = point.x
-                        ..y = -1000
+                        ..x = -1000
+                        ..y = point.y
                     ..lastSegment.point
-                        ..x = point.x
-                        ..y = 1000
+                        ..x = 1000
+                        ..y = point.y
+                    ..rotate(90, point)
             | 's' =>
                 h
                     ..firstSegment.point
