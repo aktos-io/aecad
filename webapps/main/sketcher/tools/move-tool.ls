@@ -1,12 +1,8 @@
-require! 'prelude-ls': {empty, flatten, partition}
+require! 'prelude-ls': {empty, flatten, partition, abs, max}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/snap-move': {snap-move}
 require! './lib/trace/lib': {is-trace}
-
-shift-items = (items, delta, op="add") ->
-    for items
-        shift-item .., delta, op
 
 movement = (operand, left, right) -->
     if operand in <[ add subtract ]>
@@ -26,6 +22,8 @@ shift-item = (item, delta, type="add") ->
         | 'Path' =>
             for ..getSegments!
                 ..point.set (..point `op` delta)
+        | 'Segment' =>
+            ..point.set (..point `op` delta)
         | 'Point' =>
             ..set (.. `op` delta)
         |_ =>
@@ -55,16 +53,97 @@ export MoveTool = (_scope, layer, canvas) ->
 
                 unless move.mode is \trace
                     # move an item regularly
-                    shift-items selection.selected, event.delta
+                    for selection.selected
+                        .. `shift-item` event.delta
                     move.dragging `shift-item` event.delta
                 else
                     # handle trace movement specially
                     [sel, rest] = partition (.data?.role is \handle), selection.selected
-                    console.log "sel: ", sel
                     snap = snap-move event.downPoint, event.point, {shift: event.modifiers.shift}
-                    console.log "rest: ", rest, "delta: ", event.delta, snap.delta
-                    shift-items sel, snap.delta
-                    shift-items rest, snap.delta
+                    handle = sel.0
+                    #console.log "shifting handle: ", handle
+                    [handle-p1, handle-p2] = handle.segments
+                    shift-item handle, snap.delta
+                    console.log "rest is: #{rest.length}: ", rest
+                    for rest
+
+                        switch ..constructor.name
+                        | 'SegmentPoint' =>
+                            segment = .._owner
+                            prev = segment.getPrevious!
+                            next = segment.getNext!
+
+                            _tolerance = 1 + max (abs snap.delta.x), (abs snap.delta.y)
+                            if segment.point.isClose handle-p1.point, _tolerance
+                                close-end = handle-p1
+                                far-end = handle-p2
+                            else if segment.point.isClose handle-p2.point, _tolerance
+                                close-end = handle-p2
+                                far-end = handle-p1
+                            else
+                                console.error "where is it close to? ", segment, handle
+                                return
+
+                            unless prev and next
+                                # this is tip
+                                shift-item segment.point, snap.delta
+                            else
+                                console.log "this is not tip: ", ..
+
+                                outer-segment = if far-end.point.isClose next.point, _tolerance
+                                    prev
+                                else
+                                    next
+
+                                outer-line = outer-segment.point.subtract segment.point
+                                console.log "outer line angle: ", outer-line.angle
+                                snap-to = {}
+                                angle = outer-line.angle
+                                eequal = (left, right) ->
+                                    for right
+                                        if .. - 1 < left < .. + 1
+                                            return true
+                                    return false
+                                if angle `eequal` [-90, 90]
+                                    snap-to.y = true
+                                else if angle `eequal` [ 0, 180 ]
+                                    console.log "because: ", outer-segment.point, segment.point
+
+                                    snap-to.x = true
+                                else if angle `eequal` [-45, 135]
+                                    snap-to.slash = true
+                                else if angle `eequal` [45, -135]
+                                    snap-to.backslash = true
+
+                                if snap-to.slash
+                                    if abs(snap.delta.y) > abs(snap.delta.x)
+                                        # movement in y direction
+                                        console.log "slash in y direction"
+                                        segment.point.y += snap.delta.y
+                                        segment.point.x -= snap.delta.y
+                                    else
+                                        console.error "movement other than y", snap.delta
+                                else if snap-to.backslash
+                                    console.log "snapping to backslash, ", snap.delta.x, snap.delta.y
+                                    if abs(snap.delta.y) >= abs(snap.delta.x)
+                                        # movement in y direction
+                                        console.log "backslash in y direction"
+                                        segment.point.y += snap.delta.y
+                                        segment.point.x += snap.delta.y
+                                    else
+                                        console.error "movement other than y", snap.delta
+                                else
+                                    console.error "WWWWWWWWWWWWWWWWWW", snap-to
+                                    segment.point.y += snap.delta.y
+                                    segment.point.x += snap.delta.x
+
+                            # track handle position
+                            close-end.point.set segment.point
+                        |_ =>
+                            console.warn "This is not a part of trace: ", ..constructor.name, ..
+                            #shift-item .., snap.delta
+
+                    # backup movement
                     move.dragging `shift-item` snap.delta
 
         ..onMouseUp = (event) ~>
@@ -96,7 +175,8 @@ export MoveTool = (_scope, layer, canvas) ->
             if event.key is \escape
                 if move.dragging?
                     # cancel last movement
-                    shift-items selection.selected, move.dragging, "subtract"
+                    for selection.selected
+                        shift-item .., move.dragging, "subtract"
                     move-tool.emit \mouseup
                 else
                     # activate selection tool
