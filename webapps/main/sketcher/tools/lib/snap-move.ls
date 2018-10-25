@@ -1,4 +1,5 @@
 require! 'prelude-ls': {abs}
+require! '../../kernel': {PaperDraw}
 
 # returns the snapped movement
 session = null
@@ -6,9 +7,12 @@ prev = null
 
 export snap-move = (start-point, curr, opts={}) ->
     _defaults =
-        tolerance: 20
+        tolerance: 10
 
     opts = _defaults <<< opts
+
+    scope = new PaperDraw
+    tolerance = opts.tolerance / scope.view.zoom
 
     if not session or not session.equals start-point
         session := start-point.clone!
@@ -46,21 +50,21 @@ export snap-move = (start-point, curr, opts={}) ->
         slash: abs(x-diff + y-diff)
 
     # decide snap axis
-    if sdir.x < opts.tolerance and sdir.y < opts.tolerance
+    if sdir.x < tolerance and sdir.y < tolerance
         # snap to original point
-        moving-point = start-point 
-    else if snap-x or sdir.x < opts.tolerance
+        moving-point = start-point
+    else if snap-x or sdir.x < tolerance
         moving-point.x = curr.x
         moving-point.y = start-point.y
-    else if snap-y or sdir.y < opts.tolerance
+    else if snap-y or sdir.y < tolerance
         moving-point.y = curr.y
         moving-point.x = start-point.x
-    else if snap-backslash or sdir.backslash < opts.tolerance
+    else if snap-backslash or sdir.backslash < tolerance
         d = start-point.x - curr.x
         moving-point
             ..x = curr.x
             ..y = start-point.y - d
-    else if snap-slash or sdir.slash < opts.tolerance
+    else if snap-slash or sdir.slash < tolerance
         d = start-point.x - curr.x
         moving-point
             ..x = curr.x
