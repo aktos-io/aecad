@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty, flatten, partition, abs, max}
+require! 'prelude-ls': {empty, flatten, partition, abs, max, sqrt}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/snap-move': {snap-move}
@@ -59,7 +59,10 @@ export MoveTool = (_scope, layer, canvas) ->
                 else
                     # handle trace movement specially
                     [sel, rest] = partition (.data?.role is \handle), selection.selected
-                    snap = snap-move event.downPoint, event.point, {shift: event.modifiers.shift}
+                    snap = snap-move event.downPoint, event.point, do
+                        shift: event.modifiers.shift
+                        restrict: yes
+                        tolerance: 30
                     handle = sel.0
                     #console.log "shifting handle: ", handle
                     [handle-p1, handle-p2] = handle.segments
@@ -73,7 +76,7 @@ export MoveTool = (_scope, layer, canvas) ->
                             prev = segment.getPrevious!
                             next = segment.getNext!
 
-                            _tolerance = 1 + max (abs snap.delta.x), (abs snap.delta.y)
+                            _tolerance = 1 + sqrt (snap.delta.x ** 2) + (snap.delta.y ** 2)
                             if segment.point.isClose handle-p1.point, _tolerance
                                 close-end = handle-p1
                                 far-end = handle-p2
@@ -88,8 +91,6 @@ export MoveTool = (_scope, layer, canvas) ->
                                 # this is tip
                                 shift-item segment.point, snap.delta
                             else
-                                console.log "this is not tip: ", ..
-
                                 outer-segment = if far-end.point.isClose next.point, _tolerance
                                     prev
                                 else
@@ -107,8 +108,6 @@ export MoveTool = (_scope, layer, canvas) ->
                                 if angle `eequal` [-90, 90]
                                     snap-to.y = true
                                 else if angle `eequal` [ 0, 180 ]
-                                    console.log "because: ", outer-segment.point, segment.point
-
                                     snap-to.x = true
                                 else if angle `eequal` [-45, 135]
                                     snap-to.slash = true
@@ -121,8 +120,6 @@ export MoveTool = (_scope, layer, canvas) ->
                                         console.log "slash in y direction"
                                         segment.point.y += snap.delta.y
                                         segment.point.x -= snap.delta.y
-                                    else
-                                        console.error "movement other than y", snap.delta
                                 else if snap-to.backslash
                                     console.log "snapping to backslash, ", snap.delta.x, snap.delta.y
                                     if abs(snap.delta.y) >= abs(snap.delta.x)
@@ -130,12 +127,12 @@ export MoveTool = (_scope, layer, canvas) ->
                                         console.log "backslash in y direction"
                                         segment.point.y += snap.delta.y
                                         segment.point.x += snap.delta.y
-                                    else
-                                        console.error "movement other than y", snap.delta
-                                else
-                                    console.error "WWWWWWWWWWWWWWWWWW", snap-to
-                                    segment.point.y += snap.delta.y
+                                else if snap-to.x
                                     segment.point.x += snap.delta.x
+                                else if snap-to.y
+                                    segment.point.y += snap.delta.y
+                                else
+                                    console.warn "we won't move other than 4 directions"
 
                             # track handle position
                             close-end.point.set segment.point
@@ -154,6 +151,7 @@ export MoveTool = (_scope, layer, canvas) ->
             canvas.style.cursor = 'default'
 
         ..onMouseDown = (event) ~>
+            scope.history.push!
             move.enabled = yes
             layer.activate!
             scope.get-tool \select .onMouseDown event
@@ -186,5 +184,9 @@ export MoveTool = (_scope, layer, canvas) ->
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
                 selection.getTopItem!.rotate angle
+
+            if event.modifiers.control and event.key is \z
+                scope.history.back!
+
 
     move-tool

@@ -19,7 +19,11 @@ export class Selection
                 #console.log "removing temporary path: ", ..
                 ..remove!
 
-        @selected = []
+        @selected.length = 0
+        console.log "deselected everything, selected lisT: ", @selected
+
+    clear: ->
+        @deselect!
 
     add: (items, opts={select: yes}) ->
         for flatten [items]
@@ -45,7 +49,7 @@ export class Selection
             @selected.push ..
             if opts.select
                 ..selected = yes
-        console.log "Selected items so far: #{@selected.length}"
+        console.log "Selected items so far: #{@selected.length}", @selected 
 
     delete: !->
         for i, item of @selected
@@ -55,7 +59,7 @@ export class Selection
             catch
                 item._owner.remove!
 
-        @selected.length = 0 
+        @selected.length = 0
 
     get-top-item: ->
         @selected.0

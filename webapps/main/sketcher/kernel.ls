@@ -1,4 +1,37 @@
 require! 'prelude-ls': {flatten}
+require! './tools/lib/selection': {Selection}
+
+class History
+    (opts) ->
+        @project = opts.project
+        @ractive = opts.ractive
+        @selection = opts.selection
+        @commits = []
+        @limit = 20
+
+    push: ->
+        @commits.push @project.exportJSON!
+        if @commits.length > @limit
+            @commits.shift!
+
+    back: ->
+        commit = @commits.pop!
+        if commit
+            for @project.layers
+                ..clear!
+            @selection.clear!
+            @project.importJSON commit
+            for layer in @project.layers
+                if layer.name
+                    @ractive.set "project.layers.#{layer.name}", layer
+                else
+                    console.log "No name layer: with #{layer.children.length} items: ", layer
+                for item in layer.getChildren!
+                    item.selected = no
+                    if item.data?.tmp
+                        item.remove!
+
+
 
 export class PaperDraw
     @instance = null
@@ -13,6 +46,8 @@ export class PaperDraw
         @ractive = that if opts.ractive
         @canvas = that if opts.canvas
         @tools = {}
+        @selection = new Selection
+        @history = new History {@project, @selection, @ractive}
 
     get-all: ->
         # returns all items
