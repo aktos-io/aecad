@@ -61,8 +61,14 @@ export export_ = (ctx, _filename) ->
         create-download filename, dxf-out
     | 'json' =>
         # Paper.js native json format
-        console.log _json
-        create-download filename, JSON.stringify(JSON.parse(_json), null, 2)
+        j2 = []
+        for JSON.parse _json
+            if ..0 is \Layer and ..1.children?
+                j2.push ..
+            else
+                console.warn "what is that: ", ..
+        console.log j2
+        create-download filename, JSON.stringify(j2, null, 2)
 
 
 # TODO:

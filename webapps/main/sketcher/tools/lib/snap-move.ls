@@ -70,8 +70,10 @@ export snap-move = (start-point, curr, opts={}) ->
             ..x = curr.x
             ..y = start-point.y + d
     else
-        moving-point.set curr
-        # calculate correction path
+        unless opts.restrict
+            moving-point.set curr
+
+    # calculate correction path
     route-over = if abs(x-diff) > abs(y-diff)
         if x-diff * y-diff > 0
             "x-s"

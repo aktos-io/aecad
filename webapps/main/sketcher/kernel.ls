@@ -26,10 +26,10 @@ class History
                     @ractive.set "project.layers.#{layer.name}", layer
                 else
                     console.log "No name layer: with #{layer.children.length} items: ", layer
-                for item in layer.getChildren!
-                    item.selected = no
-                    if item.data?.tmp
-                        item.remove!
+                for layer.getChildren! when ..?
+                    ..selected = no
+                    if ..data?.tmp
+                        ..remove!
 
 
 
