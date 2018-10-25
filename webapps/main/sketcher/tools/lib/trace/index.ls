@@ -3,6 +3,7 @@ require! 'shortid'
 require! '../selection': {Selection}
 require! './helpers': {_default: helpers}
 require! './follow': {_default: follow}
+require! './lib': {get-tid}
 
 export class Trace
     @instance = null
@@ -30,9 +31,22 @@ export class Trace
         @helpers = {}
         @corr-point = null # correcting point
 
+        @_stable_date = 0
 
     get-tolerance: ->
         20 / @scope.view.zoom
+
+    load: (segment) ->
+        # continue from this segment
+        path = segment?.getPath!
+        if get-tid path
+            @trace-id = that
+            @continues = yes
+            @line = path
+            @set-helpers segment.point
+            @update-helpers segment.point
+            return true
+        return false
 
     end: ->
         if @line
@@ -104,6 +118,10 @@ export class Trace
     follow: follow.follow
 
     add-segment: (point) ->
+        if Date.now! < @_stable_date + 500ms
+            console.warn "Too frequent, skipping this segment."
+            return
+
         new-trace = no
         if not @line or @flip-side
             @flip-side = false

@@ -18,9 +18,9 @@ export class Selection
             if ..data?.tmp
                 #console.log "removing temporary path: ", ..
                 ..remove!
-
         @selected.length = 0
-        console.log "deselected everything, selected lisT: ", @selected
+        @scope.clean-tmp!
+
 
     clear: ->
         @deselect!
@@ -49,7 +49,7 @@ export class Selection
             @selected.push ..
             if opts.select
                 ..selected = yes
-        console.log "Selected items so far: #{@selected.length}", @selected 
+        console.log "Selected items so far: #{@selected.length}", @selected
 
     delete: !->
         for i, item of @selected

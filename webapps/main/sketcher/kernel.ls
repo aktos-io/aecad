@@ -47,12 +47,16 @@ export class PaperDraw
         @canvas = that if opts.canvas
         @tools = {}
         @selection = new Selection
+            ..scope = this
         @history = new History {@project, @selection, @ractive}
 
     get-all: ->
         # returns all items
         flatten [..getItems! for @project.layers]
 
+    clean-tmp: ->
+        for @get-all! when ..data?tmp
+            ..remove!
 
     add-layer: (name) ->
         @use-layer name

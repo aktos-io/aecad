@@ -62,7 +62,7 @@ export MoveTool = (_scope, layer, canvas) ->
                     snap = snap-move event.downPoint, event.point, do
                         shift: event.modifiers.shift
                         restrict: yes
-                        tolerance: 30
+                        tolerance: 10
                     handle = sel.0
                     #console.log "shifting handle: ", handle
                     [handle-p1, handle-p2] = handle.segments
