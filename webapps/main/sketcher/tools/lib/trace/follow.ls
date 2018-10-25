@@ -70,29 +70,6 @@ export _default =
                 null
 
 
-
-            # only for visualization
-            for <[ x-s x-bs y-s y-bs ]>
-                if route-over and .. is route-over
-                    @helpers[..]
-                        ..stroke-color = 'red'
-                        ..stroke-width = 3
-                else
-                    @helpers[..].stroke-width = 0
-
-            if route-over
-                bpoint = @helpers[that].bounds.center
-                unless @corr-point
-                    # insert a new correction point
-                    @corr-point = bpoint.clone!
-                    @line.insert (@line.segments.length - 2), @corr-point
-                else
-                    @line.segments[* - 2].point.set bpoint
-            else if @corr-point
-                @line.removeSegment (@line.segments.length - 2)
-                @corr-point = null
-
-
             # collision detection
             search-hit = (src, target) ->
                 hits = []
@@ -138,7 +115,29 @@ export _default =
                 @moving-point .set that.bounds.center
                 @selection.add that
 
+            
             @update-helpers @moving-point, <[ s bs ]>
+
+            # only for visualization
+            for <[ x-s x-bs y-s y-bs ]>
+                if route-over and .. is route-over
+                    @helpers[..]
+                        ..stroke-color = 'red'
+                        ..stroke-width = 3
+                else
+                    @helpers[..].stroke-width = 0
+
+            if route-over
+                bpoint = @helpers[that].bounds.center
+                unless @corr-point
+                    # insert a new correction point
+                    @corr-point = bpoint.clone!
+                    @line.insert (@line.segments.length - 2), @corr-point
+                else
+                    @line.segments[* - 2].point.set bpoint
+            else if @corr-point
+                @line.removeSegment (@line.segments.length - 2)
+                @corr-point = null
 
             unless @line.selected
                 @selection.add @line
