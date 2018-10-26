@@ -163,7 +163,11 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             undo: (ctx) ->
                 pcb.history.back!
-                ctx.component.state \done...
+
+            groupSelected: (ctx) ->
+                pcb.history.commit!
+                new pcb.Group [.. for pcb.get-flatten! when ..selected]
+
 
     computed:
         currProps:

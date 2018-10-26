@@ -59,6 +59,24 @@ export class PaperDraw
         # returns all items
         flatten [..getItems! for @project.layers]
 
+    get-flatten: ->
+        items = []
+        make-flatten = (item) ->
+            r = []
+            if item.hasChildren!
+                for item.children
+                    if ..hasChildren!
+                        r ++= make-flatten ..
+                    else
+                        r.push ..
+            else
+                r.push item
+            return r
+
+        for @project.layers
+            items ++= make-flatten ..
+        items
+
     clean-tmp: ->
         for @get-all! when ..data?tmp
             ..remove!

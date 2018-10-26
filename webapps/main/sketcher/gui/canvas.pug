@@ -33,7 +33,8 @@ radio-buttons#toolChanger(value="{{currTool}}")
         checked="{{selectGroup}}"
         tooltip="Select the parent group"
         ) Group
-        
+
+btn.icon(on-click="groupSelected" tooltip="Group all selected items"): icon.object.group.outline        
 +space
 btn.icon(on-click="fitAll" tooltip="Fit all"): icon.world
 
