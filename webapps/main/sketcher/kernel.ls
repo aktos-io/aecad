@@ -53,6 +53,21 @@ export class PaperDraw
         @tools = {}
         @selection = new Selection
             ..scope = this
+            ..on \selected, (items) ~>
+                selected = items.0
+                @ractive.set \selectedProps, selected
+                @ractive.set \propKeys, do
+                    fillColor: \text
+                    strokeWidth: \number
+                    strokeColor: \text
+
+                @ractive.set \aecadData, (selected.data?aecad or {})
+                console.log selected
+
+            ..on \cleared, ~>
+                @ractive.set \propKeys, {}
+                @ractive.set \aecadData, {}
+
         @history = new History {@project, @selection, @ractive}
 
     get-all: ->

@@ -159,6 +159,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 color = @get \layers .[layer] .color
                 for pcb.selection.selected
                     ..fill-color = color
+                    ..stroke-color = color
                     .. `pcb.send-to-layer` layer
 
             undo: (ctx) ->
@@ -168,6 +169,15 @@ Ractive.components['sketcher'] = Ractive.extend do
                 pcb.history.commit!
                 new pcb.Group [.. for pcb.get-flatten! when ..selected]
 
+            prototypePrint: (ctx) ->
+                layer = ctx.component.get \side
+                for pcb.get-flatten!
+                    if is-on-layer 'F.Cu', ..
+                        ..visible = true
+                    else
+                        ..visible = false
+                create-download
+                (everything back to visible)
 
     computed:
         currProps:
@@ -186,6 +196,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                 color: 'red'
             'B.Cu':
                 color: 'green'
+            'Edge':
+                color: 'orange'
         project:
             # logical layers
             layers: {}

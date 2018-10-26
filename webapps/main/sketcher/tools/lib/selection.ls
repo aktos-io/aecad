@@ -1,11 +1,13 @@
 require! 'prelude-ls': {empty, flatten}
+require! 'dcs/lib/event-emitter': {EventEmitter}
 
-export class Selection
+export class Selection extends EventEmitter
     @instance = null
     ->
         # Make this class Singleton
         return @@instance if @@instance
         @@instance = this
+        super!
 
         @selected = []
 
@@ -20,6 +22,8 @@ export class Selection
                 ..remove!
         @selected.length = 0
         @scope.clean-tmp!
+
+        @trigger \cleared
 
 
     clear: ->
@@ -49,7 +53,8 @@ export class Selection
             @selected.push ..
             if opts.select
                 ..selected = yes
-        console.log "Selected items so far: #{@selected.length}", @selected
+        #console.log "Selected items so far: #{@selected.length}", @selected
+        @trigger \selected, @selected
 
     delete: !->
         for i, item of @selected

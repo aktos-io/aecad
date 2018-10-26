@@ -26,16 +26,28 @@ radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
 
 +space 
 .ui.vertical.buttons 
-    ack-button(
-        on-click="sendTo"
-        to="F.Cu" 
-        tooltip="Send selected component to F.Cu Layer"
-        ) #[.ui.circular.label(class="red") to F.Cu]
-        
-    ack-button(
-        on-click="sendTo"
-        to="B.Cu" 
-        tooltip="Send selected component to B.Cu Layer"
-        ) #[.ui.circular.label(class="green") to B.Cu]
-        
-        
+    +each('layers as val')
+        ack-button.icon(
+            on-click="sendTo"
+            to="{{@key}}" 
+            tooltip="Send selected component to {{@key}} Layer"
+            ) #[.ui.circular.empty.label(class="{{val.color}}")] to {{@key}}
+            
+
++partial('slimInput')
+    div(contenteditable="true" value="{{.}}" style="padding: 0 2px; min-width: 30px; border: 1px dashed gray" )
+
+h2 Property Window 
+table 
+    tr: th(colspan="2") AeCAD
+    +each('aecadData as value')
+        tr
+            td {{@key}}
+            td {{> slimInput value}}
+
+    tr: th(colspan="2") Paper
+    +each('propKeys as type')
+        tr
+            td {{@key}}
+            td {{> slimInput selectedProps[@key]}}
+                
