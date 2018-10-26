@@ -7,7 +7,7 @@ export import_ = (ctx, file, next) ->
         pcb.project.importJSON file.raw
         for layer in pcb.project.layers
             if layer.name
-                @set "project.layers.#{layer.name}", layer
+                @set "project.layers.#{Ractive.escapeKey layer.name}", layer
             else
                 console.log "No name layer: with #{layer.children.length} items: ", layer
             for layer.getChildren! when ..?

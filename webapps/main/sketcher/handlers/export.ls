@@ -66,17 +66,16 @@ export export_ = (ctx, _filename) ->
             if ..0 is \Layer and ..1.children?
                 j2.push ..
             else
-                console.warn "what is that: ", ..
+                console.log "discarding: ", ..
         console.log j2
         create-download filename, JSON.stringify(j2, null, 2)
 
 
-# TODO:
-exportKicad = (ctx) ~>
-    svg = pcb.project.exportSVG {+asString}
-    #svgString, title, layer, translationX, translationY, kicadPcbToBeAppended, yAxisInverted)
-    try
-        kicad = svgToKicadPcb svg, 'hello', \Edge.Cuts, 0, 0, null, false
-    catch
-        return ctx.component.error e.message
-    create-download "myexport.kicad_pcb", kicad
+    | 'kicad_pcb' =>
+        svg = pcb.project.exportSVG {+asString}
+        #svgString, title, layer, translationX, translationY, kicadPcbToBeAppended, yAxisInverted)
+        try
+            kicad = svgToKicadPcb svg, 'hello', \Edge.Cuts, 0, 0, null, false
+        catch
+            return ctx.component.error e.message
+        create-download filename, kicad

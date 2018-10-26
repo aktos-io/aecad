@@ -13,9 +13,8 @@ export script =
                 ..rect = p
                 ..data.project = {layer: 'scripting'}
             pad
-
-        
         '''
+
     "LM 2576":
         '''
         mm2px = ( / 25.4 * 96)
@@ -23,12 +22,15 @@ export script =
         P = (x, y) -> new Point (x |> mm2px), (y |> mm2px)
         S = (a, b) -> new Size (a |> mm2px), (b |> mm2px)
 
+        g = new Group
+
         pad = (width, height, position=P(10mm, 10mm)) ->
             p = new Rectangle position, S(width, height)
             pad = new Path.Rectangle p
                 ..fillColor = 'black'
                 ..rect = p
                 ..data.project = {layer: 'scripting'}
+                ..parent = g
             pad
 
         do ->
@@ -56,4 +58,36 @@ export script =
 
             p6 = p5.clone!
                 ..position.y -= pd |> mm2px
+        '''
+
+    'R1206':
+        '''
+        mm2px = ( / 25.4 * 96)
+        px2mm = (x) -> 1 / mm2px(x)
+        P = (x, y) -> new Point (x |> mm2px), (y |> mm2px)
+        S = (a, b) -> new Size (a |> mm2px), (b |> mm2px)
+
+        g = new Group
+
+        pad = (width, height, position=P(10mm, 10mm)) ->
+            p = new Rectangle position, S(width, height)
+            pad = new Path.Rectangle p
+                ..fillColor = 'black'
+                ..rect = p
+                ..data.aecad = {layer: 'scripting'}
+                ..parent = g
+            pad
+
+        # From http://www.resistorguide.com/resistor-sizes-and-packages/
+        r1206 =
+            a: 1.6mm
+            b: 0.9mm
+            c: 2mm
+
+        {a, b, c} = r1206
+
+        p1 = pad b, a
+        p2 = p1.clone!
+            ..position.x += (c + b) |> mm2px
+
         '''

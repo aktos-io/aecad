@@ -83,7 +83,10 @@ export SelectTool = (_scope, layer, canvas) ->
                         console.log "...will select all items in current layer", matched
                     else
                         # select the item
-                        matched.push hit.item
+                        matched.push if @get \selectGroup
+                            hit.item.parent
+                        else
+                            hit.item 
 
                 selection.add matched
 

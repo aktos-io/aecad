@@ -1,7 +1,7 @@
 .ui.buttons 
     btn.red(on-click="clearScript" tooltip="Clear Output"): icon.trash 
     checkbox(checked="{{autoCompile}}") Auto Compile
-    btn.icon(disabled="{{autoCompile}}" on-click="compileScript"): icon.play
+    btn.icon(on-click="compileScript"): icon.play
         
 dropdown(
     object-data="{{drawingLs}}" 

@@ -45,7 +45,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
         @set \vlog, new VLogger this
 
-        pcb.add-layer \scripting 
+        pcb.add-layer \scripting
         pcb.use-layer \gui
 
         # zooming
@@ -75,7 +75,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                     @get \project.layers.scripting
                         ..activate!
                         ..clear!
-                    pcb.execute js
+                    pcb._scope.execute js
                 catch
                     @set \output, "#{e}\n\n#{js}"
 
@@ -153,6 +153,18 @@ Ractive.components['sketcher'] = Ractive.extend do
                 pcb.use-layer name
                 proceed!
 
+            sendTo: (ctx) ->
+                pcb.history.commit!
+                layer = ctx.component.get \to
+                color = @get \layers .[layer] .color
+                for pcb.selection.selected
+                    ..fill-color = color
+                    .. `pcb.send-to-layer` layer
+
+            undo: (ctx) ->
+                pcb.history.back!
+                ctx.component.state \done...
+
     computed:
         currProps:
             get: ->
@@ -162,7 +174,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                 layer-info
     data: ->
         autoCompile: yes
-        selectAllLayer: yes
+        selectAllLayer: no
+        selectGroup: yes
         drawingLs: require './example' .script
         layers:
             'F.Cu':

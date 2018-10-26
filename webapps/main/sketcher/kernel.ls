@@ -11,10 +11,16 @@ class History
 
     push: ->
         @commits.push @project.exportJSON!
+        console.log "added to history"
         if @commits.length > @limit
+            console.log "removing old history"
             @commits.shift!
 
+    commit: ->
+        @push!
+
     back: ->
+        console.log "Going back in the history."
         commit = @commits.pop!
         if commit
             for @project.layers
@@ -23,9 +29,7 @@ class History
             @project.importJSON commit
             for layer in @project.layers
                 if layer.name
-                    @ractive.set "project.layers.#{layer.name}", layer
-                else
-                    console.log "No name layer: with #{layer.children.length} items: ", layer
+                    @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
                 for layer.getChildren! when ..?
                     ..selected = no
                     if ..data?.tmp
@@ -41,6 +45,7 @@ export class PaperDraw
         @@instance = this
 
         if opts.scope
+            @_scope = opts.scope
             for k, v of that
                 this[k] = v
         @ractive = that if opts.ractive
@@ -62,13 +67,18 @@ export class PaperDraw
         @use-layer name
 
     use-layer: (name) ->
-        if @ractive.get "project.layers.#{name}"
+        if @ractive.get "project.layers.#{Ractive.escapeKey name}"
             that.activate!
         else
             layer = new @Layer!
                 ..name = name
-            @ractive.set "project.layers.#{name}", layer
+            @ractive.set "project.layers.#{Ractive.escapeKey name}", layer
         @ractive.set \activeLayer, name
+
+    send-to-layer: (item, name) ->
+        @add-layer name  # add the layer if it doesn't exist
+        layer = @ractive.get "project.layers.#{Ractive.escapeKey name}"
+        layer.addChild item
 
     add-tool: (name, tool) ->
         @tools[name] = tool

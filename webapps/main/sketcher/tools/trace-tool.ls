@@ -16,7 +16,7 @@ export TraceTool = (scope, layer, canvas) ->
             layer.activate!
             if scope.project.hitTest event.point
                 # that is a hit
-                if trace.load that.segment
+                if trace.connect that.segment
                     console.log "we are continuing!"
             trace.add-segment event.point
             canvas.style.cursor = 'cell'

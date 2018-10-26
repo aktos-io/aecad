@@ -32,6 +32,7 @@ export class Trace
         @corr-point = null # correcting point
 
         @_stable_date = 0
+        @drills = []
 
     get-tolerance: ->
         20 / @scope.view.zoom
@@ -45,6 +46,13 @@ export class Trace
             @line = path
             @set-helpers segment.point
             @update-helpers segment.point
+            return true
+        return false
+
+    connect: (segment) ->
+        path = segment?.getPath!
+        if get-tid path
+            @trace-id = that
             return true
         return false
 
@@ -62,6 +70,7 @@ export class Trace
 
         @line = null
         @continues = no
+        @trace-id = null
         @snap-x = false             # snap to -- direction
         @snap-y = false             # snap to | direction
         @snap-slash = false         # snap to / direction
@@ -69,6 +78,7 @@ export class Trace
         @flip-side = false
         @removed-last-segment = null
         @remove-helpers!
+        @drills.length = 0
 
     remove-last-point: (undo) ->
         a = if @corr-point => 1 else 0
@@ -121,6 +131,8 @@ export class Trace
         if Date.now! < @_stable_date + 500ms
             console.warn "Too frequent, skipping this segment."
             return
+        else
+            @_stable_date = Date.now!
 
         new-trace = no
         if not @line or @flip-side
@@ -128,16 +140,20 @@ export class Trace
             unless @line
                 # starting a new trace
                 # assign a new trace id for next trace
-                @trace-id = shortid.generate!
+                unless @trace-id
+                    @trace-id = shortid.generate!
                 new-trace = yes
 
             # TODO: hitTest is not the correct way to go,
             # check if inside the geometry
             hit = @scope.project.hitTest point
-            snap = point
-            if hit?item
+            if hit?segment
+                snap = that.point
+            else if hit?item
                 snap = new @scope.Point that.bounds.center
                 console.log "snapping to ", snap
+            else
+                snap = point
 
             curr =
                 layer: @ractive.get \currProps
@@ -165,13 +181,37 @@ export class Trace
 
         @corr-point = null
         @continues = yes
+        @update-drills!
+
+    add-drill: (center, dia) ->
+        @drills.push new @scope.Path.Circle do
+            center: center
+            radius: dia/2
+            fill-color: \white
+            data:
+                aecad:
+                    tid: @trace-id
+                    type: \drill
+                    dia: dia
+        @update-drills!
+
+    update-drills: ->
+        for @drills
+            ..bringToFront!
 
     add-via: ->
-        via = new @scope.Path.Circle(@moving-point, 5)
+        outer-dia = 10
+        inner-dia = 3
+        via = new @scope.Path.Circle(@moving-point, outer-dia/2)
             ..fill-color = \orange
             ..data.aecad =
                 tid: @trace-id
                 type: \via
+                inner-dia: inner-dia
+                outer-dia: outer-dia
+
+        @add-drill @moving-point, inner-dia
+
 
         # Toggle the layers
         # TODO: make this cleaner

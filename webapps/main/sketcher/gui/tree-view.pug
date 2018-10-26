@@ -23,3 +23,11 @@ radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
     .ui.buttons.vertical
         +each('project.layers')
             radio-button(value="{{@key}}") {{@key}}
+
+ack-button(
+    on-click="sendTo"
+    to="F.Cu" 
+    tooltip="Send selected component to F.Cu Layer"
+    ) #[.ui.circular.red.label to F.Cu]
+    
+    
