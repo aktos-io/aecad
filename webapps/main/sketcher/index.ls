@@ -28,7 +28,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         canvas = @find '#draw'
             ..width = 600
             ..height = 400
-            ..style.background = 'gray'
+            ..style.background = '#252525'
 
         # scope
         pcb = new PaperDraw do
