@@ -56,12 +56,12 @@ export class PaperDraw
             ..scope = this
             ..on \selected, (items) ~>
                 selected = items.0
-                return unless selected 
+                return unless selected
                 @ractive.set \selectedProps, selected
                 @ractive.set \propKeys, do
-                    fillColor: \text
+                    fillColor: \color
                     strokeWidth: \number
-                    strokeColor: \text
+                    strokeColor: \color
 
                 @ractive.set \aecadData, (selected.data?aecad or {})
                 console.log selected
