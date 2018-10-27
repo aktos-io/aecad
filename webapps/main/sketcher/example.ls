@@ -14,13 +14,15 @@ common = '''
             ..rect = p
             ..parent = g
         pad
+
     '''
 
 export script =
     "lib": common
 
     "LM 2576":
-        common + '''
+        common +
+        '''
         # From: http://www.ti.com/lit/ds/symlink/lm2576.pdf
         H = 14.17mm
         d1 = {w: 8mm, h: 10.8mm}
@@ -48,7 +50,8 @@ export script =
         '''
 
     'R1206':
-        common + '''
+        common +
+        '''
         # From http://www.resistorguide.com/resistor-sizes-and-packages/
         r1206 =
             a: 1.6mm

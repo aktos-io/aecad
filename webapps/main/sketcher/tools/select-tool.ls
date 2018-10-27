@@ -30,7 +30,7 @@ export SelectTool = (_scope, layer, canvas) ->
                 handle-opacity = 0.5
                 set-tid handle-data, trace-id
 
-                
+
                 if (hit.segment or hit.item?data?segment) and trace-id
                     # segment of a trace
                     unless hit.item?data?segment
@@ -92,14 +92,22 @@ export SelectTool = (_scope, layer, canvas) ->
                 selection.add matched
 
         ..onKeyDown = (event) ~>
-            # delete an item with Delete key
-            if event.key is \delete
+            switch event.key
+            | \delete =>
+                # delete an item with Delete key
                 scope.history.commit!
                 selection.delete!
 
-            # Press Esc to cancel a cache
-            if (event.key is \escape)
+            | \escape =>
+                # Press Esc to cancel a cache
                 selection.deselect!
+
+            |_ =>
+                if event.modifiers.shift
+                    scope.cursor \grab
+
+        ..onKeyUp = (event) ->
+            scope.cursor \default 
 
     scope.add-tool \select, select-tool
     select-tool

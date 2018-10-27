@@ -46,5 +46,19 @@ btn.icon(on-click="fitAll" tooltip="Fit all"): icon.world
             tooltip="Send selected component to {{@key}} Layer"
             ): icon.paper.plane(class="{{val.color}}")
 
++space
+radio-buttons(value="{{currLayer}}")
+    .ui.buttons
+        radio-button.icon(
+            default value="F.Cu" 
+            true-color="red"
+            tooltip="Trace on F.Cu"
+            ) #[.ui.circular.red.empty.label]
+        radio-button.icon(
+            value="B.Cu" 
+            true-color="green"
+            tooltip="Trace on B.Cu"
+            ) #[.ui.circular.green.empty.label]
 
+div
 canvas#draw

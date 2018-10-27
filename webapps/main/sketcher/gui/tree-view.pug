@@ -1,30 +1,19 @@
-radio-buttons(value="{{currLayer}}")
-    .ui.vertical.buttons
-        radio-button(default value="F.Cu" true-color="red") #[.ui.circle.red.label] F.Cu
-        radio-button(value="B.Cu" true-color="green") #[.ui.circle.green.label] B.Cu
             
-
-//- Property window 
+//- Global properties 
 table
     tr 
         td Trace width
-        td: div(contenteditable="true" value="{{currTrace.width}}" style="padding: 0 2px")
-
-    tr
-        td(colspan="2") 
-            .ui.basic.label LAYERS
-            btn.icon.red(
-                on-click="clearActiveLayer" 
-                tooltip="Clear active layer"
-                )
-                icon.trash
+        td: s-input(value="{{currTrace.width}}")
+    tr 
+        td Zoom 
+        td: input(value="{{pcb.view.zoom}}" style="max-width: 40px; overflow-x: hidden")
 
 radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
     .ui.buttons.vertical
         +each('project.layers')
             radio-button(value="{{@key}}") {{@key}}
 
-
+//- Property window 
 .ui.segments
     h4.ui.top.attached.block.header Property Window 
     h5.ui.header.attached AeCAD    

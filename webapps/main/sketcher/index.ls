@@ -1,7 +1,7 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download, VLogger}
-require! 'prelude-ls': {min, ceiling, flatten}
+require! 'prelude-ls': {min, ceiling, flatten, max}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
 require! 'dxf-writer'
 require! 'dxf'
@@ -26,9 +26,18 @@ Ractive.components['sketcher'] = Ractive.extend do
     onrender: (ctx) ->
         # output container
         canvas = @find '#draw'
-            ..width = 600
-            ..height = 400
             ..style.background = '#252525'
+
+        do resizeCanvas = ->
+            container = $ canvas.parentNode
+            pl = parse-int container.css("padding-left")
+            pr = parse-int container.css("padding-right")
+            width = container.innerWidth! - pr - pl
+            height = container.innerHeight!
+            canvas.width = width
+            canvas.height = 400
+
+        window.addEventListener('resize', resizeCanvas, false);
 
         # scope
         pcb = new PaperDraw do
@@ -51,8 +60,9 @@ Ractive.components['sketcher'] = Ractive.extend do
         pcb.use-layer \gui
 
         # zooming
-        $ canvas .mousewheel (event) ->
+        $ canvas .mousewheel (event) ~>
             paperZoom pcb, event
+            @update \pcb.view.zoom
 
         # tools
         trace-tool = TraceTool.call this, pcb, layers.gui, canvas
@@ -124,6 +134,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                         pcb.view.zoom *= padding * min(
                             (curr.width / fit.width),
                             (curr.height / fit.height))
+
+                        @update \pcb.view.zoom
 
             changeTool: (ctx, tool, proceed) ~>
                 console.log "Changing tool to: #{tool}"
