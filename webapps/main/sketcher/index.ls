@@ -15,6 +15,7 @@ require! './tools/select-tool': {SelectTool}
 require! './lib/json-to-dxf': {json-to-dxf}
 require! './tools/lib/selection': {Selection}
 require! './kernel': {PaperDraw}
+require! './tools/lib/trace/lib': {is-on-layer}
 
 mm2px = (/ 25.4 * 96)
 px2mm = (* 1 / mm2px it)
@@ -25,8 +26,9 @@ Ractive.components['sketcher'] = Ractive.extend do
     onrender: (ctx) ->
         # output container
         canvas = @find '#draw'
-        canvas.width = 600
-        canvas.height = 400
+            ..width = 600
+            ..height = 400
+            ..style.background = 'gray'
 
         # scope
         pcb = new PaperDraw do
@@ -170,14 +172,30 @@ Ractive.components['sketcher'] = Ractive.extend do
                 new pcb.Group [.. for pcb.get-flatten! when ..selected]
 
             prototypePrint: (ctx) ->
+                pcb.history.commit!
                 layer = ctx.component.get \side
-                for pcb.get-flatten!
-                    if is-on-layer 'F.Cu', ..
+                for pcb.get-all!
+                    if .. `is-on-layer` layer
                         ..visible = true
+
+                        # a workaround for drills
+                        unless ..data?aecad?type is \drill
+                            ..stroke-color = \black
+                            if ..data?aecad?tid and ..data?aecad?type not in <[ drill via ]>
+                                # do not fill the lines
+                                null
+                            else
+                                ..fill-color = \black
+                        else
+                            ..stroke-color = null
+                            ..fill-color = \white
+                            ..bringToFront!
+
                     else
                         ..visible = false
-                create-download
-                (everything back to visible)
+
+                create-download "#{layer}.svg", pcb.export-svg!
+                pcb.history.back!
 
     computed:
         currProps:

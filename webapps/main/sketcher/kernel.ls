@@ -1,5 +1,6 @@
 require! 'prelude-ls': {flatten}
 require! './tools/lib/selection': {Selection}
+require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
 class History
     (opts) ->
@@ -55,6 +56,7 @@ export class PaperDraw
             ..scope = this
             ..on \selected, (items) ~>
                 selected = items.0
+                return unless selected 
                 @ractive.set \selectedProps, selected
                 @ractive.set \propKeys, do
                     fillColor: \text
@@ -74,13 +76,19 @@ export class PaperDraw
         # returns all items
         flatten [..getItems! for @project.layers]
 
-    get-flatten: ->
+    get-flatten: (opts={}) ->
+        '''
+        opts:
+            containers: [bool] If true, "Group"s and "Layers" are also included
+        '''
         items = []
         make-flatten = (item) ->
             r = []
             if item.hasChildren!
                 for item.children
                     if ..hasChildren!
+                        if opts.containers
+                            r.push ..
                         r ++= make-flatten ..
                     else
                         r.push ..
@@ -109,6 +117,7 @@ export class PaperDraw
         @ractive.set \activeLayer, name
 
     send-to-layer: (item, name) ->
+        set-keypath item, 'data.aecad.layer', name
         @add-layer name  # add the layer if it doesn't exist
         layer = @ractive.get "project.layers.#{Ractive.escapeKey name}"
         layer.addChild item
@@ -121,3 +130,19 @@ export class PaperDraw
 
     cursor: (name) ->
         @canvas.style.cursor = name
+
+    export-svg: ->
+        old-zoom = @view.zoom
+        @view.zoom = 1
+        svg = @project.exportSVG do
+            asString: true
+            bounds: 'content'
+        @view.zoom = old-zoom # for above workaround
+        return svg
+
+    export-json: ->
+        old-zoom = @view.zoom
+        @view.zoom = 1
+        json = @project.exportJSON!
+        @view.zoom = old-zoom # for above workaround
+        return json

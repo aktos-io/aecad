@@ -25,4 +25,9 @@ ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
 
 +space
 
-ack-button(on-click="prototypePrint" side="F.Cu") Export F.Cu only
+.ui.buttons 
+    ack-button.icon.red(on-click="prototypePrint" side="F.Cu" tooltip="Export F.Cu only")
+        icon.print
+
+    ack-button.icon.green(on-click="prototypePrint" side="B.Cu" tooltip="Export B.Cu only")
+        icon.print

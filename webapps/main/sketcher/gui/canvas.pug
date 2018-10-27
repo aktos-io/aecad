@@ -37,5 +37,14 @@ radio-buttons#toolChanger(value="{{currTool}}")
 btn.icon(on-click="groupSelected" tooltip="Group all selected items"): icon.object.group.outline        
 +space
 btn.icon(on-click="fitAll" tooltip="Fit all"): icon.world
+    
+.ui.buttons 
+    +each('layers as val')
+        ack-button.icon(
+            on-click="sendTo"
+            to="{{@key}}" 
+            tooltip="Send selected component to {{@key}} Layer"
+            ): icon.paper.plane(class="{{val.color}}")
+
 
 canvas#draw

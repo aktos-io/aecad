@@ -24,30 +24,18 @@ radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
         +each('project.layers')
             radio-button(value="{{@key}}") {{@key}}
 
-+space 
-.ui.vertical.buttons 
-    +each('layers as val')
-        ack-button.icon(
-            on-click="sendTo"
-            to="{{@key}}" 
-            tooltip="Send selected component to {{@key}} Layer"
-            ) #[.ui.circular.empty.label(class="{{val.color}}")] to {{@key}}
-            
 
-+partial('slimInput')
-    div(contenteditable="true" value="{{.}}" style="padding: 0 2px; min-width: 30px; border: 1px dashed gray" )
-
-h2 Property Window 
+h3 Property Window 
 table 
     tr: th(colspan="2") AeCAD
     +each('aecadData as value')
         tr
             td {{@key}}
-            td {{> slimInput value}}
-
+            td: s-input(value="{{value}}")
+                
     tr: th(colspan="2") Paper
     +each('propKeys as type')
         tr
             td {{@key}}
-            td {{> slimInput selectedProps[@key]}}
+            td: s-input(value="{{selectedProps[@key]}}" readonly)
                 

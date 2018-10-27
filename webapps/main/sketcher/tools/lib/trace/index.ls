@@ -188,6 +188,7 @@ export class Trace
             center: center
             radius: dia/2
             fill-color: \white
+            stroke-width: 0
             data:
                 aecad:
                     tid: @trace-id
@@ -202,16 +203,18 @@ export class Trace
     add-via: ->
         outer-dia = 10
         inner-dia = 3
-        via = new @scope.Path.Circle(@moving-point, outer-dia/2)
-            ..fill-color = \orange
-            ..data.aecad =
-                tid: @trace-id
-                type: \via
-                inner-dia: inner-dia
-                outer-dia: outer-dia
+        via = new @scope.Path.Circle do
+            center: @moving-point
+            radius: outer-dia/2
+            fill-color: \orange
+            stroke-width: 0
+            data:
+                aecad:
+                    tid: @trace-id
+                    type: \via
+                    outer-dia: outer-dia
 
         @add-drill @moving-point, inner-dia
-
 
         # Toggle the layers
         # TODO: make this cleaner
