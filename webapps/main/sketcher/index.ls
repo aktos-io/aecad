@@ -68,7 +68,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         trace-tool = TraceTool.call this, pcb, layers.gui, canvas
         freehand = Freehand.call this, pcb, layers.gui, canvas
         move-tool = MoveTool.call this, pcb, layers.gui, canvas
-        select-tool = SelectTool.call this, pcb, layers.gui, canvas
+        select-tool = SelectTool.call(this)
 
         runScript = (content) ~>
             compiled = no

@@ -8,27 +8,24 @@ movement = (operand, left, right) -->
     if operand in <[ add subtract ]>
         left.[operand] right
     else
-        console.log "returning right as is: ", right
         right
 
 shift-item = (item, delta, type="add") ->
     op = movement type
-
-    for [item]
-        switch ..getClassName!
-        | 'Curve' =>
-            for [..segment1, ..segment2]
-                ..point.set (..point `op` delta)
-        | 'Path' =>
-            for ..getSegments!
-                ..point.set (..point `op` delta)
-        | 'Segment' =>
+    switch item.getClassName!
+    | 'Curve' =>
+        for [item.segment1, item.segment2]
             ..point.set (..point `op` delta)
-        | 'Point' =>
-            ..set (.. `op` delta)
-        |_ =>
-            console.log "moving #{..getClassName!}"
-            ..position.set (..position `op` delta)
+    | 'Path' =>
+        for item.getSegments!
+            ..point.set (..point `op` delta)
+    | 'Segment' =>
+        item.point.set (item.point `op` delta)
+    | 'Point' =>
+        item.set (item `op` delta)
+    |_ =>
+        console.log "moving #{item.getClassName!}"
+        item.position.set (item.position `op` delta)
 
 export MoveTool = (_scope, layer, canvas) ->
     # http://paperjs.org/tutorials/project-items/transforming-items/

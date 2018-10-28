@@ -37,6 +37,9 @@ export class Selection extends EventEmitter
                 | \Curve => \ok
                 | \Segment => \ok
                 | \Group => \ok
+                | \Layer =>
+                    # do not add layers 
+                    continue
                 | \Point => \ok
                 |_ =>
                     console.warn "unrecognized", ..
