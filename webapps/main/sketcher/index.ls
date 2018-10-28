@@ -209,6 +209,19 @@ Ractive.components['sketcher'] = Ractive.extend do
                 create-download "#{layer}.svg", pcb.export-svg!
                 pcb.history.back!
 
+            save: (ctx) ->
+                # save project
+                pcb.history.commit!
+                pcb.history.save!
+
+            load: (ctx) ->
+                pcb.history.commit!
+                pcb.history.load!
+
+            clear: (ctx) ->
+                pcb.history.commit!
+                pcb.project.clear!
+
     computed:
         currProps:
             get: ->

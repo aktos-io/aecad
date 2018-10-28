@@ -1,28 +1,31 @@
 require! 'prelude-ls': {flatten}
 require! './tools/lib/selection': {Selection}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
+require! 'actors': {BrowserStorage}
 
 class History
     (opts) ->
         @project = opts.project
         @ractive = opts.ractive
         @selection = opts.selection
+        @db = opts.db
         @commits = []
         @limit = 20
 
     push: ->
+        console.warn "DEPRECATED! use .commit! instead."
+        @commit!
+
+    commit: ->
         @commits.push @project.exportJSON!
         console.log "added to history"
         if @commits.length > @limit
             console.log "removing old history"
             @commits.shift!
 
-    commit: ->
-        @push!
-
-    back: ->
+    back: (data) ->
         console.log "Going back in the history."
-        commit = @commits.pop!
+        commit = data or @commits.pop!
         if commit
             for @project.layers
                 ..clear!
@@ -36,6 +39,14 @@ class History
                     if ..data?.tmp
                         ..remove!
 
+    save: ->
+        data = @project.exportJSON!
+        @db.set \project, data
+        console.log "Saved at ", Date!, "length: #{parseInt(data.length/1024)}KB"
+
+    load: ->
+        if @db.get \project
+            @back that
 
 
 export class PaperDraw
@@ -70,7 +81,17 @@ export class PaperDraw
                 @ractive.set \propKeys, {}
                 @ractive.set \aecadData, {}
 
-        @history = new History {@project, @selection, @ractive}
+        @db = new BrowserStorage "sketcher"
+        @history = new History {
+            @project, @selection, @ractive
+            @db
+        }
+        # try to load if a project exists
+        @history.load!
+
+        $ window .on \unload, ~>
+            @history.save!
+
 
     get-all: ->
         # returns all items

@@ -31,3 +31,20 @@ ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
 
     ack-button.icon.green(on-click="prototypePrint" side="B.Cu" tooltip="Export B.Cu only")
         icon.print
+
++space 
+
+.ui.buttons
+    btn.icon(
+        on-click="save" 
+        tooltip="Save in browser local storage"
+        ): icon.save
+    btn.icon(
+        on-click="clear" 
+        tooltip="Clear project"
+        ): icon.trash
+    btn(
+        on-click="load" 
+        tooltip="Load last saved project"
+        ) Load
+    
