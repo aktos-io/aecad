@@ -38,7 +38,8 @@ export class Selection extends EventEmitter
                 | \Segment => \ok
                 | \Group => \ok
                 | \Layer =>
-                    # do not add layers 
+                    # do not add layers
+                    console.log "...we are not selecting layers: ", ..
                     continue
                 | \Point => \ok
                 |_ =>
