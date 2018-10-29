@@ -2,11 +2,17 @@
 //- Global properties 
 table
     tr 
-        td Trace width
-        td: s-input(value="{{currTrace.width}}")
-    tr 
         td Zoom 
         td: input(value="{{pcb.view.zoom}}" style="max-width: 40px; overflow-x: hidden")
+    tr 
+        td Trace width
+        td: s-input(value="{{currTrace.width}}")            
+    tr 
+        td Signal T.
+        td: s-input(value="{{currTrace.signal}}" readonly)
+    tr 
+        td Power T.
+        td: s-input(value="{{currTrace.power}}" readonly)
 
 radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
     .ui.buttons.vertical

@@ -9,7 +9,7 @@ common = '''
     pad = (width, height, position=P(10mm, 10mm)) ->
         p = new Rectangle position, S(width, height)
         pad = new Path.Rectangle p
-            ..fillColor = 'black'
+            ..fillColor = 'yellow'
             ..stroke-width = 0
             ..rect = p
             ..parent = g
