@@ -3,6 +3,9 @@ require! 'prelude-ls': {abs}
 export _default =
     follow: (point) ->
         if @line
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            # TODO: Replace with snap-move
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             @moving-point = @line.segments[* - 1].point
             a = if @corr-point? => 1 else 0
             @last-point = @line.segments[* - 2 - a].point
@@ -70,7 +73,7 @@ export _default =
                 null
 
 
-            # collision detection
+            # snap to target
             search-hit = (src, target) ->
                 hits = []
                 if target.hasChildren!
@@ -115,10 +118,11 @@ export _default =
                 @moving-point .set that.bounds.center
                 @selection.add that
 
-            
-            @update-helpers @moving-point, <[ s bs ]>
 
-            # only for visualization
+            @update-helpers @moving-point, <[ s bs ]>
+            /*
+
+            # only for visualization of breaking point
             for <[ x-s x-bs y-s y-bs ]>
                 if route-over and .. is route-over
                     @helpers[..]
@@ -126,6 +130,7 @@ export _default =
                         ..stroke-width = 3
                 else
                     @helpers[..].stroke-width = 0
+            */
 
             if route-over
                 bpoint = @helpers[that].bounds.center

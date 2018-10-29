@@ -2,6 +2,7 @@ require! 'prelude-ls': {flatten}
 require! './tools/lib/selection': {Selection}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! 'actors': {BrowserStorage}
+require! 'aea': {VLogger}
 
 class History
     (opts) ->
@@ -10,11 +11,7 @@ class History
         @selection = opts.selection
         @db = opts.db
         @commits = []
-        @limit = 20
-
-    push: ->
-        console.warn "DEPRECATED! use .commit! instead."
-        @commit!
+        @limit = 200
 
     commit: ->
         @commits.push @project.exportJSON!
@@ -23,30 +20,58 @@ class History
             console.log "removing old history"
             @commits.shift!
 
-    back: (data) ->
-        console.log "Going back in the history."
-        commit = data or @commits.pop!
-        if commit
-            for @project.layers
-                ..clear!
+    back: ->
+        if @commits.pop!
+            console.log "Going back in the history. Left: #{@commits.length}"
+            @load that
+        else
+            console.warn "No commits left, sorry."
+
+
+    load: (data) ->
+        # data: stringified JSON
+        if data
+            @project.clear!
             @selection.clear!
-            @project.importJSON commit
-            for layer in @project.layers
-                if layer.name
-                    @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
-                for layer.getChildren! when ..?
-                    ..selected = no
-                    if ..data?.tmp
-                        ..remove!
+            @project.importJSON data
+
+            while true
+                needs-rerun = false
+                for layer in @project.layers
+                    unless layer
+                        # workaround for possible Paper.js bug
+                        # which can not handle more than a few
+                        # hundred layers
+                        console.warn "...we have an null layer!"
+                        needs-rerun = true
+                        continue
+                    if layer.getChildren!.length is 0
+                        console.log "removing layer..."
+                        layer.remove!
+                        continue
+
+                    if layer.name
+                        @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
+                    else
+                        layer.selected = yes
+
+                    for layer.getItems!
+                        ..selected = no
+                        if ..data?.tmp
+                            ..remove!
+                break unless needs-rerun
+                console.warn "Workaround for load-project works."
+            console.log "Loaded project: ", @project
+
 
     save: ->
         data = @project.exportJSON!
         @db.set \project, data
         console.log "Saved at ", Date!, "length: #{parseInt(data.length/1024)}KB"
 
-    load: ->
+    load-browser: ->
         if @db.get \project
-            @back that
+            @load that
 
 
 export class PaperDraw
@@ -60,15 +85,16 @@ export class PaperDraw
             @_scope = opts.scope
             for k, v of that
                 this[k] = v
+            @canvas = opts.scope.view._element
+
         @ractive = that if opts.ractive
-        @canvas = that if opts.canvas
         @tools = {}
         @selection = new Selection
             ..scope = this
             ..on \selected, (items) ~>
                 selected = items.0
                 return unless selected
-                #console.log "Displaying properties of ", selected 
+                #console.log "Displaying properties of ", selected
                 @ractive.set \selectedProps, selected
                 @ractive.set \propKeys, do
                     fillColor: \color
@@ -86,11 +112,17 @@ export class PaperDraw
             @db
         }
         # try to load if a project exists
-        @history.load!
+        @history.load-browser!
 
         $ window .on \unload, ~>
             @history.save!
 
+        # http://paperjs.org/reference/paperscope/#settings
+        @_scope.settings
+            ..handleSize = 8
+
+        # visual logger
+        @vlog = new VLogger @ractive
 
     get-all: ->
         # returns all items
@@ -128,13 +160,16 @@ export class PaperDraw
         @use-layer name
 
     use-layer: (name) ->
+        layer = null
         if @ractive.get "project.layers.#{Ractive.escapeKey name}"
-            that.activate!
+            layer = that
+                ..activate!
         else
             layer = new @Layer!
                 ..name = name
             @ractive.set "project.layers.#{Ractive.escapeKey name}", layer
         @ractive.set \activeLayer, name
+        layer
 
     send-to-layer: (item, name) ->
         set-keypath item, 'data.aecad.layer', name

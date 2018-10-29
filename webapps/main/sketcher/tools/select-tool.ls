@@ -44,89 +44,59 @@ export SelectTool = ->
             # TODO: there are many objects overlapped, use .hitTestAll() instead
             hit = scope.project.hitTest event.point
             console.log "Select Tool: Hit result is: ", hit
+            unless event.modifiers.control
+                selection.clear!
+
             unless hit
-                selection.deselect!
+                # Create the selection box
                 sel.box = new scope.Path.Rectangle do
                     from: event.point
                     to: event.point
-                    fill-color: \blue
-                    opacity: 0.3
+                    fill-color: \aliceblue
+                    opacity: 0.4
+                    stroke-width: 0.5
+                    stroke-color: \cyan
                     data:
                         tmp: \true
                         role: \selection
             else
+                # Select the clicked item
                 if hit.item.data?tmp
                     console.log "...selected a temporary item, doing nothing"
                     return
                 scope.project.activeLayer.bringToFront!
 
-                matched = []
-                trace-id = get-tid hit.item
-                handle-data = {
-                    +tmp,
-                    role: \handle
-                }
-                handle-opacity = 0.5
-                set-tid handle-data, trace-id
-
-                select-item = ~> 
+                select-item = ~>
                     selection.add if @get \selectGroup
                         hit.item.parent
                     else
                         hit.item
 
-                if trace-id
+                if get-tid hit.item
                     # this is related to a trace, handle specially
                     if event.modifiers.control
                         # select the whole trace
                         console.log "adding whole trace to selection because Ctrl is pressed."
                         select-item!
                     else
-                        if hit.segment or hit.item?data?segment
+                        if hit.item.data.aecad.type is \via-part
+                            via = hit.item.parent
+                            selection.add via
+                        else if hit.segment
                             # Segment of a trace
+                            segment = hit.segment
                             console.log "...selecting the segment of trace: ", hit
-
-                            # FIXME: the hit item might not be the handle, it's possible
-                            # to add duplicate handles.
-                            unless hit.item?data?segment
-                                selection.add workaround = new scope.Path.Circle do
-                                    center: hit.segment.point
-                                    radius: 2
-                                    data: handle-data <<< {
-                                        geo: \c,
-                                        segment: hit.segment
-                                    }
-                                    strokeWidth: 0
-                                    fillColor: \blue
-                                    opacity: handle-opacity
-
-                                workaround.bringToFront!
-
-
+                            selection.add segment
                         else if hit.location
                             # Curve of a trace
-                            console.log "...selecting the curve of trace:", hit
                             curve = hit.location.curve
+                            console.log "...selecting the curve of trace:", hit
 
-                            # handle
-                            selection.add workaround = new scope.Path.Line do
-                                from: curve.point1
-                                to: curve.point2
-                                data: handle-data <<< {
-                                    curve: hit.location.curve
-                                }
-                                strokeWidth: 3
-                                strokeColor: \blue
-                                opacity: handle-opacity
-                            console.log "adding workaround line: id: #{workaround.id}"
-
+                            selection.add curve
                             # silently select all parts touching to ends
                             p1 = curve.point1
                             p2 = curve.point2
                             for part in hit.item.parent.children
-                                if part.data?.role is \handle
-                                    # skip handle
-                                    continue
                                 if part.data?.aecad?.type in <[ via drill ]>
                                     c = part.bounds.center
                                     if (c.equals p1) or (c.equals p2)
@@ -134,14 +104,15 @@ export SelectTool = ->
                                         selection.add part, {select: no}
                                 else
                                     # this should be a Path
+                                    # FIXME: Add check
                                     for part.getSegments!
                                         # search in segments
                                         if (p1.equals ..point) or (p2.equals ..point)
                                             console.log "adding coincident: id: #{part.id}"
                                             selection.add ..point, {select: no}
                         else
-                            console.log "adding whole trace item: ", hit
-                            select-item!
+                            scope.vlog.error "What did you select of trace id #{get-tid hit.item}"
+
 
                 else if hit.item
                     # select normally
@@ -156,17 +127,16 @@ export SelectTool = ->
                 # delete an item with Delete key
                 scope.history.commit!
                 selection.delete!
-
             | \escape =>
                 # Press Esc to cancel a cache
                 selection.deselect!
-
             | \a =>
                 if event.modifiers.control
                     selection.add scope.get-all!
                     event.preventDefault!
-
-
+            | \z =>
+                if event.modifiers.control
+                    scope.history.back!
             |_ =>
                 if event.modifiers.shift
                     scope.cursor \grab

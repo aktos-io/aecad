@@ -17,10 +17,6 @@ require! './tools/lib/selection': {Selection}
 require! './kernel': {PaperDraw}
 require! './tools/lib/trace/lib': {is-on-layer}
 
-mm2px = (/ 25.4 * 96)
-px2mm = (* 1 / mm2px it)
-
-
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
     onrender: (ctx) ->
@@ -84,8 +80,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             if compiled
                 try
-                    @get \project.layers.scripting
-                        ..activate!
+                    pcb.use-layer \scripting
                         ..clear!
                     pcb._scope.execute js
                 catch
@@ -251,7 +246,13 @@ Ractive.components['sketcher'] = Ractive.extend do
         activeLayer: 'gui'
         currLayer: 'F.Cu'
         currTrace:
-            width: 3
+            width: 0.2mm # default width, temporary
+            clearance: 0.2mm
+            power: 0.4mm
+            signal: 0.2mm
+            via:
+                outer: 1.5mm
+                inner: 0.5mm
         kicadLayers:
             \F.Cu
             \B.Cu

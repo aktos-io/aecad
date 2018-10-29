@@ -4,6 +4,7 @@ require! '../selection': {Selection}
 require! './helpers': {_default: helpers}
 require! './follow': {_default: follow}
 require! './lib': {get-tid}
+require! 'aea/do-math': {mm2px}
 
 export class Trace
     @instance = null
@@ -32,7 +33,7 @@ export class Trace
         @corr-point = null # correcting point
 
         @_stable_date = 0
-        @drills = []
+        @vias = []
         @group = null
 
     get-tolerance: ->
@@ -51,8 +52,9 @@ export class Trace
         return false
 
     connect: (segment) ->
-        path = segment?.getPath!
-        if get-tid path
+        group = segment?.getPath!.parent
+        if get-tid group
+            @group = group
             @trace-id = that
             return true
         return false
@@ -79,7 +81,8 @@ export class Trace
         @flip-side = false
         @removed-last-segment = null
         @remove-helpers!
-        @drills.length = 0
+        @vias.length = 0
+        @group = null
 
     remove-last-point: (undo) ->
         a = if @corr-point => 1 else 0
@@ -148,6 +151,11 @@ export class Trace
                             aecad:
                                 tid: @trace-id
                 new-trace = yes
+            unless @group
+                console.error "No group can be found!"
+                return
+                debugger
+
 
             # TODO: hitTest is not the correct way to go,
             # check if inside the geometry
@@ -156,11 +164,12 @@ export class Trace
             for hit in hits
                 console.log "trace hit to: ", hit
                 if hit.item.data.tmp
+                    # this is a temporary object, do not snap to it
                     continue
                 if hit?segment
                     snap = hit.segment.point.clone!
-                    break 
-                else if hit?item and hit.item.data.aecad.tid isnt @trace-id
+                    break
+                else if hit?item and hit.item.data?.aecad?.tid isnt @trace-id
                     snap = hit.item.bounds.center.clone!
                     console.log "snapping to ", snap
                     break
@@ -170,7 +179,7 @@ export class Trace
 
             @line = new @scope.Path(snap)
                 ..strokeColor = curr.layer.color
-                ..strokeWidth = curr.trace.width
+                ..strokeWidth = curr.trace.width |> mm2px
                 ..strokeCap = 'round'
                 ..strokeJoin = 'round'
                 ..selected = yes
@@ -191,42 +200,53 @@ export class Trace
 
         @corr-point = null
         @continues = yes
-        @update-drills!
+        @update-vias!
 
-    add-drill: (center, dia) ->
-        @drills.push new @scope.Path.Circle do
-            center: center
-            radius: dia/2
-            fill-color: \white
-            stroke-width: 0
-            data:
-                aecad:
-                    tid: @trace-id
-                    type: \drill
-                    dia: dia
-            parent: @group
-        @update-drills!
-
-    update-drills: ->
-        for @drills
+    update-vias: ->
+        for @vias
             ..bringToFront!
 
     add-via: ->
-        outer-dia = 10
-        inner-dia = 3
-        via = new @scope.Path.Circle do
-            center: @moving-point
-            radius: outer-dia/2
-            fill-color: \orange
-            stroke-width: 0
+        outer-dia = @ractive.get \currTrace.via.outer
+        inner-dia = @ractive.get \currTrace.via.inner
+
+        @vias.push via = new @scope.Group do
+            parent: @group
             data:
                 aecad:
                     tid: @trace-id
                     type: \via
                     outer-dia: outer-dia
-            parent: @group
+                    drill-dia: inner-dia
 
-        @add-drill @moving-point, inner-dia
+        # FIXME: remove this redundant data
+        _tmp_ =
+            aecad:
+                tid: @trace-id
+                type: \via-part
+
+        # add outer pad
+        new @scope.Path.Circle do
+            center: @moving-point
+            radius: outer-dia/2 |> mm2px
+            fill-color: \orange
+            stroke-width: 0
+            parent: via
+            # FIXME: remove this redundant data
+            data: _tmp_
+
+        # add drill
+        new @scope.Path.Circle do
+            center: @moving-point
+            radius: inner-dia/2 |> mm2px
+            fill-color: \white
+            stroke-width: 0
+            parent: via
+            # FIXME: remove this redundant data
+            data: _tmp_
+
+
+        @update-vias!
 
         # Toggle the layers
         # TODO: make this cleaner

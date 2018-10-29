@@ -10,6 +10,9 @@ export class Selection extends EventEmitter
         super!
 
         @selected = []
+        @_active = []
+        @_passive = []
+        @scope = null # assigned in PaperDraw
 
     deselect: (opts={}) ->
         for @selected
@@ -20,7 +23,16 @@ export class Selection extends EventEmitter
             if ..data?.tmp
                 #console.log "removing temporary path: ", ..
                 ..remove!
+
+        # FIXME: remove this extra precaution
+        for @scope.project.getItems({+selected})
+            ..selected = no
+
         @selected.length = 0
+        @_active.length = 0
+        @_passive.length = 0
+
+        # FIXME: remove this extra caution
         @scope.clean-tmp!
 
         @trigger \cleared
@@ -57,8 +69,29 @@ export class Selection extends EventEmitter
             @selected.push ..
             if opts.select
                 ..selected = yes
+                @_active.push ..
+            else
+                @_passive.push ..
         #console.log "Selected items so far: #{@selected.length}", @selected
         @trigger \selected, @selected
+
+    get-selection: ->
+        active = null
+        if @_passive.length > 0
+            # if we have passive selection,
+            # we must have only one active
+            # selection at most
+            if @_active.length > 1
+                throw do
+                    message: "More than one active selection"
+                    selection: @selection
+                    active: @_active
+                    passive: @_passive
+        return {
+            active: @_active.0
+            rest: @_passive
+        }
+
 
     delete: !->
         for i, item of @selected

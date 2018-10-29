@@ -7,9 +7,9 @@ export _default =
             to: [1000, point.y]
             data: {+tmp}
             strokeWidth: 0.5
-            strokeColor: \blue
-            opacity: 0.8
-            dashArray: [10, 1, 1, 1]
+            strokeColor: \white
+            opacity: 0.1
+            dashArray: [5, 1, 1, 1]
 
         @helpers.x = new @scope.Path.Line helper-opts
         @helpers.y = @helpers.x.clone!
@@ -19,14 +19,15 @@ export _default =
         @helpers.bs = @helpers.x.clone!
             ..rotate -45, point
 
+
+        # visualize intersections
         for axis in <[ x y ]>
             for axis2 in <[ s bs ]>
-                # create intersections
                 @helpers["#{axis}-#{axis2}"] = new @scope.Path.Circle do
                     center: point
-                    radius: 5
-                    stroke-width: 3
-                    stroke-color: \green
+                    radius: 3
+                    stroke-color: \yellow
+                    opacity: 0
 
     remove-helpers: ->
         for h, p of @helpers

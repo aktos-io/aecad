@@ -55,25 +55,35 @@ export MoveTool = (_scope, layer, canvas) ->
                     move.dragging `shift-item` event.delta
                 else
                     # handle trace movement specially
-                    [sel, rest] = partition (.data?.role is \handle), selection.selected
+                    # 1. snap movement direction
+                    # 2. preserve left and right curve slope
+                    # 3. move touch ends
+                    # ----------------------------------
                     snap = snap-move event.downPoint, event.point, do
                         shift: event.modifiers.shift
                         restrict: yes
                         tolerance: 10
-                    handle = sel.0
+
+                    try
+                        {active, rest} = selection.get-selection!
+                    catch
+                        scope.vlog.error e.message
+                        return
+
+                    handle = active
                     #console.log "shifting handle: ", handle
-                    [handle-p1, handle-p2] = handle.segments
+                    handle-p1 = handle.segment1
+                    handle-p2 = handle.segment2
                     shift-item handle, snap.delta
                     console.log "rest is: #{rest.length}: ", rest
                     for rest
-
                         switch ..constructor.name
                         | 'SegmentPoint' =>
                             segment = .._owner
                             prev = segment.getPrevious!
                             next = segment.getNext!
 
-                            _tolerance = 1 + sqrt (snap.delta.x ** 2) + (snap.delta.y ** 2)
+                            _tolerance = 1 + snap.delta.length
                             if segment.point.isClose handle-p1.point, _tolerance
                                 close-end = handle-p1
                                 far-end = handle-p2
@@ -141,14 +151,15 @@ export MoveTool = (_scope, layer, canvas) ->
                     move.dragging `shift-item` snap.delta
 
         ..onMouseUp = (event) ~>
-            move.enabled = no
-            move.dragging = null
-            move.pan = no
-            move.mode = null
-            canvas.style.cursor = 'default'
+            move
+                ..enabled = no
+                ..dragging = null
+                ..pan = no
+                ..mode = null
+            scope.cursor 'default'
+
 
         ..onMouseDown = (event) ~>
-            scope.history.push!
             move.enabled = yes
             layer.activate!
             scope.get-tool \select .onMouseDown event
@@ -161,13 +172,19 @@ export MoveTool = (_scope, layer, canvas) ->
                         move.mode = \trace
                     #console.log "...found selected on hit."
                     scope.cursor \move
+                    scope.history.commit!
                     return
             move.pan = yes
             scope.cursor \grabbing
 
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move
-            if event.key is \escape
+            switch event.key
+            | \delete =>
+                # delete an item with Delete key
+                scope.history.commit!
+                selection.delete!
+            | \escape =>
                 if move.dragging?
                     # cancel last movement
                     for selection.selected
@@ -176,14 +193,14 @@ export MoveTool = (_scope, layer, canvas) ->
                 else
                     # activate selection tool
                     ractive.set \currTool, \sl
-
-            if event.key is \ı
+            | \ı =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
                 selection.getTopItem!.rotate angle
+            | \z =>
+                if event.modifiers.control
+                    scope.history.back!
 
-            if event.modifiers.control and event.key is \z
-                scope.history.back!
 
 
     move-tool
