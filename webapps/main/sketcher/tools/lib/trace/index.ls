@@ -33,6 +33,7 @@ export class Trace
 
         @_stable_date = 0
         @drills = []
+        @group = null
 
     get-tolerance: ->
         20 / @scope.view.zoom
@@ -142,19 +143,27 @@ export class Trace
                 # assign a new trace id for next trace
                 unless @trace-id
                     @trace-id = shortid.generate!
+                    @group = new @scope.Group do
+                        data:
+                            aecad:
+                                tid: @trace-id
                 new-trace = yes
 
             # TODO: hitTest is not the correct way to go,
             # check if inside the geometry
-            hit = @scope.project.hitTest point
-            if hit?segment
-                snap = that.point
-            else if hit?item
-                snap = new @scope.Point that.bounds.center
-                console.log "snapping to ", snap
-            else
-                snap = point
-
+            hits = @scope.project.hitTestAll point
+            snap = point.clone!
+            for hit in hits
+                console.log "trace hit to: ", hit
+                if hit.item.data.tmp
+                    continue
+                if hit?segment
+                    snap = hit.segment.point.clone!
+                    break 
+                else if hit?item and hit.item.data.aecad.tid isnt @trace-id
+                    snap = hit.item.bounds.center.clone!
+                    console.log "snapping to ", snap
+                    break
             curr =
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
@@ -168,6 +177,7 @@ export class Trace
                 ..data.aecad =
                     layer: curr.layer.name
                     tid: @trace-id
+                ..parent = @group
 
             @line.add snap
 
@@ -177,7 +187,7 @@ export class Trace
 
         else
             @update-helpers (@moving-point or point)
-            @line.add(point)
+            @line.add(@moving-point or point)
 
         @corr-point = null
         @continues = yes
@@ -194,6 +204,7 @@ export class Trace
                     tid: @trace-id
                     type: \drill
                     dia: dia
+            parent: @group
         @update-drills!
 
     update-drills: ->
@@ -213,6 +224,7 @@ export class Trace
                     tid: @trace-id
                     type: \via
                     outer-dia: outer-dia
+            parent: @group
 
         @add-drill @moving-point, inner-dia
 
