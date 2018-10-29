@@ -181,7 +181,9 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             groupSelected: (ctx) ->
                 pcb.history.commit!
-                new pcb.Group [.. for pcb.get-flatten! when ..selected]
+                g = new pcb.Group pcb.selection.selected
+                console.log "Selected items are grouped:", g
+                ctx.component.state \done...
 
             prototypePrint: (ctx) ->
                 pcb.history.commit!
