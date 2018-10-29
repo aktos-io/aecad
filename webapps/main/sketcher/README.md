@@ -6,6 +6,7 @@ data:
     tmp: *bool* Temporary item, will be remove on import
     aecad:
         tid: "Trace ID" (if this is a trace)
+        layer: *String*: one of "F.Cu, B.Cu"
         type: *String* one of "via, drill, $footprint_name"
         group: *Array* of
 
@@ -47,7 +48,10 @@ data:
     click. `Ctrl + |click|` will disable this rule (thus select the group.)
 4. Selecting a `Layer` is possible:
     1. `Ctrl + a` (TODO)
-    2. Via tree view (TODO
+    2. Via tree view (TODO)
+5. `Drag`: Creates a selection box
+    1. Left to Right: select items inside the selection
+    2. Right to left: select items touches the box 
 
 ## Modifiers
 

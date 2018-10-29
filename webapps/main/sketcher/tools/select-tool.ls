@@ -8,12 +8,37 @@ export SelectTool = ->
     scope = new PaperDraw
     selection = new Selection
 
+    sel =
+        box: null
+
     select-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
             # panning
             if event.modifiers.shift
                 offset = event.downPoint .subtract event.point
                 scope.view.center = scope.view.center .add offset
+            else
+                if sel.box
+                    console.log "selection box: ", sel.box
+                    sel.box.segments
+                        ..1.point.y = event.point.y
+                        ..2.point.set event.point
+                        ..3.point.x = event.point.x
+
+        ..onMouseUp = (event) ->
+            if sel.box
+                s = that.segments
+                opts = {}
+                if s.0.point.subtract s.2.point .length > 10
+                    if s.0.point.x < s.2.point.x
+                        # selection is left to right
+                        opts.inside = sel.box.bounds
+                    else
+                        # selection is right to left
+                        opts.overlapping = sel.box.bounds
+
+                    selection.add scope.project.getItems opts
+                sel.box.remove!
 
         ..onMouseDown = (event) ~>
             # TODO: there are many objects overlapped, use .hitTestAll() instead
@@ -21,6 +46,14 @@ export SelectTool = ->
             console.log "Select Tool: Hit result is: ", hit
             unless hit
                 selection.deselect!
+                sel.box = new scope.Path.Rectangle do
+                    from: event.point
+                    to: event.point
+                    fill-color: \blue
+                    opacity: 0.3
+                    data:
+                        tmp: \true
+                        role: \selection
             else
                 if hit.item.data?tmp
                     console.log "...selected a temporary item, doing nothing"
@@ -36,12 +69,18 @@ export SelectTool = ->
                 handle-opacity = 0.5
                 set-tid handle-data, trace-id
 
+                select-item = ~> 
+                    selection.add if @get \selectGroup
+                        hit.item.parent
+                    else
+                        hit.item
+
                 if trace-id
                     # this is related to a trace, handle specially
                     if event.modifiers.control
                         # select the whole trace
-                        console.log "adding whole trace to selection."
-                        selection.add hit.item
+                        console.log "adding whole trace to selection because Ctrl is pressed."
+                        select-item!
                     else
                         if hit.segment or hit.item?data?segment
                             # Segment of a trace
@@ -57,8 +96,8 @@ export SelectTool = ->
                                         geo: \c,
                                         segment: hit.segment
                                     }
-                                    strokeWidth: 3
-                                    strokeColor: \blue
+                                    strokeWidth: 0
+                                    fillColor: \blue
                                     opacity: handle-opacity
 
                                 workaround.bringToFront!
@@ -81,17 +120,20 @@ export SelectTool = ->
                                 opacity: handle-opacity
                             console.log "adding workaround line: id: #{workaround.id}"
 
-                            for part in scope.get-all! when (get-tid part) is trace-id
-                                continue if part.data?.role is \handle
-                                console.log "found trace part: #{part.id}", part
-                                p1 = curve.point1
-                                p2 = curve.point2
-                                if part.data?.aecad?.type is \via
+                            # silently select all parts touching to ends
+                            p1 = curve.point1
+                            p2 = curve.point2
+                            for part in hit.item.parent.children
+                                if part.data?.role is \handle
+                                    # skip handle
+                                    continue
+                                if part.data?.aecad?.type in <[ via drill ]>
                                     c = part.bounds.center
                                     if (c.equals p1) or (c.equals p2)
                                         # add this via to selection
                                         selection.add part, {select: no}
                                 else
+                                    # this should be a Path
                                     for part.getSegments!
                                         # search in segments
                                         if (p1.equals ..point) or (p2.equals ..point)
@@ -99,23 +141,14 @@ export SelectTool = ->
                                             selection.add ..point, {select: no}
                         else
                             console.log "adding whole trace item: ", hit
-                            selection.add hit.item
+                            select-item!
 
                 else if hit.item
-                    if @get('selectAllLayer')
-                        matched = hit.item.getLayer().children
-                        console.log "...will select all items in current layer", matched
-                    else
-                        # select the item
-                        matched.push if @get \selectGroup
-                            hit.item.parent
-                        else
-                            hit.item
+                    # select normally
+                    select-item!
                 else
-                    console.error "What did we hit?", hit 
+                    console.error "What did we hit?", hit
                     debugger
-
-                selection.add matched
 
         ..onKeyDown = (event) ~>
             switch event.key
@@ -127,6 +160,12 @@ export SelectTool = ->
             | \escape =>
                 # Press Esc to cancel a cache
                 selection.deselect!
+
+            | \a =>
+                if event.modifiers.control
+                    selection.add scope.get-all!
+                    event.preventDefault!
+
 
             |_ =>
                 if event.modifiers.shift
