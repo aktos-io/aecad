@@ -89,7 +89,12 @@ export SelectTool = ->
                             # Segment of a trace
                             segment = hit.segment
                             #console.log "...selecting the segment of trace: ", hit
-                            selection.add segment
+                            selection.add {
+                                name: \left,
+                                strength: \strong,
+                                role: \single-segment
+                                item: segment.point}
+
                         else if hit.location
                             # Curve of a trace
                             curve = hit.location.curve
@@ -105,12 +110,13 @@ export SelectTool = ->
                             #console.log "Handle is: ", handle
 
                             # silently select all parts which are touching to the ends
+                            __tolerance__ = 0.1
                             for part in hit.item.parent.children
                                 #console.log "examining trace part: ", part
                                 if part.data?.aecad?.type in <[ via ]>
                                     #console.log "...found via: ", part
                                     for name, point of handle
-                                        if point.isClose part.bounds.center, 1
+                                        if point.isClose part.bounds.center, __tolerance__
                                             strength = \weak
                                             #console.log "adding via to #{name} (#{strength})", part
                                             selection.add {
@@ -123,7 +129,7 @@ export SelectTool = ->
                                     # find mate segments
                                     for mate-seg in part.getSegments!
                                         #console.log "Examining Path: #{mate-seg.getPath().id}, segment: #{mate-seg.index}"
-                                        for name, hpoint of handle when mate-seg.point.isClose hpoint, 1
+                                        for name, hpoint of handle when mate-seg.point.isClose hpoint, __tolerance__
                                             strength = \weak
                                             #console.log "...adding #{name} mate close point:", mate-seg.point
                                             selection.add {
