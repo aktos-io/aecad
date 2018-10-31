@@ -19,11 +19,11 @@
   "dependencies": {
     "dxf": "^3.3.1",
     "dxf-writer": "^1.2.0",
-    "paper": "^0.11.5",
+    "paper": "^0.11.8",
     "pretty": "^2.0.0",
     "shortid": "^2.2.13",
     "svg-path-parser": "^1.1.0",
-    "svgson-next": "^4.2.0",
-    "three": "^0.97.0"
+    "svgson-next": "^4.3.0",
+    "three": "^0.98.0"
   }
 }
