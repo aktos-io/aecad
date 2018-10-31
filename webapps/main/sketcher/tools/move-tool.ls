@@ -74,12 +74,12 @@ export MoveTool = (_scope, layer, canvas) ->
                     items = []
                     for side in <[ left right ]>
                         items.length = 0
+                        solver = (-> it)
                         for selection.selected when ..name is side
                             if ..solver?
                                 solver = ..solver
                             else
                                 items.push ..item
-
                         try
                             delta = solver snap.delta
                         catch
