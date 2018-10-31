@@ -1,6 +1,9 @@
             
 //- Global properties 
 table
+    tr
+        td x: {{pointer.x.toFixed(1)}}
+        td y: {{pointer.y.toFixed(1)}}
     tr 
         td Zoom 
         td: input(value="{{pcb.view.zoom}}" style="max-width: 40px; overflow-x: hidden")

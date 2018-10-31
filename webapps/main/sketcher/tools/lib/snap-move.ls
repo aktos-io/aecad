@@ -90,4 +90,4 @@ export snap-move = (start-point, curr, opts={}) ->
     delta = moving-point.subtract prev
     prev := moving-point.clone!
 
-    return {delta, route-over, snapped: moving-point}
+    return {delta, route-over, snapped: moving-point, point: moving-point}

@@ -68,8 +68,8 @@ export class Trace
                 @corr-point = null
             @line.selected = no
 
-        if @line.segments.length is 1
-            @line.remove!
+            if @line.segments.length is 1
+                @line.remove!
 
         @line = null
         @continues = no
@@ -173,6 +173,7 @@ export class Trace
                     snap = hit.item.bounds.center.clone!
                     console.log "snapping to ", snap
                     break
+
             curr =
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
@@ -188,7 +189,7 @@ export class Trace
                     tid: @trace-id
                 ..parent = @group
 
-            @line.add snap
+            @line.add point
 
             if new-trace
                 @set-helpers point
@@ -201,6 +202,11 @@ export class Trace
         @corr-point = null
         @continues = yes
         @update-vias!
+
+        # TODO: reduce the path geometry
+        # 1. remove coincident segments
+        # 2. remove segments on a curve
+        #@line.reduce! # DO NOT REDUCE AT THE BEGINNING
 
     update-vias: ->
         for @vias

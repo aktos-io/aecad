@@ -1,5 +1,6 @@
-require! 'prelude-ls': {empty, flatten}
+require! 'prelude-ls': {empty, flatten, group-by, filter}
 require! 'dcs/lib/event-emitter': {EventEmitter}
+
 
 export class Selection extends EventEmitter
     @instance = null
@@ -16,21 +17,25 @@ export class Selection extends EventEmitter
 
     deselect: (opts={}) ->
         for @selected
-            if ..getClassName! is \Curve
+            if ..getClassName?! is \Curve
                 ..getPath!.selected = no
-            else
+            else if ..selected?
                 ..selected = no
+            else if ..item?selected?
+                # for custom selections
+                ..item.selected = no
             if ..data?.tmp
                 #console.log "removing temporary path: ", ..
                 ..remove!
 
+        # do cleanup
+        cleanup @selected
+        cleanup @_active
+        cleanup @_passive
+
         # FIXME: remove this extra precaution
         for @scope.project.getItems({+selected})
             ..selected = no
-
-        @selected.length = 0
-        @_active.length = 0
-        @_passive.length = 0
 
         # FIXME: remove this extra caution
         @scope.clean-tmp!
@@ -41,25 +46,37 @@ export class Selection extends EventEmitter
     clear: ->
         @deselect!
 
+    filter: (_filter) ->
+        filter _filter, @selected
+
+    group-by: -> (_filter) ->
+        group-by _filter, @selection
+
     add: (items, opts={select: yes}) ->
         for flatten [items]
-            try
-                switch ..getClassName!
-                | \Path => \ok
-                | \Curve => \ok
-                | \Segment => \ok
-                | \Group => \ok
-                | \Layer =>
-                    # do not add layers
-                    console.log "...we are not selecting layers: ", ..
-                    continue
-                | \Point => \ok
-                |_ =>
-                    console.warn "unrecognized", ..
-                    throw
-            catch
-                console.warn ".........unrecognized selection: ", ..
+            switch ..getClassName?!
+            | \Path => \ok
+            | \Curve => \ok
+            | \Segment => \ok
+            | \Group => \ok
+            | \Layer =>
+                # do not add layers
+                console.log "...we are not selecting layers: ", ..
                 continue
+            | \Point => \ok
+            |_ =>
+                if typeof! .. is \Object
+                    # This is a custom object: normally in {name, item} format.
+                    # name is the group name, item is the value
+                    @selected.push ..
+                    if ..item
+                        if opts.select
+                            ..item.selected = yes
+                    continue
+                else
+                    console.warn ".........unrecognized selection: ", ..
+                    continue
+
             if ..id? and find (.id is ..id), @selected
                 console.log "duplicate item, not adding: ", ..
                 continue
@@ -95,13 +112,21 @@ export class Selection extends EventEmitter
 
     delete: !->
         for i, item of @selected
-            console.log "item is: ", item
-            try
-                item.remove!
-            catch
-                item._owner.remove!
+            #console.log "item is: ", item
+            if item.item? or item.solver?
+                # custom object
+                continue if item.solver?
+                try
+                    item.item.remove!
+                catch
+                    item.item._owner.remove!
+            else
+                try
+                    item.remove!
+                catch
+                    item._owner.remove!
 
-        @selected.length = 0
+        cleanup @selected
 
     get-top-item: ->
         @selected.0

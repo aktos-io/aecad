@@ -253,6 +253,9 @@ Ractive.components['sketcher'] = Ractive.extend do
             via:
                 outer: 1.5mm
                 inner: 0.5mm
+        pointer: # mouse pointer coordinates
+            x: 0
+            y: 0
         kicadLayers:
             \F.Cu
             \B.Cu
