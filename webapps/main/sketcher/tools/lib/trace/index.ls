@@ -58,6 +58,14 @@ export class Trace
             return true
         return false
 
+    reduce: (line) !->
+        to-be-removed = []
+        for i in [til line.segments.length - 1]
+            if line.segments[i].point.isClose line.segments[i + 1].point, 1
+                to-be-removed.push i
+        for i, s of to-be-removed
+            line.segments[s - i].remove!
+
     end: ->
         if @line
             # remove moving point
@@ -70,12 +78,7 @@ export class Trace
             if @line.segments.length is 1
                 @line.remove!
 
-            to-be-removed = []
-            for i in [til @line.segments.length - 1]
-                if @line.segments[i].point.isClose @line.segments[i + 1].point, 1
-                    to-be-removed.push i
-            for i, s of to-be-removed
-                @line.segments[s - i].remove!
+            @reduce @line
 
         @line = null
         @continues = no
@@ -151,6 +154,10 @@ export class Trace
                             aecad:
                                 tid: @trace-id
                 new-trace = yes
+            else
+                # side flipped
+                @reduce @line
+                
             unless @group
                 console.error "No group can be found!"
                 return
