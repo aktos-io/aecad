@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty, flatten, filter, map}
+require! 'prelude-ls': {empty, flatten, filter, map, compact}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/trace/lib': {get-tid, set-tid}
@@ -101,6 +101,7 @@ export SelectTool = ->
                                 left: curve.point1
                                 right: curve.point2
 
+                            other-side = (side) -> [.. for Object.keys handle when .. isnt side].0
                             console.log "Handle is: ", handle
 
                             /*
@@ -132,9 +133,10 @@ export SelectTool = ->
                                 else
                                     # find mate segments
                                     for mate-seg in part.getSegments!
+                                        console.log "Examining Path: #{mate-seg.getPath().id}, segment: #{mate-seg.index}"
                                         for name, hpoint of handle when mate-seg.point.isClose hpoint, 1
                                             strength = \weak
-                                            console.log "adding #{name} mate point: ", mate-seg.point
+                                            console.log "...adding #{name} mate close point:", mate-seg.point
                                             selection.add {
                                                 name,
                                                 strength,
@@ -144,22 +146,19 @@ export SelectTool = ->
 
                                             # add the solver
                                             # -----------------------------------
-                                            # input: point
-                                            # algorithm: the input point has to be on handle curve
-                                            # output: intersection point of mate line and handle.
-
                                             mate-fp = null # mate far point
-                                            for [mate-seg.next, mate-seg.previous] when ..?
-                                                for n, hpoint of handle when n isnt name
-                                                    unless hpoint.equals ..point
-                                                        mate-fp = ..point
+                                            for compact [mate-seg.next, mate-seg.previous]
+                                                unless handle[other-side name].equals ..point
+                                                    console.warn "#{name} mate far point:", ..point, "is not equal to handle[#{other-side name}]: ", handle[other-side name]
+                                                    mate-fp = ..point
 
                                             unless mate-fp
                                                 # this is handler tip
+                                                console.log "..................this is handler tip: ", mate-seg.point
                                                 continue
 
-                                            #console.log "far point is: ", mate-fp
-                                            #console.log "mate angle isss: ", (mate-seg.point.subtract mate-fp).angle
+                                            console.log "found #{name} mate far point: (id: #{mate-fp._owner.getPath().id}) ", mate-fp, "will add a solver."
+                                            #console.log "mate angle is: ", (mate-seg.point.subtract mate-fp).angle
                                             marker = (center, color, tooltip) ->
                                                 radius = 4
                                                 new scope.Path.Circle({
@@ -171,14 +170,14 @@ export SelectTool = ->
                                                     })
 
                                             get-solver = (m1, m2, h1, h2) ->
-                                                console.log "Adding solver for mate: ", m1, m2
-                                                marker m1, \red
-                                                marker m2, \blue
                                                 hline = scope._Line {p1: h1, p2: h2}
                                                     ..rotate 0, {+inplace, +round}
 
                                                 mline = scope._Line {p1: m1, p2: m2}
                                                     ..rotate 0, {+inplace, +round}
+                                                console.log "Adding solver for #{name} mate: ", mline.getAngle(), m1, m2
+                                                marker m1, \red
+                                                marker m2, \blue
                                                 #console.log "handle angle: ", hline.getAngle(), "mate angle: ", mline.getAngle!
                                                 return solver = (delta) ->
                                                     #console.log "solving #{name} side for delta: ", delta
