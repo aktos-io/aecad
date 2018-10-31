@@ -102,18 +102,7 @@ export SelectTool = ->
                                 right: curve.point2
 
                             other-side = (side) -> [.. for Object.keys handle when .. isnt side].0
-                            console.log "Handle is: ", handle
-
-                            /*
-                            for name, item of handle
-                                console.log "adding handle points for movement:", item
-                                selection.add {
-                                    name,
-                                    item,
-                                    strength: \weak
-                                    role: \handle}
-                                    , {-select}
-                            */
+                            #console.log "Handle is: ", handle
 
                             # silently select all parts which are touching to the ends
                             for part in hit.item.parent.children
@@ -133,10 +122,10 @@ export SelectTool = ->
                                 else
                                     # find mate segments
                                     for mate-seg in part.getSegments!
-                                        console.log "Examining Path: #{mate-seg.getPath().id}, segment: #{mate-seg.index}"
+                                        #console.log "Examining Path: #{mate-seg.getPath().id}, segment: #{mate-seg.index}"
                                         for name, hpoint of handle when mate-seg.point.isClose hpoint, 1
                                             strength = \weak
-                                            console.log "...adding #{name} mate close point:", mate-seg.point
+                                            #console.log "...adding #{name} mate close point:", mate-seg.point
                                             selection.add {
                                                 name,
                                                 strength,
@@ -149,16 +138,15 @@ export SelectTool = ->
                                             mate-fp = null # mate far point
                                             for compact [mate-seg.next, mate-seg.previous]
                                                 unless handle[other-side name].equals ..point
-                                                    console.warn "#{name} mate far point:", ..point, "is not equal to handle[#{other-side name}]: ", handle[other-side name]
+                                                    #console.warn "#{name} mate far point:", ..point, "is not equal to handle[#{other-side name}]: ", handle[other-side name]
                                                     mate-fp = ..point
 
                                             unless mate-fp
                                                 # this is handler tip
-                                                console.log "..................this is handler tip: ", mate-seg.point
+                                                #console.log "..................this is handler tip: ", mate-seg.point
                                                 continue
 
-                                            console.log "found #{name} mate far point: (id: #{mate-fp._owner.getPath().id}) ", mate-fp, "will add a solver."
-                                            #console.log "mate angle is: ", (mate-seg.point.subtract mate-fp).angle
+                                            #console.log "found #{name} mate far point: (id: #{mate-fp._owner.getPath().id}) ", mate-fp, "will add a solver."
                                             marker = (center, color, tooltip) ->
                                                 radius = 4
                                                 new scope.Path.Circle({
@@ -175,10 +163,9 @@ export SelectTool = ->
 
                                                 mline = scope._Line {p1: m1, p2: m2}
                                                     ..rotate 0, {+inplace, +round}
-                                                console.log "Adding solver for #{name} mate: ", mline.getAngle(), m1, m2
-                                                marker m1, \red
-                                                marker m2, \blue
-                                                #console.log "handle angle: ", hline.getAngle(), "mate angle: ", mline.getAngle!
+                                                #console.log "Adding solver for #{name} mate: ", mline.getAngle(), m1, m2
+                                                #marker m1, \red
+                                                #marker m2, \blue
                                                 return solver = (delta) ->
                                                     #console.log "solving #{name} side for delta: ", delta
                                                     hline.move delta
@@ -195,7 +182,7 @@ export SelectTool = ->
                             #console.log "selected everything needed: ", selection.selected
                             for side in <[ left right ]>
                                 _sel = selection.filter (.name is side)
-                                console.log "...#{side}: ", _sel
+                                #console.log "...#{side}: ", _sel
                                 if [.. for _sel when ..solver?].length > 1
                                     scope.vlog.error "#{side} shouldn't have more than one solver!"
 
