@@ -32,7 +32,6 @@ export class Trace
         @helpers = {}
         @corr-point = null # correcting point
 
-        @_stable_date = 0
         @vias = []
         @group = null
 
@@ -70,6 +69,13 @@ export class Trace
 
             if @line.segments.length is 1
                 @line.remove!
+
+            to-be-removed = []
+            for i in [til @line.segments.length - 1]
+                if @line.segments[i].point.isClose @line.segments[i + 1].point, 1
+                    to-be-removed.push i
+            for i, s of to-be-removed
+                @line.segments[s - i].remove!
 
         @line = null
         @continues = no
@@ -132,12 +138,6 @@ export class Trace
     follow: follow.follow
 
     add-segment: (point) ->
-        if Date.now! < @_stable_date + 500ms
-            console.warn "Too frequent, skipping this segment."
-            return
-        else
-            @_stable_date = Date.now!
-
         new-trace = no
         if not @line or @flip-side
             @flip-side = false
@@ -189,7 +189,7 @@ export class Trace
                     tid: @trace-id
                 ..parent = @group
 
-            @line.add point
+            @line.add snap
 
             if new-trace
                 @set-helpers point
@@ -197,7 +197,8 @@ export class Trace
 
         else
             @update-helpers (@moving-point or point)
-            @line.add(@moving-point or point)
+            # prevent duplicate segments
+            @line.add (@moving-point or point)
 
         @corr-point = null
         @continues = yes
