@@ -44,6 +44,7 @@ export MoveTool = (_scope, layer, canvas) ->
         dragging: null  # total drag vector
         mode: null
         enabled: no
+        about-to-move: no
 
     move-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
@@ -54,7 +55,13 @@ export MoveTool = (_scope, layer, canvas) ->
                 scope.view.center = scope.view.center .add offset
             else
                 # backup the movement vector for a possible cancel
-                move.dragging = move.dragging or new scope.Point(0, 0)
+                move.dragging = true
+
+                # commit to history
+                if move.about-to-move
+                    move.about-to-move = no
+                    scope.history.commit!
+
 
                 snap = snap-move event.downPoint, event.point, do
                     shift: event.modifiers.shift
@@ -65,7 +72,6 @@ export MoveTool = (_scope, layer, canvas) ->
                     # move an item regularly
                     for selection.selected
                         .. `shift-item` snap.delta
-                    move.dragging `shift-item` snap.delta
                 else
                     # handle trace movement specially
                     # 1. preserve left and right curve slope
@@ -95,6 +101,8 @@ export MoveTool = (_scope, layer, canvas) ->
                 ..dragging = null
                 ..pan = no
                 ..mode = null
+                ..about-to-move = no
+
             scope.cursor 'default'
 
 
@@ -111,7 +119,7 @@ export MoveTool = (_scope, layer, canvas) ->
                         move.mode = \trace
                     #console.log "...found selected on hit."
                     scope.cursor \move
-                    scope.history.commit!
+                    move.about-to-move = yes
                     return
             move.pan = yes
             scope.cursor \grabbing
@@ -129,10 +137,8 @@ export MoveTool = (_scope, layer, canvas) ->
             | \escape =>
                 if move.dragging?
                     # cancel last movement
-                    for selection.selected
-                        #shift-item .., move.dragging, "subtract"
-                        console.warn "Movement cancelling is disabled due to trace movement cancelling issue"
                     move-tool.emit \mouseup
+                    scope.history.back!
             | \ı =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
