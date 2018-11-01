@@ -53,6 +53,7 @@ export class Selection extends EventEmitter
         group-by _filter, @selection
 
     add: (items, opts={select: yes}) ->
+        debug-mode = off
         for flatten [items]
             switch ..getClassName?!
             | \Path => \ok
@@ -61,7 +62,8 @@ export class Selection extends EventEmitter
             | \Group => \ok
             | \Layer =>
                 # do not add layers
-                console.log "...we are not selecting layers: ", ..
+                if debug-mode
+                    console.log "...we are not selecting layers: ", ..
                 continue
             | \Point => \ok
             |_ =>
