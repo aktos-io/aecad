@@ -71,7 +71,14 @@ export SelectTool = ->
 
                 select-item = ~>
                     selection.add if @get \selectGroup
-                        hit.item.parent
+                        # select the top level group
+                        item = hit.item
+                        for dig in  [0 to 100]
+                            if item.parent.getClassName! is \Layer
+                                break
+                            item = item.parent
+                        console.log "Dig level: ", dig
+                        item
                     else
                         hit.item
 
