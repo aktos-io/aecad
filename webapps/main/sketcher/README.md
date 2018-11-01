@@ -2,13 +2,17 @@
 
 All component data should reside in its `Group.data`.
 
-data:
-    tmp: *bool* Temporary item, will be remove on import
-    aecad:
-        tid: "Trace ID" (if this is a trace)
-        layer: *String*: one of "F.Cu, B.Cu"
-        type: *String* one of "via, drill, $footprint_name"
-        group: *Array* of
+
+    data:
+        tmp: *bool* Temporary item, will be remove on import
+        aecad:
+            tid: "Trace ID" (if this is a trace)
+            layer: *String*: one of "F.Cu, B.Cu"
+            type: *String* one of "via, drill, $footprint"
+            name: *String* Instance name
+            pin: *Int* Pin number of the $footprint, starts from 1; `0` means `N.C`
+            group: *Array* of group names.
+            label: Label of handle (eg. pin)
 
 ### when aecad.type is "via"
 
@@ -46,8 +50,8 @@ data:
 2. If object is a group, "open the object" must be clicked
 3. Trace routes are exceptions, their segments or curves will be selected on
     click. `Ctrl + |click|` will disable this rule (thus select the group.)
-4. Selecting a `Layer` is possible:
-    1. `Ctrl + a` (TODO)
+4. Selecting all objects in the same `Layer` is possible by:
+    1. `Ctrl + a` (TODO) (Currently selects everything in the project)
     2. Via tree view (TODO)
 5. `Drag`: Creates a selection box
     1. Left to Right: select items inside the selection
