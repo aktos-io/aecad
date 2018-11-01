@@ -17,11 +17,6 @@ table
         td Power T.
         td: s-input(value="{{currTrace.power}}" readonly)
 
-radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
-    .ui.buttons.vertical
-        +each('project.layers')
-            radio-button(value="{{@key}}") {{@key}}
-
 //- Property window 
 .ui.segments
     h4.ui.top.attached.block.header Property Window 
@@ -45,3 +40,7 @@ radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
                             type="{{type}}"
                             readonly)
                         
+radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
+    .ui.buttons.vertical
+        +each('project.layers')
+            radio-button(value="{{@key}}") {{@key}}

@@ -1,56 +1,92 @@
-common = '''
-    mm2px = ( / 25.4 * 96)
-    px2mm = (x) -> 1 / mm2px(x)
-    P = (x, y) -> new Point (x |> mm2px), (y |> mm2px)
-    S = (a, b) -> new Size (a |> mm2px), (b |> mm2px)
+export common =
+    tools:
+        '''
+        _mm2px = ( / 25.4 * 96)
+        _px2mm = (x) -> 1 / mm2px(x)
 
-    g = new Group
+        mm2px = (x) ->
+            _x = {}
+            switch typeof x
+            | 'object' =>
+                for i of x
+                    _x[i] = x[i] |> _mm2px
+                _x
+            |_ =>
+                x |> _mm2px
 
-    pad = (width, height, position=P(10mm, 10mm)) ->
-        p = new Rectangle position, S(width, height)
-        pad = new Path.Rectangle p
-            ..fillColor = 'yellow'
-            ..stroke-width = 0
-            ..rect = p
-            ..parent = g
-        pad
+        find-pin = (name, pin) !->
+            _find = (item) !->
+                if item.hasChildren!
+                    for item.children
+                        if _find ..
+                            return that
+                else if item.data?aecad?pin is pin
+                    return item
 
-    '''
+            for project.layers
+                for ..getItems()
+                    if ..data?aecad?name is name
+                        container = ..
+                        pad = _find container
+                        return {container, pad}
 
-export script =
-    "lib": common
+        '''
+
+    lib:
+        '''
+        g = new Group {opacity: 0.5}
+
+        group = (parent) ->
+            new Group do
+                parent: parent or g
+                applyMatrix: no
+
+        pad = (pin-number, dimensions, parent) ->
+            new Path.Rectangle do
+                from: [0, 0]
+                to: dimensions |> mm2px
+                fillColor: 'yellow'
+                parent: parent or g
+                stroke-width: 0
+                data:
+                    aecad:
+                        pin: pin-number
+
+        #find-pin "c1", 5
+        #    ..pad.selected = yes
+
+        '''
+
+scripts =
+    "lib": ''
 
     "LM 2576":
-        common +
         '''
-        # From: http://www.ti.com/lit/ds/symlink/lm2576.pdf
-        H = 14.17mm
-        d1 = {w: 8mm, h: 10.8mm}
-        d2 = {w: 2.16mm, h: 1.07mm}
-        pd = 1.702mm
+        to263 = (pin-labels) ->
+            # From: http://www.ti.com/lit/ds/symlink/lm2576.pdf
+            dimensions = d =
+                H   : 14.17mm
+                die : x:8mm     y:10.8mm
+                pads: x:2.16mm  y:1.07mm
+                pd  : 1.702
 
-        _x = H - d1.w - d2.w/2
+            p1 = pad 1, d.die
+                ..data.aecad.label = pin-labels.0
 
-        p1 = pad d1.w, d1.h
-        p2 = pad d2.w, d2.h, new Point(\
-            p1.bounds.right + (_x |> mm2px), \
-            p1.bounds.center.y - d2.w / 2)
+            padg = group()
+            for index, pin of [1 to 5]
+                pad pin, d.pads, padg
+                    ..position.y -= index * mm2px d.pd
+                    ..data.aecad.label = pin-labels[index]
 
-        p3 = p2.clone!
-            ..position.y += pd |> mm2px
+            padg.position =
+                d.H |> mm2px
+                p1.bounds.height / 2
 
-        p4 = p3.clone!
-            ..position.y += pd |> mm2px
-
-        p5 = p2.clone!
-            ..position.y -= pd |> mm2px
-
-        p6 = p5.clone!
-            ..position.y -= pd |> mm2px
+        to263 <[ Vin Out Gnd Feedback on_off ]>
         '''
 
     'R1206':
-        common +
         '''
         # From http://www.resistorguide.com/resistor-sizes-and-packages/
         r1206 =
@@ -65,3 +101,12 @@ export script =
             ..position.x += (c + b) |> mm2px
 
         '''
+
+script = {}
+for name, content of scripts
+    script[name] = ""
+    #script[name] += common.tools + "\n"
+    script[name] += common.lib + "\n"
+    script[name] += content
+
+export script

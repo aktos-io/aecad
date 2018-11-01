@@ -1,6 +1,7 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download, VLogger}
+require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! 'prelude-ls': {min, ceiling, flatten, max}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
 require! 'dxf-writer'
@@ -16,6 +17,7 @@ require! './lib/json-to-dxf': {json-to-dxf}
 require! './tools/lib/selection': {Selection}
 require! './kernel': {PaperDraw}
 require! './tools/lib/trace/lib': {is-on-layer}
+require! './example'
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -72,7 +74,12 @@ Ractive.components['sketcher'] = Ractive.extend do
             try
                 if content and typeof! content isnt \String
                     throw new Error "Content is not string!"
-                js = lsc.compile content, {+bare, -header}
+
+                _content = ""
+                _content += example.common.tools
+                _content += '\n'
+                _content += content
+                js = lsc.compile _content, {+bare, -header}
                 compiled = yes
             catch err
                 @set \output, "Compile error: #{err.to-string!}"
@@ -169,6 +176,9 @@ Ractive.components['sketcher'] = Ractive.extend do
                 for pcb.selection.selected
                     ..fill-color = color
                     ..stroke-color = color
+                    ..opacity = 1
+                    unless get-keypath .., "data.aecad.name"
+                        set-keypath .., 'data.aecad.name', "c_"
                     .. `pcb.send-to-layer` layer
 
             undo: (ctx) ->
@@ -227,10 +237,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                 layer-info.name = layer
                 layer-info
     data: ->
-        autoCompile: yes
+        autoCompile: no
         selectAllLayer: no
         selectGroup: yes
-        drawingLs: require './example' .script
+        drawingLs: example.script
         layers:
             'F.Cu':
                 color: 'red'
