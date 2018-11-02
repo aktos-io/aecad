@@ -212,10 +212,6 @@ export SelectTool = ->
 
         ..onKeyDown = (event) ~>
             switch event.key
-            | \delete =>
-                # delete an item with Delete key
-                scope.history.commit!
-                selection.delete!
             | \escape =>
                 # Press Esc to cancel a cache
                 selection.deselect!
@@ -223,9 +219,6 @@ export SelectTool = ->
                 if event.modifiers.control
                     selection.add scope.get-all!
                     event.preventDefault!
-            | \z =>
-                if event.modifiers.control
-                    scope.history.back!
             |_ =>
                 if event.modifiers.shift
                     scope.cursor \grab

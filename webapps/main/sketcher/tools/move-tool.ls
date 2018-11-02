@@ -124,16 +124,9 @@ export MoveTool = (_scope, layer, canvas) ->
             move.pan = yes
             scope.cursor \grabbing
 
-        ..onMouseMove = (event) ~>
-            scope.ractive.set \pointer, event.point
-
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move
             switch event.key
-            | \delete =>
-                # delete an item with Delete key
-                scope.history.commit!
-                selection.delete!
             | \escape =>
                 if move.dragging?
                     # cancel last movement
@@ -143,10 +136,6 @@ export MoveTool = (_scope, layer, canvas) ->
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
                 selection.getTopItem!.rotate angle
-            | \z =>
-                if event.modifiers.control
-                    scope.history.back!
-
 
 
     move-tool

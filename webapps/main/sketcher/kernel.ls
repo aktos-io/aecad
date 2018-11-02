@@ -174,6 +174,41 @@ export class PaperDraw
         # visual logger
         @vlog = new VLogger @ractive
 
+        move = {}
+        @_scope.view
+            ..onMouseMove = (event) ~>
+                if move.pan
+                    unless move.grab-point
+                        console.log "global grab point is: ", event.point
+                        move.grab-point = event.point
+                    # panning
+                    offset = move.grab-point .subtract event.point
+                    @_scope.view.center = @_scope.view.center .add offset
+
+                @ractive.set \pointer, event.point
+
+            ..onKeyDown = (event) ~>
+                # Press Esc to cancel a move
+                switch event.key
+                | \delete =>
+                    # delete an item with Delete key
+                    @history.commit!
+                    @selection.delete!
+                | \z =>
+                    if event.modifiers.control
+                        @history.back!
+
+                | \shift =>
+                    move.pan = yes
+                    @cursor \grabbing
+
+            ..onKeyUp = (event) ~>
+                switch event.key
+                | \shift =>
+                    if move.pan
+                        move.grab-point = null
+                        move.pan = null
+                        @cursor 'default'
 
     _Line: (opts) ->
         new Line opts, @_scope
