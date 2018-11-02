@@ -3,6 +3,14 @@
     file-button.icon(on-read="import" type="text"): icon.upload Import
     btn.icon(on-click="export"): icon.download Export
 
++space
+.ui.buttons 
+    ack-button.icon(on-click="prototypePrint" side="F.Cu" tooltip="Export F.Cu only")
+        icon.print.red
+
+    ack-button.icon(on-click="prototypePrint" side="B.Cu" tooltip="Export B.Cu only")
+        icon.print.green
+
 //-file-button(on-read="importDXF2" type="text") DXF (2)
 
 //-
@@ -23,15 +31,6 @@
 
 +space
 ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
-
-+space
-
-.ui.buttons 
-    ack-button.icon(on-click="prototypePrint" side="F.Cu" tooltip="Export F.Cu only")
-        icon.print.red
-
-    ack-button.icon(on-click="prototypePrint" side="B.Cu" tooltip="Export B.Cu only")
-        icon.print.green
 
 +space 
 
