@@ -44,6 +44,12 @@ data:
     segment: hit.segment
 ```
 
+# Global Behavior
+
+* `Shift + |mousemove|`: Pan in pointing stick mode
+* `Del`: Delete selected item
+* `Ctrl + z`: Undo
+
 # Selection
 
 1. Clicking will select only child objects under a layer.
@@ -55,11 +61,7 @@ data:
     2. Via tree view (TODO)
 5. `Drag`: Creates a selection box
     1. Left to Right: select items inside the selection
-    2. Right to left: select items touches the box 
-
-## Modifiers
-
-1. `Shift + |drag|` = Pan
+    2. Right to left: select items touches the box
 
 # Move
 
@@ -72,7 +74,6 @@ Traces are handled specially: Left and right curves' slope is preserved
 
 ## Keys
 
-1. `Del`: Deletes selected items
 2. `Esc`:
     1. In Move: Cancel movement (restore the item position)
     2. On Idle: Activate Selection Tool.
