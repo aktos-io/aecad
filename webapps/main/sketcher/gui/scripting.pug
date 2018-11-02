@@ -12,7 +12,10 @@ btn.icon.orange(on-click="@.set('scriptName', null)" tooltip="Clear selection"):
     
 +space 
 .ui.buttons
-    ack-button.icon(on-click="newScript" tooltip="New script"): icon.file.alternate
+    ack-button.icon(
+        on-click="newScript" 
+        tooltip="New script"
+        ): icon.file.alternate(add="top left corner add")
     btn.icon.red(
         on-click="removeScript" 
         tooltip="Delete current script"
