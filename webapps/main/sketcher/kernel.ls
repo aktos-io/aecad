@@ -65,12 +65,22 @@ class History
 
     load-scripts: (data) ->
         @ractive.set \drawingLs, data
+        console.log "loaded scripts: ", data
 
     save: ->
         data = @project.exportJSON!
         @db.set \project, data
         scripts = @ractive.get \drawingLs
         @db.set \scripts, scripts
+
+        # Save settings
+        # TODO: provide a proper way for this, its too messy now
+        @db.set \settings, do
+            scriptName: @ractive.get \scriptName
+            projectName: @ractive.get \project.name
+            autoCompile: @ractive.get \autoCompile
+            currTrace: @ractive.get \currTrace
+
         console.log "Saved at ", Date!, "project length: #{parseInt(data.length/1024)}KB"
 
     load: ->
@@ -79,6 +89,14 @@ class History
 
         if @db.get \scripts
             @load-scripts that
+
+        if @db.get \settings
+            # TODO: see save/settings
+            @ractive.set \scriptName, that.scriptName
+            @ractive.set \project.name, that.projectName
+            @ractive.set \autoCompile, that.autoCompile
+            @ractive.set \currTrace, that.currTrace
+
 
 class Line
     (opts, @paper) ->
@@ -197,10 +215,10 @@ export class PaperDraw
                         unless move.grab-point?
                             move.grab-point = event.point
 
-                        move.speed = event.point.subtract move.grab-point .divide(50)
+                        move.speed = event.point.subtract move.grab-point .divide(20)
 
                         # snap to center:
-                        if @_scope.view.zoom * move.speed.length < 0.2
+                        if @_scope.view.zoom * move.speed.length < 0.5
                             move.speed = null
                         #console.log "Move speed is: ", move.speed?.length
 
@@ -219,16 +237,19 @@ export class PaperDraw
 
                 | \shift =>
                     unless event.modifiers.control
-                        console.log "global pan mode enabled."
+                        #console.log "global pan mode enabled."
                         move.pan = yes
-                        move.prev-cursor = @cursor \grabbing
+                        move.prev-cursor = if pan-style is \drag-n-drop
+                            @cursor \grabbing
+                        else
+                            @cursor \all-scroll
                         move.direction = null
 
             ..onKeyUp = (event) ~>
                 switch event.key
                 | \shift =>
                     if move.pan
-                        console.log "global pan mode disabled."
+                        #console.log "global pan mode disabled."
                         move.grab-point = null
                         move.pan = null
                         move.speed = null
