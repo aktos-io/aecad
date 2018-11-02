@@ -9,7 +9,7 @@ class History
         @project = opts.project
         @ractive = opts.ractive
         @selection = opts.selection
-        @db = opts.db
+        @db = new BrowserStorage opts.name
         @commits = []
         @limit = 200
 
@@ -23,12 +23,12 @@ class History
     back: ->
         if @commits.pop!
             console.log "Going back in the history. Left: #{@commits.length}"
-            @load that
+            @load-project that
         else
             console.warn "No commits left, sorry."
 
 
-    load: (data) ->
+    load-project: (data) ->
         # data: stringified JSON
         if data
             @project.clear!
@@ -63,15 +63,22 @@ class History
                 console.warn "Workaround for load-project works."
             console.log "Loaded project: ", @project
 
+    load-scripts: (data) ->
+        @ractive.set \drawingLs, data
 
     save: ->
         data = @project.exportJSON!
         @db.set \project, data
-        console.log "Saved at ", Date!, "length: #{parseInt(data.length/1024)}KB"
+        scripts = @ractive.get \drawingLs
+        @db.set \scripts, scripts
+        console.log "Saved at ", Date!, "project length: #{parseInt(data.length/1024)}KB"
 
-    load-browser: ->
+    load: ->
         if @db.get \project
-            @load that
+            @load-project that
+
+        if @db.get \scripts
+            @load-scripts that
 
 class Line
     (opts, @paper) ->
@@ -84,6 +91,8 @@ class Line
         @opts = opts  # backup the options for later use
 
     move: (delta1, delta2) ->
+        # delta1: delta for p1
+        # delta2: delta for p2
         unless delta2
             # move by keeping the angle intact
             delta2 = delta1
@@ -149,13 +158,11 @@ export class PaperDraw
                 @ractive.set \propKeys, {}
                 @ractive.set \aecadData, {}
 
-        @db = new BrowserStorage "sketcher"
         @history = new History {
-            @project, @selection, @ractive
-            @db
+            @project, @selection, @ractive, name: "sketcher"
         }
         # try to load if a project exists
-        @history.load-browser!
+        @history.load!
 
         $ window .on \unload, ~>
             @history.save!

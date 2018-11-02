@@ -5,9 +5,9 @@
         
 dropdown(
     object-data="{{drawingLs}}" 
-    selected-key="{{mydata}}" 
+    selected-key="{{scriptName}}" 
     on-select="scriptSelected")
-btn.icon.red(on-click="@.set('mydata', null)"): icon.eraser
+btn.icon.red(on-click="@.set('scriptName', null)"): icon.eraser
     
 ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%")
 pre {{output}}

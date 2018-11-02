@@ -32,7 +32,8 @@ export common =
 
         '''
 
-    lib:
+export scripts =
+    "lib":
         '''
         g = new Group {opacity: 0.5}
 
@@ -56,9 +57,6 @@ export common =
         #    ..pad.selected = yes
 
         '''
-
-scripts =
-    "lib": ''
 
     "LM 2576":
         '''
@@ -101,12 +99,3 @@ scripts =
             ..position.x += (c + b) |> mm2px
 
         '''
-
-script = {}
-for name, content of scripts
-    script[name] = ""
-    #script[name] += common.tools + "\n"
-    script[name] += common.lib + "\n"
-    script[name] += content
-
-export script

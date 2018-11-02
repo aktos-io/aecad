@@ -4,8 +4,6 @@ require! 'aea': {create-download, VLogger}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! 'prelude-ls': {min, ceiling, flatten, max}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
-require! 'dxf-writer'
-require! 'dxf'
 require! 'livescript': lsc
 require('jquery-mousewheel')($);
 require! './zooming': {paperZoom}
@@ -13,7 +11,6 @@ require! './tools/trace-tool': {TraceTool}
 require! './tools/freehand': {Freehand}
 require! './tools/move-tool': {MoveTool}
 require! './tools/select-tool': {SelectTool}
-require! './lib/json-to-dxf': {json-to-dxf}
 require! './tools/lib/selection': {Selection}
 require! './kernel': {PaperDraw}
 require! './tools/lib/trace/lib': {is-on-layer}
@@ -76,8 +73,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                     throw new Error "Content is not string!"
 
                 _content = ""
-                _content += example.common.tools
-                _content += '\n'
+                _content += example.common.tools + '\n'
+                _content += (@get \drawingLs.lib) + '\n'
                 _content += content
                 js = lsc.compile _content, {+bare, -header}
                 compiled = yes
@@ -94,8 +91,12 @@ Ractive.components['sketcher'] = Ractive.extend do
                     @set \output, "#{e}\n\n#{js}"
 
         @observe \editorContent, (_new) ~>
-            unless @get \autoCompile => return
-            runScript _new
+            if @get \autoCompile
+                runScript _new
+
+            sleep 100, ~>
+                if @get \scriptName
+                    @set "drawingLs.#{Ractive.escapeKey that}", _new
 
         # workaround for
         @observe \currTool, (tool) ~>
@@ -240,7 +241,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         autoCompile: no
         selectAllLayer: no
         selectGroup: yes
-        drawingLs: example.script
+        drawingLs: example.scripts
         layers:
             'F.Cu':
                 color: 'red'
