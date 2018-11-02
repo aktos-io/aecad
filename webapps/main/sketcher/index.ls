@@ -74,7 +74,10 @@ Ractive.components['sketcher'] = Ractive.extend do
 
                 _content = ""
                 _content += example.common.tools + '\n'
-                _content += (@get \drawingLs.lib) + '\n'
+                for name, script of @get \drawingLs when name.starts-with \lib
+                    _content += script + '\n'
+
+                # append actual content
                 _content += content
                 js = lsc.compile _content, {+bare, -header}
                 compiled = yes
@@ -95,7 +98,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                 runScript _new
 
             sleep 100, ~>
-                if @get \scriptName
+                if @get 'scriptName'
                     @set "drawingLs.#{Ractive.escapeKey that}", _new
 
         # workaround for
@@ -111,6 +114,8 @@ Ractive.components['sketcher'] = Ractive.extend do
             return bounds
 
         @on do
+            # gui/scripting.pug
+            # ------------------------
             scriptSelected: (ctx, item, progress) ~>
                 @set \editorContent, item.content
                 unless item.content
@@ -119,6 +124,90 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             compileScript: (ctx) ~>
                 runScript @get \editorContent
+
+            clearScriptLayer: (ctx) ~>
+                @get \project.layers.scripting .clear!
+
+            newScript: (ctx) ~>
+                action, data <~ @get \vlog .yesno do
+                    title: 'New Script'
+                    icon: ''
+                    closable: yes
+                    template: '''
+                        <div class="ui input">
+                            <input value="{{filename}}" />
+                        </div>
+                        '''
+                    buttons:
+                        create:
+                            text: 'Create'
+                            color: \green
+                        cancel:
+                            text: \Cancel
+                            color: \gray
+                            icon: \remove
+
+                if action in [\hidden, \cancel]
+                    console.log "Cancelled."
+                    return
+
+                @set "drawingLs.#{Ractive.escapeKey data.filename}", ''
+                @set \scriptName, data.filename
+
+                default-content =
+                    '''
+                    # --------------------------------------------------
+                    # all lib* scripts will be included automatically.
+
+                    '''
+
+                if (data.filename.starts-with 'lib')
+                    default-content +=
+                        '''
+                        #
+                        # This script will also be treated as a library file.
+
+                        '''
+                default-content +=
+                    '''
+                    # --------------------------------------------------
+
+                    '''
+
+                console.log "default content is: ", default-content
+                @set \editorContent, default-content
+
+            removeScript: (ctx) ~>
+                script-name = @get \scriptName
+                unless script-name
+                    console.log "No script selected."
+                    return
+                action <~ @get \vlog .yesno do
+                    title: 'Remove Script'
+                    icon: 'exclamation triangle'
+                    message: "Do you want to remove #{script-name}?"
+                    closable: yes
+                    buttons:
+                        delete:
+                            text: 'Delete'
+                            color: \gray
+                            icon: \trash
+                        cancel:
+                            text: \Cancel
+                            color: \green
+                            icon: \remove
+
+                if action in [\hidden, \cancel]
+                    console.log "Cancelled."
+                    return
+
+                @set 'scriptName', null # remove selected script first
+                @delete 'drawingLs', script-name
+                console.warn "Deleted #{script-name}..."
+
+
+            # ------------------------
+            # end of gui/scripting.pug
 
             fitAll: (ctx) !~>
                 selection = new Selection
@@ -162,9 +251,6 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             clearActiveLayer: (ctx) ~>
                 @get \project.layers .[@get 'activeLayer'] .clear!
-
-            clearScript: (ctx) ~>
-                @get \project.layers.scripting .clear!
 
             activate-layer: (ctx, name, proceed) ->
                 pcb.use-layer name

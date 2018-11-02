@@ -1,13 +1,23 @@
 .ui.buttons 
-    btn(on-click="clearScript" tooltip="Clear Output"): icon.trash 
+    btn.icon(on-click="clearScriptLayer" tooltip="Clear Output"): icon.trash 
     checkbox(checked="{{autoCompile}}" tooltip="Auto Compile")
     btn.green.icon(on-click="compileScript" tooltip="Compile"): icon.play
-        
+    
++space    
 dropdown(
     object-data="{{drawingLs}}" 
     selected-key="{{scriptName}}" 
     on-select="scriptSelected")
-btn.icon.red(on-click="@.set('scriptName', null)"): icon.eraser
+btn.icon.orange(on-click="@.set('scriptName', null)" tooltip="Clear selection"): icon.remove
+    
++space 
+.ui.buttons
+    ack-button.icon(on-click="newScript" tooltip="New script"): icon.file.alternate
+    btn.icon.red(
+        on-click="removeScript" 
+        tooltip="Delete current script"
+        enabled="{{#if scriptName}}true{{/if}}"
+        ): icon.trash 
     
 ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%")
 pre {{output}}
