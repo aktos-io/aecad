@@ -190,7 +190,7 @@ Ractive.components['sketcher'] = Ractive.extend do
                     buttons:
                         delete:
                             text: 'Delete'
-                            color: \gray
+                            color: \red
                             icon: \trash
                         cancel:
                             text: \Cancel
