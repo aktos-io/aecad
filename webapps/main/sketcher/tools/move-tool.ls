@@ -77,7 +77,6 @@ export MoveTool = (_scope, layer, canvas) ->
                     move.about-to-move = no
                     scope.history.commit!
 
-
                 snap = snap-move event.downPoint, event.point, do
                     shift: event.modifiers.shift
                     restrict: yes

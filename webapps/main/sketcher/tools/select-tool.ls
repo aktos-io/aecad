@@ -12,21 +12,13 @@ export SelectTool = ->
         box: null
 
     select-tool = new scope.Tool!
-        ..onMouseMove = (event) ~>
-            scope.ractive.set \pointer, event.point
-
         ..onMouseDrag = (event) ~>
-            # panning
-            if event.modifiers.shift
-                offset = event.downPoint .subtract event.point
-                scope.view.center = scope.view.center .add offset
-            else
-                if sel.box
-                    sel.box.segments
-                        ..1.point.y = event.point.y
-                        ..2.point.set event.point
-                        ..3.point.x = event.point.x
-                    sel.box.selected = yes
+            if sel.box
+                sel.box.segments
+                    ..1.point.y = event.point.y
+                    ..2.point.set event.point
+                    ..3.point.x = event.point.x
+                sel.box.selected = yes
 
         ..onMouseUp = (event) ->
             if sel.box
@@ -219,9 +211,6 @@ export SelectTool = ->
                 if event.modifiers.control
                     selection.add scope.get-all!
                     event.preventDefault!
-            |_ =>
-                if event.modifiers.shift
-                    scope.cursor \grab
 
         ..onKeyUp = (event) ->
             scope.cursor \default
