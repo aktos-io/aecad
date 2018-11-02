@@ -99,3 +99,36 @@ export scripts =
             ..position.x += (c + b) |> mm2px
 
         '''
+
+
+do -> 
+    'lib_ComponentProxy':
+        '''
+        class ComponentProxy
+            (@main) ~>
+                @__handlers = {}
+                for let key of @main
+                    Object.defineProperty @, key, do
+                        get: ~>
+                            @main[key]
+
+                        set: (val) ~>
+                            if @__handlers[key]?
+                                [err, res] = @__handlers[key] val
+                                unless err
+                                    @main[key] = res
+                            else
+                                @main[key] = val
+
+            on-set: (prop, handler) ->
+                @__handlers[prop] = handler
+
+
+        x = pad 1, {x: 10, y: 20}
+        console.log "hello there"
+        y = new ComponentProxy x
+        y.on-set 'position', (val) ->
+            console.log "Doing MITM for position: ", val
+            [null, val]
+        y.position += [10, 10]
+        '''
