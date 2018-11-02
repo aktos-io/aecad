@@ -175,15 +175,34 @@ export class PaperDraw
         @vlog = new VLogger @ractive
 
         move = {}
+        pan-style = \speed-drag
         @_scope.view
+            ..onFrame = (event) ~>
+                if move.speed and move.pan
+                    @_scope.view.center = @_scope.view.center.add move.speed
+                    move.grab-point.set move.grab-point.add move.speed
+
             ..onMouseMove = (event) ~>
                 if move.pan
-                    unless move.grab-point
-                        console.log "global grab point is: ", event.point
-                        move.grab-point = event.point
-                    # panning
-                    offset = move.grab-point .subtract event.point
-                    @_scope.view.center = @_scope.view.center .add offset
+                    switch pan-style
+                    | \drag-n-drop =>
+                        unless move.grab-point
+                            #console.log "global grab point is: ", event.point
+                            move.grab-point = event.point
+                        # drag and drop style panning
+                        offset = move.grab-point .subtract event.point
+                        @_scope.view.center = @_scope.view.center .add offset
+                    | \speed-drag =>
+                        # speed based panning
+                        unless move.grab-point?
+                            move.grab-point = event.point
+
+                        move.speed = event.point.subtract move.grab-point .divide(50)
+
+                        # snap to center:
+                        if @_scope.view.zoom * move.speed.length < 0.2
+                            move.speed = null
+                        #console.log "Move speed is: ", move.speed?.length
 
                 @ractive.set \pointer, event.point
 
@@ -200,15 +219,19 @@ export class PaperDraw
 
                 | \shift =>
                     unless event.modifiers.control
+                        console.log "global pan mode enabled."
                         move.pan = yes
                         move.prev-cursor = @cursor \grabbing
+                        move.direction = null
 
             ..onKeyUp = (event) ~>
                 switch event.key
                 | \shift =>
                     if move.pan
+                        console.log "global pan mode disabled."
                         move.grab-point = null
                         move.pan = null
+                        move.speed = null
                         @cursor move.prev-cursor
 
     _Line: (opts) ->
