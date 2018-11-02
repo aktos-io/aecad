@@ -3,6 +3,9 @@ require! 'aea': {create-download, htmlDecode}
 require! 'dcs/browser': {SignalBranch}
 require! 'pretty'
 ext = (.split('.').pop!?.to-lower-case!)
+require! 'dxf-writer'
+require! 'dxf'
+require! '../lib/json-to-dxf': {json-to-dxf}
 
 export export_ = (ctx, _filename) ->
     b = new SignalBranch
