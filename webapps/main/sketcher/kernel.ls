@@ -199,8 +199,9 @@ export class PaperDraw
                         @history.back!
 
                 | \shift =>
-                    move.pan = yes
-                    @cursor \grabbing
+                    unless event.modifiers.control
+                        move.pan = yes
+                        move.prev-cursor = @cursor \grabbing
 
             ..onKeyUp = (event) ~>
                 switch event.key
@@ -208,7 +209,7 @@ export class PaperDraw
                     if move.pan
                         move.grab-point = null
                         move.pan = null
-                        @cursor 'default'
+                        @cursor move.prev-cursor
 
     _Line: (opts) ->
         new Line opts, @_scope
@@ -273,7 +274,9 @@ export class PaperDraw
         @tools[name]
 
     cursor: (name) ->
+        prev = @canvas.style.cursor
         @canvas.style.cursor = name
+        prev
 
     export-svg: ->
         old-zoom = @view.zoom

@@ -12,21 +12,24 @@ movement = (operand, left, right) -->
 
 shift-item = (item, delta, type="add") ->
     op = movement type
-    switch item.getClassName!
-    | 'Curve' =>
-        for [item.segment1, item.segment2]
-            ..point.set (..point `op` delta)
-    | 'Path' =>
-        for item.getSegments!
-            ..point.set (..point `op` delta)
-    | 'Segment' =>
-        item.point.set (item.point `op` delta)
-    | 'Point' =>
-        item.set (item `op` delta)
-    |_ =>
-        # Possibly Group
-        console.log "moving #{item.getClassName!}"
-        item.position.set (item.position `op` delta)
+    if item.getClassName?
+        switch item.getClassName!
+        | 'Curve' =>
+            for [item.segment1, item.segment2]
+                ..point.set (..point `op` delta)
+        | 'Path' =>
+            for item.getSegments!
+                ..point.set (..point `op` delta)
+        | 'Segment' =>
+            item.point.set (item.point `op` delta)
+        | 'Point' =>
+            item.set (item `op` delta)
+        |_ =>
+            # Possibly Group
+            console.log "moving #{item.getClassName!}"
+            item.position.set (item.position `op` delta)
+    else
+        console.warn "We are not able to move this: ", item
 
 
 eequal = (left, right) ->
@@ -46,9 +49,21 @@ export MoveTool = (_scope, layer, canvas) ->
         enabled: no
         about-to-move: no
 
+    reset = ->
+        move
+            ..enabled = no
+            ..dragging = null
+            ..pan = no
+            ..mode = null
+            ..about-to-move = no
+            ..picked = no
+
+        scope.cursor 'default'
+
     move-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
-            return unless move.enabled
+            unless move.enabled
+                return
             if move.pan
                 # panning
                 offset = event.downPoint .subtract event.point
@@ -94,19 +109,19 @@ export MoveTool = (_scope, layer, canvas) ->
                         for items
                             .. `shift-item` delta
 
-
-        ..onMouseUp = (event) ~>
-            move
-                ..enabled = no
-                ..dragging = null
-                ..pan = no
-                ..mode = null
-                ..about-to-move = no
-
-            scope.cursor 'default'
-
+        ..onMouseMove = (event) ~>
+            if move.picked
+                move-tool.emit \mousedrag, event
+            else
+                if move.enabled # for performace reasons
+                    reset!
 
         ..onMouseDown = (event) ~>
+            is-for-placing = move.picked # is this mouse click is for placement?
+            reset!
+            if is-for-placing
+                return
+
             move.enabled = yes
             layer.activate!
             scope.get-tool \select .onMouseDown event
@@ -130,12 +145,18 @@ export MoveTool = (_scope, layer, canvas) ->
             | \escape =>
                 if move.dragging?
                     # cancel last movement
-                    move-tool.emit \mouseup
+                    reset!
                     scope.history.back!
             | \ı =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
                 selection.getTopItem!.rotate angle
 
+            | \a =>
+                move.picked = on
+                move.enabled = yes
+                scope.cursor \move
+            | \c =>
+                reset!
 
     move-tool
