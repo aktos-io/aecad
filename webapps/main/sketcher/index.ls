@@ -73,11 +73,16 @@ Ractive.components['sketcher'] = Ractive.extend do
                     throw new Error "Content is not string!"
 
                 _content = ""
+                output = []
                 _content += example.common.tools + '\n'
                 for name, script of @get \drawingLs when name.starts-with \lib
+                    output.push "* Using library: #{name}"
                     _content += script + '\n'
 
                 # append actual content
+                output.push "* ...Running script: #{@get 'scriptName'}"
+                output.push "-----------------------------------------"
+                @set \output, output.join('\n')
                 _content += content
                 js = lsc.compile _content, {+bare, -header}
                 compiled = yes
@@ -91,15 +96,17 @@ Ractive.components['sketcher'] = Ractive.extend do
                         ..clear!
                     pcb._scope.execute js
                 catch
-                    @set \output, "#{e}\n\n#{js}"
+                    @set \output, (@get 'output') + "#{e}\n\n#{js}"
 
-        @observe \editorContent, (_new) ~>
+        @observe \editorContent, ((_new) ~>
             if @get \autoCompile
                 runScript _new
 
             sleep 100, ~>
                 if @get 'scriptName'
+                    console.log "SETTTING NEW: ", _new
                     @set "drawingLs.#{Ractive.escapeKey that}", _new
+        ), {-init}
 
         # workaround for
         @observe \currTool, (tool) ~>
