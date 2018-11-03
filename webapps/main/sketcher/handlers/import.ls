@@ -3,8 +3,12 @@ require! '../lib/dxfToSvg': {dxfToSvg}
 export import_ = (ctx, file, next) ->
     pcb = @get \pcb
 
-    if file.ext is \json
-        pcb.project.importJSON file.raw
+    if file.ext in <[ json cson ]>
+        jstr = if file.ext is \json
+            file.raw
+        else
+            JSON.stringify CSON.parse file.raw
+        pcb.project.importJSON jstr
         for layer in pcb.project.layers
             if layer.name
                 @set "project.layers.#{Ractive.escapeKey layer.name}", layer

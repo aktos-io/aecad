@@ -73,6 +73,16 @@ export export_ = (ctx, _filename) ->
         console.log j2
         create-download filename, JSON.stringify(j2, null, 2)
 
+    | 'cson' =>
+        # Paper.js native json format
+        j2 = []
+        for JSON.parse _json
+            if ..0 is \Layer and ..1.children?
+                j2.push ..
+            else
+                console.log "discarding: ", ..
+        console.log j2
+        create-download filename, CSON.stringify(j2, null, 2)
 
     | 'kicad_pcb' =>
         svg = pcb.project.exportSVG {+asString}

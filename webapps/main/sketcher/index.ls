@@ -104,7 +104,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             sleep 0, ~>
                 if @get 'scriptName'
-                    console.log "SETTTING NEW!! in @observe editorcontent "
+                    #console.log "SETTTING NEW!! in @observe editorcontent "
                     h.silence!
                     @set "drawingLs.#{Ractive.escapeKey that}", _new
                     <~ sleep 10
@@ -220,8 +220,8 @@ Ractive.components['sketcher'] = Ractive.extend do
 
             downloadScripts: (ctx) ->
                 scripts = @get \drawingLs
-                create-download 'scripts.json', JSON.stringify(scripts, null, 2)
-                
+                create-download 'scripts.cson', CSON.stringify(scripts, null, 2)
+
             # ------------------------
             # end of gui/scripting.pug
 
