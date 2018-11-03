@@ -212,8 +212,5 @@ export SelectTool = ->
                     selection.add scope.get-all!
                     event.preventDefault!
 
-        ..onKeyUp = (event) ->
-            scope.cursor \default
-
     scope.add-tool \select, select-tool
     select-tool
