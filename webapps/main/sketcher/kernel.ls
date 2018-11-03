@@ -239,21 +239,29 @@ export class PaperDraw
                     unless event.modifiers.control
                         #console.log "global pan mode enabled."
                         move.pan = yes
-                        move.prev-cursor = if pan-style is \drag-n-drop
-                            @cursor \grabbing
-                        else
-                            @cursor \all-scroll
+                        unless move.pan-locked
+                            move.prev-cursor = if pan-style is \drag-n-drop
+                                @cursor \grabbing
+                            else
+                                @cursor \all-scroll
                         move.direction = null
+                        move.pan-lock0 = move.pan-lock or 0
+                        move.pan-lock = Date.now!
+                        console.log "pan lock diff: ", (move.pan-lock - move.pan-lock0)
 
             ..onKeyUp = (event) ~>
                 switch event.key
                 | \shift =>
-                    if move.pan
-                        #console.log "global pan mode disabled."
-                        move.grab-point = null
-                        move.pan = null
-                        move.speed = null
-                        @cursor move.prev-cursor
+                    if (move.pan-lock - move.pan-lock0) > 300ms
+                        if move.pan
+                            console.log "global pan mode disabled."
+                            move.grab-point = null
+                            move.pan = null
+                            move.speed = null
+                            move.pan-locked = null
+                            @cursor move.prev-cursor
+                    else
+                        move.pan-locked = true
 
     _Line: (opts) ->
         new Line opts, @_scope
