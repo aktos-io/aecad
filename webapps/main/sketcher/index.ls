@@ -98,14 +98,17 @@ Ractive.components['sketcher'] = Ractive.extend do
                 catch
                     @set \output, (@get 'output') + "#{e}\n\n#{js}"
 
-        @observe \editorContent, ((_new) ~>
+        h = @observe \editorContent, ((_new) ~>
             if @get \autoCompile
                 runScript _new
 
-            sleep 100, ~>
+            sleep 0, ~>
                 if @get 'scriptName'
-                    console.log "SETTTING NEW: ", _new
+                    console.log "SETTTING NEW!! in @observe editorcontent "
+                    h.silence!
                     @set "drawingLs.#{Ractive.escapeKey that}", _new
+                    <~ sleep 10
+                    h.resume!
         ), {-init}
 
         # workaround for
@@ -124,7 +127,10 @@ Ractive.components['sketcher'] = Ractive.extend do
             # gui/scripting.pug
             # ------------------------
             scriptSelected: (ctx, item, progress) ~>
+                console.log "script is selected, app handler called: ", item
+                h.silence!
                 @set \editorContent, item.content
+                h.resume!
                 unless item.content
                     @get \project.layers.scripting .clear!
                 progress!
@@ -212,7 +218,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                 @delete 'drawingLs', script-name
                 console.warn "Deleted #{script-name}..."
 
-
+            downloadScripts: (ctx) ->
+                scripts = @get \drawingLs
+                create-download 'scripts.json', JSON.stringify(scripts, null, 2)
+                
             # ------------------------
             # end of gui/scripting.pug
 

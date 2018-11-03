@@ -1,3 +1,5 @@
+//-.ui.input: input(value="{{scriptName}}")
+
 .ui.buttons 
     btn.icon(on-click="clearScriptLayer" tooltip="Clear Output"): icon.trash 
     checkbox(checked="{{autoCompile}}" tooltip="Auto Compile")
@@ -24,6 +26,15 @@ btn.icon.orange(
         tooltip="Delete current script"
         enabled="{{scriptName}}"
         ): icon.trash 
+    ack-button.icon(
+        on-click="downloadScripts" 
+        tooltip="Download all scripts"
+        ): icon.download 
     
+//-
+    div
+        ol
+            +each('Object.keys(drawingLs)')
+                li {{.}}
 ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%")
 pre {{output}}
