@@ -76,12 +76,16 @@ Ractive.components['sketcher'] = Ractive.extend do
                 output = []
                 _content += example.common.tools + '\n'
                 for name, script of @get \drawingLs when name.starts-with \lib
+                    if name is @get 'scriptName'
+                        continue
                     output.push "* Using library: #{name}"
                     _content += script + '\n'
 
                 # append actual content
                 output.push "* ...Running script: #{@get 'scriptName'}"
                 output.push "-----------------------------------------"
+                output.push ""
+                output.push ""
                 @set \output, output.join('\n')
                 _content += content
                 js = lsc.compile _content, {+bare, -header}
@@ -120,14 +124,14 @@ Ractive.components['sketcher'] = Ractive.extend do
             bounds = items.reduce ((bbox, item) ->
                 unless bbox => item.bounds else bbox.unite item.bounds
                 ), null
-            console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
+            #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
             return bounds
 
         @on do
             # gui/scripting.pug
             # ------------------------
             scriptSelected: (ctx, item, progress) ~>
-                console.log "script is selected, app handler called: ", item
+                #console.log "script is selected, app handler called: ", item
                 h.silence!
                 @set \editorContent, item.content
                 h.resume!
@@ -187,7 +191,7 @@ Ractive.components['sketcher'] = Ractive.extend do
 
                     '''
 
-                console.log "default content is: ", default-content
+                #console.log "default content is: ", default-content
                 @set \editorContent, default-content
 
             removeScript: (ctx) ~>

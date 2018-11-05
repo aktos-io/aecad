@@ -61,7 +61,7 @@ class History
                             ..remove!
                 break unless needs-rerun
                 console.warn "Workaround for load-project works."
-            console.log "Loaded project: ", @project
+            #console.log "Loaded project: ", @project
 
     load-scripts: (data) ->
         @ractive.set \drawingLs, data
