@@ -1,52 +1,52 @@
+.ui.menu.secondary
 
-.ui.buttons 
-    file-button.icon(on-read="import" type="text"): icon.upload Import
-    btn.icon(on-click="export"): icon.download Export
+    .item 
+        .ui.buttons 
+            file-button.icon(on-read="import" type="text"): icon.upload Import
+            btn.icon(on-click="export"): icon.download Export
 
-+space
-.ui.buttons 
-    ack-button.icon(on-click="prototypePrint" side="F.Cu" tooltip="Export F.Cu only")
-        icon.print.red
+    .item 
+        .ui.buttons 
+            ack-button.icon(on-click="prototypePrint" side="F.Cu" tooltip="Export F.Cu only")
+                icon.print.red
 
-    ack-button.icon(on-click="prototypePrint" side="B.Cu" tooltip="Export B.Cu only")
-        icon.print.green
+            ack-button.icon(on-click="prototypePrint" side="B.Cu" tooltip="Export B.Cu only")
+                icon.print.green
 
-//-file-button(on-read="importDXF2" type="text") DXF (2)
+    //-file-button(on-read="importDXF2" type="text") DXF (2)
 
-//-
-    .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.download Export
-    .ui.popup.top.transition.hidden
-        .ui.vertical.buttons 
-            btn(on-click="exportSVG") SVG
-            btn(on-click="exportDXF") DXF
-            btn(on-click="exportJSON") JSON
-            //- ack-button(on-click="exportKicad") Export Kicad_Pcb
+    //-
+        .ui.button.icon(as-inline-popup="{position: 'right center'}"): icon.download Export
+        .ui.popup.top.transition.hidden
+            .ui.vertical.buttons 
+                btn(on-click="exportSVG") SVG
+                btn(on-click="exportDXF") DXF
+                btn(on-click="exportJSON") JSON
+                //- ack-button(on-click="exportKicad") Export Kicad_Pcb
 
-+space
-+space
-.ui.input.right.labeled
-    input(value="{{project.name}}")
-    btn.icon.green.label(on-click="['export', project.name + '.cson']")
-        icon.download Export CSON
+    .item 
+        .ui.input.right.labeled
+            input(value="{{project.name}}")
+            btn.icon.green.label(on-click="['export', project.name + '.cson']")
+                icon.download Export CSON
 
-+space
-ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
+    .item
+        ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
 
-+space 
-
-.ui.buttons
-    btn.icon.green(
-        on-click="save" 
-        tooltip="Save in browser local storage"
-        ): icon.save
-    btn.icon(
-        on-click="load" 
-        tooltip="Load last saved project"
-        ): icon.file.alternate Load
-    btn.icon(
-        on-click="clear" 
-        tooltip="Clear project"
-        ): icon.trash
-    
-    
-btn.icon.right.floated(on-click="showHelp"): icon.help Help
+    .item
+        .ui.buttons
+            btn.icon.green(
+                on-click="save" 
+                tooltip="Save in browser local storage"
+                ): icon.save
+            btn.icon(
+                on-click="load" 
+                tooltip="Load last saved project"
+                ): icon.file.alternate Load
+            btn.icon(
+                on-click="clear" 
+                tooltip="Clear project"
+                ): icon.trash
+            
+    .right.item 
+        btn.icon(on-click="showHelp"): icon.help Help
