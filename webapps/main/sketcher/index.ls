@@ -98,6 +98,8 @@ Ractive.components['sketcher'] = Ractive.extend do
                 try
                     pcb.use-layer \scripting
                         ..clear!
+
+                    #new Function 'view', js .call pcb.project, pcb.view
                     pcb._scope.execute js
                 catch
                     @set \output, (@get 'output') + "#{e}\n\n#{js}"
@@ -335,6 +337,10 @@ Ractive.components['sketcher'] = Ractive.extend do
             clear: (ctx) ->
                 pcb.history.commit!
                 pcb.project.clear!
+
+            showHelp: (ctx) ->
+                @get \vlog .info do
+                    template: RACTIVE_PREPARSE('gui/help.pug')
 
     computed:
         currProps:

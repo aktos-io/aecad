@@ -146,7 +146,7 @@ export MoveTool = (_scope, layer, canvas) ->
                     # cancel last movement
                     reset!
                     scope.history.back!
-            | \ı =>
+            | \ı, \r =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
                 selection.getTopItem!.rotate angle
