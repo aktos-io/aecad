@@ -1,4 +1,4 @@
-# AeCAD Data
+# aeCAD Data
 
 All component data should reside in its `Group.data`.
 
