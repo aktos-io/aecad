@@ -1,8 +1,12 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download, VLogger}
+# for script runner
+require! 'aea'
+require! 'dcs/lib': lib
+# end of script runner
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
-require! 'prelude-ls': {min, ceiling, flatten, max}
+require! 'prelude-ls': {min, ceiling, flatten, max, keys, values}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
 require! 'livescript': lsc
 require('jquery-mousewheel')($);
@@ -99,8 +103,17 @@ Ractive.components['sketcher'] = Ractive.extend do
                     pcb.use-layer \scripting
                         ..clear!
 
-                    #new Function 'view', js .call pcb.project, pcb.view
-                    pcb._scope.execute js
+                    modules = {aea, lib, lsc}
+                    pcb-modules = """
+                        Group Path Rectangle PointText Point Shape
+                        canvas project view
+                        """.replace /\n/, ' ' .split " "
+                    for pcb-modules
+                        modules[..] = pcb[..]
+
+                    func = new Function ...(keys modules), js
+                    func.call pcb, ...(values modules)
+                    #pcb._scope.execute js
                 catch
                     @set \output, (@get 'output') + "#{e}\n\n#{js}"
 
