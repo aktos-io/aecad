@@ -9,7 +9,7 @@ export TraceTool = (scope, layer, canvas) ->
             # panning
             offset = event.downPoint .subtract event.point
             scope.view.center = scope.view.center .add offset
-            canvas.style.cursor = 'grabbing'
+            scope.cursor 'grabbing'
             trace.pause!
 
         ..onMouseUp = (event) ~>
@@ -19,7 +19,7 @@ export TraceTool = (scope, layer, canvas) ->
                 if trace.connect that.segment
                     console.log "we are continuing!"
             trace.add-segment event.point
-            canvas.style.cursor = 'cell'
+            scope.cursor 'cell'
             trace.resume!
 
         ..onMouseMove = (event) ~>

@@ -140,7 +140,7 @@ export MoveTool = (_scope, layer, canvas) ->
 
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move
-            console.log "Pressed key: ", event.key
+            #console.log "Pressed key: ", event.key
             switch event.key
             | \escape =>
                 if move.dragging?

@@ -1,24 +1,15 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {create-download, VLogger}
-# for script runner
-require! 'aea'
-require! 'dcs/lib': lib
-# end of script runner
-require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! 'prelude-ls': {min, ceiling, flatten, max, keys, values}
 require! './lib/svgToKicadPcb': {svgToKicadPcb}
-require! 'livescript': lsc
 require('jquery-mousewheel')($);
 require! './zooming': {paperZoom}
-require! './tools/trace-tool': {TraceTool}
-require! './tools/freehand': {Freehand}
-require! './tools/move-tool': {MoveTool}
-require! './tools/select-tool': {SelectTool}
 require! './tools/lib/selection': {Selection}
 require! './kernel': {PaperDraw}
 require! './tools/lib/trace/lib': {is-on-layer}
 require! './example'
+require! 'dcs/browser': {FpsExec}
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -49,10 +40,6 @@ Ractive.components['sketcher'] = Ractive.extend do
         # see https://stackoverflow.com/a/52830469/1952991
         #pcb.view.scaling = 96 / 25.4
 
-        # layers
-        layers =
-            gui: new pcb.Layer!
-
         @set \vlog, new VLogger this
 
         pcb.add-layer \scripting
@@ -63,225 +50,12 @@ Ractive.components['sketcher'] = Ractive.extend do
             paperZoom pcb, event
             @update \pcb.view.zoom
 
-        # tools
-        trace-tool = TraceTool.call this, pcb, layers.gui, canvas
-        freehand = Freehand.call this, pcb, layers.gui, canvas
-        move-tool = MoveTool.call this, pcb, layers.gui, canvas
-        select-tool = SelectTool.call(this)
 
-        runScript = (content) ~>
-            compiled = no
-            @set \output, ''
-            try
-                if content and typeof! content isnt \String
-                    throw new Error "Content is not string!"
+        handlers =
+            scripting: (require './gui/scripting').init.call this, pcb
+            canvas: (require './gui/canvas').init.call this, pcb
 
-                _content = ""
-                output = []
-                _content += example.common.tools + '\n'
-                for name, script of @get \drawingLs when name.starts-with \lib
-                    if name is @get 'scriptName'
-                        continue
-                    output.push "* Using library: #{name}"
-                    _content += script + '\n'
-
-                # append actual content
-                output.push "* ...Running script: #{@get 'scriptName'}"
-                output.push "-----------------------------------------"
-                output.push ""
-                output.push ""
-                @set \output, output.join('\n')
-                _content += content
-                js = lsc.compile _content, {+bare, -header}
-                compiled = yes
-            catch err
-                @set \output, "Compile error: #{err.to-string!}"
-                console.error "Compile error: #{err.to-string!}"
-
-            if compiled
-                try
-                    pcb.use-layer \scripting
-                        ..clear!
-
-                    modules = {aea, lib, lsc}
-                    pcb-modules = """
-                        Group Path Rectangle PointText Point Shape
-                        Matrix
-                        canvas project view
-                        """.replace /\n/g, ' ' .split " "
-                    #console.log "Loaded Paper.js modules: ", pcb-modules
-                    for pcb-modules
-                        modules[..] = pcb[..]
-
-                    func = new Function ...(keys modules), js
-                    func.call pcb, ...(values modules)
-                    #pcb._scope.execute js
-                catch
-                    @set \output, (@get 'output') + "#{e}\n\n#{js}"
-
-        h = @observe \editorContent, ((_new) ~>
-            if @get \autoCompile
-                runScript _new
-
-            sleep 0, ~>
-                if @get 'scriptName'
-                    #console.log "SETTTING NEW!! in @observe editorcontent "
-                    h.silence!
-                    @set "drawingLs.#{Ractive.escapeKey that}", _new
-                    <~ sleep 10
-                    h.resume!
-        ), {-init}
-
-        # workaround for
-        @observe \currTool, (tool) ~>
-            @fire \changeTool, {}, tool
-
-        calc-bounds = (scope) ->
-            items = flatten [..getItems! for scope.project.layers]
-            bounds = items.reduce ((bbox, item) ->
-                unless bbox => item.bounds else bbox.unite item.bounds
-                ), null
-            #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
-            return bounds
-
-        @on do
-            # gui/scripting.pug
-            # ------------------------
-            scriptSelected: (ctx, item, progress) ~>
-                #console.log "script is selected, app handler called: ", item
-                h.silence!
-                @set \editorContent, item.content
-                h.resume!
-                unless item.content
-                    @get \project.layers.scripting .clear!
-                progress!
-
-            compileScript: (ctx) ~>
-                runScript @get \editorContent
-
-            clearScriptLayer: (ctx) ~>
-                @get \project.layers.scripting .clear!
-
-            newScript: (ctx) ~>
-                action, data <~ @get \vlog .yesno do
-                    title: 'New Script'
-                    icon: ''
-                    closable: yes
-                    template: '''
-                        <div class="ui input">
-                            <input value="{{filename}}" />
-                        </div>
-                        '''
-                    buttons:
-                        create:
-                            text: 'Create'
-                            color: \green
-                        cancel:
-                            text: \Cancel
-                            color: \gray
-                            icon: \remove
-
-                if action in [\hidden, \cancel]
-                    console.log "Cancelled."
-                    return
-
-                @set "drawingLs.#{Ractive.escapeKey data.filename}", ''
-                @set \scriptName, data.filename
-
-                default-content =
-                    '''
-                    # --------------------------------------------------
-                    # all lib* scripts will be included automatically.
-
-                    '''
-
-                if (data.filename.starts-with 'lib')
-                    default-content +=
-                        '''
-                        #
-                        # This script will also be treated as a library file.
-
-                        '''
-                default-content +=
-                    '''
-                    # --------------------------------------------------
-
-                    '''
-
-                #console.log "default content is: ", default-content
-                @set \editorContent, default-content
-
-            removeScript: (ctx) ~>
-                script-name = @get \scriptName
-                unless script-name
-                    console.log "No script selected."
-                    return
-                action <~ @get \vlog .yesno do
-                    title: 'Remove Script'
-                    icon: 'exclamation triangle'
-                    message: "Do you want to remove #{script-name}?"
-                    closable: yes
-                    buttons:
-                        delete:
-                            text: 'Delete'
-                            color: \red
-                            icon: \trash
-                        cancel:
-                            text: \Cancel
-                            color: \green
-                            icon: \remove
-
-                if action in [\hidden, \cancel]
-                    console.log "Cancelled."
-                    return
-
-                @set 'scriptName', null # remove selected script first
-                @delete 'drawingLs', script-name
-                console.warn "Deleted #{script-name}..."
-
-            downloadScripts: (ctx) ->
-                scripts = @get \drawingLs
-                create-download 'scripts.cson', CSON.stringify(scripts, null, 2)
-
-            # ------------------------
-            # end of gui/scripting.pug
-
-            fitAll: (ctx) !~>
-                selection = new Selection
-                for layer in pcb.project.layers
-                    selection.add layer, {+select}
-                #console.log "fit bounds: ", fit
-                fit = calc-bounds pcb
-                if fit
-                    # set center
-                    pcb.view.center = fit.center
-
-                    # set zoom
-                    if fit.width > 0 and fit.height > 0
-                        curr = pcb.view.bounds
-                        padding = 0.8
-                        pcb.view.zoom *= padding * min(
-                            (curr.width / fit.width),
-                            (curr.height / fit.height))
-
-                        @update \pcb.view.zoom
-
-            changeTool: (ctx, tool, proceed) ~>
-                console.log "Changing tool to: #{tool}"
-                switch tool
-                | \tr =>
-                    trace-tool.activate!
-                    canvas.style.cursor = \cell
-                | \fh =>
-                    freehand.activate!
-                    canvas.style.cursor = \default
-                | \mv =>
-                    move-tool.activate!
-                    canvas.style.cursor = \default
-                | \sl =>
-                    select-tool.activate!
-                    canvas.style.cursor = \default
-                proceed?!
+        @on handlers.scripting <<< handlers.canvas <<< do
 
             import: require './handlers/import' .import_
             export: require './handlers/export' .export_
@@ -293,26 +67,9 @@ Ractive.components['sketcher'] = Ractive.extend do
                 pcb.use-layer name
                 proceed!
 
-            sendTo: (ctx) ->
-                pcb.history.commit!
-                layer = ctx.component.get \to
-                color = @get \layers .[layer] .color
-                for pcb.selection.selected
-                    ..fill-color = color
-                    ..stroke-color = color
-                    ..opacity = 1
-                    unless get-keypath .., "data.aecad.name"
-                        set-keypath .., 'data.aecad.name', "c_"
-                    .. `pcb.send-to-layer` layer
 
             undo: (ctx) ->
                 pcb.history.back!
-
-            groupSelected: (ctx) ->
-                pcb.history.commit!
-                g = new pcb.Group pcb.selection.selected
-                console.log "Selected items are grouped:", g
-                ctx.component.state \done...
 
             prototypePrint: (ctx) ->
                 pcb.history.commit!
@@ -394,19 +151,3 @@ Ractive.components['sketcher'] = Ractive.extend do
         pointer: # mouse pointer coordinates
             x: 0
             y: 0
-        kicadLayers:
-            \F.Cu
-            \B.Cu
-            \B.Adhes
-            \F.Adhes
-            \B.Paste
-            \F.Paste
-            \B.SilkS
-            \F.SilkS
-            \B.Mask
-            \F.Mask
-            \Dwgs.User
-            \Cmts.User
-            \Eco1.User
-            \Eco2.User
-            \Edge.Cuts

@@ -357,3 +357,12 @@ export class PaperDraw
             item
         else
             item
+
+    get-bounds: (scope) ->
+        # returns overall bounds
+        items = flatten [..getItems! for @project.layers]
+        bounds = items.reduce ((bbox, item) ->
+            unless bbox => item.bounds else bbox.unite item.bounds
+            ), null
+        #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
+        return bounds
