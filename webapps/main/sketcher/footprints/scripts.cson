@@ -142,17 +142,60 @@ lib_pads: '''
   
 '''
 'class-approach-test': '''
+  clone = (x) -> JSON.parse JSON.stringify x
+  
+  getBase = (_pads, based-on) -> 
+      pads = clone _pads
+      base = {}
+      if based-on 
+          base <<<< pads[that]
+      if base.is 
+          # base also depends on another one 
+          base <<<< pads[that]
+      return base 
+  
   # Footprint is effectively a Group item 
   class Footprint
-      -> 
+      (data) -> 
           # create main container 
           @g = new Group do
               applyMatrix: no
               data: 
                   aecad: 
                       type: \\Footprint
-                      
-          @pads = []
+                    
+          @pads = {}
+          for pad, params of data.pads
+              base = getBase data.pads, params.is
+              #console.log "initializing pad: #{pad} base: ", base
+              @pads[pad] = new Pad @g, (base <<<< params) 
+  
+          @_data = {} # resolved data 
+          for pad, params of data.pads
+              base = getBase data.pads, params.is
+              @_data[pad] = (base <<<< params)  
+              console.log "resolved pad: #{pad}:", @_data[pad]
+              
+              
+          # set positions 
+          /* 
+           * x, y (center coordinates of bounds)
+           * top, bottom, left, right
+           * 
+           */
+          /*
+          for name, pad of data.pads
+              console.log "#{name} position: "
+              for dir, pos of (pad.opts.position or {})
+                  # @.foo means pads.base.foo
+                  # TODO: throw error if pad.opts.is is null
+                  pos = pos.replace /^@\\./, "pads.#{pad.opts.is}."
+                  # @bar.baz means pads.bar.baz
+                  pos = pos.replace /^@/, 'pads.'
+                  console.log "...#{dir} pos: ", pos
+          */
+                  
+  
   
       position: ~
           -> @g.position
@@ -160,13 +203,12 @@ lib_pads: '''
           
       color: ~
           (val) ->
-              for @pads 
-                  ..pad.color = val
+              for k, pad of @pads 
+                  pad.color = val
           
       
-  
   class Pad
-      (@opts) -> 
+      (parent, @opts) -> 
           dimensions = 
               x: @opts.width 
               y: @opts.height 
@@ -177,16 +219,12 @@ lib_pads: '''
               
           @g = new Group do 
               position: rect.center
-              parent: @opts.footprint.g
+              parent: parent
               data:
                   aecad:
                       pin: opts.pin
               applyMatrix: yes
               
-          @opts.footprint.pads.push do
-              params: @opts
-              pad: this
-  
           @cu = new Path.Rectangle do
               rectangle: rect
               fillColor: 'purple'
@@ -201,34 +239,51 @@ lib_pads: '''
               font-size: 3
               position: @cu.bounds.center
               
+          for <[ left right top bottom center ]>
+              Object.defineProperty @, .., do
+                  get: ~> @g.bounds[..]
+              
       position: ~
           -> @g.position
           (val) -> @g.position = val 
           
       color: ~
           (val) -> @cu.fillColor = val
-      
+          
   
-  fp = new Footprint 'hello'
+  fp = new Footprint do 
+      pads: 
+          pad1:
+              pin: 1
+              width: 4
+              height: 8
+              label: \\there 
+          pad2: 
+              is: \\pad1
+              pin: 2
+              width: 8
+              label: \\hello
+              position:
+                  x: '@.left + 40'
+          pad3: 
+              is: \\pad2
+              position: 
+                  y: '@.bottom + 30'
   
-  pad1 = new Pad {
-      pin: 1
-      width: 3
-      height: 8
-      label: \\hello
-      footprint: fp
-  }
-  debugger
-  pad2 = new Pad {
-      pin: 2
-      width: 4
-      height: 8
-      label: \\there 
-      footprint: fp 
-  }
-  
-  pad2.position.x = 40
-  fp.position.x += 10
+          pad4: 
+              is: \\pad2
+              position: 
+                  y: '@pad1.bottom + 30'
+                  
+          /*
+          for: '1 to 5':                 
+              "pad{index}": 
+                  is: "pad{index - 1}"
+                  pin: "{index}"
+          */
   
   fp.color = 'red'
+  #console.log "pad3 left: ", fp.pads.pad3.position
+  
+  
 '''
