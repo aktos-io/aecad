@@ -13,23 +13,6 @@ export common =
                 _x
             |_ =>
                 x |> _mm2px
-
-        find-pin = (name, pin) !->
-            _find = (item) !->
-                if item.hasChildren!
-                    for item.children
-                        if _find ..
-                            return that
-                else if item.data?aecad?pin is pin
-                    return item
-
-            for project.layers
-                for ..getItems()
-                    if ..data?aecad?name is name
-                        container = ..
-                        pad = _find container
-                        return {container, pad}
-
         '''
 
 export scripts =
