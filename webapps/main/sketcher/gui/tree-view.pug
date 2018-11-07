@@ -19,27 +19,14 @@ table
 
 //- Property window 
 .ui.segments
-    h4.ui.top.attached.block.header Property Window 
-    h5.ui.header.attached aeCAD    
+    h5.ui.top.attached.block.header Properties 
     .ui.segment(style="padding: 2px")
         table 
             +each('aecadData as value')
                 tr
                     td {{@key}}
                     td: s-input(value="{{value}}")
-                   
-    h5.ui.header.attached Paper.js (readonly)
-    .ui.segment(style="padding: 2px")
-        table                         
-            +each('propKeys as type')
-                tr
-                    td {{@key}}
-                    //-
-                        td: s-input(
-                            value="{{selectedProps[@key]}}" 
-                            type="{{type}}"
-                            readonly)
-                        
+                                           
 radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
     .ui.buttons.vertical
         +each('project.layers')
