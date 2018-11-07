@@ -247,14 +247,14 @@ export class PaperDraw
                         move.direction = null
                         move.pan-lock0 = move.pan-lock or 0
                         move.pan-lock = Date.now!
-                        console.log "pan lock diff: ", (move.pan-lock - move.pan-lock0)
+                        #console.log "pan lock diff: ", (move.pan-lock - move.pan-lock0)
 
             ..onKeyUp = (event) ~>
                 switch event.key
                 | \shift =>
                     if (move.pan-lock - move.pan-lock0) > 300ms
                         if move.pan
-                            console.log "global pan mode disabled."
+                            #console.log "global pan mode disabled."
                             move.grab-point = null
                             move.pan = null
                             move.speed = null
