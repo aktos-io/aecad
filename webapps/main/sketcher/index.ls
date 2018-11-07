@@ -106,8 +106,10 @@ Ractive.components['sketcher'] = Ractive.extend do
                     modules = {aea, lib, lsc}
                     pcb-modules = """
                         Group Path Rectangle PointText Point Shape
+                        Matrix
                         canvas project view
-                        """.replace /\n/, ' ' .split " "
+                        """.replace /\n/g, ' ' .split " "
+                    #console.log "Loaded Paper.js modules: ", pcb-modules
                     for pcb-modules
                         modules[..] = pcb[..]
 
