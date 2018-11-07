@@ -65,7 +65,7 @@ class History
 
     load-scripts: (data) ->
         @ractive.set \drawingLs, data
-        console.log "loaded scripts: ", data
+        #console.log "loaded scripts: ", data
 
     save: ->
         data = @project.exportJSON!
@@ -74,7 +74,7 @@ class History
         @db.set \scripts, scripts
 
         # Save settings
-        # TODO: provide a proper way for this, its too messy now
+        # TODO: provide a proper way for this, it's too messy now
         @db.set \settings, do
             scriptName: @ractive.get \scriptName
             projectName: @ractive.get \project.name
