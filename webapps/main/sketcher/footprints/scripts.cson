@@ -142,60 +142,20 @@ lib_pads: '''
   
 '''
 'class-approach-test': '''
-  clone = (x) -> JSON.parse JSON.stringify x
-  
-  getBase = (_pads, based-on) -> 
-      pads = clone _pads
-      base = {}
-      if based-on 
-          base <<<< pads[that]
-      if base.is 
-          # base also depends on another one 
-          base <<<< pads[that]
-      return base 
-  
-  # Footprint is effectively a Group item 
-  class Footprint
-      (data) -> 
+  # Container is effectively a Group
+  class Container
+      (parent) -> 
           # create main container 
           @g = new Group do
               applyMatrix: no
-              data: 
-                  aecad: 
-                      type: \\Footprint
-                    
-          @pads = {}
-          for pad, params of data.pads
-              base = getBase data.pads, params.is
-              #console.log "initializing pad: #{pad} base: ", base
-              @pads[pad] = new Pad @g, (base <<<< params) 
+              parent: parent?g
+          parent?add this
   
-          @_data = {} # resolved data 
-          for pad, params of data.pads
-              base = getBase data.pads, params.is
-              @_data[pad] = (base <<<< params)  
-              console.log "resolved pad: #{pad}:", @_data[pad]
-              
-              
-          # set positions 
-          /* 
-           * x, y (center coordinates of bounds)
-           * top, bottom, left, right
-           * 
-           */
-          /*
-          for name, pad of data.pads
-              console.log "#{name} position: "
-              for dir, pos of (pad.opts.position or {})
-                  # @.foo means pads.base.foo
-                  # TODO: throw error if pad.opts.is is null
-                  pos = pos.replace /^@\\./, "pads.#{pad.opts.is}."
-                  # @bar.baz means pads.bar.baz
-                  pos = pos.replace /^@/, 'pads.'
-                  console.log "...#{dir} pos: ", pos
-          */
-                  
+          @g.data = 
+              aecad: 
+                  type: @constructor.name
   
+          @pads = []
   
       position: ~
           -> @g.position
@@ -203,33 +163,136 @@ lib_pads: '''
           
       color: ~
           (val) ->
-              for k, pad of @pads 
-                  pad.color = val
-          
-      
-  class Pad
-      (parent, @opts) -> 
-          dimensions = 
-              x: @opts.width 
-              y: @opts.height 
+              for @pads 
+                  ..color = val
+                  
+      print-mode: ~
+          (val) -> 
+              for @pads 
+                  ..print-mode = val 
+  
+      add: (item) !-> 
+          @pads.push item
+  
+      rotate: (angle) -> 
+          # rotate this item and inform children 
+          @rotation = angle 
+          @g.rotate angle 
+          for @pads
+              ..rotated? angle 
               
-          rect = new Rectangle do 
-              from: [0, 0]
-              to: dimensions |> mm2px
+      rotated: (angle) -> 
+          for @pads
+              ..rotated? angle 
+              
+      mirror: (state) -> 
+          @g.scale -1, 1
+          x = @g.bounds.center
+          @g.rotate (180 + 2 * @rotation), @g.bounds.center
+          @g.bounds.center = x  # this is interesting, I'd expect no need for this     
+          for @pads 
+              ..mirrored? state
+              
+      mirrored: (state) -> 
+          for @pads 
+              ..mirrored? state
+  
+  
+  cross = new class CanvasHelper extends Container 
+      -> 
+          super!
+          new Path.Line do
+              from: [-50, 0]
+              to: [50, 0]
+              stroke-color: \\white
+              parent: @g
+              
+          new Path.Line do
+              from: [0, -50]
+              to: [0, 50]
+              stroke-color: \\white
+              parent: @g
+              
+          @g.opacity = 0.5
+          
+      print-mode: ~
+          (val) -> @g.visible = not val
+  
+  class Footprint extends Container 
+      (data) -> 
+          # data: 
+          #   name: required 
+          #   position: optional
+          #   rotation: optional 
+          #   init: current drawing
+          console.log "Footprint init:", data.init
+          super!
+          @data = 
+              type: @constructor.name
+              
+          @data <<<< data
+          @g.data = aecad: @data
+          
+  class Pad
+      (@parent, @opts) -> 
+          # opts: 
+          #     # Required 
+          #     pin
+          #     width 
+          #     height 
+          
+          #parent.add this
+  
+          if @opts.width and @opts.height 
+              geometry = \\Rectangle
+              dimensions = 
+                  x: @opts.width |> mm2px
+                  y: @opts.height |> mm2px
+                  
+              rect = new Rectangle do 
+                  from: [0, 0]
+                  to: dimensions 
+                  
+              geo-params = {rectangle: dimensions}
+  
+          else if @opts.dia
+              geometry = \\Circle
+              x = @opts.dia |> mm2px 
+              dimensions = 
+                  radius: x / 2
+                  x: x 
+                  y: x 
+  
+              rect = new Rectangle do 
+                  from: [0, 0]
+                  to: [x, x]
+                  
+              geo-params = {radius: dimensions.radius}
               
           @g = new Group do 
               position: rect.center
-              parent: parent
+              parent: @parent.g
               data:
                   aecad:
-                      pin: opts.pin
+                      pin: @opts.pin
+                      type: @constructor.name
               applyMatrix: yes
               
-          @cu = new Path.Rectangle do
+          @parent.add this 
+          
+          @cu = new Shape[geometry] geo-params <<< do
               rectangle: rect
               fillColor: 'purple'
               parent: @g
               stroke-width: 0
+              
+          if @opts.drill
+              @drill = new Path.Circle do 
+                  radius: (@opts.drill / 2) |> mm2px
+                  fillColor: canvas.style.background
+                  parent: @g
+                  position: @cu.position 
+                  stroke-width: 0
   
           @ttip = new PointText do
               point: @cu.bounds.center 
@@ -238,7 +301,11 @@ lib_pads: '''
               parent: @g
               font-size: 3
               position: @cu.bounds.center
+              justification: 'center'
               
+          @ttip.bounds.center = @cu.bounds.center
+          
+          # declare Pad.left, Pad.top, ...
           for <[ left right top bottom center ]>
               Object.defineProperty @, .., do
                   get: ~> @g.bounds[..]
@@ -248,42 +315,109 @@ lib_pads: '''
           (val) -> @g.position = val 
           
       color: ~
-          (val) -> @cu.fillColor = val
+          (val) ->
+              @_color = val 
+              @cu.fillColor = @_color
           
+      clone: (opts={}) ->
+          new @constructor @parent, (@opts <<<< opts)
+          
+      print-mode: ~
+          # Switch to print mode 
+          -> @_print
+          (val) -> 
+              @_print = val
+              if @_print
+                  # switch to print mode 
+                  @drill?.fillColor = \\white 
+                  @ttip.visible = false
+                  @cu.fillColor = \\black
+              else 
+                  @drill?.fillColor = canvas.style.background 
+                  @ttip.visible = true
+                  @cu.fillColor = @_color
+                  
+      rotated: (angle) -> 
+          @rotation = angle 
+          @ttip.rotate -angle
+          @ttip.bounds.center = @cu.bounds.center
+          
+      mirrored: (state) -> 
+          console.warn "TODO: set text rotation correctly"
+  
   
   fp = new Footprint do 
-      pads: 
-          pad1:
-              pin: 1
-              width: 4
-              height: 8
-              label: \\there 
-          pad2: 
-              is: \\pad1
-              pin: 2
-              width: 8
-              label: \\hello
-              position:
-                  x: '@.left + 40'
-          pad3: 
-              is: \\pad2
-              position: 
-                  y: '@.bottom + 30'
+      name: 'foo'
+      
+  pad1 = new Pad fp, do
+      pin: 1
+      width: 5
+      height: 15
   
-          pad4: 
-              is: \\pad2
-              position: 
-                  y: '@pad1.bottom + 30'
-                  
-          /*
-          for: '1 to 5':                 
-              "pad{index}": 
-                  is: "pad{index - 1}"
-                  pin: "{index}"
-          */
+  c = new Container fp
   
-  fp.color = 'red'
-  #console.log "pad3 left: ", fp.pads.pad3.position
+  for index in [1 to 5]
+      pad = new Pad c, do 
+          pin: index
+          width: 1
+          height: 2
   
+      pad.position.y -= 16 * index
+      
+  c.position = pad1.position
+  c.position.x += 23
+  
+  c2 = new Container fp
+  
+  for index in [1 to 5]
+      pad = new Pad c2, do 
+          pin: "#{index}c"
+          dia: 3
+          drill: 1
+  
+      pad.position.y -= 16 * index
+  
+  c2.position = c.position
+  c2.position.x += 10
+  
+      
+  #fp.color = 'red'
+  fp.rotate 45
+  #fp.g.rotate -45
+  x = find-comp 'foo'
+  #x.selected = yes
+  #console.log x.toJSON()
+      
+  #fp.mirror!
+  #fp.print-mode = yes 
+  
+  
+  
+'''
+lib_find: '''
+  find-comp = (name) !-> 
+      for project.layers
+          for ..getItems()
+              if ..data?aecad?name is name
+                  type = ..data?aecad?type
+                  Type = eval type
+                  return new Type do 
+                      name: name 
+                      init: ..
+      return null     
+  
+  find-pin = (name, pin) !->
+      _find = (item) !->
+          if item.hasChildren!
+              for item.children
+                  if _find ..
+                      return that
+          else if pin and item.data?aecad?pin is pin
+              return item
+          return null 
+  
+      container = find-comp name 
+      pad = _find container
+      return {container, pad}
   
 '''
