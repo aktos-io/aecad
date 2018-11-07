@@ -345,3 +345,15 @@ export class PaperDraw
         json = @project.exportJSON!
         @view.zoom = old-zoom # for above workaround
         return json
+
+    get-top-item: (item) ->
+        if @ractive.get \selectGroup
+            # select the top level group
+            for dig in  [0 to 100]
+                if item.parent.getClassName! is \Layer
+                    break
+                item = item.parent
+            console.log "Dig level: ", dig
+            item
+        else
+            item
