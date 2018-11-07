@@ -61,18 +61,8 @@ export SelectTool = ->
                     return
                 scope.project.activeLayer.bringToFront!
 
-                select-item = ~>
-                    selection.add if @get \selectGroup
-                        # select the top level group
-                        item = hit.item
-                        for dig in  [0 to 100]
-                            if item.parent.getClassName! is \Layer
-                                break
-                            item = item.parent
-                        console.log "Dig level: ", dig
-                        item
-                    else
-                        hit.item
+                select-item = ->
+                    selection.add scope.get-top-item hit.item
 
                 if get-tid hit.item
                     # this is related to a trace, handle specially
