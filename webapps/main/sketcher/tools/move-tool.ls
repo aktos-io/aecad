@@ -140,16 +140,17 @@ export MoveTool = (_scope, layer, canvas) ->
 
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move
+            console.log "Pressed key: ", event.key
             switch event.key
             | \escape =>
                 if move.dragging?
                     # cancel last movement
                     reset!
                     scope.history.back!
-            | \ı, \r =>
+            | \ı, \r, \I, \R, \i =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
-                selection.getTopItem!.rotate angle
+                selection.getTopItem!?.rotate angle
 
             | \a =>
                 move.picked = on
