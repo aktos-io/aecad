@@ -1,4 +1,4 @@
-require! '../lib/dxfToSvg': {dxfToSvg}
+require! '../../lib/dxfToSvg': {dxfToSvg}
 
 export import_ = (ctx, file, next) ->
     pcb = @get \pcb

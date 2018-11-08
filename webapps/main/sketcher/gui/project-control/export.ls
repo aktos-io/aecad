@@ -1,11 +1,10 @@
 require! 'svgson-next': svgson
-require! 'aea': {create-download, htmlDecode}
+require! 'aea': {create-download, htmlDecode, ext}
 require! 'dcs/browser': {SignalBranch}
 require! 'pretty'
-ext = (.split('.').pop!?.to-lower-case!)
 require! 'dxf-writer'
 require! 'dxf'
-require! '../lib/json-to-dxf': {json-to-dxf}
+require! '../../lib/json-to-dxf': {json-to-dxf}
 
 export export_ = (ctx, _filename) ->
     b = new SignalBranch
@@ -18,7 +17,7 @@ export export_ = (ctx, _filename) ->
             title: 'Filename'
             icon: ''
             closable: yes
-            template: RACTIVE_PREPARSE('../gui/export-dialog.pug')
+            template: RACTIVE_PREPARSE('./export-dialog.pug')
             buttons:
                 save:
                     text: 'Save'

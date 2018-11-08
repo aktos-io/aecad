@@ -1,15 +1,10 @@
 require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
-require! 'aea': {create-download, VLogger}
-require! 'prelude-ls': {min, ceiling, flatten, max, keys, values}
-require! './lib/svgToKicadPcb': {svgToKicadPcb}
+require! 'aea': {VLogger}
 require('jquery-mousewheel')($);
 require! './zooming': {paperZoom}
-require! './tools/lib/selection': {Selection}
 require! './kernel': {PaperDraw}
-require! './tools/lib/trace/lib': {is-on-layer}
 require! './example'
-require! 'dcs/browser': {FpsExec}
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -37,11 +32,10 @@ Ractive.components['sketcher'] = Ractive.extend do
 
         @set \pcb, pcb
 
-        # see https://stackoverflow.com/a/52830469/1952991
-        #pcb.view.scaling = 96 / 25.4
-
+        # Visual Logger client
         @set \vlog, new VLogger this
 
+        # Initial layers 
         pcb.add-layer \scripting
         pcb.use-layer \gui
 
@@ -50,69 +44,12 @@ Ractive.components['sketcher'] = Ractive.extend do
             paperZoom pcb, event
             @update \pcb.view.zoom
 
-
         handlers =
-            scripting: (require './gui/scripting').init.call this, pcb
-            canvas: (require './gui/canvas').init.call this, pcb
+            0: require './gui/scripting' .init.call this, pcb
+            1: require './gui/canvas' .init.call this, pcb
+            2: require './gui/project-control' .init.call this, pcb
 
-        @on handlers.scripting <<< handlers.canvas <<< do
-
-            import: require './handlers/import' .import_
-            export: require './handlers/export' .export_
-
-            clearActiveLayer: (ctx) ~>
-                @get \project.layers .[@get 'activeLayer'] .clear!
-
-            activate-layer: (ctx, name, proceed) ->
-                pcb.use-layer name
-                proceed!
-
-
-            undo: (ctx) ->
-                pcb.history.back!
-
-            prototypePrint: (ctx) ->
-                pcb.history.commit!
-                layer = ctx.component.get \side
-                for pcb.get-all!
-                    if .. `is-on-layer` layer
-                        ..visible = true
-
-                        # a workaround for drills
-                        unless ..data?aecad?type is \drill
-                            ..stroke-color = \black
-                            if ..data?aecad?tid and ..data?aecad?type not in <[ drill via ]>
-                                # do not fill the lines
-                                null
-                            else
-                                ..fill-color = \black
-                        else
-                            ..stroke-color = null
-                            ..fill-color = \white
-                            ..bringToFront!
-
-                    else
-                        ..visible = false
-
-                create-download "#{layer}.svg", pcb.export-svg!
-                pcb.history.back!
-
-            save: (ctx) ->
-                # save project
-                pcb.history.commit!
-                pcb.history.save!
-
-            load: (ctx) ->
-                pcb.history.commit!
-                pcb.history.load!
-
-            clear: (ctx) ->
-                pcb.history.commit!
-                pcb.project.clear!
-
-            showHelp: (ctx) ->
-                @get \vlog .info do
-                    template: RACTIVE_PREPARSE('gui/help.pug')
+        @on handlers.0 <<< handlers.1 <<< handlers.2
 
     computed:
         currProps:
