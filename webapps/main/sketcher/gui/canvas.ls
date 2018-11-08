@@ -8,7 +8,6 @@ require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../tools/lib': {getAecad}
 
 export init = (pcb) ->
-
     # tools
     trace-tool = TraceTool.call this, pcb, (new pcb.Layer)
     freehand = Freehand.call this, pcb, (new pcb.Layer)
@@ -60,10 +59,9 @@ export init = (pcb) ->
         sendTo: (ctx) ->
             pcb.history.commit!
             layer = ctx.component.get \to
-            color = @get \layers .[layer] .color
             for pcb.selection.selected
                 getAecad ..
-                    ..color = color
+                    ..set-side layer
                 /*
                 unless get-keypath .., "data.aecad.name"
                     set-keypath .., 'data.aecad.name', "c_"

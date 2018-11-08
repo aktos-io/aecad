@@ -1,4 +1,5 @@
 require! 'aea/do-math': {mm2px}
+require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! 'aea'
 require! '../../kernel': {PaperDraw}
 
@@ -30,12 +31,24 @@ export find-comp = (name) !->
                 return getAecad ..
     return null
 
-export class Container
+class ComponentBase
+    # basic methods that every component should have
+    set-data: (keypath, value) ->
+        set-keypath @g.data.aecad, keypath, value
+
+    get-data: (keypath) ->
+        get-keypath @g.data.aecad, keypath
+
+
+export class Container extends ComponentBase
     (parent) ->
-        {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project} = new PaperDraw
+        super!
+        {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project, ractive} = new PaperDraw
+        @ractive = ractive
         # parent: parent object or initialization data
         # if in {init: ...} format
         @pads = []
+
         init-with-data = no
         if parent and \init of parent
             init = parent.init
@@ -87,31 +100,53 @@ export class Container
 
     rotate: (angle) ->
         # rotate this item and inform children
-        @rotation = angle
+        @set-data \rotation, angle
         @g.rotate angle
         for @pads
             ..rotated? angle
 
     rotated: (angle) ->
+        # send rotate signal to children
         for @pads
             ..rotated? angle
 
-    mirror: (state) ->
-        @g.scale -1, 1
+    mirror: ->
+        scale-factor = switch @get-data \symmetryAxis
+        | 'x' => [-1, 1]
+        |_ => [1, -1]
+        console.log "scale factor is: ", scale-factor
+        @g.scale ...scale-factor
         x = @g.bounds.center
-        @g.rotate (180 + 2 * @rotation), @g.bounds.center
+        rotation = @get-data('rotation') or 0
+        @g.rotate (180 + 2 * rotation), @g.bounds.center
         @g.bounds.center = x  # this is interesting, I'd expect no need for this
         for @pads
-            ..mirrored? state
+            ..mirrored? scale-factor, rotation
 
-    mirrored: (state) ->
+    mirrored: !->
+        # send mirror signal to children
         for @pads
-            ..mirrored? state
+            ..mirrored? ...arguments
+
+    set-side: (curr-side) !->
+        # Side would be either 'Front' or 'Back'
+        prev-side = @get-data \side
+        #console.log "prev: #{prev-side}, curr: #{curr-side}"
+        if prev-side isnt curr-side
+            # Side is changed
+            @set-data \side, curr-side
+            # decide physical side for mirroring
+            prev-phy = (try prev-side.split '.' .0) or 'F' # F or B (Front or Back)
+            curr-phy = curr-side.split '.' .0 # F or B
+            if prev-phy isnt curr-phy
+                #console.log "back side, mirroring..."
+                @mirror!
+            layer-color = @ractive.get "layers.#{Ractive.escapeKey curr-side}" .color
+            #console.log "color of #{curr-side} is #{layer-color}"
+            @color = layer-color
 
 export class Footprint extends Container
     (data) ->
-        {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project} = new PaperDraw
-
         # data:
         #   name: required
         #   position: optional
@@ -130,8 +165,9 @@ export class Footprint extends Container
 
         @g.data = aecad: @data
 
-export class Pad
+export class Pad extends ComponentBase
     (parent, opts) ->
+        super!
         {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project} = new PaperDraw
 
         # opts:
@@ -239,7 +275,7 @@ export class Pad
         (val) -> @g.position = val
 
     color: ~
-        (val) ->
+        (val) !->
             @_color = val
             @cu.fillColor = @_color
 
@@ -259,9 +295,11 @@ export class Pad
                 @cu.fillColor = @_color
 
     rotated: (angle) ->
-        @rotation = angle
+        @set-data \rotation, angle
         @ttip.rotate -angle
         @ttip.bounds.center = @cu.bounds.center
 
-    mirrored: (state) ->
+    mirrored: (scale-factor, rotation) !->
         console.warn "TODO: set text rotation correctly"
+        @ttip.scale ...scale-factor
+        @ttip.rotate (180 + 2 * rotation), @ttip.bounds.center
