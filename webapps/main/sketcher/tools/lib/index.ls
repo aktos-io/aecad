@@ -12,16 +12,10 @@ export function getClass data
 
 export getAecad = (item) ->
     # Return aeCAD object
-    try
-        # TODO: remove try/catch part to speed up when this is stable
-        type = item.data?aecad?type
-        return new (getClass type) do
-            name: name
-            init: item
-    catch
-        console.error "getAecad Error: type was: ", type
-        throw e
-
+    type = item.data?aecad?type
+    return new (getClass type) do
+        name: name
+        init: item
 
 export find-comp = (name) !->
     {project} = new PaperDraw
@@ -91,9 +85,11 @@ export class Container extends ComponentBase
             for @pads
                 ..color = val
 
-    print-mode: (val) ->
+    print-mode: (...args) ->
+        if @get-data \side
+            args.push that
         for @pads
-            ..print-mode val
+            ..print-mode ...args
 
     add: (item) !->
         @pads.push item
@@ -282,17 +278,29 @@ export class Pad extends ComponentBase
     clone: (opts={}) ->
         new @constructor @parent, (@opts <<<< opts)
 
-    print-mode: (val) ->
-            @_print = val
-            if @_print
+    print-mode: (layers, our-side) ->
+            if layers
                 # switch to print mode
-                @drill?.fillColor = \white
+                if @get-data \side
+                    our-side = that
+                console.log "side we are in: ", our-side
+                if our-side in layers
+                    console.log "...will be printed"
+                    # will be printed
+                    @drill?.fillColor = \white
+                    @cu.fillColor = \black
+                else
+                    # won't be printed
+                    @drill?.visible = no
+                    @cu.visible = no
                 @ttip.visible = false
-                @cu.fillColor = \black
             else
+                # switch back to design mode
                 @drill?.fillColor = canvas.style.background
+                @drill?.visible = yes
                 @ttip.visible = true
                 @cu.fillColor = @_color
+                @cu.visible = yes
 
     rotated: (angle) ->
         @set-data \rotation, angle

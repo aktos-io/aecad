@@ -35,7 +35,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         # Visual Logger client
         @set \vlog, new VLogger this
 
-        # Initial layers 
+        # Initial layers
         pcb.add-layer \scripting
         pcb.use-layer \gui
 
@@ -69,6 +69,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             'B.Cu':
                 color: 'green'
             'Edge':
+                # appears both sides 
                 color: 'orange'
         project:
             # logical layers

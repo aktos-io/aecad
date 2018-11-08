@@ -1,5 +1,6 @@
 require! 'aea': {create-download}
 require! '../../tools/lib/trace/lib': {is-on-layer}
+require! '../../tools/lib': {getAecad}
 
 export init = (pcb) ->
 
@@ -20,28 +21,14 @@ export init = (pcb) ->
 
         prototypePrint: (ctx) ->
             pcb.history.commit!
-            layer = ctx.component.get \side
+            layers = ctx.component.get \side .split ',' .map (.trim!)
             for pcb.get-all!
-                if .. `is-on-layer` layer
-                    ..visible = true
-
-                    # a workaround for drills
-                    unless ..data?aecad?type is \drill
-                        ..stroke-color = \black
-                        if ..data?aecad?tid and ..data?aecad?type not in <[ drill via ]>
-                            # do not fill the lines
-                            null
-                        else
-                            ..fill-color = \black
-                    else
-                        ..stroke-color = null
-                        ..fill-color = \white
-                        ..bringToFront!
-
+                obj = try getAecad ..
+                unless obj
+                    ..remove!
                 else
-                    ..visible = false
-
-            create-download "#{layer}.svg", pcb.export-svg!
+                    obj.print-mode layers
+            create-download "#{layers.join('_')}.svg", pcb.export-svg!
             pcb.history.back!
 
         save: (ctx) ->
