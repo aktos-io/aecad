@@ -5,6 +5,7 @@ require! '../tools/select-tool': {SelectTool}
 require! '../tools/lib/selection': {Selection}
 require! 'prelude-ls': {min}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
+require! '../tools/lib': {getAecad}
 
 export init = (pcb) ->
 
@@ -61,12 +62,13 @@ export init = (pcb) ->
             layer = ctx.component.get \to
             color = @get \layers .[layer] .color
             for pcb.selection.selected
-                ..fill-color = color
-                ..stroke-color = color
-                ..opacity = 1
+                getAecad ..
+                    ..color = color
+                /*
                 unless get-keypath .., "data.aecad.name"
                     set-keypath .., 'data.aecad.name', "c_"
                 .. `pcb.send-to-layer` layer
+                */
 
         groupSelected: (ctx) ->
             pcb.history.commit!

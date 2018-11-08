@@ -4,7 +4,7 @@ require! '../example'
 require! 'livescript': lsc
 require! 'prelude-ls': {keys, values}
 require! 'aea': {create-download}
-require! '../tools/lib/container': {Container, Footprint, Pad, find-comp}
+require! '../tools/lib': {Container, Footprint, Pad, find-comp}
 
 export init = (pcb) ->
     runScript = (content) ~>

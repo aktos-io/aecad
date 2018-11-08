@@ -9,20 +9,25 @@ export function getClass data
     else
         throw new Error "Who let the dogs out?"
 
+export getAecad = (item) ->
+    # Return aeCAD object
+    try
+        # TODO: remove try/catch part to speed up when this is stable
+        type = item.data?aecad?type
+        return new (getClass type) do
+            name: name
+            init: item
+    catch
+        console.error "getAecad Error: type was: ", type
+        throw e
+
+
 export find-comp = (name) !->
     {project} = new PaperDraw
     for project.layers
         for ..getItems()
             if ..data?aecad?name is name
-                type = ..data?aecad?type
-                try
-                    Type = getClass type
-                    return new Type do
-                        name: name
-                        init: ..
-                catch
-                    console.error "type was: ", type
-                    throw e
+                return getAecad ..
     return null
 
 export class Container
@@ -73,10 +78,9 @@ export class Container
             for @pads
                 ..color = val
 
-    print-mode: ~
-        (val) ->
-            for @pads
-                ..print-mode = val
+    print-mode: (val) ->
+        for @pads
+            ..print-mode val
 
     add: (item) !->
         @pads.push item
@@ -242,10 +246,7 @@ export class Pad
     clone: (opts={}) ->
         new @constructor @parent, (@opts <<<< opts)
 
-    print-mode: ~
-        # Switch to print mode
-        -> @_print
-        (val) ->
+    print-mode: (val) ->
             @_print = val
             if @_print
                 # switch to print mode

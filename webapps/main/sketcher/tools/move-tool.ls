@@ -3,6 +3,7 @@ require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/snap-move': {snap-move}
 require! './lib/trace/lib': {is-trace}
+require! './lib': {getAecad}
 
 movement = (operand, left, right) -->
     if operand in <[ add subtract ]>
@@ -150,7 +151,7 @@ export MoveTool = (_scope, layer, canvas) ->
             | \ı, \r, \I, \R, \i =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
-                selection.getTopItem!?.rotate angle
+                (selection.getTopItem! |> getAecad)?.rotate angle
 
             | \a =>
                 move.picked = on
