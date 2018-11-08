@@ -1,20 +1,3 @@
-export common =
-    tools:
-        '''
-        _mm2px = ( / 25.4 * 96)
-        _px2mm = (x) -> 1 / mm2px(x)
-
-        mm2px = (x) ->
-            _x = {}
-            switch typeof x
-            | 'object' =>
-                for i of x
-                    _x[i] = x[i] |> _mm2px
-                _x
-            |_ =>
-                x |> _mm2px
-        '''
-
 export scripts =
     'LM 2576': 'to263 <[ Vin Out Gnd Feedback on/off ]>'
     R1206: '''

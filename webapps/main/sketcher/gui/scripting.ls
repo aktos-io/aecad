@@ -16,7 +16,6 @@ export init = (pcb) ->
 
             _content = ""
             output = []
-            _content += example.common.tools + '\n'
             for name, script of @get \drawingLs when name.starts-with \lib
                 if name is @get 'scriptName'
                     continue
