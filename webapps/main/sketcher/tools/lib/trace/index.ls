@@ -5,13 +5,28 @@ require! './helpers': {_default: helpers}
 require! './follow': {_default: follow}
 require! './lib': {get-tid}
 require! 'aea/do-math': {mm2px}
+require! '../pad': {Pad}
+require! '../container': {Container}
+require! '../../../kernel': {PaperDraw}
+require! '../get-class': {add-class}
 
-export class Trace
+export class Trace extends Container
     @instance = null
     (scope, ractive) ->
-        # Make this class Singleton
-        return @@instance if @@instance
-        @@instance = this
+        add-class @constructor
+        data = {}
+        super {init: data.init}
+        unless data.init
+            # initialize from scratch
+            @data =
+                type: @constructor.name
+
+            @data <<<< data
+        else
+            # initialize with provided data
+            @data = data.init.data.aecad
+
+        @g.data = aecad: @data
 
         @scope = scope
         @ractive = ractive
@@ -157,7 +172,7 @@ export class Trace
             else
                 # side flipped
                 @reduce @line
-                
+
             unless @group
                 console.error "No group can be found!"
                 return
@@ -224,43 +239,12 @@ export class Trace
         outer-dia = @ractive.get \currTrace.via.outer
         inner-dia = @ractive.get \currTrace.via.inner
 
-        @vias.push via = new @scope.Group do
-            parent: @group
-            data:
-                aecad:
-                    tid: @trace-id
-                    type: \via
-                    outer-dia: outer-dia
-                    drill-dia: inner-dia
+        via = new Pad this, do
+            dia: outer-dia
+            drill: inner-dia
+            color: \orange
 
-        # FIXME: remove this redundant data
-        _tmp_ =
-            aecad:
-                tid: @trace-id
-                type: \via-part
-
-        # add outer pad
-        new @scope.Path.Circle do
-            center: @moving-point
-            radius: outer-dia/2 |> mm2px
-            fill-color: \orange
-            stroke-width: 0
-            parent: via
-            # FIXME: remove this redundant data
-            data: _tmp_
-
-        # add drill
-        new @scope.Path.Circle do
-            center: @moving-point
-            radius: inner-dia/2 |> mm2px
-            fill-color: \white
-            stroke-width: 0
-            parent: via
-            # FIXME: remove this redundant data
-            data: _tmp_
-
-
-        @update-vias!
+        via.g.position = @moving-point
 
         # Toggle the layers
         # TODO: make this cleaner
