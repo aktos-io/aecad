@@ -4,6 +4,7 @@ require! '../example'
 require! 'livescript': lsc
 require! 'prelude-ls': {keys, values}
 require! 'aea': {create-download}
+require! '../tools/lib/container': {Container, Footprint, Pad, find-comp}
 
 export init = (pcb) ->
     runScript = (content) ~>
@@ -43,7 +44,10 @@ export init = (pcb) ->
                 pcb.use-layer \scripting
                     ..clear!
 
-                modules = {aea, lib, lsc}
+                modules = {
+                    aea, lib, lsc
+                    Container, Footprint, Pad, find-comp
+                }
                 pcb-modules = """
                     Group Path Rectangle PointText Point Shape
                     Matrix
@@ -53,6 +57,7 @@ export init = (pcb) ->
                 for pcb-modules
                     modules[..] = pcb[..]
 
+                #console.log "Added global modules: ", keys modules
                 func = new Function ...(keys modules), js
                 func.call pcb, ...(values modules)
                 #pcb._scope.execute js
