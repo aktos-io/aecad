@@ -157,6 +157,22 @@ export class PaperDraw
                 this[k] = v
             @canvas = opts.scope.view._element
 
+
+        if opts.background
+            @canvas.style.background = that
+
+        do resizeCanvas = ~>
+            container = $ @canvas.parentNode
+            pl = parse-int container.css("padding-left")
+            pr = parse-int container.css("padding-right")
+            width = container.innerWidth! - pr - pl
+            #height = container.innerHeight!
+            @canvas.width = width
+            @canvas.height = opts.height
+
+        window.addEventListener('resize', resizeCanvas, false);
+
+
         @ractive = that if opts.ractive
         @tools = {}
         @selection = new Selection

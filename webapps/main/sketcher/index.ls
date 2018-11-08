@@ -11,24 +11,14 @@ Ractive.components['sketcher'] = Ractive.extend do
     onrender: (ctx) ->
         # output container
         canvas = @find '#draw'
-            ..style.background = '#252525'
-
-        do resizeCanvas = ->
-            container = $ canvas.parentNode
-            pl = parse-int container.css("padding-left")
-            pr = parse-int container.css("padding-right")
-            width = container.innerWidth! - pr - pl
-            height = container.innerHeight!
-            canvas.width = width
-            canvas.height = 400
-
-        window.addEventListener('resize', resizeCanvas, false);
 
         # scope
         pcb = new PaperDraw do
             scope: paper.setup canvas
             ractive: this
             canvas: canvas
+            background: '#252525'
+            height: 400
 
         @set \pcb, pcb
 
@@ -44,12 +34,16 @@ Ractive.components['sketcher'] = Ractive.extend do
             paperZoom pcb, event
             @update \pcb.view.zoom
 
-        handlers =
-            0: require './gui/scripting' .init.call this, pcb
-            1: require './gui/canvas' .init.call this, pcb
-            2: require './gui/project-control' .init.call this, pcb
+        _handlers =
+            require './gui/scripting' .init.call this, pcb
+            require './gui/canvas' .init.call this, pcb
+            require './gui/project-control' .init.call this, pcb
 
-        @on handlers.0 <<< handlers.1 <<< handlers.2
+        handlers = {}
+        for part in _handlers
+            handlers <<< part
+
+        @on handlers
 
     computed:
         currProps:
@@ -69,7 +63,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             'B.Cu':
                 color: 'green'
             'Edge':
-                # appears both sides 
+                # appears both sides
                 color: 'orange'
         project:
             # logical layers
