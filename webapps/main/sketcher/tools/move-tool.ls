@@ -154,10 +154,11 @@ export MoveTool = (_scope, layer, canvas) ->
                 (selection.getTopItem! |> getAecad)?.rotate angle
 
             | \a =>
-                move.picked = on
-                move.enabled = yes
-                scope.cursor \move
-            | \c =>
-                reset!
+                unless move.picked
+                    move.picked = on
+                    move.enabled = yes
+                    scope.cursor \move
+                else
+                    reset!
 
     move-tool
