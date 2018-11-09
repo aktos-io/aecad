@@ -7,15 +7,9 @@ export class Footprint extends Container
         #   position: optional
         #   rotation: optional
         #   init: current drawing
-        super {init: data.init}
-        unless data.init
+        super ...arguments
+        unless @init-with-data arguments.0
             # initialize from scratch
-            @data =
-                type: @constructor.name
-
+            @data = {type: @constructor.name}
             @data <<<< data
-        else
-            # initialize with provided data
-            @data = data.init.data.aecad
-
-        @g.data = aecad: @data
+            @g.data = aecad: @data

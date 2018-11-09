@@ -1,9 +1,9 @@
 require! './lib/trace': {Trace}
 
-export TraceTool = (scope, layer, canvas) ->
+export TraceTool = (scope) ->
     ractive = this
 
-    trace = new Trace scope, ractive
+    trace = new Trace
     trace-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
             # panning
@@ -13,7 +13,7 @@ export TraceTool = (scope, layer, canvas) ->
             trace.pause!
 
         ..onMouseUp = (event) ~>
-            layer.activate!
+            # Start a trace
             if scope.project.hitTest event.point
                 # that is a hit
                 if trace.connect that.segment
@@ -34,6 +34,7 @@ export TraceTool = (scope, layer, canvas) ->
             | \escape =>
                 if trace.continues
                     trace.end!
+                    trace := new Trace
                 else
                     #ractive.find-id \toolChanger .fire \select, {}, \sl
                     ractive.set \currTool, \sl

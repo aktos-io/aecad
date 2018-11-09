@@ -14,3 +14,16 @@ export class ComponentBase
 
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
+
+    init-with-data: (first-arg) ->
+        # detect if the component is initialized with
+        # initialization data or being created from scratch
+        #
+        # Format:
+        #   {
+        #     init:
+        #       item: Paper.js item
+        #       parent: parent Component (optional)
+        #   }
+        if first-arg and \init of first-arg
+            return first-arg.init

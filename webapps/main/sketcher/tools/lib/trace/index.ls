@@ -31,7 +31,7 @@ export class Trace extends Container
         @ractive = ractive
 
         add-class @constructor
-        super {init: data.init}
+        super ...arguments
         unless data.init
             # initialize from scratch
             @data =

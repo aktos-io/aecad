@@ -65,6 +65,7 @@ export init = (pcb) ->
                 @get \vlog .error do
                     title: 'Runtime Error'
                     message: e
+                throw e
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile

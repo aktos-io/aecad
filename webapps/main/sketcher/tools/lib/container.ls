@@ -1,48 +1,33 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
-require! './get-class': {get-class}
+require! './get-aecad': {get-aecad}
 
 export class Container extends ComponentBase
     (parent) ->
         super!
-        {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project, ractive} = new PaperDraw
+        {Group, ractive} = new PaperDraw
+
         @ractive = ractive
-        # parent: parent object or initialization data
-        # if in {init: ...} format
         @pads = []
 
-        init-with-data = no
-        if parent and \init of parent
-            init = parent.init
-            parent = null
-            if init
-                init-with-data = yes
-                #console.log "Container init:", init
-                @g = init
-                for @g.children
-                    #console.log "has child: ", (getClass ..data)
-                    type = ..data?aecad?type
-                    @pads.push switch type
-                    | \Container =>
-                        new (getClass type)({init: ..})
-                    | \Pad =>
-                        new (getClass type) do
-                            init:
-                                parent: this
-                                content: ..
-                    |_ => throw new Error "What type is this? #{type}"
-
-
-        unless init-with-data
+        if @init-with-data arguments.0
+            #console.log "Container init:", init
+            @g = that.item
+            parent = that.parent
+            parent?add this
+            # no need for parent.add(this), because we are already pushing to @pads
+            for @g.children
+                #console.log "has child: ", (getClass ..data)
+                get-aecad .., this
+        else
             # create main container
             @g = new Group do
                 applyMatrix: no
                 parent: parent?g
-            parent?add this
-
-            @g.data =
-                aecad:
-                    type: @constructor.name
+                data:
+                    aecad:
+                        type: @constructor.name
+            parent?add?(this)
 
     position: ~
         -> @g.position

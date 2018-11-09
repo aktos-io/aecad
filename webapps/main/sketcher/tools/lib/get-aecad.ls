@@ -1,8 +1,10 @@
 require! './get-class': {get-class}
 
-export getAecad = (item) ->
+export getAecad = (item, parent) ->
     # Return aeCAD object
     type = item.data?aecad?type
-    return new (getClass type) do
-        name: name
-        init: item
+    if type
+        return new (getClass type) do
+            init:
+                item: item
+                parent: parent

@@ -13,21 +13,15 @@ export class Pad extends ComponentBase
         #     width
         #     height
 
-        init-with-data = no
-        if parent and \init of parent
-            init = parent.init
-            parent = null
-            if init
-                init-with-data = yes
-                #console.log "Pad init:", init
-                @g = init.content
-                @parent = init.parent
-                for @g.children
-                    # get cu, ttip etc.
-                    part = ..data.aecad.part
-                    @[part] = ..
-
-        unless init-with-data
+        if @init-with-data arguments.0
+            @g = that.item
+            @parent = that.parent
+            @parent.add this
+            for @g.children
+                # get cu, ttip etc.
+                part = ..data.aecad.part
+                @[part] = ..
+        else
             # create object from scratch
             @parent = parent
             @opts = opts
