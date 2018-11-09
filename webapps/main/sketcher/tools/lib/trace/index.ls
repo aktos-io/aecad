@@ -10,31 +10,45 @@ require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
 require! '../get-class': {add-class}
 
+/* Trace structure:
+    data:
+        tid: trace id
+        type: Trace
+
+    parts:
+        * Path
+        * Path
+        ...
+        * Pad (via)
+        ...
+*/
+
+
 export class Trace extends Container
-    @instance = null
-    (scope, ractive) ->
-        add-class @constructor
+    ->
         data = {}
+        {ractive} = @scope = new PaperDraw
+        @ractive = ractive
+
+        add-class @constructor
         super {init: data.init}
         unless data.init
             # initialize from scratch
             @data =
                 type: @constructor.name
+                tid: shortid.generate!
 
             @data <<<< data
         else
             # initialize with provided data
             @data = data.init.data.aecad
 
-        @g.data = aecad: @data
 
-        @scope = scope
-        @ractive = ractive
+        @g.data = aecad: @data
 
         @line = null
         @snap-x = false
         @snap-y = false
-        @flip-side = false
         @moving-point = null    # point that *tries* to follow the pointer (might be currently snapped)
         @last-point = null      # last point which is placed
         @continues = no         # trace is continuing or not
@@ -102,11 +116,9 @@ export class Trace extends Container
         @snap-y = false             # snap to | direction
         @snap-slash = false         # snap to / direction
         @snap-backslash = false     # snap to \ direction
-        @flip-side = false
         @removed-last-segment = null
         @remove-helpers!
         @vias.length = 0
-        @group = null
 
     remove-last-point: (undo) ->
         a = if @corr-point => 1 else 0
@@ -123,9 +135,6 @@ export class Trace extends Container
                 @update-helpers @line.segments[last-pinned - 1].point
             else
                 @end!
-
-    undo: ->
-        # to be implemented
 
     pause: ->
         @paused = yes
@@ -155,28 +164,14 @@ export class Trace extends Container
     remove-helpers: helpers.remove-helpers
     follow: follow.follow
 
-    add-segment: (point) ->
+    add-segment: (point, flip-side=false) ->
         new-trace = no
-        if not @line or @flip-side
-            @flip-side = false
+        if not @line or flip-side
             unless @line
-                # starting a new trace
-                # assign a new trace id for next trace
-                unless @trace-id
-                    @trace-id = shortid.generate!
-                    @group = new @scope.Group do
-                        data:
-                            aecad:
-                                tid: @trace-id
                 new-trace = yes
             else
                 # side flipped
                 @reduce @line
-
-            unless @group
-                console.error "No group can be found!"
-                return
-                debugger
 
 
             # TODO: hitTest is not the correct way to go,
@@ -208,8 +203,7 @@ export class Trace extends Container
                 ..selected = yes
                 ..data.aecad =
                     layer: curr.layer.name
-                    tid: @trace-id
-                ..parent = @group
+                ..parent = @g
 
             @line.add snap
 
@@ -251,8 +245,7 @@ export class Trace extends Container
         @ractive.set \currLayer, switch @ractive.get \currLayer
         | 'F.Cu' => 'B.Cu'
         | 'B.Cu' => 'F.Cu'
-        @flip-side = true
-        @add-segment @moving-point
+        @add-segment @moving-point, flip-side=true
 
     set-modifiers: (modifiers) ->
         @modifiers = modifiers

@@ -1,6 +1,17 @@
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
-export get-tid = (?.data?.aecad?.tid)
+export get-tid = (item) ->
+    if item?.data?.aecad?.tid
+        return that
+    for dig in  [0 to 100]
+        if item?.data?.aecad?.tid
+            return that
+        if item.parent.getClassName! is \Layer
+            break
+        else
+            item = item.parent
+    return null
+
 
 export is-trace = get-tid
 

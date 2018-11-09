@@ -1,7 +1,7 @@
 require! 'prelude-ls': {empty, flatten, filter, map, compact}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
-require! './lib/trace/lib': {get-tid, set-tid}
+require! './lib/trace/lib': {get-tid}
 
 export SelectTool = ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
@@ -102,7 +102,7 @@ export SelectTool = ->
                             __tolerance__ = 0.1
                             for part in hit.item.parent.children
                                 #console.log "examining trace part: ", part
-                                if part.data?.aecad?.type in <[ via ]>
+                                if part.data?.aecad?.type in <[ Pad ]>
                                     #console.log "...found via: ", part
                                     for name, point of handle
                                         if point.isClose part.bounds.center, __tolerance__
