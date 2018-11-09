@@ -60,12 +60,14 @@ export init = (pcb) ->
             pcb.history.commit!
             layer = ctx.component.get \to
             for pcb.selection.selected
-                getAecad ..
-                    ..set-side layer
+                obj = getAecad ..
+                if obj
+                    obj.set-side layer
+                    obj.send-to-layer layer 
+
                 /*
                 unless get-keypath .., "data.aecad.name"
                     set-keypath .., 'data.aecad.name', "c_"
-                .. `pcb.send-to-layer` layer
                 */
 
         groupSelected: (ctx) ->
