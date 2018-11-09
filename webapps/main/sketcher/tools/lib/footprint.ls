@@ -7,7 +7,7 @@ export class Footprint extends Container
         #   position: optional
         #   rotation: optional
         #   init: current drawing
-        super ...arguments
+        super ...
         unless @init-with-data arguments.0
             # initialize from scratch
             @data = {type: @constructor.name}

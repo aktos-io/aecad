@@ -5,19 +5,16 @@ require! './get-aecad': {get-aecad}
 export class Container extends ComponentBase
     (parent) ->
         super!
-        {Group, ractive} = new PaperDraw
+        {Group} = new PaperDraw
 
-        @ractive = ractive
         @pads = []
-
         if @init-with-data arguments.0
             #console.log "Container init:", init
-            @g = that.item
-            parent = that.parent
-            parent?add this
-            # no need for parent.add(this), because we are already pushing to @pads
+            data = that
+            @g = data.item
+            data.parent?add this # register to parent if provided
             for @g.children
-                #console.log "has child: ", (getClass ..data)
+                #console.log "has child"
                 get-aecad .., this
         else
             # create main container

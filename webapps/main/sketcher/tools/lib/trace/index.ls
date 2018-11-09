@@ -8,7 +8,6 @@ require! 'aea/do-math': {mm2px}
 require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
-require! '../get-class': {add-class}
 
 /* Trace structure:
     data:
@@ -30,8 +29,7 @@ export class Trace extends Container
         {ractive} = @scope = new PaperDraw
         @ractive = ractive
 
-        add-class @constructor
-        super ...arguments
+        super ...
         unless data.init
             # initialize from scratch
             @data =
@@ -67,20 +65,12 @@ export class Trace extends Container
     get-tolerance: ->
         20 / @scope.view.zoom
 
-    load: (segment) ->
-        # continue from this segment
-        path = segment?.getPath!
-        if get-tid path
-            @trace-id = that
-            @continues = yes
-            @line = path
-            @set-helpers segment.point
-            @update-helpers segment.point
-            return true
-        return false
+    load: (data) ->
+        super ...
 
     connect: (segment) ->
-        group = segment?.getPath!.parent
+        # connect to an already existing trace
+        group = segment?.getPath!
         if get-tid group
             @group = group
             @trace-id = that

@@ -5,6 +5,7 @@ require! '../../kernel': {PaperDraw}
 export class ComponentBase
     ->
         @scope = new PaperDraw
+        @ractive = @scope.ractive
 
     set-data: (keypath, value) ->
         set-keypath @g.data.aecad, keypath, value

@@ -14,6 +14,7 @@ export TraceTool = (scope) ->
 
         ..onMouseUp = (event) ~>
             # Start a trace
+            # ---------------------------------
             if scope.project.hitTest event.point
                 # that is a hit
                 if trace.connect that.segment
