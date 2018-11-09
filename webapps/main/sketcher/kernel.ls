@@ -151,27 +151,30 @@ export class PaperDraw
         return @@instance if @@instance
         @@instance = this
 
-        if opts.scope
-            @_scope = opts.scope
-            for k, v of that
+        if opts.canvas
+            @canvas = opts.canvas
+            @_scope = paper.setup @canvas
+            for k, v of @_scope
                 this[k] = v
-            @canvas = opts.scope.view._element
+
+            do resizeCanvas = ~>
+                container = $ @canvas.parentNode
+                pl = parse-int container.css("padding-left")
+                pr = parse-int container.css("padding-right")
+                width = container.innerWidth! - pr - pl
+                #height = container.innerHeight!
+                @canvas.width = width
+                @canvas.height = opts.height
+
+                # taken from https://gist.github.com/campsjos/b561023e453aba2d9c31
+                @_scope.view.setViewSize(new @_scope.Size(@canvas.width, @canvas.height))
+
+            window.addEventListener('resize', resizeCanvas, false);
+
 
 
         if opts.background
             @canvas.style.background = that
-
-        do resizeCanvas = ~>
-            container = $ @canvas.parentNode
-            pl = parse-int container.css("padding-left")
-            pr = parse-int container.css("padding-right")
-            width = container.innerWidth! - pr - pl
-            #height = container.innerHeight!
-            @canvas.width = width
-            @canvas.height = opts.height
-
-        window.addEventListener('resize', resizeCanvas, false);
-
 
         @ractive = that if opts.ractive
         @tools = {}

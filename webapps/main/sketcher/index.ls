@@ -14,7 +14,6 @@ Ractive.components['sketcher'] = Ractive.extend do
 
         # scope
         pcb = new PaperDraw do
-            scope: paper.setup canvas
             ractive: this
             canvas: canvas
             background: '#252525'
