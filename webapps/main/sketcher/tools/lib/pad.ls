@@ -1,11 +1,9 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
-require! './get-class': {get-class, add-class}
 require! 'aea/do-math': {mm2px}
 
 export class Pad extends ComponentBase
     (parent, opts) ->
-        add-class @constructor
         super!
         {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project} = new PaperDraw
 

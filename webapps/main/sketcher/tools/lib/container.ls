@@ -1,11 +1,10 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
-require! './get-class': {get-class, add-class}
+require! './get-class': {get-class}
 
 export class Container extends ComponentBase
     (parent) ->
         super!
-        add-class @constructor
         {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project, ractive} = new PaperDraw
         @ractive = ractive
         # parent: parent object or initialization data

@@ -1,5 +1,4 @@
 require! './container': {Container}
-require! './get-class': {add-class}
 
 export class Footprint extends Container
     (data) ->
@@ -8,7 +7,6 @@ export class Footprint extends Container
         #   position: optional
         #   rotation: optional
         #   init: current drawing
-        add-class @constructor
         super {init: data.init}
         unless data.init
             # initialize from scratch
