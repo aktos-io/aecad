@@ -72,65 +72,7 @@ export _default =
             else
                 null
 
-
-            # snap to target
-            search-hit = (src, target) ->
-                hits = []
-                if target.hasChildren!
-                    for target.children
-                        if search-hit src, ..
-                            hits ++= that
-                else
-                    # FIXME: this prevents trace selection!!
-                    target.selected = no
-
-                    type-ok = if target.type is \circle
-                        yes
-                    else if target.closed
-                        yes
-                    else
-                        no
-                    if src .is-close target.bounds.center, 10
-                        if type-ok
-                            # http://paperjs.org/reference/shape/
-                            #console.warn "Hit! ", target
-                            hits.push target
-                        else
-                            #console.log "Skipped hit because of type not ok:", target
-                            null
-                hits
-
-            closest = {}
-            for layer in @scope.project.getItems!
-                for obj in layer.children
-                    for hit in point `search-hit` obj
-                        dist = hit.bounds.center .subtract point .length
-                        if dist > tolerance
-                            console.log "skipping, too far ", dist
-                            continue
-                        #console.log "Snapping to ", hit
-                        if not closest.hit or dist < closest.dist
-                            closest
-                                ..hit = hit
-                                ..dist = dist
-            if closest.hit
-                console.log "snapped to the closest hit:", that, "zoom: ", @scope.view.zoom
-                @moving-point .set that.bounds.center
-                @selection.add that
-
-
             @update-helpers @moving-point, <[ s bs ]>
-            /*
-
-            # only for visualization of breaking point
-            for <[ x-s x-bs y-s y-bs ]>
-                if route-over and .. is route-over
-                    @helpers[..]
-                        ..stroke-color = 'red'
-                        ..stroke-width = 3
-                else
-                    @helpers[..].stroke-width = 0
-            */
 
             if route-over
                 bpoint = @helpers[that].bounds.center

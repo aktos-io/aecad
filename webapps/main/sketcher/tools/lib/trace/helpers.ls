@@ -18,13 +18,15 @@ export _default =
             ..rotate -45, point
 
         # visualize intersections
+        # FIXME: We use these for another reason, so we can't remove them. Find
+        # the usage
         for axis in <[ x y ]>
             for axis2 in <[ s bs ]>
                 @helpers["#{axis}-#{axis2}"] = new @scope.Path.Circle do
                     center: point
                     radius: 2
                     stroke-color: \yellow
-                    opacity: 0.4
+                    opacity: 0
 
         @helpers-subs = @scope.on-zoom {width: 1, dash: [8, 2, 2, 2], radius: 2}, (norm) ~>
             console.log "Updating helpers width: ", norm.width
