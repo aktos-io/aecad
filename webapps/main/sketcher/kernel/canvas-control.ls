@@ -103,6 +103,7 @@ export canvas-control =
                 tolerance: normalized tolerance (regarding to zoom)
                 normalize: [Bool, default: true] Use normalized tolerance
                 aecad: [Bool, default: true] Include aeCAD objects if possible
+                exclude-tmp: [Bool, default: true] Exclude items whose "data.tmp is true"
 
             Returns:
                 Array of hits, where every hit includes:
@@ -112,16 +113,23 @@ export canvas-control =
                             ae-obj: aeCAD object that corresponds to hit.item
                             parent: Parent aeCAD object
         */
-        defaults = {+fill, +stroke, +segments, tolerance: 0, +aecad, +normalize}
+        defaults = {
+            +fill, +stroke, +segments, tolerance: 0,
+            +aecad, +normalize, +exclude-tmp
+        }
         opts = defaults <<< opts
         if opts.normalize
             opts.tolerance = opts.tolerance / @_scope.view.zoom
         hits = @_scope.project.hitTestAll point, opts
         for hit in hits
-            # add aeCAD objects
-            hit.aecad =
-                parent: try get-parent-aecad hit.item
-                ae-obj: try get-aecad hit.item
+            if opts.exclude-tmp
+                continue if hit.item.data?tmp
+
+            if opts.aecad
+                # add aeCAD objects
+                hit.aecad =
+                    parent: try get-parent-aecad hit.item
+                    ae-obj: try get-aecad hit.item
         hits
 
     hitTest: ->
