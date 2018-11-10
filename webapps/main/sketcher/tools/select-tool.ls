@@ -32,7 +32,9 @@ export SelectTool = ->
                         # selection is right to left
                         opts.overlapping = sel.box.bounds
 
-                    selection.add scope.project.getItems opts
+                    items = scope.project.getItems opts
+                    console.log "including items: ", items
+                    selection.add items
                 sel.box.remove!
 
         ..onMouseDown = (event) ~>
