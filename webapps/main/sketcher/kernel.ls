@@ -68,8 +68,13 @@ class History
         #console.log "loaded scripts: ", data
 
     save: ->
+        # Save history into browser's local storage
+        # -----------------------------------------
+        # save current project
         data = @project.exportJSON!
         @db.set \project, data
+
+        # save scripts
         scripts = @ractive.get \drawingLs
         @db.set \scripts, scripts
 
@@ -81,9 +86,14 @@ class History
             autoCompile: @ractive.get \autoCompile
             currTrace: @ractive.get \currTrace
 
+        # save last 10 commits of history
+        @db.set \history, @commits.slice(-10)
+
         console.log "Saved at ", Date!, "project length: #{parseInt(data.length/1024)}KB"
 
     load: ->
+        # Load from browser's local storage
+        # --------------------------------------
         if @db.get \project
             @load-project that
 
@@ -97,6 +107,12 @@ class History
             @ractive.set \autoCompile, that.autoCompile
             @ractive.set \currTrace, that.currTrace
 
+        if commits=(@db.get \history)
+            if @commits.length is 0 and typeof! commits is \Array
+                @commits = commits
+            else
+                @ractive.get \vlog .error "How come the history isn't empty?"
+                console.error "Commit history isn't empty: ", @commits
 
 class Line
     (opts, @paper) ->
@@ -236,7 +252,7 @@ export class PaperDraw
 
                         move.speed = event.point.subtract move.grab-point .divide(20)
 
-                        # snap to center:
+                        # set pan speed to zero if it's too slow
                         if @_scope.view.zoom * move.speed.length < 0.5
                             move.speed = null
                         #console.log "Move speed is: ", move.speed?.length
