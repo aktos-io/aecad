@@ -2,16 +2,14 @@ export _default =
     set-helpers: (point) ->
         @remove-helpers!
 
-        helper-opts =
-            from: [-1000, point.y]
-            to: [1000, point.y]
-            data: {+tmp}
-            strokeWidth: 0.5
-            strokeColor: \white
-            opacity: 0.1
-            dashArray: [5, 1, 1, 1]
-
-        @helpers.x = new @scope.Path.Line helper-opts
+        @helpers.x = new @scope.Path.Line helper-opts =
+                from: [-1000, point.y]
+                to: [1000, point.y]
+                data: {+tmp}
+                strokeWidth: 0.5
+                strokeColor: \white
+                opacity: 0.4
+                dashArray: [5, 1, 1, 1]
         @helpers.y = @helpers.x.clone!
             ..rotate 90, point
         @helpers.s = @helpers.x.clone!
@@ -19,6 +17,10 @@ export _default =
         @helpers.bs = @helpers.x.clone!
             ..rotate -45, point
 
+        @helpers-subs = @scope.on-zoom {width: 1}, (val) ~>
+            console.log "Updating helpers width: ", val.width
+            for n, helper of @helpers
+                helper.stroke-width = val.width
 
         # visualize intersections
         for axis in <[ x y ]>
@@ -32,6 +34,7 @@ export _default =
     remove-helpers: ->
         for h, p of @helpers
             p.remove!
+        @helpers-subs?.remove!
 
     update-helpers: (point, names=<[ x y s bs ]>) ->
         for name, h of @helpers when name in names

@@ -411,15 +411,29 @@ export class PaperDraw
         #
         # Returns: control object with a "remove()" method
         #
-        next-id = (@zoom-subs |> keys |> map parse-int |> maximum) or 0 |> (+ 1)
-        @zoom-subs[next-id] = (zoom) ->
+        id = (@zoom-subs |> keys |> map parse-int |> maximum) or 0 |> (+ 1)
+        @zoom-subs[id] = (zoom) ->
             normalized = {}
             for k, v of src
-                normalized[k] = v / zoom
+                normalized[k] = switch typeof! v
+                | 'Number' => v / zoom
+                | 'Array' => v.map (/ zoom)
+                |_ => throw new Error "Not a supported type: #{typeof! v}"
             handler normalized
+
+        # run on first subscription
+        @update-zoom-subs id
 
         return ctrl =
             remove: ~>
-                console.log "Deleting zoom handler: id: #{next-id}"
-                delete @zoom-subs[next-id]
-            id: next-id
+                console.log "Deleting zoom handler: id: #{id}"
+                delete @zoom-subs[id]
+            id: id
+
+    update-zoom-subs: (id) ->
+        for _id, handler of @zoom-subs
+            if id? and "#{id}" isnt _id
+                # update only the specific id
+                continue
+            #console.log "Updating zoom subscriber: #{_id}"
+            handler(@view.zoom)
