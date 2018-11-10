@@ -17,20 +17,25 @@ export _default =
         @helpers.bs = @helpers.x.clone!
             ..rotate -45, point
 
-        @helpers-subs = @scope.on-zoom {width: 1, dash: [8, 2, 2, 2]}, (val) ~>
-            console.log "Updating helpers width: ", val.width
-            for n, helper of @helpers
-                helper.stroke-width = val.width
-                helper.dash-array = val.dash
-
         # visualize intersections
         for axis in <[ x y ]>
             for axis2 in <[ s bs ]>
                 @helpers["#{axis}-#{axis2}"] = new @scope.Path.Circle do
                     center: point
-                    radius: 3
+                    radius: 2
                     stroke-color: \yellow
-                    opacity: 0
+                    opacity: 0.4
+
+        @helpers-subs = @scope.on-zoom {width: 1, dash: [8, 2, 2, 2], radius: 2}, (norm) ~>
+            console.log "Updating helpers width: ", norm.width
+            for n, helper of @helpers
+                helper.stroke-width = norm.width
+                helper.dash-array = norm.dash
+
+            for a1 in <[ x y ]>
+                for a2 in <[ s bs ]>
+                    @helpers["#{a1}-#{a2}"].radius = norm.radius
+
 
     remove-helpers: ->
         for h, p of @helpers
