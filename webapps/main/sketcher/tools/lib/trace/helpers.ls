@@ -8,7 +8,7 @@ export _default =
                 data: {+tmp}
                 strokeWidth: 0.5
                 strokeColor: \white
-                opacity: 0.4
+                opacity: 0.3
                 dashArray: [5, 1, 1, 1]
         @helpers.y = @helpers.x.clone!
             ..rotate 90, point
@@ -17,10 +17,11 @@ export _default =
         @helpers.bs = @helpers.x.clone!
             ..rotate -45, point
 
-        @helpers-subs = @scope.on-zoom {width: 1}, (val) ~>
+        @helpers-subs = @scope.on-zoom {width: 1, dash: [8, 2, 2, 2]}, (val) ~>
             console.log "Updating helpers width: ", val.width
             for n, helper of @helpers
                 helper.stroke-width = val.width
+                helper.dash-array = val.dash
 
         # visualize intersections
         for axis in <[ x y ]>
