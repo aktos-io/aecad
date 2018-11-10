@@ -2,10 +2,25 @@ require! 'prelude-ls': {abs}
 require! '../../kernel': {PaperDraw}
 
 # returns the snapped movement
-session = null
-prev = null
+session = null # indicates if the same movement continues
+prev = null  # previously provided snap point
 
 export snap-move = (start-point, curr, opts={}) ->
+    '''
+    Args:
+        start-point : [Point] Start point
+        curr        : [Point] Current point
+        opts        : [Object] Snap options
+            shift       : [Bool] lock axis
+            tolerance   : [Number] normalized tolerance
+
+    Returns: Object:
+        point, snapped: [Point] Absolute value of the snapped point
+        delta: [Point] The delta between previously calculated (`prev`) snap `point`
+        route-over: [String] "a-b" formatted string that indicates which axis' the route
+            should follow in order to have cut-off corners
+
+    '''
     _defaults =
         tolerance: 10
 
