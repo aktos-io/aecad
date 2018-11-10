@@ -42,9 +42,6 @@ export class Trace extends Container implements follow, helpers
         @line = null
         @snap-x = false
         @snap-y = false
-        @moving-point = null    # point that *tries* to follow the pointer (might be currently snapped)
-        @last-point = null      # last point which is placed
-        @continues = no         # trace is continuing or not
         @modifiers = {}
         @history = []
         @prev-hover = []
@@ -52,12 +49,20 @@ export class Trace extends Container implements follow, helpers
         @selection = new Selection
         @helpers = {}
         @corr-point = null # correcting point
-
         @vias = []
-        @group = null
 
-    get-tolerance: ->
-        20 / @scope.view.zoom
+        @zoom-subs = @scope.on-zoom {tolerance: 20}, (norm) ~>
+            @tolerance = norm.tolerance
+
+    moving-point: ~
+        # point that *tries* to follow the pointer (might be currently snapped)
+        -> @line?.segments[* - 1].point
+
+    last-point: ~
+        # last point placed
+        ->
+            a = if @corr-point? => 1 else 0
+            @line?.segments[* - 2 - a].point
 
     connect: (hit) ->
         # connect to an already existing trace
@@ -89,8 +94,8 @@ export class Trace extends Container implements follow, helpers
 
             @reduce @line
 
+        @zoom-subs.remove!
         @line = null
-        @continues = no
         @snap-x = false             # snap to -- direction
         @snap-y = false             # snap to | direction
         @snap-slash = false         # snap to / direction
@@ -98,6 +103,9 @@ export class Trace extends Container implements follow, helpers
         @removed-last-segment = null
         @remove-helpers!
         @vias.length = 0
+
+    continues: ~
+        -> @line?
 
     remove-last-point: (undo) ->
         a = if @corr-point => 1 else 0
@@ -191,7 +199,6 @@ export class Trace extends Container implements follow, helpers
             @line.add (@moving-point or point)
 
         @corr-point = null
-        @continues = yes
         @update-vias!
 
         # TODO: reduce the path geometry

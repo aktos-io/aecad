@@ -1,17 +1,14 @@
 require! 'prelude-ls': {abs}
 
 export follow =
+
     follow: (point) ->
         if @line
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             # TODO: Replace with snap-move
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            @moving-point = @line.segments[* - 1].point
-            a = if @corr-point? => 1 else 0
-            @last-point = @line.segments[* - 2 - a].point
             y-diff = @last-point.y - point.y
             x-diff = @last-point.x - point.x
-            tolerance = @get-tolerance!
 
             snap-y = false
             snap-x = false
@@ -40,18 +37,18 @@ export follow =
 
             route-over = null
             # decide snap axis
-            if snap-x or sdir.x < tolerance
+            if snap-x or sdir.x < @tolerance
                 @moving-point.x = point.x
                 @moving-point.y = @last-point.y
-            else if snap-y or sdir.y < tolerance
+            else if snap-y or sdir.y < @tolerance
                 @moving-point.y = point.y
                 @moving-point.x = @last-point.x
-            else if snap-backslash or sdir.backslash < tolerance
+            else if snap-backslash or sdir.backslash < @tolerance
                 d = @last-point.x - point.x
                 @moving-point
                     ..x = point.x
                     ..y = @last-point.y - d
-            else if snap-slash or sdir.slash < tolerance
+            else if snap-slash or sdir.slash < @tolerance
                 d = @last-point.x - point.x
                 @moving-point
                     ..x = point.x
