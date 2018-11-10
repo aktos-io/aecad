@@ -14,9 +14,8 @@ export get-parent-aecad = (item-part) ->
     item = switch item-part.getClassName?!
     | 'Segment', 'Curve' =>
         item-part.getPath!
-    | 'Path' =>
+    |_ =>
         item-part
-    |_ => throw new Error "What is that?"
 
     ae-obj = null
     for dig in [0 to 100]
