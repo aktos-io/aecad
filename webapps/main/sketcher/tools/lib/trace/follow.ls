@@ -145,7 +145,8 @@ export _default =
                 @corr-point = null
 
             unless @line.selected
-                @selection.add @line
+                @line.selected = yes
+                #@selection.add @line
 
             @curr = event
                 ..point = @moving-point

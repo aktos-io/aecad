@@ -17,8 +17,10 @@ export TraceTool = (scope) ->
             # ---------------------------------
             if scope.project.hitTest event.point
                 # that is a hit
-                if trace.connect that.segment
+                if trace.connect that
                     console.log "we are continuing!"
+                    trace := null # TODO: is it enough to garbage collect current trace objec?
+                    trace := that
             trace.add-segment event.point
             scope.cursor 'cell'
             trace.resume!

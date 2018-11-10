@@ -8,6 +8,7 @@ require! 'aea/do-math': {mm2px}
 require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
+require! '../get-aecad': {get-parent-aecad}
 
 /* Trace structure:
     data:
@@ -24,25 +25,19 @@ require! '../../../kernel': {PaperDraw}
 
 
 export class Trace extends Container
-    ->
-        data = {}
-        {ractive} = @scope = new PaperDraw
-        @ractive = ractive
-
+    (data) ->
         super ...
-        unless data.init
+        if @init-with-data arguments.0
+            # initialize with provided data
+            null # no special action needed
+        else
             # initialize from scratch
             @data =
                 type: @constructor.name
                 tid: shortid.generate!
 
             @data <<<< data
-        else
-            # initialize with provided data
-            @data = data.init.data.aecad
-
-
-        @g.data = aecad: @data
+            @g.data = aecad: @data
 
         @line = null
         @snap-x = false
@@ -52,7 +47,6 @@ export class Trace extends Container
         @continues = no         # trace is continuing or not
         @modifiers = {}
         @history = []
-        @trace-id = null
         @prev-hover = []
         @removed-last-segment = null  # TODO: undo functionality will replace this
         @selection = new Selection
@@ -65,16 +59,12 @@ export class Trace extends Container
     get-tolerance: ->
         20 / @scope.view.zoom
 
-    load: (data) ->
-        super ...
-
-    connect: (segment) ->
+    connect: (hit) ->
         # connect to an already existing trace
-        group = segment?.getPath!
-        if get-tid group
-            @group = group
-            @trace-id = that
-            return true
+        {ae-obj, item} = get-parent-aecad hit.item
+        if get-tid item
+            console.log "we hit a trace: item: ", item, "aecad obj: ", ae-obj
+            return ae-obj
         return false
 
     reduce: (line) !->
@@ -101,7 +91,6 @@ export class Trace extends Container
 
         @line = null
         @continues = no
-        @trace-id = null
         @snap-x = false             # snap to -- direction
         @snap-y = false             # snap to | direction
         @snap-slash = false         # snap to / direction
@@ -176,7 +165,7 @@ export class Trace extends Container
                 if hit?segment
                     snap = hit.segment.point.clone!
                     break
-                else if hit?item and hit.item.data?.aecad?.tid isnt @trace-id
+                else if hit?item and hit.item.data?.aecad?.tid isnt @get-data('tid')
                     snap = hit.item.bounds.center.clone!
                     console.log "snapping to ", snap
                     break
@@ -198,7 +187,7 @@ export class Trace extends Container
             @line.add snap
 
             if new-trace
-                @set-helpers point
+                @set-helpers snap
             @update-helpers snap
 
         else

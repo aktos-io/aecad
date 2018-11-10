@@ -4,9 +4,8 @@ require! 'aea/do-math': {mm2px}
 
 export class Pad extends ComponentBase
     (parent, opts) ->
+        {Group, Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
         super!
-        {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project} = new PaperDraw
-
         # opts:
         #     # Required
         #     pin
