@@ -15,6 +15,10 @@ export TraceTool = (scope) ->
         ..onMouseUp = (event) ~>
             # Start a trace
             # ---------------------------------
+            unless trace.continues
+                console.log "saved current state in the history"
+                scope.history.commit!
+
             if scope.project.hitTest event.point
                 # that is a hit
                 if trace.connect that
