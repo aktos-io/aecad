@@ -2,7 +2,6 @@ require! 'paper'
 window.paper = paper # required for PaperScope to work correctly
 require! 'prelude-ls': {keys, maximum, map}
 require! '../tools/lib/selection': {Selection}
-require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! 'aea': {VLogger}
 require('jquery-mousewheel')($);
 require! './zooming': {paperZoom}
@@ -191,10 +190,12 @@ export class PaperDraw implements canvas-control
         # run on first subscription
         @update-zoom-subs id
 
+        console.log "installed zoom handler: ", id, "curr: ", @zoom-subs
+
         return ctrl =
             remove: ~>
-                console.log "Deleting zoom handler: id: #{id}"
                 delete @zoom-subs[id]
+                console.log "Deleted zoom handler: id: #{id}, curr:", @zoom-subs
             id: id
 
     update-zoom-subs: (id) ->
