@@ -53,16 +53,12 @@ export class PaperDraw implements canvas-control
             ..on \selected, (items) ~>
                 selected = items.0
                 return unless selected
-                #console.log "Displaying properties of ", selected
-                @ractive.set \selectedProps, selected
-                @ractive.set \propKeys, do
-                    fillColor: \color
-                    strokeWidth: \number
-                    strokeColor: \color
+                console.log "Displaying properties of ", selected
+                if selected.item?getPath?!
+                    selected = that
                 @ractive.set \aecadData, (selected.data?aecad or {})
 
             ..on \cleared, ~>
-                @ractive.set \propKeys, {}
                 @ractive.set \aecadData, {}
 
         @history = new History {
