@@ -8,7 +8,7 @@ require! 'aea/do-math': {mm2px}
 require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
-require! '../get-aecad': {get-parent-aecad}
+require! '../get-aecad': {get-parent-aecad, get-aecad}
 
 /* Trace structure:
     data:
@@ -51,8 +51,9 @@ export class Trace extends Container implements follow, helpers
         @corr-point = null # correcting point
         @vias = []
 
-        @zoom-subs = @scope.on-zoom {tolerance: 20}, (norm) ~>
-            @tolerance = norm.tolerance
+        @zoom-subs = @scope.on-zoom (norm, heartbeat) ~>
+            @tolerance = 20 * norm
+            heartbeat!
 
     moving-point: ~
         # point that *tries* to follow the pointer (might be currently snapped)
@@ -66,17 +67,32 @@ export class Trace extends Container implements follow, helpers
 
     connect: (hit) ->
         # connect to an already existing trace
-        {ae-obj, item} = get-parent-aecad hit.item
-        if get-tid item
-            console.log "we hit a trace: item: ", item, "aecad obj: ", ae-obj
-            return ae-obj
+        {item, tid} = get-parent-aecad hit.item
+        tid = get-tid item
+        if tid and tid isnt @get-data \tid
+            console.log "we hit a trace: item: ", item
+            return get-aecad item
         return false
 
     reduce: (line) !->
         to-be-removed = []
-        for i in [til line.segments.length - 1]
+        last-index = line.segments.length - 1
+        for i in [til last-index]
             if line.segments[i].point.isClose line.segments[i + 1].point, 1
-                to-be-removed.push i
+                seg-index = i
+                if seg-index is 0
+                    console.log "we won't reduce first segment!"
+                    if seg-index + 1 is last-index
+                        console.log "...but we don't have a choice as segment index:", last-index
+                    else
+                        seg-index += 1
+                if seg-index is last-index
+                    console.log "we won't reduce last segment!"
+                    if seg-index <= 1
+                        console.log "...but we don't have a choice as segment index:", last-index
+                    else
+                        seg-index -= 1
+                to-be-removed.push seg-index
         for i, s of to-be-removed
             line.segments[s - i].remove!
 
@@ -94,7 +110,16 @@ export class Trace extends Container implements follow, helpers
 
             @reduce @line
 
+        unless @g.hasChildren()
+            console.log "empty trace, removing"
+            @g.remove!
+        else
+            #@g.bounds.selected = true
+            void
+
         @zoom-subs.remove!
+        @remove-helpers!
+
         @line = null
         @snap-x = false             # snap to -- direction
         @snap-y = false             # snap to | direction
@@ -146,22 +171,49 @@ export class Trace extends Container implements follow, helpers
                 ..item.selected = yes
                 @prev-hover.push ..item
 
-    add-segment: (point, flip-side=false) ->
+    add-segment: (point, flip-side=false) !->
+        if @paused
+            console.log "not adding segment as tracing is paused"
+            return
         # Check if we should snap to the hit point
-        hits = @scope.project.hitTestAll point
-        snap = point.clone!
+        hits = @scope.hitTestAll point, {
+            tolerance: 1,
+            -aecad # in order to prevent scope.on-zoom subscription leak
+        }
+        snap = point.clone! # use the event point as is
+        actaul-hit = null
         for hit in hits
-            console.log "trace hit to: ", hit
+            #console.log "trace hit to: ", hit
             if hit.item.data.tmp
-                # this is a temporary object, do not snap to it
+                # do not snap to tmp objects
                 continue
-            if hit?segment
+            if hit.segment
+                console.log "snapping to segment: ", hit.segment
                 snap = hit.segment.point.clone!
-                break
-            else if hit?item and hit.item.data?.aecad?.tid isnt @get-data('tid')
+
+                # debug point
+                new @scope.Shape.Circle do
+                    fill-color: 'yellow'
+                    radius: 0.5
+                    opacity: 0.5
+                    center: snap
+                    data: {+tmp}
+                    selected: true
+
+            else if hit.location
+                # this is a curve, use nearest point on path
+                console.log "snapping to curve: ", hit.location
+                snap = that.path.getNearestPoint point.clone!
+            else
+                # this is an item (pad, etc.)
+                console.log "snapping to item: ", hit.item
                 snap = hit.item.bounds.center.clone!
-                console.log "snapping to ", snap
-                break
+            actual-hit = hit
+            break
+
+        #console.log "Actual hit is: ", actual-hit
+        if actual-hit?item
+            snap = that.parent.localToGlobal(snap)
 
         new-trace = no
         if not @line or flip-side
@@ -175,7 +227,7 @@ export class Trace extends Container implements follow, helpers
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
 
-            @line = new @scope.Path(snap)
+            @line = new @scope.Path(snap.clone!)
                 ..strokeColor = curr.layer.color
                 ..strokeWidth = curr.trace.width |> mm2px
                 ..strokeCap = 'round'
@@ -185,22 +237,32 @@ export class Trace extends Container implements follow, helpers
                     side: curr.layer.name
                 ..parent = @g
 
-            @line.add snap
+            @line.add snap.clone!
 
             if new-trace
-                @set-helpers snap
-            @update-helpers snap
+                @set-helpers snap.clone!
+            @update-helpers snap.clone!
+
+            /* for debugging purposes:
+            new @scope.Shape.Circle do
+                fill-color: 'yellow'
+                radius: 0.1
+                center: snap.clone!
+                data: {+tmp}
+            */
+
+            # Paper.js bug: above @line doesn't start in
+            # `snap` point
+            sleep 300ms, ~>
+                @line?.firstSegment.point.set snap
+
         else
-            @update-helpers (@moving-point or point)
-            # prevent duplicate segments
-            @line.add (@moving-point or point)
+            console.log "about to update helpers"
+            @update-helpers (@moving-point)
+            console.log "helpers updated"
+            @line.add (@moving-point)
 
         @commit-corr-point!
-        @update-vias!
-
-    update-vias: ->
-        for @vias
-            ..bringToFront!
 
     add-via: ->
         outer-dia = @ractive.get \currTrace.via.outer

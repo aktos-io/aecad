@@ -27,16 +27,19 @@ export helpers =
                     radius: 2
                     stroke-color: \yellow
                     opacity: 0
+                    data: {+tmp}
 
-        @helpers-subs = @scope.on-zoom {width: 1, dash: [8, 2, 2, 2], radius: 2}, (norm) ~>
-            console.log "Updating helpers width: ", norm.width
+        @helpers-subs = @scope.on-zoom (norm, heartbeat) ~>
             for n, helper of @helpers
-                helper.stroke-width = norm.width
-                helper.dash-array = norm.dash
+                helper.stroke-width = 1 * norm
+                helper.dash-array = [8, 2, 2, 2].map (* norm)
 
             for a1 in <[ x y ]>
                 for a2 in <[ s bs ]>
-                    @helpers["#{a1}-#{a2}"].radius = norm.radius
+                    @helpers["#{a1}-#{a2}"].radius = 2 * norm
+
+            heartbeat!
+        console.log "zoom handler registered by set-helpers: ", @helpers-subs.id
 
 
     remove-helpers: ->

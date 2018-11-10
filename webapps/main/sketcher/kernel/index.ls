@@ -76,7 +76,7 @@ export class PaperDraw implements canvas-control
 
         # http://paperjs.org/reference/paperscope/#settings
         @_scope.settings
-            ..handleSize = 8
+        #    ..handleSize = 8
 
         # visual logger
         @vlog = new VLogger @ractive
@@ -171,21 +171,20 @@ export class PaperDraw implements canvas-control
         @view.zoom = old-zoom # for above workaround
         return json
 
-    on-zoom: (src, handler) ->
+    on-zoom: (handler) ->
         # normalize the source values according to zoom value and pass them
         # to handler on zoom change
         #
         # Returns: control object with a "remove()" method
         #
         id = (@zoom-subs |> keys |> map parse-int |> maximum) or 0 |> (+ 1)
-        @zoom-subs[id] = (zoom) ->
-            normalized = {}
-            for k, v of src
-                normalized[k] = switch typeof! v
-                | 'Number' => v / zoom
-                | 'Array' => v.map (/ zoom)
-                |_ => throw new Error "Not a supported type: #{typeof! v}"
-            handler normalized
+        @zoom-subs[id] = (zoom) ~>
+            hb = sleep 1000ms, ~>
+                try delete @zoom-subs[id]
+                console.warn "No heartbeat for #{id}, removing handler. curr:", @zoom-subs
+
+            handler (1 / zoom), heartbeat = ->
+                clear-timeout hb
 
         # run on first subscription
         @update-zoom-subs id
@@ -193,10 +192,12 @@ export class PaperDraw implements canvas-control
         console.log "installed zoom handler: ", id, "curr: ", @zoom-subs
 
         return ctrl =
-            remove: ~>
-                delete @zoom-subs[id]
-                console.log "Deleted zoom handler: id: #{id}, curr:", @zoom-subs
+            remove: ~> @remove-zoom-subs id
             id: id
+
+    remove-zoom-subs: (id) ->
+        delete @zoom-subs[id]
+        console.log "Deleted zoom handler: id: #{id}, curr:", @zoom-subs
 
     update-zoom-subs: (id) ->
         for _id, handler of @zoom-subs
