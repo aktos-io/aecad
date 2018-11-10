@@ -13,6 +13,10 @@ export class ComponentBase
     get-data: (keypath) ->
         get-keypath @g.data.aecad, keypath
 
+    add-data: (keypath, value) ->
+        curr = (@get-data keypath) or 0 |> parse-int
+        set-keypath @g.data.aecad, keypath, curr + value
+
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
 
