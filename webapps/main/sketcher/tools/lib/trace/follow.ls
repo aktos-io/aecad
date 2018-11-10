@@ -1,6 +1,6 @@
 require! 'prelude-ls': {abs}
 
-export _default =
+export follow =
     follow: (point) ->
         if @line
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

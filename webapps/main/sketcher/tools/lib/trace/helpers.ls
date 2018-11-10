@@ -1,4 +1,4 @@
-export _default =
+export helpers =
     set-helpers: (point) ->
         @remove-helpers!
 

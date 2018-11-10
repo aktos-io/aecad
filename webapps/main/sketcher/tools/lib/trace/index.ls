@@ -1,8 +1,8 @@
 require! 'prelude-ls': {abs, min}
 require! 'shortid'
 require! '../selection': {Selection}
-require! './helpers': {_default: helpers}
-require! './follow': {_default: follow}
+require! './helpers': {helpers}
+require! './follow': {follow}
 require! './lib': {get-tid}
 require! 'aea/do-math': {mm2px}
 require! '../pad': {Pad}
@@ -24,7 +24,7 @@ require! '../get-aecad': {get-parent-aecad}
 */
 
 
-export class Trace extends Container
+export class Trace extends Container implements follow, helpers
     (data) ->
         super ...
         if @init-with-data arguments.0
@@ -137,11 +137,6 @@ export class Trace extends Container
             else
                 ..item.selected = yes
                 @prev-hover.push ..item
-
-    set-helpers: helpers.set-helpers
-    update-helpers: helpers.update-helpers
-    remove-helpers: helpers.remove-helpers
-    follow: follow.follow
 
     add-segment: (point, flip-side=false) ->
         new-trace = no
