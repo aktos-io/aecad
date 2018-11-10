@@ -104,6 +104,7 @@ export canvas-control =
                 normalize: [Bool, default: true] Use normalized tolerance
                 aecad: [Bool, default: true] Include aeCAD objects if possible
                 exclude-tmp: [Bool, default: true] Exclude items whose "data.tmp is true"
+                exclude: [Array of Items] Exclude list that hit result will ignore it and its children.
 
             Returns:
                 Array of hits, where every hit includes:
@@ -120,16 +121,25 @@ export canvas-control =
         opts = defaults <<< opts
         if opts.normalize
             opts.tolerance = opts.tolerance / @_scope.view.zoom
-        hits = @_scope.project.hitTestAll point, opts
-        for hit in hits
+        _hits = @_scope.project.hitTestAll point, opts
+        hits = []
+        :outer for hit in _hits
+            # exclude temporary objects
             if opts.exclude-tmp
                 continue if hit.item.data?tmp
 
+            # exclude provided items
+            if opts.exclude
+                for that when hit.item.isDescendant(..) or hit.item.id is ..id
+                    continue outer
+
+            # add aeCAD objects
             if opts.aecad
-                # add aeCAD objects
                 hit.aecad =
                     parent: try get-parent-aecad hit.item
                     ae-obj: try get-aecad hit.item
+
+            hits.push hit
         hits
 
     hitTest: ->
