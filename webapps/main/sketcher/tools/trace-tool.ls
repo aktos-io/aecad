@@ -23,6 +23,7 @@ export TraceTool = (scope) ->
                 # that is a hit
                 if trace.connect that
                     console.log "we are continuing!"
+                    trace.end! # do the cleanup, at least
                     trace := null # TODO: is it enough to garbage collect current trace object?
                     trace := that
             trace.add-segment event.point
