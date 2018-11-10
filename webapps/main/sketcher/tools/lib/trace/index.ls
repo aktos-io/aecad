@@ -147,31 +147,29 @@ export class Trace extends Container implements follow, helpers
                 @prev-hover.push ..item
 
     add-segment: (point, flip-side=false) ->
+        # Check if we should snap to the hit point
+        hits = @scope.project.hitTestAll point
+        snap = point.clone!
+        for hit in hits
+            console.log "trace hit to: ", hit
+            if hit.item.data.tmp
+                # this is a temporary object, do not snap to it
+                continue
+            if hit?segment
+                snap = hit.segment.point.clone!
+                break
+            else if hit?item and hit.item.data?.aecad?.tid isnt @get-data('tid')
+                snap = hit.item.bounds.center.clone!
+                console.log "snapping to ", snap
+                break
+
         new-trace = no
         if not @line or flip-side
             unless @line
                 new-trace = yes
             else
-                # side flipped
+                # side flipped, reduce previous line
                 @reduce @line
-
-
-            # TODO: hitTest is not the correct way to go,
-            # check if inside the geometry
-            hits = @scope.project.hitTestAll point
-            snap = point.clone!
-            for hit in hits
-                console.log "trace hit to: ", hit
-                if hit.item.data.tmp
-                    # this is a temporary object, do not snap to it
-                    continue
-                if hit?segment
-                    snap = hit.segment.point.clone!
-                    break
-                else if hit?item and hit.item.data?.aecad?.tid isnt @get-data('tid')
-                    snap = hit.item.bounds.center.clone!
-                    console.log "snapping to ", snap
-                    break
 
             curr =
                 layer: @ractive.get \currProps
@@ -184,7 +182,7 @@ export class Trace extends Container implements follow, helpers
                 ..strokeJoin = 'round'
                 ..selected = yes
                 ..data.aecad =
-                    layer: curr.layer.name
+                    side: curr.layer.name
                 ..parent = @g
 
             @line.add snap
@@ -192,19 +190,13 @@ export class Trace extends Container implements follow, helpers
             if new-trace
                 @set-helpers snap
             @update-helpers snap
-
         else
             @update-helpers (@moving-point or point)
             # prevent duplicate segments
             @line.add (@moving-point or point)
 
-        @corr-point = null
+        @commit-corr-point!
         @update-vias!
-
-        # TODO: reduce the path geometry
-        # 1. remove coincident segments
-        # 2. remove segments on a curve
-        #@line.reduce! # DO NOT REDUCE AT THE BEGINNING
 
     update-vias: ->
         for @vias

@@ -23,7 +23,7 @@ export TraceTool = (scope) ->
                 # that is a hit
                 if trace.connect that
                     console.log "we are continuing!"
-                    trace := null # TODO: is it enough to garbage collect current trace objec?
+                    trace := null # TODO: is it enough to garbage collect current trace object?
                     trace := that
             trace.add-segment event.point
             scope.cursor 'cell'

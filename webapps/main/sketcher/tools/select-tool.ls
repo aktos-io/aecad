@@ -37,7 +37,7 @@ export SelectTool = ->
 
         ..onMouseDown = (event) ~>
             # TODO: there are many objects overlapped, use .hitTestAll() instead
-            hit = scope.project.hitTest event.point
+            hit = scope.hitTest event.point, {tolerance: 2}
             console.log "Select Tool: Hit result is: ", hit
             unless event.modifiers.control
                 selection.clear!

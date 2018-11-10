@@ -1,8 +1,4 @@
-require! 'paper'
-window.paper = paper # required for PaperScope to work correctly
 require! 'aea': {VLogger}
-require('jquery-mousewheel')($);
-require! './zooming': {paperZoom}
 require! './kernel': {PaperDraw}
 require! './example'
 
@@ -27,12 +23,6 @@ Ractive.components['sketcher'] = Ractive.extend do
         # Initial layers
         pcb.add-layer \scripting
         pcb.use-layer \gui
-
-        # zooming
-        $ canvas .mousewheel (event) ~>
-            paperZoom pcb, event
-            @update \pcb.view.zoom
-            pcb.update-zoom-subs!
 
         _handlers =
             require './gui/scripting' .init.call this, pcb
