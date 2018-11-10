@@ -1,5 +1,9 @@
 require! 'prelude-ls': {flatten}
 require! './line': {Line}
+require! 'dcs/lib/keypath': {get-keypath, set-keypath}
+
+# TODO: move get-aecad.ls here
+require! '../tools/lib/get-aecad': {get-aecad, get-parent-aecad}
 
 export canvas-control =
     get-top-item: (item) ->
@@ -92,12 +96,33 @@ export canvas-control =
 
     hitTestAll: (point, opts={}) ->
         # Hit test all which circumvents the option overwrite problem of original
-        # .hitTestAll method, uses normalized tolerance
+        # .hitTestAll method, plus adds below options
+        /*
+            opts:
+                ...inherits Paper.js opts, overwrites are as follows:
+                tolerance: normalized tolerance (regarding to zoom)
+                normalize: [Bool, default: true] Use normalized tolerance
+                aecad: [Bool, default: true] Include aeCAD objects if possible
 
-        defaults = {+fill, +stroke, +segments, tolerance: 0}
+            Returns:
+                Array of hits, where every hit includes:
+
+                    Paperjs_Hit_Result <<< additional =
+                        aecad:
+                            ae-obj: aeCAD object that corresponds to hit.item
+                            parent: Parent aeCAD object
+        */
+        defaults = {+fill, +stroke, +segments, tolerance: 0, +aecad, +normalize}
         opts = defaults <<< opts
-        opts.tolerance = opts.tolerance / @_scope.view.zoom
-        @_scope.project.hitTestAll point, opts
+        if opts.normalize
+            opts.tolerance = opts.tolerance / @_scope.view.zoom
+        hits = @_scope.project.hitTestAll point, opts
+        for hit in hits
+            # add aeCAD objects
+            hit.aecad =
+                parent: try get-parent-aecad hit.item
+                ae-obj: try get-aecad hit.item
+        hits
 
     hitTest: ->
         # TODO: is this true? is it equivalent to the first hit of @hitTestAll! ?
