@@ -32,6 +32,8 @@ Ractive.components['sketcher'] = Ractive.extend do
         $ canvas .mousewheel (event) ~>
             paperZoom pcb, event
             @update \pcb.view.zoom
+            for id, handler of pcb.zoom-subs
+                handler(pcb.view.zoom)
 
         _handlers =
             require './gui/scripting' .init.call this, pcb

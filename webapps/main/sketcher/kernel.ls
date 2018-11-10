@@ -1,4 +1,4 @@
-require! 'prelude-ls': {flatten, round}
+require! 'prelude-ls': {flatten, round, keys, maximum, map}
 require! './tools/lib/selection': {Selection}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! 'actors': {BrowserStorage}
@@ -227,6 +227,9 @@ export class PaperDraw
         # visual logger
         @vlog = new VLogger @ractive
 
+        # on-zoom subscribers
+        @zoom-subs = {}
+
         move = {}
         pan-style = \speed-drag
         @_scope.view
@@ -401,3 +404,22 @@ export class PaperDraw
             ), null
         #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
         return bounds
+
+    on-zoom: (src, handler) ->
+        # normalize the source values according to zoom value and pass them
+        # to handler on zoom change
+        #
+        # Returns: control object with a "remove()" method
+        #
+        next-id = (@zoom-subs |> keys |> map parse-int |> maximum) or 0 |> (+ 1)
+        @zoom-subs[next-id] = (zoom) ->
+            normalized = {}
+            for k, v of src
+                normalized[k] = v / zoom
+            handler normalized
+
+        return ctrl =
+            remove: ~>
+                console.log "Deleting zoom handler: id: #{next-id}"
+                delete @zoom-subs[next-id]
+            id: next-id
