@@ -4,7 +4,7 @@ require! './get-aecad': {get-aecad}
 
 export class Container extends ComponentBase
     (parent) ->
-        super!
+        super ...
         {Group} = new PaperDraw
 
         @pads = []

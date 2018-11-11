@@ -7,6 +7,8 @@ export class ComponentBase
         @scope = new PaperDraw
         @ractive = @scope.ractive
 
+        @resuming = @init-with-data arguments.0
+
     set-data: (keypath, value) ->
         set-keypath @g.data.aecad, keypath, value
 
@@ -48,3 +50,12 @@ export class ComponentBase
 
     get: (query) ->
         console.warn "NOT IMPLEMENTED: Requested a query: ", query
+
+    g-pos: ~
+        # Global position
+        ->
+            # TODO: I really don't know why ".parent" part is needed. Find out why.
+            @g.parent.localToGlobal @g.bounds.center
+
+    name: ~
+        -> @get-data \name
