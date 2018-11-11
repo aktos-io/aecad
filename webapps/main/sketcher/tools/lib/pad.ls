@@ -148,3 +148,17 @@ export class Pad extends ComponentBase
         console.warn "TODO: set text rotation correctly"
         @ttip.scale ...scale-factor
         @ttip.rotate (180 + 2 * rotation), @ttip.bounds.center
+
+    selected: ~
+        # TODO: Create a more beautiful selection shape
+        (val) ->
+            @cu.selected = val
+        ->
+            @cu.selected
+            
+    get: (query) ->
+        res = []
+        if \pin of query
+            if @get-data('pin') is query.pin
+                res.push this
+        res

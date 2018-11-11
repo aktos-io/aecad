@@ -45,3 +45,6 @@ export class ComponentBase
     _loader: (item) ->
         # loader method for non-aecad objects
         console.warn "Item is not aeCAD object, how do we handle this:", item
+
+    get: (query) ->
+        console.warn "NOT IMPLEMENTED: Requested a query: ", query

@@ -17,8 +17,6 @@ export class Container extends ComponentBase
                 #console.log "has child"
                 unless get-aecad .., this
                     @_loader ..
-                else
-                    console.log "Child has been loaded for", @g.data.aecad.type, ..
         else
             # create main container
             @g = new Group do
@@ -93,3 +91,13 @@ export class Container extends ComponentBase
             layer-color = @ractive.get "layers.#{Ractive.escapeKey curr-side}" .color
             #console.log "color of #{curr-side} is #{layer-color}"
             @color = layer-color
+
+
+    get: (query) ->
+        '''
+        Collects sub query results and returns them
+        '''
+        res = []
+        for pad in @pads
+            res ++= pad.get query
+        res
