@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty, flatten, partition, abs, max, sqrt}
+require! 'prelude-ls': {partition}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/snap-move': {snap-move}
@@ -124,20 +124,35 @@ export MoveTool = (_scope, layer, canvas) ->
 
             move.enabled = yes
             layer.activate!
-            scope.get-tool \select .onMouseDown event
-            hits = scope.project.hitTestAll event.point
-            for flatten hits
-                console.log "found hit: ", ..
-                if ..item.selected
-                    if is-trace ..item
-                        #console.warn "this is trace."
-                        move.mode = \trace
-                    #console.log "...found selected on hit."
-                    scope.cursor \move
-                    move.about-to-move = yes
-                    return
-            move.pan = yes
-            scope.cursor \grabbing
+
+            if scope.selection.count is 0
+                scope.get-tool \select .onMouseDown event
+            hits = scope.hitTestAll event.point, {tolerance: 2, +selected}
+            types = []
+            for hits
+                types.push if is-trace ..item
+                    \trace
+                else
+                    \other
+
+            [traces, others] = partition (is \trace), types
+            if traces.length > 0 and others.length is 0
+                # activate trace mode
+                #console.warn "this is trace."
+                move.mode = \trace
+                #console.log "...found selected on hit."
+                scope.cursor \move
+                move.about-to-move = yes
+            else if others.length > 0
+                # regular move mode
+                scope.cursor \move
+                move.about-to-move = yes
+            else if traces.length is 0 and others.length is 0
+                # no items are hit, pan mode
+                move.pan = yes
+                scope.cursor \grabbing
+            else
+                debugger
 
         ..onKeyDown = (event) ~>
             # Press Esc to cancel a move
