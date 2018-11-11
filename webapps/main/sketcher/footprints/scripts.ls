@@ -1,16 +1,7 @@
 export {
 'LM 2576': '''
-  # LM2576
-  new TO263 do
+  new LM2576 do
       name: 'c1'
-      symmetry-axis: 'x'
-      labels:
-          # Pin_id: Label
-          1: \\vin 
-          2: \\out
-          3: \\gnd
-          4: \\fb 
-          5: \\onoff
   
 '''
 R1206: '''
@@ -86,6 +77,7 @@ lib_to263: '''
   # ---------------------------
   add-class class TO263 extends Footprint
       (data) -> 
+          data.symmetry-axis = 'x' # Design criteria
           super ...
           unless @resuming
               # create from scratch 
@@ -129,6 +121,16 @@ lib_to263: '''
                       p.position.y += (data.rows.interval |> mm2px) * rindex 
                       p.position.x += (data.cols.interval |> mm2px) * cindex 
   
+  add-class class LM2576 extends TO263
+      (data) -> 
+          data.labels = 
+              # Pin_id: Label
+              1: \\vin 
+              2: \\out
+              3: \\gnd
+              4: \\fb 
+              5: \\onoff
+          super ...
   
 '''
 'class-approach-test': '''
