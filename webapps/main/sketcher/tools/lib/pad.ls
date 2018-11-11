@@ -155,10 +155,10 @@ export class Pad extends ComponentBase
             @cu.selected = val
         ->
             @cu.selected
-            
+
     get: (query) ->
         res = []
         if \pin of query
-            if @get-data('pin') is query.pin
+            if "#{@get-data('pin')}" is "#{query.pin}"
                 res.push this
         res
