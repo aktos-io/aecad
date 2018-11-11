@@ -5,7 +5,7 @@ require! 'aea/do-math': {mm2px}
 export class Pad extends ComponentBase
     (parent, opts) ->
         {Group, Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
-        super!
+        super ...
         # opts:
         #     # Required
         #     pin
@@ -84,7 +84,7 @@ export class Pad extends ComponentBase
 
             @ttip = new PointText do
                 point: @cu.bounds.center
-                content: @opts.pin
+                content: @opts.label or @opts.pin
                 fill-color: 'white'
                 parent: @g
                 font-size: 3
@@ -159,6 +159,6 @@ export class Pad extends ComponentBase
     get: (query) ->
         res = []
         if \pin of query
-            if "#{@get-data('pin')}" is "#{query.pin}"
+            if "#{query.pin}" in ["#{@get-data 'pin'}", "#{@get-data 'label'}"]
                 res.push this
         res

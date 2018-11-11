@@ -4,10 +4,13 @@ export {
   new TO263 do
       name: 'c1'
       symmetry-axis: 'x'
-  
-      # TODO: enable labels
       labels:
-         <[ Vin Out Gnd Feedback on/off ]> 
+          # Pin_id: Label
+          1: \\vin 
+          2: \\out
+          3: \\gnd
+          4: \\fb 
+          5: \\onoff
   
 '''
 R1206: '''
@@ -48,6 +51,7 @@ R1206: '''
   connections = 
       1: "c1.1, c3.31"
       2: "c1.2, c3.13"
+      3: "c1.vin c3.31"
       
   # compile schematic 
   conn-processed = []
@@ -66,7 +70,7 @@ R1206: '''
           guide ..0.pad.0, ..1.pad.0
           
   
-  make-guide \\c1.2
+  make-guide \\c1.vin
 '''
 lib_to263: '''
   dimensions = 
@@ -92,6 +96,7 @@ lib_to263: '''
                   pin: 1
                   width: d.die.x
                   height: d.die.y
+                  label: data.labels[1]
               
               c = new Container this
               
@@ -100,6 +105,7 @@ lib_to263: '''
                       pin: index
                       width: d.pads.x
                       height: d.pads.y
+                      label: data.labels[index]
               
                   pad.position.y -= (d.pd |> mm2px) * index
                   
