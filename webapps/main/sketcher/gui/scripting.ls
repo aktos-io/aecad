@@ -4,7 +4,11 @@ require! '../example'
 require! 'livescript': lsc
 require! 'prelude-ls': {keys, values}
 require! 'aea': {create-download}
-require! '../tools/lib': {Container, Footprint, Pad, find-comp}
+require! '../tools/lib': {
+    Container, Footprint, Pad, find-comp, get-aecad
+    get-parent-aecad
+}
+require! '../kernel': {PaperDraw}
 
 export init = (pcb) ->
     runScript = (content) ~>
@@ -46,6 +50,8 @@ export init = (pcb) ->
                 modules = {
                     aea, lib, lsc
                     Container, Footprint, Pad, find-comp
+                    PaperDraw
+                    get-aecad, get-parent-aecad
                 }
                 pcb-modules = """
                     Group Path Rectangle PointText Point Shape
@@ -61,11 +67,12 @@ export init = (pcb) ->
                 func.call pcb, ...(values modules)
                 #pcb._scope.execute js
             catch
-                @set \output, (@get 'output') + "#{e}\n\n#{js}"
+                @set \output, "ERROR: \n\n" + (@get 'output') + "#{e}"
                 @get \vlog .error do
                     title: 'Runtime Error'
                     message: e
-                throw e
+                #throw e
+                console.error e
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile
