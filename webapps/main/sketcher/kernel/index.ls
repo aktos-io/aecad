@@ -53,7 +53,7 @@ export class PaperDraw implements canvas-control
             ..on \selected, (items) ~>
                 selected = items.0
                 return unless selected
-                console.log "Displaying properties of ", selected
+                #console.log "Displaying properties of ", selected
                 if selected.item?getPath?!
                     selected = that
                 @ractive.set \aecadData, (selected.data?aecad or {})
