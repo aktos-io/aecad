@@ -15,7 +15,10 @@ export class Container extends ComponentBase
             data.parent?add this # register to parent if provided
             for @g.children
                 #console.log "has child"
-                get-aecad .., this
+                unless get-aecad .., this
+                    @_loader ..
+                else
+                    console.log "Child has been loaded for", @g.data.aecad.type, ..
         else
             # create main container
             @g = new Group do

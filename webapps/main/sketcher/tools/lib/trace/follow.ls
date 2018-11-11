@@ -15,12 +15,14 @@ export follow =
             @line.removeSegment (@line.segments.length - 2)
             @corr-point = null
 
-    commit-corr-point: -> 
+    commit-corr-point: ->
         @corr-point = null
 
     follow: (point) ->
         if @line
-            snap = snap-move @last-point, point, {@tolerance}
+            snap = snap-move @last-point, point, {
+                tolerance: @tolerance / @scope.view.zoom
+            }
             @moving-point.set snap.point
             @update-helpers @moving-point, <[ s bs ]>
 

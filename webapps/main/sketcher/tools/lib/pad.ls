@@ -117,28 +117,27 @@ export class Pad extends ComponentBase
         new @constructor @parent, (@opts <<<< opts)
 
     print-mode: (layers, our-side) ->
-            if layers
-                # switch to print mode
-                if @get-data \side
-                    our-side = that
-                console.log "side we are in: ", our-side
-                if our-side in layers or @drill?
-                    console.log "...will be printed"
-                    # will be printed
-                    @drill?.fillColor = \white
-                    @cu.fillColor = \black
-                else
-                    # won't be printed
-                    @drill?.visible = no
-                    @cu.visible = no
-                @ttip.visible = false
+        if layers
+            # switch to print mode
+            if @get-data \side
+                our-side = that
+            #console.log "side we are in: ", our-side
+            if our-side in layers or @drill?
+                # will be printed
+                @drill?.fillColor = \white
+                @cu.fillColor = \black
             else
-                # switch back to design mode
-                @drill?.fillColor = canvas.style.background
-                @drill?.visible = yes
-                @ttip.visible = true
-                @cu.fillColor = @_color
-                @cu.visible = yes
+                # won't be printed
+                @drill?.visible = no
+                @cu.visible = no
+            @ttip.visible = false
+        else
+            # switch back to design mode
+            @drill?.fillColor = canvas.style.background
+            @drill?.visible = yes
+            @ttip.visible = true
+            @cu.fillColor = @_color
+            @cu.visible = yes
 
     rotated: (angle) ->
         @set-data \rotation, angle

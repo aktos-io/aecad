@@ -32,3 +32,16 @@ export class ComponentBase
         #   }
         if first-arg and \init of first-arg
             return first-arg.init
+
+    print-mode: (layers, our-side) ->
+        # layers: [Array] String array indicates which layers (sides)
+        #         to be printed
+        # our-side: The side which the first container object is
+        #
+        # see Container.print-mode for exact code
+        #
+        console.warn "Print mode requested but no custom method is provided."
+
+    _loader: (item) ->
+        # loader method for non-aecad objects
+        console.warn "Item is not aeCAD object, how do we handle this:", item

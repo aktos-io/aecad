@@ -26,7 +26,9 @@ require! '../get-aecad': {get-parent-aecad, get-aecad}
 
 export class Trace extends Container implements follow, helpers
     (data) ->
+        @paths = [] # used by @_loader
         super ...
+
         if @init-with-data arguments.0
             # initialize with provided data
             null # no special action needed
@@ -40,20 +42,14 @@ export class Trace extends Container implements follow, helpers
             @g.data = aecad: @data
 
         @line = null
-        @snap-x = false
-        @snap-y = false
         @modifiers = {}
-        @history = []
         @prev-hover = []
         @removed-last-segment = null  # TODO: undo functionality will replace this
         @selection = new Selection
         @helpers = {}
         @corr-point = null # correcting point
         @vias = []
-
-        @zoom-subs = @scope.on-zoom (norm, heartbeat) ~>
-            @tolerance = 20 * norm
-            heartbeat!
+        @tolerance = 10
 
     moving-point: ~
         # point that *tries* to follow the pointer (might be currently snapped)
@@ -73,6 +69,22 @@ export class Trace extends Container implements follow, helpers
             console.log "we hit a trace: item: ", item
             return get-aecad item
         return false
+
+    print-mode: (layers) ->
+        super ...
+        #console.log "trace is printing for: ", side, @pads
+        for @paths
+            if ..data.aecad.side not in layers
+                ..remove!
+            else
+                ..stroke-color = 'black'
+
+        # TODO: find a proper way to bring drill holes front 
+        for @pads
+            ..g.bring-to-front!
+
+    _loader: (item) ->
+        @paths.push item
 
     reduce: (line) !->
         to-be-removed = []
@@ -121,10 +133,6 @@ export class Trace extends Container implements follow, helpers
         @remove-helpers!
 
         @line = null
-        @snap-x = false             # snap to -- direction
-        @snap-y = false             # snap to | direction
-        @snap-slash = false         # snap to / direction
-        @snap-backslash = false     # snap to \ direction
         @removed-last-segment = null
         @remove-helpers!
         @vias.length = 0
