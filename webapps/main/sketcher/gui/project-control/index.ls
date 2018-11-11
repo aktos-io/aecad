@@ -1,6 +1,6 @@
 require! 'aea': {create-download}
 require! '../../tools/lib/trace/lib': {is-on-layer}
-require! '../../tools/lib': {getAecad}
+require! '../../tools/lib': {get-aecad, get-parent-aecad}
 
 export init = (pcb) ->
 
@@ -15,19 +15,25 @@ export init = (pcb) ->
             pcb.use-layer name
             proceed!
 
-
         undo: (ctx) ->
             pcb.history.back!
 
-        prototypePrint: (ctx) ->
+        prototypePrint: (ctx) !->
             pcb.history.commit!
+
+            # layers to print
             layers = ctx.component.get \side .split ',' .map (.trim!)
-            for pcb.get-all!
-                obj = try getAecad ..
-                unless obj
-                    ..remove!
-                else
-                    obj.print-mode layers
+
+            for pcb.project.layers
+                for ..getItems({-recursive})
+                    {item} = get-parent-aecad ..
+                    unless item
+                        ..remove!
+                    else
+                        #console.log "Found ae-obj:", item.data.aecad.type
+                        get-aecad item
+                            ..print-mode layers
+
             create-download "#{layers.join('_')}.svg", pcb.export-svg!
             pcb.history.back!
 
@@ -46,4 +52,4 @@ export init = (pcb) ->
 
         showHelp: (ctx) ->
             @get \vlog .info do
-                template: RACTIVE_PREPARSE('./help.pug')
+                template: RACTIVE_PREPARSE('./help/index.pug')

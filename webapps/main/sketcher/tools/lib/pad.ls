@@ -4,30 +4,23 @@ require! 'aea/do-math': {mm2px}
 
 export class Pad extends ComponentBase
     (parent, opts) ->
+        {Group, Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
         super!
-        {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project} = new PaperDraw
-
         # opts:
         #     # Required
         #     pin
         #     width
         #     height
 
-        init-with-data = no
-        if parent and \init of parent
-            init = parent.init
-            parent = null
-            if init
-                init-with-data = yes
-                #console.log "Pad init:", init
-                @g = init.content
-                @parent = init.parent
-                for @g.children
-                    # get cu, ttip etc.
-                    part = ..data.aecad.part
-                    @[part] = ..
-
-        unless init-with-data
+        if @init-with-data arguments.0
+            @g = that.item
+            @parent = that.parent
+            @parent.add this
+            for @g.children
+                # get cu, ttip etc.
+                part = ..data.aecad.part
+                @[part] = ..
+        else
             # create object from scratch
             @parent = parent
             @opts = opts
@@ -124,28 +117,27 @@ export class Pad extends ComponentBase
         new @constructor @parent, (@opts <<<< opts)
 
     print-mode: (layers, our-side) ->
-            if layers
-                # switch to print mode
-                if @get-data \side
-                    our-side = that
-                console.log "side we are in: ", our-side
-                if our-side in layers or @drill?
-                    console.log "...will be printed"
-                    # will be printed
-                    @drill?.fillColor = \white
-                    @cu.fillColor = \black
-                else
-                    # won't be printed
-                    @drill?.visible = no
-                    @cu.visible = no
-                @ttip.visible = false
+        if layers
+            # switch to print mode
+            if @get-data \side
+                our-side = that
+            #console.log "side we are in: ", our-side
+            if our-side in layers or @drill?
+                # will be printed
+                @drill?.fillColor = \white
+                @cu.fillColor = \black
             else
-                # switch back to design mode
-                @drill?.fillColor = canvas.style.background
-                @drill?.visible = yes
-                @ttip.visible = true
-                @cu.fillColor = @_color
-                @cu.visible = yes
+                # won't be printed
+                @drill?.visible = no
+                @cu.visible = no
+            @ttip.visible = false
+        else
+            # switch back to design mode
+            @drill?.fillColor = canvas.style.background
+            @drill?.visible = yes
+            @ttip.visible = true
+            @cu.fillColor = @_color
+            @cu.visible = yes
 
     rotated: (angle) ->
         @set-data \rotation, angle
@@ -156,3 +148,17 @@ export class Pad extends ComponentBase
         console.warn "TODO: set text rotation correctly"
         @ttip.scale ...scale-factor
         @ttip.rotate (180 + 2 * rotation), @ttip.bounds.center
+
+    selected: ~
+        # TODO: Create a more beautiful selection shape
+        (val) ->
+            @cu.selected = val
+        ->
+            @cu.selected
+            
+    get: (query) ->
+        res = []
+        if \pin of query
+            if @get-data('pin') is query.pin
+                res.push this
+        res

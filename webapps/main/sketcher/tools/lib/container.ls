@@ -1,48 +1,31 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
-require! './get-class': {get-class}
+require! './get-aecad': {get-aecad}
 
 export class Container extends ComponentBase
     (parent) ->
         super!
-        {Group, Path, Rectangle, PointText, Point, Shape, canvas, view, project, ractive} = new PaperDraw
-        @ractive = ractive
-        # parent: parent object or initialization data
-        # if in {init: ...} format
+        {Group} = new PaperDraw
+
         @pads = []
-
-        init-with-data = no
-        if parent and \init of parent
-            init = parent.init
-            parent = null
-            if init
-                init-with-data = yes
-                #console.log "Container init:", init
-                @g = init
-                for @g.children
-                    #console.log "has child: ", (getClass ..data)
-                    type = ..data?aecad?type
-                    @pads.push switch type
-                    | \Container =>
-                        new (getClass type)({init: ..})
-                    | \Pad =>
-                        new (getClass type) do
-                            init:
-                                parent: this
-                                content: ..
-                    |_ => throw new Error "What type is this? #{type}"
-
-
-        unless init-with-data
+        if @init-with-data arguments.0
+            #console.log "Container init:", init
+            data = that
+            @g = data.item
+            data.parent?add this # register to parent if provided
+            for @g.children
+                #console.log "has child"
+                unless get-aecad .., this
+                    @_loader ..
+        else
             # create main container
             @g = new Group do
                 applyMatrix: no
                 parent: parent?g
-            parent?add this
-
-            @g.data =
-                aecad:
-                    type: @constructor.name
+                data:
+                    aecad:
+                        type: @constructor.name
+            parent?add?(this)
 
     position: ~
         -> @g.position
@@ -64,7 +47,7 @@ export class Container extends ComponentBase
 
     rotate: (angle) ->
         # rotate this item and inform children
-        @set-data \rotation, angle
+        @add-data \rotation, angle
         @g.rotate angle
         for @pads
             ..rotated? angle
@@ -108,3 +91,13 @@ export class Container extends ComponentBase
             layer-color = @ractive.get "layers.#{Ractive.escapeKey curr-side}" .color
             #console.log "color of #{curr-side} is #{layer-color}"
             @color = layer-color
+
+
+    get: (query) ->
+        '''
+        Collects sub query results and returns them
+        '''
+        res = []
+        for pad in @pads
+            res ++= pad.get query
+        res

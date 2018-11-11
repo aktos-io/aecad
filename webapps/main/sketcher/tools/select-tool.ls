@@ -32,13 +32,17 @@ export SelectTool = ->
                         # selection is right to left
                         opts.overlapping = sel.box.bounds
 
-                    selection.add scope.project.getItems opts
+                    items = scope.project.getItems opts
+                    console.log "including items: ", items
+                    selection.add items
                 sel.box.remove!
 
         ..onMouseDown = (event) ~>
             # TODO: there are many objects overlapped, use .hitTestAll() instead
-            hit = scope.project.hitTest event.point
+            hit = scope.hitTest event.point, {tolerance: 2}
             console.log "Select Tool: Hit result is: ", hit
+
+            # Ctrl modifier is used for multiple selection
             unless event.modifiers.control
                 selection.clear!
 

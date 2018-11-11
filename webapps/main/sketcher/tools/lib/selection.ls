@@ -34,9 +34,8 @@ export class Selection extends EventEmitter
         cleanup @_passive
 
         # FIXME: remove this extra precaution
-        for @scope.project.getItems({+selected})
-            ..selected = no
-
+        @scope.project.deselect-all!
+        
         # FIXME: remove this extra caution
         @scope.clean-tmp!
 
@@ -51,6 +50,11 @@ export class Selection extends EventEmitter
 
     group-by: -> (_filter) ->
         group-by _filter, @selection
+
+    count: ~
+        ->
+            console.log "selected count: ", @selected.length
+            @selected.length
 
     add: (items, opts={select: yes}) ->
         debug-mode = off

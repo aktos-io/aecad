@@ -1,0 +1,17 @@
+.title #[.ui.icon.label.green: icon.mouse.pointer Select]
+.content
+    ul.help-list
+        li 1. Clicking will select only child objects under a layer.
+        li #[.ui.basic.label Ctrl] + #[.ui.basic.label |click|] for multiple selection
+        li 2. If object is a group, "open the object" must be clicked
+        li.
+            3. Trace routes are exceptions, their segments or curves will be selected on
+            click. `Ctrl + |click|` will disable this rule (thus select the group.)
+        li 4. Selecting all objects in the same `Layer` is possible by:
+            ul
+                li 1. `Ctrl + a` (TODO) (Currently selects everything in the project)
+                li 2. Via tree view (TODO)
+        li 5. `Drag`: Creates a selection box
+            ul 
+                li 1. Left to Right: select items inside the selection
+                li 2. Right to left: select items touches the box

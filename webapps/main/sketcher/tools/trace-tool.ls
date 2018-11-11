@@ -1,9 +1,9 @@
 require! './lib/trace': {Trace}
 
-export TraceTool = (scope, layer, canvas) ->
+export TraceTool = (scope) ->
     ractive = this
 
-    trace = new Trace scope, ractive
+    trace = new Trace
     trace-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
             # panning
@@ -13,11 +13,18 @@ export TraceTool = (scope, layer, canvas) ->
             trace.pause!
 
         ..onMouseUp = (event) ~>
-            layer.activate!
-            if scope.project.hitTest event.point
-                # that is a hit
-                if trace.connect that.segment
+            # Start a trace
+            # ---------------------------------
+            unless trace.continues
+                console.log "saved current state in the history"
+                scope.history.commit!
+
+            if hit=(scope.hitTest event.point, {tolerance: 1, -aecad, exclude: [trace.g]})
+                if trace.connect hit
                     console.log "we are continuing!"
+                    trace.end! # do the cleanup, at least
+                    trace := null # TODO: is it enough to garbage collect current trace object?
+                    trace := that
             trace.add-segment event.point
             scope.cursor 'cell'
             trace.resume!
@@ -34,6 +41,7 @@ export TraceTool = (scope, layer, canvas) ->
             | \escape =>
                 if trace.continues
                     trace.end!
+                    trace := new Trace
                 else
                     #ractive.find-id \toolChanger .fire \select, {}, \sl
                     ractive.set \currTool, \sl

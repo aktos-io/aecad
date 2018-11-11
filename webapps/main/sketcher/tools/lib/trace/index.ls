@@ -1,14 +1,14 @@
 require! 'prelude-ls': {abs, min}
 require! 'shortid'
 require! '../selection': {Selection}
-require! './helpers': {_default: helpers}
-require! './follow': {_default: follow}
+require! './helpers': {helpers}
+require! './follow': {follow}
 require! './lib': {get-tid}
 require! 'aea/do-math': {mm2px}
 require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
-require! '../get-class': {add-class}
+require! '../get-aecad': {get-parent-aecad, get-aecad}
 
 /* Trace structure:
     data:
@@ -24,74 +24,87 @@ require! '../get-class': {add-class}
 */
 
 
-export class Trace extends Container
-    ->
-        data = {}
-        {ractive} = @scope = new PaperDraw
-        @ractive = ractive
+export class Trace extends Container implements follow, helpers
+    (data) ->
+        @paths = [] # used by @_loader
+        super ...
 
-        add-class @constructor
-        super {init: data.init}
-        unless data.init
+        if @init-with-data arguments.0
+            # initialize with provided data
+            null # no special action needed
+        else
             # initialize from scratch
             @data =
                 type: @constructor.name
                 tid: shortid.generate!
 
             @data <<<< data
-        else
-            # initialize with provided data
-            @data = data.init.data.aecad
-
-
-        @g.data = aecad: @data
+            @g.data = aecad: @data
 
         @line = null
-        @snap-x = false
-        @snap-y = false
-        @moving-point = null    # point that *tries* to follow the pointer (might be currently snapped)
-        @last-point = null      # last point which is placed
-        @continues = no         # trace is continuing or not
         @modifiers = {}
-        @history = []
-        @trace-id = null
         @prev-hover = []
         @removed-last-segment = null  # TODO: undo functionality will replace this
         @selection = new Selection
         @helpers = {}
         @corr-point = null # correcting point
-
         @vias = []
-        @group = null
+        @tolerance = 10
 
-    get-tolerance: ->
-        20 / @scope.view.zoom
+    moving-point: ~
+        # point that *tries* to follow the pointer (might be currently snapped)
+        -> @line?.segments[* - 1].point
 
-    load: (segment) ->
-        # continue from this segment
-        path = segment?.getPath!
-        if get-tid path
-            @trace-id = that
-            @continues = yes
-            @line = path
-            @set-helpers segment.point
-            @update-helpers segment.point
-            return true
+    last-point: ~
+        # last point placed
+        ->
+            a = if @corr-point? => 1 else 0
+            @line?.segments[* - 2 - a].point
+
+    connect: (hit) ->
+        # connect to an already existing trace
+        {item, tid} = get-parent-aecad hit.item
+        tid = get-tid item
+        if tid and tid isnt @get-data \tid
+            console.log "we hit a trace: item: ", item
+            return get-aecad item
         return false
 
-    connect: (segment) ->
-        group = segment?.getPath!.parent
-        if get-tid group
-            @group = group
-            @trace-id = that
-            return true
-        return false
+    print-mode: (layers) ->
+        super ...
+        #console.log "trace is printing for: ", side, @pads
+        for @paths
+            if ..data.aecad.side not in layers
+                ..remove!
+            else
+                ..stroke-color = 'black'
+
+        # TODO: find a proper way to bring drill holes front 
+        for @pads
+            ..g.bring-to-front!
+
+    _loader: (item) ->
+        @paths.push item
 
     reduce: (line) !->
         to-be-removed = []
-        for i in [til line.segments.length - 1]
+        last-index = line.segments.length - 1
+        for i in [til last-index]
             if line.segments[i].point.isClose line.segments[i + 1].point, 1
-                to-be-removed.push i
+                seg-index = i
+                if seg-index is 0
+                    console.log "we won't reduce first segment!"
+                    if seg-index + 1 is last-index
+                        console.log "...but we don't have a choice as segment index:", last-index
+                    else
+                        seg-index += 1
+                if seg-index is last-index
+                    console.log "we won't reduce last segment!"
+                    if seg-index <= 1
+                        console.log "...but we don't have a choice as segment index:", last-index
+                    else
+                        seg-index -= 1
+                to-be-removed.push seg-index
         for i, s of to-be-removed
             line.segments[s - i].remove!
 
@@ -109,16 +122,23 @@ export class Trace extends Container
 
             @reduce @line
 
+        unless @g.hasChildren()
+            console.log "empty trace, removing"
+            @g.remove!
+        else
+            #@g.bounds.selected = true
+            void
+
+        @zoom-subs.remove!
+        @remove-helpers!
+
         @line = null
-        @continues = no
-        @trace-id = null
-        @snap-x = false             # snap to -- direction
-        @snap-y = false             # snap to | direction
-        @snap-slash = false         # snap to / direction
-        @snap-backslash = false     # snap to \ direction
         @removed-last-segment = null
         @remove-helpers!
         @vias.length = 0
+
+    continues: ~
+        -> @line?
 
     remove-last-point: (undo) ->
         a = if @corr-point => 1 else 0
@@ -159,75 +179,98 @@ export class Trace extends Container
                 ..item.selected = yes
                 @prev-hover.push ..item
 
-    set-helpers: helpers.set-helpers
-    update-helpers: helpers.update-helpers
-    remove-helpers: helpers.remove-helpers
-    follow: follow.follow
+    add-segment: (point, flip-side=false) !->
+        if @paused
+            console.log "not adding segment as tracing is paused"
+            return
+        # Check if we should snap to the hit point
+        hits = @scope.hitTestAll point, {
+            tolerance: 1,
+            -aecad # in order to prevent scope.on-zoom subscription leak
+        }
+        snap = point.clone! # use the event point as is
+        actaul-hit = null
+        for hit in hits
+            #console.log "trace hit to: ", hit
+            if hit.item.data.tmp
+                # do not snap to tmp objects
+                continue
+            if hit.segment
+                console.log "snapping to segment: ", hit.segment
+                snap = hit.segment.point.clone!
 
-    add-segment: (point, flip-side=false) ->
+                # debug point
+                new @scope.Shape.Circle do
+                    fill-color: 'yellow'
+                    radius: 0.5
+                    opacity: 0.5
+                    center: snap
+                    data: {+tmp}
+                    selected: true
+
+            else if hit.location
+                # this is a curve, use nearest point on path
+                console.log "snapping to curve: ", hit.location
+                snap = that.path.getNearestPoint point.clone!
+            else
+                # this is an item (pad, etc.)
+                console.log "snapping to item: ", hit.item
+                snap = hit.item.bounds.center.clone!
+            actual-hit = hit
+            break
+
+        #console.log "Actual hit is: ", actual-hit
+        if actual-hit?item
+            snap = that.parent.localToGlobal(snap)
+
         new-trace = no
         if not @line or flip-side
             unless @line
                 new-trace = yes
             else
-                # side flipped
+                # side flipped, reduce previous line
                 @reduce @line
-
-
-            # TODO: hitTest is not the correct way to go,
-            # check if inside the geometry
-            hits = @scope.project.hitTestAll point
-            snap = point.clone!
-            for hit in hits
-                console.log "trace hit to: ", hit
-                if hit.item.data.tmp
-                    # this is a temporary object, do not snap to it
-                    continue
-                if hit?segment
-                    snap = hit.segment.point.clone!
-                    break
-                else if hit?item and hit.item.data?.aecad?.tid isnt @trace-id
-                    snap = hit.item.bounds.center.clone!
-                    console.log "snapping to ", snap
-                    break
 
             curr =
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
 
-            @line = new @scope.Path(snap)
+            @line = new @scope.Path(snap.clone!)
                 ..strokeColor = curr.layer.color
                 ..strokeWidth = curr.trace.width |> mm2px
                 ..strokeCap = 'round'
                 ..strokeJoin = 'round'
                 ..selected = yes
                 ..data.aecad =
-                    layer: curr.layer.name
+                    side: curr.layer.name
                 ..parent = @g
 
-            @line.add snap
+            @line.add snap.clone!
 
             if new-trace
-                @set-helpers point
-            @update-helpers snap
+                @set-helpers snap.clone!
+            @update-helpers snap.clone!
+
+            /* for debugging purposes:
+            new @scope.Shape.Circle do
+                fill-color: 'yellow'
+                radius: 0.1
+                center: snap.clone!
+                data: {+tmp}
+            */
+
+            # Paper.js bug: above @line doesn't start in
+            # `snap` point
+            sleep 300ms, ~>
+                @line?.firstSegment.point.set snap
 
         else
-            @update-helpers (@moving-point or point)
-            # prevent duplicate segments
-            @line.add (@moving-point or point)
+            console.log "about to update helpers"
+            @update-helpers (@moving-point)
+            console.log "helpers updated"
+            @line.add (@moving-point)
 
-        @corr-point = null
-        @continues = yes
-        @update-vias!
-
-        # TODO: reduce the path geometry
-        # 1. remove coincident segments
-        # 2. remove segments on a curve
-        #@line.reduce! # DO NOT REDUCE AT THE BEGINNING
-
-    update-vias: ->
-        for @vias
-            ..bringToFront!
+        @commit-corr-point!
 
     add-via: ->
         outer-dia = @ractive.get \currTrace.via.outer
