@@ -1,6 +1,7 @@
 require! 'aea': {VLogger}
 require! './kernel': {PaperDraw}
 require! './example'
+require! './footprints/scripts'
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
@@ -46,7 +47,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         autoCompile: no
         selectAllLayer: no
         selectGroup: yes
-        drawingLs: example.scripts
+        drawingLs: scripts
         layers:
             'F.Cu':
                 color: 'red'

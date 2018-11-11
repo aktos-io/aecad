@@ -4,11 +4,13 @@ require! '../example'
 require! 'livescript': lsc
 require! 'prelude-ls': {keys, values}
 require! 'aea': {create-download}
+require! 'aea/do-math': {mm2px}
 require! '../tools/lib': {
     Container, Footprint, Pad, find-comp, get-aecad
-    get-parent-aecad
+    get-parent-aecad, add-class
 }
 require! '../kernel': {PaperDraw}
+require! 'prelude-ls'
 
 export init = (pcb) ->
     runScript = (content) ~>
@@ -51,8 +53,16 @@ export init = (pcb) ->
                     aea, lib, lsc
                     Container, Footprint, Pad, find-comp
                     PaperDraw
-                    get-aecad, get-parent-aecad
+                    get-aecad, get-parent-aecad, add-class
+                    mm2px
                 }
+
+                # include all prelude-ls functions
+                for name, func of prelude-ls
+                    if name of modules
+                        throw new Error "Duplicate module: ", name
+                    modules[name] = func
+
                 pcb-modules = """
                     Group Path Rectangle PointText Point Shape
                     Matrix
@@ -186,7 +196,13 @@ export init = (pcb) ->
 
         downloadScripts: (ctx) ->
             scripts = @get \drawingLs
-            create-download 'scripts.cson', CSON.stringify(scripts, null, 2)
+            content = CSON.stringify(scripts, null, 2)
+            # workaround: we are not able to include JSON (or CSON) files with Browserify
+            # directly require by:
+            # require! './path/to/scripts'
+            # console.log scripts
+            content = "export {\n#{content}\n}"
+            create-download 'scripts.ls', content
 
         # ------------------------
         # end of gui/scripting.pug
