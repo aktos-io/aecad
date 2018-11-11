@@ -113,8 +113,13 @@ lib_to263: '''
   
               for cindex from 1 to data.cols.count
                   for rindex from 1 to data.rows.count
+                      pin-num = switch (data.dir or 'x')
+                      | 'x' => 
+                          cindex + (rindex - 1) * data.cols.count
+                      | 'y' =>
+                          rindex + (cindex - 1) * data.rows.count
                       p = new Pad this, do
-                          pin: rindex + (cindex - 1) * data.rows.count
+                          pin: pin-num
                           width: data.pad.width
                           height: data.pad.height
                           
@@ -219,6 +224,7 @@ lib_to263: '''
       cols:
           count: 20
           interval: 2.54mm
+      dir: 'x'
   
   
   ## Now find the component by its name 
