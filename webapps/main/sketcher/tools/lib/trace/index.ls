@@ -79,7 +79,7 @@ export class Trace extends Container implements follow, helpers
             else
                 ..stroke-color = 'black'
 
-        # TODO: find a proper way to bring drill holes front 
+        # TODO: find a proper way to bring drill holes front
         for @pads
             ..g.bring-to-front!
 
@@ -128,9 +128,6 @@ export class Trace extends Container implements follow, helpers
         else
             #@g.bounds.selected = true
             void
-
-        @zoom-subs.remove!
-        @remove-helpers!
 
         @line = null
         @removed-last-segment = null
