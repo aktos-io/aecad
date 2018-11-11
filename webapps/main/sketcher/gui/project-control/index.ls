@@ -52,4 +52,4 @@ export init = (pcb) ->
 
         showHelp: (ctx) ->
             @get \vlog .info do
-                template: RACTIVE_PREPARSE('./help.pug')
+                template: RACTIVE_PREPARSE('./help/index.pug')
