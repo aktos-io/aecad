@@ -148,7 +148,8 @@ export MoveTool = (_scope, layer, canvas) ->
                 scope.cursor \move
                 move.about-to-move = yes
             else if traces.length is 0 and others.length is 0
-                # no items are hit, pan mode
+                # no items were hit, pan mode
+                selection.clear!
                 move.pan = yes
                 scope.cursor \grabbing
             else
