@@ -1,6 +1,5 @@
 require! 'aea'
 require! 'dcs/lib': lib
-require! '../example'
 require! 'livescript': lsc
 require! 'prelude-ls': {keys, values}
 require! 'aea': {create-download}

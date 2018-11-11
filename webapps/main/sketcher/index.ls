@@ -1,6 +1,5 @@
 require! 'aea': {VLogger}
 require! './kernel': {PaperDraw}
-require! './example'
 require! './footprints/scripts'
 
 Ractive.components['sketcher'] = Ractive.extend do
