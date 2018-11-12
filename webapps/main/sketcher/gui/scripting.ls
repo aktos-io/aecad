@@ -1,15 +1,14 @@
 require! 'aea'
 require! 'dcs/lib': lib
 require! 'livescript': lsc
-require! 'prelude-ls': {keys, values}
+require! 'prelude-ls'
 require! 'aea': {create-download}
 require! 'aea/do-math': {mm2px}
-require! '../tools/lib': {
-    Container, Footprint, Pad, find-comp, get-aecad
-    get-parent-aecad, add-class, table2obj, Schematic
-}
+require! '../tools/lib': tool-lib
 require! '../kernel': {PaperDraw}
-require! 'prelude-ls'
+
+{text2arr} = tool-lib
+{keys, values, map} = prelude-ls
 
 export init = (pcb) ->
     runScript = (content) ~>
@@ -50,26 +49,24 @@ export init = (pcb) ->
 
                 modules = {
                     aea, lib, lsc
-                    Container, Footprint, Pad, find-comp
                     PaperDraw
-                    get-aecad, get-parent-aecad, add-class
-                    mm2px, table2obj, Schematic
+                    mm2px
                 }
 
+                # include all tools
+                modules <<< tool-lib
+
                 # include all prelude-ls functions
-                for name, func of prelude-ls
-                    if name of modules
-                        throw new Error "Duplicate module: ", name
-                    modules[name] = func
+                modules <<< prelude-ls
 
                 pcb-modules = """
                     Group Path Rectangle PointText Point Shape
                     Matrix
                     canvas project view
-                    """.replace /\n/g, ' ' .split " "
-                #console.log "Loaded Paper.js modules: ", pcb-modules
-                for pcb-modules
-                    modules[..] = pcb[..]
+                    """
+                    |> text2arr
+                    |> map (name) ->
+                        modules[name] = pcb[name]
 
                 #console.log "Added global modules: ", keys modules
                 func = new Function ...(keys modules), js
