@@ -37,18 +37,14 @@
 
     .item
         .ui.buttons
-            btn.icon.green(
-                on-click="save" 
-                tooltip="Save in browser local storage"
-                ): icon.save
             btn.icon(
-                on-click="load" 
-                tooltip="Load last saved project"
-                ): icon.file.alternate Load
+                on-click="save" 
+                tooltip="Save now in local storage (just in case)"
+                ): icon.save
             btn.icon(
                 on-click="clear" 
                 tooltip="Clear project"
-                ): icon.trash
+                ): icon.erase
             
     .right.item 
         btn.icon(on-click="showHelp"): icon.help Help

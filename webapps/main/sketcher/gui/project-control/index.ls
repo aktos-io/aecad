@@ -39,12 +39,8 @@ export init = (pcb) ->
 
         save: (ctx) ->
             # save project
-            pcb.history.commit!
+            #pcb.history.commit! ### No need to bloat the history
             pcb.history.save!
-
-        load: (ctx) ->
-            pcb.history.commit!
-            pcb.history.load!
 
         clear: (ctx) ->
             pcb.history.commit!
