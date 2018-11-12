@@ -194,9 +194,20 @@ export class Trace extends Container implements follow, helpers
         actaul-hit = null
         for hit in hits
             #console.log "trace hit to: ", hit
-            if hit.item.data.tmp
-                # do not snap to tmp objects
-                continue
+
+            # hit only pads
+            _item = hit.item
+            is-pad = no
+            for to 100
+                if _item.data?aecad?type is \Pad
+                    is-pad = yes
+                    break
+                break unless _item.parent
+                break if _item.parent.getClassName! is \Layer
+                _item = _item.parent
+            continue unless is-pad
+            # end of pad hit
+
             if hit.segment
                 console.log "snapping to segment: ", hit.segment
                 snap = hit.segment.point.clone!
@@ -221,6 +232,9 @@ export class Trace extends Container implements follow, helpers
             actual-hit = hit
             break
 
+        unless actual-hit
+            console.log "Not a pad, won't connect"
+            return
         #console.log "Actual hit is: ", actual-hit
         if actual-hit?item
             snap = that.parent.localToGlobal(snap)
