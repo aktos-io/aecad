@@ -7,8 +7,9 @@ require('jquery-mousewheel')($);
 require! './zooming': {paperZoom}
 require! './history': {History}
 require! './canvas-control': {canvas-control}
+require! './aecad-methods'
 
-export class PaperDraw implements canvas-control
+export class PaperDraw implements canvas-control, aecad-methods
     @instance = null
     (opts={}) ->
         # Make this class Singleton
