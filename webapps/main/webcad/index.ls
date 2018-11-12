@@ -1,17 +1,22 @@
 require! 'three': THREE
-require! 'aea': {create-download}
+require! 'aea': {create-download, VLogger}
 
 Ractive.components['webcad'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
     onrender: ->
         view = @find '#graphical_view'
-        scene = new THREE.Scene()
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000 )
-        renderer = new THREE.WebGLRenderer();
-        renderer.setSize( 600, 600 )
-        view.appendChild( renderer.domElement )
+        vlog = new VLogger(this)
+        try
+            scene = new THREE.Scene()
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000 )
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize( 600, 600 )
+            view.appendChild( renderer.domElement )
 
-        loader = new THREE.JSONLoader();
+            loader = new THREE.JSONLoader();
+        catch
+            vlog.error e.message
+
 
         @on do
             updateModel: (ctx) ->
