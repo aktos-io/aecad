@@ -39,7 +39,7 @@ eequal = (left, right) ->
             return true
     return false
 
-export MoveTool = (_scope, layer, canvas) ->
+export MoveTool = ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
     ractive = this
     selection = new Selection
@@ -77,8 +77,8 @@ export MoveTool = (_scope, layer, canvas) ->
                 if move.about-to-move
                     move.about-to-move = no
                     scope.history.commit!
-
-                snap = snap-move event.downPoint, event.point, do
+                down-point = if move.picked => move.down-point else event.downPoint
+                snap = snap-move downPoint, event.point, do
                     shift: event.modifiers.shift
                     restrict: yes
                     tolerance: 10
@@ -123,7 +123,6 @@ export MoveTool = (_scope, layer, canvas) ->
                 return
 
             move.enabled = yes
-            layer.activate!
 
             if scope.selection.count is 0
                 scope.get-tool \select .onMouseDown event
@@ -164,6 +163,9 @@ export MoveTool = (_scope, layer, canvas) ->
                     # cancel last movement
                     reset!
                     scope.history.back!
+                else
+                    selection.clear!
+
             | \ı, \r, \I, \R, \i =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
@@ -171,10 +173,14 @@ export MoveTool = (_scope, layer, canvas) ->
 
             | \a =>
                 unless move.picked
+                    point = scope.ractive.get('pointer')
+                    move.down-point = point
+                    move-tool.emit \mousedown, (event <<< {point, downPoint: point})
                     move.picked = on
                     move.enabled = yes
                     scope.cursor \move
                 else
                     reset!
+                    selection.clear!
 
     move-tool
