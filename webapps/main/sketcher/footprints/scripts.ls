@@ -28,9 +28,6 @@ R1206: '''
   c3 = find-comp "c3"
   c3-pins = c3?.get {pin: 33}
   
-  
-  console.log "c1 pos: ", c1-pins.0
-  
   guide = (pad1, pad2) -> 
       new Path.Line do
           from: pad1.g-pos
@@ -40,13 +37,17 @@ R1206: '''
           data: {+tmp}
       
   connections = 
-      1: "c1.1, c3.31"
-      2: "c1.2, c3.13"
-      3: "c1.vin c3.31"
+      # Trace_id: "list, of, connected, pads"
+      1: "c1.1, rpi.3v3"
+      2: "c1.onoff, rpi.gnd"
+      3: "c1.vin rpi.25"
+      4: "c1.fb c1.gnd"
       
   # compile schematic 
   conn-processed = []
   for k, conn of connections
+      # TODO: performance improvement: 
+      # use find-comp for each component only one time
       conn-processed.push <| conn
           .split /[,\\s]+/ 
           .map (.split '.')
@@ -61,7 +62,10 @@ R1206: '''
           guide ..0.pad.0, ..1.pad.0
           
   
-  make-guide \\c1.vin
+  console.log "compiled schematic: ", conn-processed
+  #make-guide \\c1.vin
+  #make-guide \\c1.onoff
+  make-guide \\c1.fb
 '''
 lib_to263: '''
   dimensions = 
@@ -110,7 +114,7 @@ lib_to263: '''
           super ...
           unless @resuming
               console.log "Creating from scratch PinArray"
-  
+              
               for cindex from 1 to data.cols.count
                   for rindex from 1 to data.rows.count
                       pin-num = switch (data.dir or 'x')
@@ -118,10 +122,14 @@ lib_to263: '''
                           cindex + (rindex - 1) * data.cols.count
                       | 'y' =>
                           rindex + (cindex - 1) * data.rows.count
+      
+                      pin-label = data.labels?[pin-num]
+      
                       p = new Pad this, do
                           pin: pin-num
                           width: data.pad.width
                           height: data.pad.height
+                          label: if data.labels? => (pin-label or '?') 
                           
                       p.position.y += (data.rows.interval |> mm2px) * rindex 
                       p.position.x += (data.cols.interval |> mm2px) * cindex 
@@ -213,19 +221,48 @@ lib_to263: '''
   
 '''
 'pin-array-test': '''
+  table = table2obj {key: 'Physical', value: 'BCM'}, """
+  +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
+  | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
+  +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
+  | 3v3 | 3v3 |    3.3v |      |   |  1 || 2  |   |      | 5v      | 5v  | 5v  |
+  |   2 |   8 |   SDA.1 | ALT0 | 1 |  3 || 4  |   |      | 5V      | 5v  | 5v  |
+  |   3 |   9 |   SCL.1 | ALT0 | 1 |  5 || 6  |   |      | 0v      | gnd | gnd |
+  |   4 |   7 | GPIO. 7 |   IN | 1 |  7 || 8  | 1 | ALT5 | TxD     | 15  | 14  |
+  | gnd | gnd |      0v |      |   |  9 || 10 | 1 | ALT5 | RxD     | 16  | 15  |
+  |  17 |   0 | GPIO. 0 |   IN | 0 | 11 || 12 | 0 | IN   | GPIO. 1 | 1   | 18  |
+  |  27 |   2 | GPIO. 2 |   IN | 0 | 13 || 14 |   |      | 0v      | gnd | gnd |
+  |  22 |   3 | GPIO. 3 |   IN | 0 | 15 || 16 | 0 | IN   | GPIO. 4 | 4   | 23  |
+  | 3v3 | 3v3 |    3.3v |      |   | 17 || 18 | 0 | IN   | GPIO. 5 | 5   | 24  |
+  |  10 |  12 |    MOSI | ALT0 | 0 | 19 || 20 |   |      | 0v      | gnd | gnd |
+  |   9 |  13 |    MISO | ALT0 | 0 | 21 || 22 | 0 | IN   | GPIO. 6 | 6   | 25  |
+  |  11 |  14 |    SCLK | ALT0 | 0 | 23 || 24 | 1 | OUT  | CE0     | 10  | 8   |
+  | gnd | gnd |      0v |      |   | 25 || 26 | 1 | OUT  | CE1     | 11  | 7   |
+  |   0 |  30 |   SDA.0 |   IN | 1 | 27 || 28 | 1 | IN   | SCL.0   | 31  | 1   |
+  |   5 |  21 | GPIO.21 |   IN | 1 | 29 || 30 |   |      | 0v      | gnd | gnd |
+  |   6 |  22 | GPIO.22 |   IN | 1 | 31 || 32 | 0 | IN   | GPIO.26 | 26  | 12  |
+  |  13 |  23 | GPIO.23 |   IN | 0 | 33 || 34 |   |      | 0v      | gnd | gnd |
+  |  19 |  24 | GPIO.24 |   IN | 0 | 35 || 36 | 0 | IN   | GPIO.27 | 27  | 16  |
+  |  26 |  25 | GPIO.25 |   IN | 0 | 37 || 38 | 0 | IN   | GPIO.28 | 28  | 20  |
+  | gnd | gnd |      0v |      |   | 39 || 40 | 0 | IN   | GPIO.29 | 29  | 21  |
+  +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
+  | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
+  +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
+  """
+  
   new PinArray do
       name: 'c2'
       pad:
           width: 2mm
           height: 1.2mm
-      rows:
+      cols:
           count: 2
           interval: 3.34mm
-      cols:
+      rows:
           count: 20
           interval: 2.54mm
       dir: 'x'
-  
+      labels: table
   
   ## Now find the component by its name 
   ## ----------------------------------
