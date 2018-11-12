@@ -28,44 +28,15 @@ R1206: '''
   c3 = find-comp "c3"
   c3-pins = c3?.get {pin: 33}
   
-  guide = (pad1, pad2) -> 
-      new Path.Line do
-          from: pad1.g-pos
-          to: pad2.g-pos
-          stroke-color: 'lime'
-          selected: yes
-          data: {+tmp}
-      
-  connections = 
+  sch = new Schematic do 
       # Trace_id: "list, of, connected, pads"
       1: "c1.1, rpi.3v3"
       2: "c1.onoff, rpi.gnd"
       3: "c1.vin rpi.25"
       4: "c1.fb c1.gnd"
-      
-  # compile schematic 
-  conn-processed = []
-  for k, conn of connections
-      # TODO: performance improvement: 
-      # use find-comp for each component only one time
-      conn-processed.push <| conn
-          .split /[,\\s]+/ 
-          .map (.split '.')
-          .map (x) ->
-              comp = find-comp(x.0)
-              src: x.join '.'
-              c: comp
-              pad: comp.get {pin: x.1}
   
-  make-guide = (src) -> 
-      for conn-processed when find (.src is src), ..
-          guide ..0.pad.0, ..1.pad.0
-          
-  
-  console.log "compiled schematic: ", conn-processed
-  #make-guide \\c1.vin
-  #make-guide \\c1.onoff
-  make-guide \\c1.fb
+  console.log "compiled schematic: ", sch.connections
+  sch.guide-for \\c1.fb
 '''
 lib_to263: '''
   dimensions = 

@@ -6,7 +6,7 @@ require! 'aea': {create-download}
 require! 'aea/do-math': {mm2px}
 require! '../tools/lib': {
     Container, Footprint, Pad, find-comp, get-aecad
-    get-parent-aecad, add-class, table2obj
+    get-parent-aecad, add-class, table2obj, Schematic
 }
 require! '../kernel': {PaperDraw}
 require! 'prelude-ls'
@@ -53,7 +53,7 @@ export init = (pcb) ->
                     Container, Footprint, Pad, find-comp
                     PaperDraw
                     get-aecad, get-parent-aecad, add-class
-                    mm2px, table2obj
+                    mm2px, table2obj, Schematic
                 }
 
                 # include all prelude-ls functions
