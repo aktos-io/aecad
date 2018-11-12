@@ -11,7 +11,7 @@ require! '../kernel': {PaperDraw}
 {keys, values, map} = prelude-ls
 
 export init = (pcb) ->
-    runScript = (content) ~>
+    runScript = (content, opts={+clear}) ~>
         compiled = no
         @set \output, ''
         try
@@ -44,8 +44,9 @@ export init = (pcb) ->
 
         if compiled
             try
-                pcb.use-layer \scripting
-                    ..clear!
+                layer = pcb.use-layer \scripting
+                if opts.clear
+                    layer.clear!
 
                 modules = {
                     aea, lib, lsc
@@ -79,6 +80,9 @@ export init = (pcb) ->
                     message: e
                 #throw e
                 console.error e
+
+    # Register all classes on reload
+    runScript '# placeholder content', {-clear}
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile
