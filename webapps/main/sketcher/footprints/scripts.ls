@@ -28,15 +28,7 @@ R1206: '''
   c3 = find-comp "c3"
   c3-pins = c3?.get {pin: 33}
   
-  sch = new Schematic do 
-      # Trace_id: "list, of, connected, pads"
-      1: "c1.1, rpi.3v3"
-      2: "c1.onoff, rpi.gnd"
-      3: "c1.vin rpi.25"
-      4: "c1.fb c1.gnd"
   
-  console.log "compiled schematic: ", sch.connections
-  sch.guide-for \\c1.fb
 '''
 lib_to263: '''
   dimensions = 
@@ -191,7 +183,13 @@ lib_to263: '''
           @g.remove!
   
 '''
-'pin-array-test': '''
+'pin-array-test': ''
+'lib-rpi-header': '''
+  # --------------------------------------------------
+  # all lib* scripts will be included automatically.
+  #
+  # This script will also be treated as a library file.
+  # --------------------------------------------------
   table = table2obj {key: 'Physical', value: 'BCM'}, """
   +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
   | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
@@ -221,26 +219,58 @@ lib_to263: '''
   +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
   """
   
-  new PinArray do
-      name: 'c2'
-      pad:
-          width: 2mm
-          height: 1.2mm
-      cols:
-          count: 2
-          interval: 3.34mm
-      rows:
-          count: 20
-          interval: 2.54mm
-      dir: 'x'
-      labels: table
+  add-class class RpiHeader extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'rpi_'
+              pad:
+                  width: 2mm
+                  height: 1.2mm
+              cols:
+                  count: 2
+                  interval: 3.34mm
+              rows:
+                  count: 20
+                  interval: 2.54mm
+              dir: 'x'
+              labels: table
+              
+          data = defaults <<< data 
+          super ... 
   
-  ## Now find the component by its name 
-  ## ----------------------------------
-  #x = find-comp 'c1'
-  #<~ sleep 500ms
-  #x.rotate -45
-  #x.mirror!
-  #x.print-mode = yes 
+'''
+'rpi-header-test': '''
+  # --------------------------------------------------
+  # all lib* scripts will be included automatically.
+  # --------------------------------------------------
+  new RpiHeader do
+      name: 'rpi2'
+  
+  x = find-comp 'rpi2'
+  <~ sleep 500ms
+  x.rotate -45
+  
+'''
+'schematic-test': '''
+  # --------------------------------------------------
+  # all lib* scripts will be included automatically.
+  # --------------------------------------------------
+  sch = new Schema do 
+      name: "sgw"
+      netlist: 
+          # Trace_id: "list, of, connected, pads"
+          1: "c1.1, rpi.3v3"
+          2: "c1.onoff, rpi.gnd"
+          3: "c1.vin rpi.25"
+          4: "c1.fb c1.gnd"
+      bom:
+          "LM2576"    : 'c1, c3'
+          'RpiHeader' : 'rpi'
+  
+  
+  console.log "compiled schematic: ", sch.connections
+  sch.guide-for \\c1.vin
+  
+  new SchemaManager! .curr.guide-for \\c1.onoff
 '''
 }

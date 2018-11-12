@@ -3,7 +3,8 @@ require! './get-class': {get-class, add-class}
 require! './find-comp': {find-comp}
 require! './component-base': {ComponentBase}
 require! './table2obj': {table2obj}
-require! './schematic': {Schematic}
+require! './schema': {Schema, SchemaManager}
+require! './text2arr': {text2arr}
 
 utils = {
     get-class, add-class
@@ -11,7 +12,8 @@ utils = {
     find-comp
     ComponentBase
     table2obj
-    Schematic
+    Schema, SchemaManager
+    text2arr
 }
 
 # Component classes
