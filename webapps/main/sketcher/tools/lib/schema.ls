@@ -1,6 +1,8 @@
 require! './find-comp': {find-comp}
 require! 'prelude-ls': {find, empty}
 require! '../../kernel': {PaperDraw}
+require! './text2arr': {text2arr}
+require! './get-class': {get-class}
 
 # Will be used for Schema exchange between classes
 export class SchemaManager
@@ -33,7 +35,7 @@ export class SchemaManager
         -> @schemas[@curr-name]
 
 export class Schema
-    (@data) ->
+    (data) ->
         '''
         # TODO: Implement parent schema handling
 
@@ -43,35 +45,61 @@ export class Schema
             name: Schema name
             iface: Interface labeling
         '''
+        if data
+            @data = data
         @scope = new PaperDraw
         @connections = []
         @manager = new SchemaManager
             ..register this
-        if @data.netlist
-            @load!
+
+        if data.netlist and data.bom
+            @compile!
 
     name: ~
         -> @data.name
 
-    load: (data) !->
+    compile: (data) !->
         if data
             @data = data
+
+        # add needed footprints
+        @add-footprints!
+
         # compile schematic: format: {netlist, bom}
         @connections.length = 0
-        for trace-id, conn of @data.netlist
+        for trace-id, conn-list of @data.netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
-            @connections.push <| conn
-                .split /[,\s]+/
-                .map (.split '.')
-                .map (x) ->
-                    src = x.join '.'
-                    comp = find-comp(x.0)
-                    pad = comp?.get {pin: x.1}
+            conn = for p-name in text2arr conn-list
+                [name, pin] = p-name.split '.'
+                comp = find-comp name
+                pad = (comp?.get {pin}) or []
+                if empty pad
+                    throw new Error "No such pad found: #{p-name}"
+                {src: p-name, c: comp, pad}
 
-                    if empty pad
-                        throw new Error "No such pad found: #{src}"
-                    return {src, pad, c: comp}
+            @connections.push conn
+
+    add-footprints: ->
+        pos = null
+        curr = @scope.get-components {exclude: <[ Trace ]>}
+        for type, names of @data.bom
+            for c in text2arr names
+                if c not in [..name for curr]
+                    console.log "Component #{c} is missing (type: #{type})"
+                    _Component = getClass(type)
+                    comp = new _Component {name: c}
+                    if pos
+                        comp.position = pos.add [50, 50]
+                    pos = comp.position
+                else
+                    existing = find (.name is c), curr
+                    if type isnt existing.type
+                        console.log "Component #{c} exists,
+                        but its type (#{existing.type})
+                        is wrong, should be: #{type}"
+
+
 
     guide-for: (src) ->
         for @connections when find (.src is src), ..
