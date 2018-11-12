@@ -1,6 +1,6 @@
 require! 'actors': {BrowserStorage}
 require! 'aea': {hash}
-require! 'prelude-ls': {values, difference}
+require! 'prelude-ls': {values, difference, keys}
 
 export class History
     (opts) ->
@@ -77,7 +77,11 @@ export class History
                 return name if h is x
         for name in updated-scripts.map name-of-hash
             console.log "Updated script: ", name
-            saved["#{name} (update: #{Date.now!})"] = orig[name]
+            new-name = if name in keys saved
+                "#{name} (update: #{Date.now!})"
+            else
+                name
+            saved[new-name] = orig[name]
 
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
