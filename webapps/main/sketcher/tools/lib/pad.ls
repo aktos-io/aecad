@@ -159,6 +159,12 @@ export class Pad extends ComponentBase
     get: (query) ->
         res = []
         if \pin of query
-            if "#{query.pin}" in ["#{@get-data 'pin'}", "#{@get-data 'label'}"]
+            pin = "#{query.pin}"
+            # if label exists, do not match with "pin"
+            if @get-data 'label'
+                #console.log "label found, checking given pin: #{pin} against my label: #{that}"
+                if pin is that
+                    res.push this
+            else if pin is "#{@get-data 'pin'}"
                 res.push this
         res
