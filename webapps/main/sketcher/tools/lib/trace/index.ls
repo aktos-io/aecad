@@ -9,6 +9,7 @@ require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
 require! '../get-aecad': {get-parent-aecad, get-aecad}
+require! '../schema': {SchemaManager}
 
 /* Trace structure:
     data:
@@ -41,6 +42,7 @@ export class Trace extends Container implements follow, helpers
             @data <<<< data
             @g.data = aecad: @data
 
+        @schema = new SchemaManager!
         @line = null
         @modifiers = {}
         @prev-hover = []
@@ -121,6 +123,7 @@ export class Trace extends Container implements follow, helpers
                 @line.remove!
 
             @reduce @line
+            @schema.curr?.guide-all!
 
         unless @g.hasChildren()
             console.log "empty trace, removing"
@@ -180,6 +183,8 @@ export class Trace extends Container implements follow, helpers
         if @paused
             console.log "not adding segment as tracing is paused"
             return
+
+        @schema.curr?.clear-guides!
         # Check if we should snap to the hit point
         hits = @scope.hitTestAll point, {
             tolerance: 1,
