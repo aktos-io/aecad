@@ -32,6 +32,11 @@ export class PaperDraw implements canvas-control
 
                 # taken from https://gist.github.com/campsjos/b561023e453aba2d9c31
                 @_scope.view.setViewSize(new @_scope.Size(@canvas.width, @canvas.height))
+                console.log "canvas is resized!", @canvas.width, @canvas.height
+
+                # workaround for view.update(force=true)
+                @_scope.view.center = @_scope.view.center.add [1, 0]
+                @_scope.view.center = @_scope.view.center.subtract [1, 0]
 
             window.addEventListener('resize', resizeCanvas, false);
 
