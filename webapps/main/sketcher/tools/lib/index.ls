@@ -2,12 +2,14 @@ require! './get-aecad': {get-aecad, get-parent-aecad}
 require! './get-class': {get-class, add-class}
 require! './find-comp': {find-comp}
 require! './component-base': {ComponentBase}
+require! './table2obj': {table2obj}
 
 utils = {
     get-class, add-class
     get-aecad, get-parent-aecad
     find-comp
     ComponentBase
+    table2obj
 }
 
 # Component classes
