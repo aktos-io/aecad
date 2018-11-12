@@ -136,6 +136,15 @@ export init = (pcb) ->
                 console.log "Cancelled."
                 return
 
+            if data.filename?length < 1
+                @get \vlog .error "Empty file name, won't add anything."
+                return
+
+            if data.filename of (@get 'drawingLs')
+                @get \vlog .error "Duplicate filename, won't add anything."
+                return
+
+
             @set "drawingLs.#{Ractive.escapeKey data.filename}", ''
             @set \scriptName, data.filename
 
@@ -200,7 +209,33 @@ export init = (pcb) ->
             content = "export {\n#{content}\n}"
             create-download 'scripts.ls', content
 
-        # ------------------------
-        # end of gui/scripting.pug
+        restart-diff: (ctx) ->
+            action <~ @get \vlog .yesno do
+                title: 'Reset Diff Tracking'
+                icon: 'exclamation triangle'
+                message: '''
+                    Do you want to restart scripts diff tracking?
+
+                    This is a safe but verbose action since all server side scripts
+                    will be included in scripts window (with "update ..." postfix).
+                    '''
+                closable: yes
+                buttons:
+                    yes:
+                        text: 'Restart'
+                        color: \green
+                        icon: \undo
+                    cancel:
+                        text: \Cancel
+                        color: \green
+                        icon: \remove
+
+            if action in [\hidden, \cancel]
+                console.log "Cancelled."
+                return
+
+            pcb.history.reset-script-diffing!
+            @get \vlog .info "Done, reload your window."
+
 
     return handlers

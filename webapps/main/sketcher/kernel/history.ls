@@ -61,6 +61,9 @@ export class History
                 console.warn "Workaround for load-project works."
             #console.log "Loaded project: ", @project
 
+    reset-script-diffing: ->
+        @ractive.set \scriptHashes, null
+
     load-scripts: (saved) ->
         orig = @ractive.get \drawingLs
         curr-orig-h = @ractive.get \scriptHashes
