@@ -1,4 +1,6 @@
 require! 'actors': {BrowserStorage}
+require! 'aea': {hash}
+require! 'prelude-ls': {values, difference}
 
 export class History
     (opts) ->
@@ -59,8 +61,25 @@ export class History
                 console.warn "Workaround for load-project works."
             #console.log "Loaded project: ", @project
 
-    load-scripts: (data) ->
-        @ractive.set \drawingLs, data
+    load-scripts: (saved) ->
+        orig = @ractive.get \drawingLs
+        curr-orig-h = @ractive.get \scriptHashes
+        prev-orig-h = @db.get \scriptHashes
+        saved-h = do ->
+            x = {}
+            for n, c of saved
+                x[n] = hash(c)
+            return x
+
+        updated-scripts = values(curr-orig-h) `difference` values(prev-orig-h)
+        name-of-hash = (x) ->
+            for name, h of curr-orig-h
+                return name if h is x
+        for name in updated-scripts.map name-of-hash
+            console.log "Updated script: ", name
+            saved["#{name} (update: #{Date.now!})"] = orig[name]
+             
+        @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 
     save: ->
@@ -73,6 +92,7 @@ export class History
         # save scripts
         scripts = @ractive.get \drawingLs
         @db.set \scripts, scripts
+        @db.set \scriptHashes, @ractive.get \scriptHashes
 
         # Save settings
         # TODO: provide a proper way for this, it's too messy now

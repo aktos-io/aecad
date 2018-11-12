@@ -1,4 +1,4 @@
-require! 'aea': {VLogger}
+require! 'aea': {VLogger, hash}
 require! './kernel': {PaperDraw}
 require! './footprints/scripts'
 
@@ -47,6 +47,11 @@ Ractive.components['sketcher'] = Ractive.extend do
         selectAllLayer: no
         selectGroup: yes
         drawingLs: scripts
+        scriptHashes: do ->
+            s = {}
+            for k, v of scripts
+                s[k] = hash v
+            return s
         layers:
             'F.Cu':
                 color: 'red'
