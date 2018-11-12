@@ -78,8 +78,13 @@ export class History
         name-of-hash = (x) ->
             for name, h of curr-orig-h
                 return name if h is x
-        for name in updated-scripts.map name-of-hash
-            console.log "Updated script: ", name
+
+        for h in updated-scripts
+            name = name-of-hash h
+            if h in values(saved-h)
+                console.log "We already have this, skipping: ", name
+                continue
+            console.log "Adding updated script: ", name
             new-name = if name in keys saved
                 "#{name} (update: #{Date.now!})"
             else
