@@ -2,6 +2,6 @@
 # into array
 export text2arr = (text) ->
     text
-        .replace /[\n,]/g, ' '
+        .replace /[\n,\s]+/g, ' '
         .split " "
         .map (.trim!)
