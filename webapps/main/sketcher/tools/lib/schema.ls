@@ -79,7 +79,7 @@ export class Schema
 
     guide-all: ->
         for @connections
-            console.log "creating guide for: ", ..
+            #console.log "creating guide for: ", ..
             @create-guide ..0.pad.0, ..1.pad.0
 
     create-guide: (pad1, pad2) ->

@@ -17,5 +17,5 @@ export get-class = (data) ->
         throw new Error "Can not find type: #{name}"
 
 export add-class = (cls) ->
-    console.log "Registering component type:", cls.name
+    #console.log "Registering component type:", cls.name
     classes[cls.name] = cls
