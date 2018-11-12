@@ -232,8 +232,8 @@ export class Trace extends Container implements follow, helpers
             actual-hit = hit
             break
 
-        unless actual-hit
-            console.log "Not a pad, won't connect"
+        unless @continues or actual-hit
+            console.warn "Not a pad, won't connect"
             return
         #console.log "Actual hit is: ", actual-hit
         if actual-hit?item
