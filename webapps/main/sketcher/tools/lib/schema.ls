@@ -1,5 +1,5 @@
 require! './find-comp': {find-comp}
-require! 'prelude-ls': {find}
+require! 'prelude-ls': {find, empty}
 require! '../../kernel': {PaperDraw}
 
 # Will be used for Schema exchange between classes
@@ -58,23 +58,31 @@ export class Schema
             @data = data
         # compile schematic: format: {netlist, bom}
         @connections.length = 0
-        for k, conn of @data.netlist
+        for trace-id, conn of @data.netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
             @connections.push <| conn
                 .split /[,\s]+/
                 .map (.split '.')
                 .map (x) ->
+                    src = x.join '.'
                     comp = find-comp(x.0)
-                    src: x.join '.'
-                    c: comp
-                    pad: comp.get {pin: x.1}
+                    pad = comp?.get {pin: x.1}
+
+                    if empty pad
+                        throw new Error "No such pad found: #{src}"
+                    return {src, pad, c: comp}
 
     guide-for: (src) ->
         for @connections when find (.src is src), ..
-            @guide ..0.pad.0, ..1.pad.0
+            @create-guide ..0.pad.0, ..1.pad.0
 
-    guide: (pad1, pad2) ->
+    guide-all: ->
+        for @connections
+            console.log "creating guide for: ", ..
+            @create-guide ..0.pad.0, ..1.pad.0
+
+    create-guide: (pad1, pad2) ->
         new @scope.Path.Line do
             from: pad1.g-pos
             to: pad2.g-pos
