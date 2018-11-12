@@ -183,7 +183,21 @@ lib_to263: '''
           @g.remove!
   
 '''
-'pin-array-test': ''
+'pin-array-test': '''
+  new PinArray do
+      name: 'mypins1'
+      pad:
+          width: 2mm
+          height: 1.2mm
+      cols:
+          count: 2
+          interval: 3.34mm
+      rows:
+          count: 4
+          interval: 2.54mm
+      dir: 'x' # numbering direction, 'x' or 'y', default 'x'
+  
+'''
 'lib-rpi-header': '''
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
@@ -259,7 +273,7 @@ lib_to263: '''
       name: "sgw"
       netlist: 
           # Trace_id: "list, of, connected, pads"
-          1: "c1.1, rpi.3v3"
+          1: "c1.out, rpi.3v3"
           2: "c1.onoff, rpi.gnd"
           3: "c1.vin rpi.25"
           4: "c1.fb c1.gnd"
@@ -267,10 +281,13 @@ lib_to263: '''
           "LM2576"    : 'c1, c3'
           'RpiHeader' : 'rpi'
   
+  # create guide 
+  #sch.guide-for \\c1.vin
   
-  console.log "compiled schematic: ", sch.connections
-  sch.guide-for \\c1.vin
+  # get schema by SchemaManager 
+  #sch2 = new SchemaManager! .curr
   
-  new SchemaManager! .curr.guide-for \\c1.onoff
+  # guide all connections
+  sch.guide-all!
 '''
 }
