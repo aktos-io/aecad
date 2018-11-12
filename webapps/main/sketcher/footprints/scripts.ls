@@ -4,20 +4,6 @@ export {
       name: 'c1'
   
 '''
-R1206: '''
-  # From http://www.resistorguide.com/resistor-sizes-and-packages/
-  r1206 =
-      a: 1.6mm
-      b: 0.9mm
-      c: 2mm
-  
-  {a, b, c} = r1206
-  
-  p1 = pad b, a
-  p2 = p1.clone!
-      ..position.x += (c + b) |> mm2px
-  
-'''
 'find-test': '''
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
@@ -94,8 +80,8 @@ lib_to263: '''
                           height: data.pad.height
                           label: if data.labels? => (pin-label or '?') 
                           
-                      p.position.y += (data.rows.interval |> mm2px) * rindex 
-                      p.position.x += (data.cols.interval |> mm2px) * cindex 
+                      p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
+                      p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
   
   add-class class LM2576 extends TO263
       (data) -> 
@@ -269,7 +255,7 @@ lib_to263: '''
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
-  sch = new Schema do 
+  new Schema do 
       name: "sgw"
       netlist: 
           # Trace_id: "list, of, connected, pads"
@@ -278,16 +264,36 @@ lib_to263: '''
           3: "c1.vin rpi.25"
           4: "c1.fb c1.gnd"
       bom:
-          "LM2576"    : 'c1, c3'
-          'RpiHeader' : 'rpi'
+          LM2576    : 'c1'
+          RpiHeader : 'rpi'
+          SMD1206   : 'r1, r2, r3'
   
-  # create guide 
-  #sch.guide-for \\c1.vin
+'''
+'lib-smd1206': '''
+  # From http://www.resistorguide.com/resistor-sizes-and-packages/
+  smd1206 =
+      a: 1.6mm
+      b: 0.9mm
+      c: 2mm
   
-  # get schema by SchemaManager 
-  #sch2 = new SchemaManager! .curr
+  {a, b, c} = smd1206
   
-  # guide all connections
-  sch.guide-all!
+  add-class class SMD1206 extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'r_'
+              pad:
+                  width: b
+                  height: a
+              cols:
+                  count: 2
+                  interval: c + b
+              rows:
+                  count: 1
+              dir: 'x'
+  
+          data = defaults <<< data 
+          super ... 
+  
 '''
 }
