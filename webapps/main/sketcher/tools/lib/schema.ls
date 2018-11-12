@@ -4,6 +4,20 @@ require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
 
+'''
+Usage:
+
+    # create guide for specific source
+    sch.guide-for \c1.vin
+
+    # create all guides
+    sch.guide-all!
+
+    # get a schema (or "curr"ent schema) by SchemaManager
+    sch2 = new SchemaManager! .curr
+
+'''
+
 # Will be used for Schema exchange between classes
 export class SchemaManager
     @instance = null
@@ -79,6 +93,9 @@ export class Schema
                 {src: p-name, c: comp, pad}
 
             @connections.push conn
+
+        # place all guides
+        @guide-all!
 
     add-footprints: ->
         pos = null
