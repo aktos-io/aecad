@@ -2,7 +2,7 @@ require! './get-class': {get-class}
 
 export get-aecad = (item, parent) ->
     # Return aeCAD object
-    type = item.data?aecad?type
+    type = item?.data?aecad?type
     if type
         return new (getClass type) do
             init:
