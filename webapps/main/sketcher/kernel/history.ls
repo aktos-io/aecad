@@ -64,7 +64,7 @@ export class History
     load-scripts: (saved) ->
         orig = @ractive.get \drawingLs
         curr-orig-h = @ractive.get \scriptHashes
-        prev-orig-h = @db.get \scriptHashes
+        prev-orig-h = (@db.get \scriptHashes) or {}
         saved-h = do ->
             x = {}
             for n, c of saved
@@ -78,7 +78,7 @@ export class History
         for name in updated-scripts.map name-of-hash
             console.log "Updated script: ", name
             saved["#{name} (update: #{Date.now!})"] = orig[name]
-             
+
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 
