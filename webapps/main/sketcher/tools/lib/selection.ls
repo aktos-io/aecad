@@ -35,7 +35,7 @@ export class Selection extends EventEmitter
 
         # FIXME: remove this extra precaution
         @scope.project.deselect-all!
-        
+
         # FIXME: remove this extra caution
         @scope.clean-tmp!
 
@@ -64,6 +64,7 @@ export class Selection extends EventEmitter
             | \Curve => \ok
             | \Segment => \ok
             | \Group => \ok
+            | \Shape => \ok
             | \Layer =>
                 # do not add layers
                 if debug-mode
