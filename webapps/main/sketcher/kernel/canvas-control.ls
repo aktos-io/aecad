@@ -1,4 +1,4 @@
-require! 'prelude-ls': {flatten, sort-by, reverse}
+require! 'prelude-ls': {flatten, sort-by, reverse, empty}
 require! './line': {Line}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
@@ -18,9 +18,10 @@ export canvas-control =
         else
             item
 
-    get-bounds: ->
+    get-bounds: (items=[]) ->
         # returns overall bounds
-        items = flatten [..getItems! for @project.layers]
+        if empty items
+            items = flatten [..getItems! for @project.layers]
         bounds = items.reduce ((bbox, item) ->
             unless bbox => item.bounds else bbox.unite item.bounds
             ), null

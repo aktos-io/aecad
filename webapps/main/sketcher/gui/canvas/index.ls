@@ -18,9 +18,10 @@ export init = (pcb) ->
     @observe \currTool, (tool) ~>
         @fire \changeTool, {}, tool
 
+    selection = new Selection
+
     handlers =
         fitAll: (ctx) !~>
-            selection = new Selection
             for layer in pcb.project.layers
                 selection.add layer, {+select}
             #console.log "fit bounds: ", fit
@@ -63,7 +64,7 @@ export init = (pcb) ->
                 obj = getAecad ..
                 if obj
                     obj.set-side layer
-                    obj.send-to-layer layer
+                    #obj.send-to-layer layer
 
                 /*
                 unless get-keypath .., "data.aecad.name"
@@ -86,8 +87,21 @@ export init = (pcb) ->
                         ..item.remove!
             pcb.vlog.info "Removed #{i} items. Use Ctrl+Z for undo."
 
-        explode: (ctx)->
+        explode: (ctx) ->
             exploded = pcb.explode {+recursive}, pcb.selection.selected
-            console.log exploded
+            # WIP
+
+        saveBounds: (ctx) ->
+            bounds = pcb.get-bounds selection.selected
+            pcb.ractive.set \lastBounds, bounds
+            console.log "last bounds: ", bounds
+            PNotify.info do
+                text: "Saved last bounds: (x:#{bounds.center.x |> oneDecimal}, y:#{bounds.center.y |> oneDecimal})"
+                addClass: 'nonblock'
+
+        moveToCenter: (ctx) ->
+            center = pcb.ractive.get \lastBounds .center
+            for selection.selected
+                ..position.set center
 
     return handlers
