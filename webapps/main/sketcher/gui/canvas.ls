@@ -3,7 +3,7 @@ require! '../tools/freehand': {Freehand}
 require! '../tools/move-tool': {MoveTool}
 require! '../tools/select-tool': {SelectTool}
 require! '../tools/lib/selection': {Selection}
-require! 'prelude-ls': {min}
+require! 'prelude-ls': {min, empty}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../tools/lib': {getAecad}
 
@@ -63,7 +63,7 @@ export init = (pcb) ->
                 obj = getAecad ..
                 if obj
                     obj.set-side layer
-                    obj.send-to-layer layer 
+                    obj.send-to-layer layer
 
                 /*
                 unless get-keypath .., "data.aecad.name"
@@ -75,5 +75,19 @@ export init = (pcb) ->
             g = new pcb.Group pcb.selection.selected
             console.log "Selected items are grouped:", g
             ctx.component.state \done...
+
+        cleanupDrawing: (ctx) !->
+            pcb.history.commit!
+            i = 0
+            for pcb.search!
+                if ..item.getClassName?! in <[ Group Layer ]>
+                    if empty ..item.[]children
+                        console.log "#{..keypath.join('.')} should be deleted. (\##{++i})"
+                        ..item.remove!
+            pcb.vlog.info "Removed #{i} items. Use Ctrl+Z for undo."
+
+        explode: (ctx)->
+            exploded = pcb.explode {+recursive}, pcb.selection.selected
+            console.log exploded 
 
     return handlers

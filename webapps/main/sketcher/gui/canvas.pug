@@ -64,5 +64,14 @@ radio-buttons(value="{{currLayer}}")
             tooltip="Trace on B.Cu"
             ) #[.ui.circular.green.empty.label]
 
++space 
+ack-button.mini.icon(
+    on-click="cleanupDrawing" 
+    tooltip="Cleanup drawing"): icon.erase
+
+ack-button.mini.icon(
+    on-click="explode" 
+    tooltip="Explode selected"): icon.bomb
+
 div
 canvas#draw

@@ -1,4 +1,4 @@
-require! 'prelude-ls': {flatten}
+require! 'prelude-ls': {flatten, sort-by, reverse}
 require! './line': {Line}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
@@ -39,6 +39,25 @@ export canvas-control =
     get-all: ->
         # returns all items
         flatten [..getItems! for @project.layers]
+
+    search: (opts) ->
+        items = []
+        make-flatten = (item, parent=[]) ->
+            r = []
+            parent.push item.id
+            keypath = JSON.parse JSON.stringify parent
+            r.push {item, keypath}
+            if item.hasChildren!
+                for child in item.children
+                    r ++= make-flatten child, keypath
+            return r
+        for layer in @project.layers
+            items ++= make-flatten layer
+        items |> sort-by (.keypath.length) |> reverse
+
+    explode: (opts, items) ->
+        exploded-items = []
+        debugger
 
     get-flatten: (opts={}) ->
         '''
