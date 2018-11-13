@@ -33,7 +33,7 @@ export SelectTool = ->
                         opts.overlapping = sel.box.bounds
 
                     items = scope.project.getItems opts
-                    console.log "including items: ", items
+                    console.log "Selection box includes items: ", items
                     selection.add items
                 sel.box.remove!
 
@@ -45,6 +45,9 @@ export SelectTool = ->
             # Ctrl modifier is used for multiple selection
             unless event.modifiers.control
                 selection.clear!
+                sel.box?.remove!
+                sel.box = null
+                console.log "Selection should be cleared by now: ", selection.selected
 
             unless hit
                 # Create the selection box
