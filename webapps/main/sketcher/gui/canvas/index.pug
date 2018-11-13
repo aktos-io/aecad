@@ -1,3 +1,9 @@
+btn.icon(
+    on-click="fitAll" 
+    tooltip="Fit all"
+    ): icon.world
+    
+
 radio-buttons#toolChanger(value="{{currTool}}") 
     //- (on-select="changeTool")
     .ui.buttons
@@ -23,28 +29,22 @@ radio-buttons#toolChanger(value="{{currTool}}")
             )
             icon.pencil.alternate
 
-+space
-.ui.buttons 
+
+.ui.buttons.mini 
     checkbox(
         checked="{{selectGroup}}"
         tooltip="Select the parent group"
         ) Group
 
-+space
-ack-button.icon(
-    on-click="groupSelected" 
-    tooltip="Group all selected items"
-    ): icon.object.group.outline        
+    ack-button.icon(
+        on-click="groupSelected" 
+        tooltip="Group all selected items"
+        ): icon.object.group.outline        
 
 +space
-btn.icon(
-    on-click="fitAll" 
-    tooltip="Fit all"
-    ): icon.world
-    
 .ui.buttons 
     +each('layers as val')
-        ack-button.icon(
+        ack-button.mini.icon(
             on-click="sendTo"
             to="{{@key}}" 
             tooltip="Send selected component to {{@key}} Layer"
@@ -52,21 +52,21 @@ btn.icon(
 
 +space
 radio-buttons(value="{{currLayer}}")
-    .ui.buttons
-        radio-button.icon(
+    .ui.mini.buttons
+        radio-button.icon.mini(
             default value="F.Cu" 
             true-color="red"
             tooltip="Trace on F.Cu"
             ) #[.ui.circular.red.empty.label]
-        radio-button.icon(
+        radio-button.mini.icon(
             value="B.Cu" 
             true-color="green"
             tooltip="Trace on B.Cu"
             ) #[.ui.circular.green.empty.label]
 
-    ack-button.mini.icon(
-        on-click="cleanupDrawing" 
-        tooltip="Cleanup drawing"): icon.erase
+ack-button.mini.icon(
+    on-click="cleanupDrawing" 
+    tooltip="Cleanup drawing"): icon.erase
 
 +space
 //-
@@ -84,5 +84,12 @@ radio-buttons(value="{{currLayer}}")
         tooltip="Move to last saved coordinates"
         ): icon.magnet.blue
 
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="measureDistance" 
+        tooltip="Measure Distance"
+        ): icon.ellipsis.vertical.green
+
+    
 div
 canvas#draw

@@ -3,9 +3,10 @@ require! '../../tools/freehand': {Freehand}
 require! '../../tools/move-tool': {MoveTool}
 require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
-require! 'prelude-ls': {min, empty}
+require! 'prelude-ls': {min, empty, abs}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../../tools/lib': {getAecad}
+require! 'aea/do-math': {px2mm}
 
 export init = (pcb) ->
     # tools
@@ -64,7 +65,7 @@ export init = (pcb) ->
                 obj = getAecad ..
                 if obj
                     obj.set-side layer
-                    #obj.send-to-layer layer
+                    obj.send-to-layer 'gui' # TODO: find a more beautiful name
 
                 /*
                 unless get-keypath .., "data.aecad.name"
@@ -109,5 +110,41 @@ export init = (pcb) ->
             center = pcb.ractive.get \lastBounds .center
             for selection.selected
                 ..position.set center
+
+        measureDistance: (ctx) ->
+            prev = pcb.ractive.get \distReference
+            curr = pcb.get-bounds selection.selected .center
+            selection.clear!
+            pcb.ractive.set \distReference, curr
+            if prev
+                line = new pcb.Path.Line do
+                    from: prev
+                    to: curr
+                    stroke-color: 'yellow'
+                    stroke-width: 1
+                    selected: yes
+                    data: {+tmp, +guide}
+
+                format = (x) ->
+                    "#{oneDecimal (x |> px2mm), 2} mm"
+
+                dist = prev.subtract(curr).length |> format
+                dx = prev.x - curr.x |> abs |> format
+                dy = prev.y - curr.y |> abs |> format
+
+                ttip = new pcb.PointText do
+                    point: line.bounds.center
+                    content: """
+                        dist: #{dist}
+                        dx  : #{dx}
+                        dy  : #{dy}
+                        """
+                    fill-color: 'white'
+                    font-size: 4
+                    position: line.bounds.center
+                    justification: 'center'
+                    data: {+tmp}
+
+
 
     return handlers
