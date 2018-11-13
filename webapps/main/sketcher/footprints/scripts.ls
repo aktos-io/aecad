@@ -16,89 +16,6 @@ export {
   
   
 '''
-lib_to263: '''
-  dimensions = 
-      to263:
-          # See http://www.ti.com/lit/ds/symlink/lm2576.pdf
-          H   : 14.17mm
-          die : x:8mm     y:10.8mm
-          pads: x:2.16mm  y:1.07mm
-          pd  : 1.702
-  
-  
-  # TO263 footprint 
-  # ---------------------------
-  add-class class TO263 extends Footprint
-      (data) -> 
-          data.symmetry-axis = 'x' # Design criteria
-          super ...
-          unless @resuming
-              # create from scratch 
-              console.log "Creating from scratch TO263"
-              d = dimensions.to263
-    
-              pad1 = new Pad this, do
-                  pin: 1
-                  width: d.die.x
-                  height: d.die.y
-                  label: data.labels[1]
-              
-              c = new Container this
-              
-              for index in [1 to 5]
-                  pad = new Pad c, do 
-                      pin: index
-                      width: d.pads.x
-                      height: d.pads.y
-                      label: data.labels[index]
-              
-                  pad.position.y -= (d.pd |> mm2px) * index
-                  
-              c.position = pad1.position
-              c.position.x += (d.H - d.die.x / 2) |> mm2px
-  
-  
-  add-class class PinArray extends Footprint
-      (data) -> 
-          super ...
-          unless @resuming
-              console.log "Creating from scratch PinArray"
-              
-              for cindex from 1 to data.cols.count
-                  for rindex from 1 to data.rows.count
-                      pin-num = switch (data.dir or 'x')
-                      | 'x' => 
-                          cindex + (rindex - 1) * data.cols.count
-                      | 'y' =>
-                          rindex + (cindex - 1) * data.rows.count
-      
-                      pin-label = data.labels?[pin-num]
-      
-                      p = new Pad this, do
-                          pin: pin-num
-                          width: data.pad.width
-                          height: data.pad.height
-                          label: if data.labels? => (pin-label or '?') 
-                          
-                      p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
-                      p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
-              
-              if data.mirrored
-                  # useful for female headers 
-                  @mirror!
-  
-  add-class class LM2576 extends TO263
-      (data) -> 
-          data.labels = 
-              # Pin_id: Label
-              1: \\vin 
-              2: \\out
-              3: \\gnd
-              4: \\fb 
-              5: \\onoff
-          super ...
-  
-'''
 'class-approach-test': '''
   # Example imaginary footprint 
   # ---------------------------
@@ -188,7 +105,68 @@ lib_to263: '''
       dir: 'x' # numbering direction, 'x' or 'y', default 'x'
   
 '''
-'lib-rpi-header': '''
+'rpi-header-test': '''
+  # --------------------------------------------------
+  # all lib* scripts will be included automatically.
+  # --------------------------------------------------
+  new RpiHeader do
+      name: 'rpi2'
+  
+  x = find-comp 'rpi2'
+  <~ sleep 500ms
+  x.rotate -45
+  
+'''
+'schematic-test': '''
+  # --------------------------------------------------
+  # all lib* scripts will be included automatically.
+  # --------------------------------------------------
+  new Schema do 
+      name: "sgw"
+      netlist: 
+          # Trace_id: "list, of, connected, pads"
+          1: "c1.out, rpi.3v3"
+          2: "c1.onoff, rpi.gnd"
+          3: "c1.vin rpi.25"
+          4: "c1.fb c1.gnd"
+      bom:
+          LM2576    : 'c1'
+          RpiHeader : 'rpi'
+          SMD1206   : 'r1, r2, r3'
+  
+'''
+'lib-PinArray': '''
+  add-class class PinArray extends Footprint
+      (data) -> 
+          super ...
+          unless @resuming
+              console.log "Creating from scratch PinArray"
+              
+              for cindex from 1 to data.cols.count
+                  for rindex from 1 to data.rows.count
+                      pin-num = switch (data.dir or 'x')
+                      | 'x' => 
+                          cindex + (rindex - 1) * data.cols.count
+                      | 'y' =>
+                          rindex + (cindex - 1) * data.rows.count
+      
+                      pin-label = data.labels?[pin-num]
+      
+                      p = new Pad this, do
+                          pin: pin-num
+                          width: data.pad.width
+                          height: data.pad.height
+                          label: if data.labels? => (pin-label or '?') 
+                          
+                      p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
+                      p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
+              
+              if data.mirrored
+                  # useful for female headers 
+                  @mirror!
+  
+'''
+'lib-RpiHeader': '''
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   #
@@ -244,37 +222,7 @@ lib_to263: '''
           super ... 
   
 '''
-'rpi-header-test': '''
-  # --------------------------------------------------
-  # all lib* scripts will be included automatically.
-  # --------------------------------------------------
-  new RpiHeader do
-      name: 'rpi2'
-  
-  x = find-comp 'rpi2'
-  <~ sleep 500ms
-  x.rotate -45
-  
-'''
-'schematic-test': '''
-  # --------------------------------------------------
-  # all lib* scripts will be included automatically.
-  # --------------------------------------------------
-  new Schema do 
-      name: "sgw"
-      netlist: 
-          # Trace_id: "list, of, connected, pads"
-          1: "c1.out, rpi.3v3"
-          2: "c1.onoff, rpi.gnd"
-          3: "c1.vin rpi.25"
-          4: "c1.fb c1.gnd"
-      bom:
-          LM2576    : 'c1'
-          RpiHeader : 'rpi'
-          SMD1206   : 'r1, r2, r3'
-  
-'''
-'lib-smd1206': '''
+'lib-SMD1206': '''
   # From http://www.resistorguide.com/resistor-sizes-and-packages/
   smd1206 =
       a: 1.6mm
@@ -299,6 +247,64 @@ lib_to263: '''
   
           data = defaults <<< data 
           super ... 
+  
+'''
+'lib-LM2576': '''
+  add-class class LM2576 extends TO263
+      (data) -> 
+          data.labels = 
+              # Pin_id: Label
+              1: \\vin 
+              2: \\out
+              3: \\gnd
+              4: \\fb 
+              5: \\onoff
+          super ...
+  
+'''
+'lib-TO263': '''
+  dimensions = 
+      to263:
+          # See http://www.ti.com/lit/ds/symlink/lm2576.pdf
+          H   : 14.17mm
+          die : x:8mm     y:10.8mm
+          pads: x:2.16mm  y:1.07mm
+          pd  : 1.702
+  
+  
+  # TO263 footprint 
+  # ---------------------------
+  add-class class TO263 extends Footprint
+      (data) -> 
+          data.symmetry-axis = 'x' # Design criteria
+          super ...
+          unless @resuming
+              # create from scratch 
+              console.log "Creating from scratch TO263"
+              d = dimensions.to263
+    
+              pad1 = new Pad this, do
+                  pin: 1
+                  width: d.die.x
+                  height: d.die.y
+                  label: data.labels[1]
+              
+              c = new Container this
+              
+              for index in [1 to 5]
+                  pad = new Pad c, do 
+                      pin: index
+                      width: d.pads.x
+                      height: d.pads.y
+                      label: data.labels[index]
+              
+                  pad.position.y -= (d.pd |> mm2px) * index
+                  
+              c.position = pad1.position
+              c.position.x += (d.H - d.die.x / 2) |> mm2px
+  
+  
+  
   
 '''
 }
