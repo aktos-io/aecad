@@ -1,6 +1,8 @@
 require! 'aea': {create-download}
 require! '../../tools/lib/trace/lib': {is-on-layer}
 require! '../../tools/lib': {get-aecad, get-parent-aecad}
+require! 'prelude-ls': {max}
+
 
 export init = (pcb) ->
 
@@ -27,12 +29,16 @@ export init = (pcb) ->
             for pcb.project.layers
                 for ..getItems({-recursive})
                     {item} = get-parent-aecad ..
-                    unless item
-                        ..remove!
-                    else
+                    if item
                         #console.log "Found ae-obj:", item.data.aecad.type
                         get-aecad item
                             ..print-mode layers
+                    else if ..data?aecad?layer in layers
+                        # TODO: provide a proper way
+                        ..stroke-color = \black
+                        ..stroke-width = max ..stroke-width, pcb.ractive.get('currTrace.signal')
+                    else
+                        ..remove!
 
             create-download "#{layers.join('_')}.svg", pcb.export-svg!
             pcb.history.back!
