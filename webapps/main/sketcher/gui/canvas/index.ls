@@ -1,11 +1,11 @@
-require! '../tools/trace-tool': {TraceTool}
-require! '../tools/freehand': {Freehand}
-require! '../tools/move-tool': {MoveTool}
-require! '../tools/select-tool': {SelectTool}
-require! '../tools/lib/selection': {Selection}
+require! '../../tools/trace-tool': {TraceTool}
+require! '../../tools/freehand': {Freehand}
+require! '../../tools/move-tool': {MoveTool}
+require! '../../tools/select-tool': {SelectTool}
+require! '../../tools/lib/selection': {Selection}
 require! 'prelude-ls': {min, empty}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
-require! '../tools/lib': {getAecad}
+require! '../../tools/lib': {getAecad}
 
 export init = (pcb) ->
     # tools
@@ -88,6 +88,6 @@ export init = (pcb) ->
 
         explode: (ctx)->
             exploded = pcb.explode {+recursive}, pcb.selection.selected
-            console.log exploded 
+            console.log exploded
 
     return handlers

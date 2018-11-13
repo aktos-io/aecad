@@ -4,8 +4,8 @@ require! 'livescript': lsc
 require! 'prelude-ls'
 require! 'aea': {create-download}
 require! 'aea/do-math': {mm2px}
-require! '../tools/lib': tool-lib
-require! '../kernel': {PaperDraw}
+require! '../../tools/lib': tool-lib
+require! '../../kernel': {PaperDraw}
 
 {text2arr} = tool-lib
 {keys, values, map, filter, find} = prelude-ls
