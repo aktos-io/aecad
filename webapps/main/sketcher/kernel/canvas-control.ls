@@ -100,7 +100,7 @@ export canvas-control =
         layer
 
     send-to-layer: (item, name) ->
-        set-keypath item, 'data.aecad.side', name
+        #set-keypath item, 'data.aecad.side', name # DO NOT DO THAT, LEAVE THIS TO COMPONENT
         @add-layer name  # add the layer if it doesn't exist
         layer = @ractive.get "project.layers.#{Ractive.escapeKey name}"
         layer.addChild item
