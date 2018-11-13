@@ -8,32 +8,76 @@ require! '../tools/lib': tool-lib
 require! '../kernel': {PaperDraw}
 
 {text2arr} = tool-lib
-{keys, values, map} = prelude-ls
+{keys, values, map, filter, find} = prelude-ls
 
 export init = (pcb) ->
-    runScript = (content, opts={+clear}) ~>
+    # Modules to be included into dynamic scripts
+    modules = {aea, lib, lsc, PaperDraw, mm2px}
+    # include all tools
+    modules <<< tool-lib
+    # include all prelude-ls functions
+    modules <<< prelude-ls
+    # modules from pcb
+    pcb-modules = """
+        Group Path Rectangle PointText Point Shape
+        Matrix
+        canvas project view
+        """ |> text2arr |> map (name) -> modules[name] = pcb[name]
+
+    runScript = (code, opts={+clear}) ~>
         compiled = no
         @set \output, ''
         try
-            if content and typeof! content isnt \String
+            if code and typeof! code isnt \String
                 throw new Error "Content is not string!"
 
-            _content = ""
-            output = []
-            for name, script of @get \drawingLs when name.starts-with \lib
-                if name is @get 'scriptName'
-                    continue
-                output.push "* Using library: #{name}"
-                _content += script + '\n'
+            libs = []
+            for name, src of @get \drawingLs when name.starts-with \lib
+                continue if name is @get \scriptName # prevent duplicate inclusion
+                libs.push {name, src}
+            console.log "drawingls: ", libs
 
-            # append actual content
-            output.push "* ...Running script: #{@get 'scriptName'}"
-            output.push "-----------------------------------------"
-            output.push ""
-            output.push ""
+            # Correctly sort according to their class definitions
+            for lib in libs
+                for lib.src.split '\n'
+                    if ..match /.*\b(class)\s+([^\s]+)\b/
+                        _cls = that.2
+                        lib.[]exposes.push _cls
+                        console.log "------> #{lib.name} exposes #{_cls}"
+                    if ..match /#!\s*requires\s+(.*)\b/
+                        console.log "----> #{lib.name} depends #{that.1}"
+                        lib.[]depends.push that.1
+
+            ordered = []
+            insert-dep = (lib) !->
+                for dep in lib.[]depends
+                    unless find (-> dep in it.[]exposes), ordered
+                        # currently no lib presents that exposes the dependency
+                        if find (-> dep in it.[]exposes), libs
+                            # recursively check its dependencies
+                            console.log "inserting dep #{dep}: ", that
+                            insert-dep that
+                        else
+                            debugger
+                            throw new Error "Missing dependency: #{dep}"
+
+                unless find (.name is lib.name), ordered
+                    ordered.push lib
+
+            console.log "libs: ", libs
+            for libs
+                insert-dep ..
+            ordered.push {name: @get('scriptName'), src: code}
+
+            output = []
+            for ordered
+                output.push "* Using: #{..name}"
+            ordered.push "----------------------"
             @set \output, output.join('\n')
-            _content += content
-            js = lsc.compile _content, {+bare, -header}
+
+            # compile livescript code
+            whole-src = [..src for ordered].join('\n')
+            js = lsc.compile whole-src, {+bare, -header}
             compiled = yes
         catch err
             @set \output, "Compile error: #{err.to-string!}"
@@ -48,27 +92,6 @@ export init = (pcb) ->
                 if opts.clear
                     layer.clear!
 
-                modules = {
-                    aea, lib, lsc
-                    PaperDraw
-                    mm2px
-                }
-
-                # include all tools
-                modules <<< tool-lib
-
-                # include all prelude-ls functions
-                modules <<< prelude-ls
-
-                pcb-modules = """
-                    Group Path Rectangle PointText Point Shape
-                    Matrix
-                    canvas project view
-                    """
-                    |> text2arr
-                    |> map (name) ->
-                        modules[name] = pcb[name]
-
                 #console.log "Added global modules: ", keys modules
                 func = new Function ...(keys modules), js
                 func.call pcb, ...(values modules)
@@ -81,7 +104,7 @@ export init = (pcb) ->
                 #throw e
                 console.error e
 
-    # Register all classes on reload
+    # Register all classes on app load
     runScript '# placeholder content', {-clear}
 
     h = @observe \editorContent, ((_new) ~>

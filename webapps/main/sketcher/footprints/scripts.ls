@@ -106,6 +106,7 @@ export {
   
 '''
 'rpi-header-test': '''
+  
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
@@ -167,6 +168,7 @@ export {
   
 '''
 'lib-RpiHeader': '''
+  #! requires PinArray
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   #
@@ -223,6 +225,7 @@ export {
   
 '''
 'lib-SMD1206': '''
+  #! requires PinArray 
   # From http://www.resistorguide.com/resistor-sizes-and-packages/
   smd1206 =
       a: 1.6mm
@@ -230,7 +233,6 @@ export {
       c: 2mm
   
   {a, b, c} = smd1206
-  
   add-class class SMD1206 extends PinArray
       (data={}) -> 
           defaults =
@@ -250,6 +252,7 @@ export {
   
 '''
 'lib-LM2576': '''
+  #! requires TO263
   add-class class LM2576 extends TO263
       (data) -> 
           data.labels = 
@@ -305,6 +308,12 @@ export {
   
   
   
+  
+'''
+hello: '''
+  # --------------------------------------------------
+  # all lib* scripts will be included automatically.
+  # --------------------------------------------------
   
 '''
 }
