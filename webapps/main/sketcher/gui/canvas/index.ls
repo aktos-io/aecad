@@ -92,9 +92,15 @@ export init = (pcb) ->
             # WIP
 
         saveBounds: (ctx) ->
+            if empty selection.selected
+                PNotify.notice do
+                    text: "No selection found (last saved coordinates are intact)."
+                    addClass: 'nonblock'
+                return
             bounds = pcb.get-bounds selection.selected
             pcb.ractive.set \lastBounds, bounds
-            console.log "last bounds: ", bounds
+            #console.log "last bounds: ", bounds
+            selection.clear!
             PNotify.info do
                 text: "Saved last bounds: (x:#{bounds.center.x |> oneDecimal}, y:#{bounds.center.y |> oneDecimal})"
                 addClass: 'nonblock'

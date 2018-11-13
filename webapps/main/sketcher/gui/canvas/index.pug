@@ -76,13 +76,13 @@ radio-buttons(value="{{currLayer}}")
 .ui.mini.buttons
     ack-button.icon(
         on-click="saveBounds" 
-        tooltip="Save selection bounds"
+        tooltip="Save selection bounds coordinate"
         ): icon.map.marker.alternate.blue
 
     ack-button.icon(
         on-click="moveToCenter" 
-        tooltip="Move center of selected to center of last saved bounds"
-        ): icon.paper.plane.blue
+        tooltip="Move to last saved coordinates"
+        ): icon.magnet.blue
 
 div
 canvas#draw
