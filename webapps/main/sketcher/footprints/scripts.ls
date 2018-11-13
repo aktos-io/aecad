@@ -82,6 +82,10 @@ lib_to263: '''
                           
                       p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
                       p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
+              
+              if data.mirrored
+                  # useful for female headers 
+                  @mirror!
   
   add-class class LM2576 extends TO263
       (data) -> 
@@ -224,16 +228,17 @@ lib_to263: '''
           defaults =
               name: 'rpi_'
               pad:
-                  width: 2mm
-                  height: 1.2mm
+                  width: 3.1mm
+                  height: 1.5mm
               cols:
                   count: 2
-                  interval: 3.34mm
+                  interval: 5.3mm
               rows:
                   count: 20
                   interval: 2.54mm
               dir: 'x'
               labels: table
+              mirrored: yes
               
           data = defaults <<< data 
           super ... 
