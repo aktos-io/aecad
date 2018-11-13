@@ -2130,7 +2130,49 @@
     'Layer'
     {
       applyMatrix: true
-      selected: true
+      children: [
+        [
+          'Group'
+          {
+            applyMatrix: false
+            data:
+              aecad:
+                type: 'Trace'
+                tid: 'Uuvj92CLu'
+            children: [
+              [
+                'Path'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      side: 'F.Cu'
+                  segments: [
+                    [
+                      215.24727
+                      142.11499
+                    ]
+                  ]
+                  strokeColor: [
+                    1
+                    0
+                    0
+                  ]
+                  strokeWidth: 0.75591
+                  strokeCap: 'round'
+                  strokeJoin: 'round'
+                }
+              ]
+            ]
+          }
+        ]
+      ]
+    }
+  ]
+  [
+    'Layer'
+    {
+      applyMatrix: true
       children: [
         [
           'Group'
@@ -2174,7 +2216,6 @@
     'Layer'
     {
       applyMatrix: true
-      selected: true
       children: [
         [
           'Group'
@@ -2183,7 +2224,7 @@
             data:
               aecad:
                 type: 'Trace'
-                tid: 'Uuvj92CLu'
+                tid: 'kAbDVAKip'
             children: [
               [
                 'Path'
@@ -2194,8 +2235,8 @@
                       side: 'F.Cu'
                   segments: [
                     [
-                      215.24727
-                      142.11499
+                      88.83465
+                      84.80945
                     ]
                   ]
                   strokeColor: [
@@ -2206,6 +2247,5038 @@
                   strokeWidth: 0.75591
                   strokeCap: 'round'
                   strokeJoin: 'round'
+                }
+              ]
+            ]
+          }
+        ]
+      ]
+    }
+  ]
+  [
+    'Layer'
+    {
+      name: 'gui'
+      applyMatrix: true
+      children: [
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              1
+              0
+              0
+              -1
+              117.73134
+              72.63818
+            ]
+            data:
+              aecad:
+                type: 'LM2576'
+                name: 'c1'
+                labels:
+                  '1': 'vin'
+                  '2': 'out'
+                  '3': 'gnd'
+                  '4': 'fb'
+                  '5': 'onoff'
+                symmetryAxis: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      pin: 1
+                      width: 8
+                      height: 10.8
+                      label: 'vin'
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          15.11811
+                          20.40945
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          30.23622
+                          40.8189
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          -1
+                          15.11811
+                          19.50945
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'vin'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: false
+                  matrix: [
+                    1
+                    0
+                    0
+                    1
+                    49.47402
+                    37.68567
+                  ]
+                  data:
+                    aecad:
+                      type: 'Container'
+                  children: [
+                    [
+                      'Group'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            type: 'Pad'
+                            pin: 1
+                            width: 2.16
+                            height: 1.07
+                            label: 'vin'
+                        children: [
+                          [
+                            'Shape'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                1
+                                4.08189
+                                -4.41071
+                              ]
+                              data:
+                                aecad:
+                                  part: 'cu'
+                              type: 'rectangle'
+                              size: [
+                                8.16378
+                                4.04409
+                              ]
+                              radius: [
+                                0
+                                0
+                              ]
+                              fillColor: [
+                                1
+                                0
+                                0
+                              ]
+                              strokeWidth: 0
+                            }
+                          ]
+                          [
+                            'PointText'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                -1
+                                4.08189
+                                -5.31071
+                              ]
+                              data:
+                                aecad:
+                                  part: 'ttip'
+                              content: 'vin'
+                              fillColor: [
+                                1
+                                1
+                                1
+                              ]
+                              fontSize: 3
+                              leading: 3.6
+                              justification: 'center'
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                    [
+                      'Group'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            type: 'Pad'
+                            pin: 2
+                            width: 2.16
+                            height: 1.07
+                            label: 'out'
+                        children: [
+                          [
+                            'Shape'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                1
+                                4.08189
+                                -10.84346
+                              ]
+                              data:
+                                aecad:
+                                  part: 'cu'
+                              type: 'rectangle'
+                              size: [
+                                8.16378
+                                4.04409
+                              ]
+                              radius: [
+                                0
+                                0
+                              ]
+                              fillColor: [
+                                1
+                                0
+                                0
+                              ]
+                              strokeWidth: 0
+                            }
+                          ]
+                          [
+                            'PointText'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                -1
+                                4.08189
+                                -11.74346
+                              ]
+                              data:
+                                aecad:
+                                  part: 'ttip'
+                              content: 'out'
+                              fillColor: [
+                                1
+                                1
+                                1
+                              ]
+                              fontSize: 3
+                              leading: 3.6
+                              justification: 'center'
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                    [
+                      'Group'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            type: 'Pad'
+                            pin: 3
+                            width: 2.16
+                            height: 1.07
+                            label: 'gnd'
+                        children: [
+                          [
+                            'Shape'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                1
+                                4.08189
+                                -17.27622
+                              ]
+                              data:
+                                aecad:
+                                  part: 'cu'
+                              type: 'rectangle'
+                              size: [
+                                8.16378
+                                4.04409
+                              ]
+                              radius: [
+                                0
+                                0
+                              ]
+                              fillColor: [
+                                1
+                                0
+                                0
+                              ]
+                              strokeWidth: 0
+                            }
+                          ]
+                          [
+                            'PointText'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                -1
+                                4.08189
+                                -18.17622
+                              ]
+                              data:
+                                aecad:
+                                  part: 'ttip'
+                              content: 'gnd'
+                              fillColor: [
+                                1
+                                1
+                                1
+                              ]
+                              fontSize: 3
+                              leading: 3.6
+                              justification: 'center'
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                    [
+                      'Group'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            type: 'Pad'
+                            pin: 4
+                            width: 2.16
+                            height: 1.07
+                            label: 'fb'
+                        children: [
+                          [
+                            'Shape'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                1
+                                4.08189
+                                -23.70898
+                              ]
+                              data:
+                                aecad:
+                                  part: 'cu'
+                              type: 'rectangle'
+                              size: [
+                                8.16378
+                                4.04409
+                              ]
+                              radius: [
+                                0
+                                0
+                              ]
+                              fillColor: [
+                                1
+                                0
+                                0
+                              ]
+                              strokeWidth: 0
+                            }
+                          ]
+                          [
+                            'PointText'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                -1
+                                4.08189
+                                -24.60898
+                              ]
+                              data:
+                                aecad:
+                                  part: 'ttip'
+                              content: 'fb'
+                              fillColor: [
+                                1
+                                1
+                                1
+                              ]
+                              fontSize: 3
+                              leading: 3.6
+                              justification: 'center'
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                    [
+                      'Group'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            type: 'Pad'
+                            pin: 5
+                            width: 2.16
+                            height: 1.07
+                            label: 'onoff'
+                        children: [
+                          [
+                            'Shape'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                1
+                                4.08189
+                                -30.14173
+                              ]
+                              data:
+                                aecad:
+                                  part: 'cu'
+                              type: 'rectangle'
+                              size: [
+                                8.16378
+                                4.04409
+                              ]
+                              radius: [
+                                0
+                                0
+                              ]
+                              fillColor: [
+                                1
+                                0
+                                0
+                              ]
+                              strokeWidth: 0
+                            }
+                          ]
+                          [
+                            'PointText'
+                            {
+                              applyMatrix: false
+                              matrix: [
+                                1
+                                0
+                                0
+                                -1
+                                4.08189
+                                -31.04173
+                              ]
+                              data:
+                                aecad:
+                                  part: 'ttip'
+                              content: 'onoff'
+                              fillColor: [
+                                1
+                                1
+                                1
+                              ]
+                              fontSize: 3
+                              leading: 3.6
+                              justification: 'center'
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              -1
+              0
+              0
+              1
+              336.1
+              80.37719
+            ]
+            data:
+              aecad:
+                type: 'SMD1206'
+                name: 'r1'
+                pad:
+                  width: 0.9
+                  height: 1.6
+                cols:
+                  count: 2
+                  interval: 2.9
+                rows:
+                  count: 1
+                dir: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      pin: 1
+                      width: 0.9
+                      height: 1.6
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          12.66142
+                          3.02362
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          3.40157
+                          6.04724
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          -1
+                          0
+                          0
+                          1
+                          12.66142
+                          3.92362
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      pin: 2
+                      width: 0.9
+                      height: 1.6
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          23.62205
+                          3.02362
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          3.40157
+                          6.04724
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          -1
+                          0
+                          0
+                          1
+                          23.62205
+                          3.92362
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '2'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              1
+              0
+              0
+              1
+              299.81653
+              107.24963
+            ]
+            data:
+              aecad:
+                type: 'SMD1206'
+                name: 'r2'
+                pad:
+                  width: 0.9
+                  height: 1.6
+                cols:
+                  count: 2
+                  interval: 2.9
+                rows:
+                  count: 1
+                dir: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      pin: 1
+                      width: 0.9
+                      height: 1.6
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          12.66142
+                          3.02362
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          3.40157
+                          6.04724
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          12.66142
+                          3.92362
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      pin: 2
+                      width: 0.9
+                      height: 1.6
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          23.62205
+                          3.02362
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          3.40157
+                          6.04724
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          23.62205
+                          3.92362
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '2'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              1
+              0
+              0
+              1
+              194.64373
+              41.96719
+            ]
+            data:
+              aecad:
+                type: 'SMD1206'
+                name: 'r3'
+                pad:
+                  width: 0.9
+                  height: 1.6
+                cols:
+                  count: 2
+                  interval: 2.9
+                rows:
+                  count: 1
+                dir: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      pin: 1
+                      width: 0.9
+                      height: 1.6
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          12.66142
+                          3.02362
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          3.40157
+                          6.04724
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          12.66142
+                          3.92362
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      pin: 2
+                      width: 0.9
+                      height: 1.6
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          23.62205
+                          3.02362
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          3.40157
+                          6.04724
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          23.62205
+                          3.92362
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '2'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              0
+              -1
+              1
+              0
+              299.37433
+              118.62601
+            ]
+            data:
+              aecad:
+                type: 'Conn_2pin_thd'
+                name: 'pow'
+                pad:
+                  dia: 3.1
+                  drill: 1
+                  pin: 2
+                cols:
+                  count: 2
+                  interval: 3.81
+                rows:
+                  count: 1
+                dir: 'x'
+                rotation: 270
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      dia: 3.1
+                      drill: 1
+                      pin: 1
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          14.4
+                          0
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'circle'
+                        size: [
+                          11.71654
+                          11.71654
+                        ]
+                        radius: 5.85827
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'Path'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            part: 'drill'
+                        segments: [
+                          [
+                            [
+                              12.51024
+                              0
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              14.4
+                              -1.88976
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                          ]
+                          [
+                            [
+                              16.28976
+                              0
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              14.4
+                              1.88976
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                          ]
+                        ]
+                        closed: true
+                        fillColor: [
+                          0.1451
+                          0.1451
+                          0.1451
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          13.5
+                          0
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      dia: 3.1
+                      drill: 1
+                      pin: 2
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          28.8
+                          0
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'circle'
+                        size: [
+                          11.71654
+                          11.71654
+                        ]
+                        radius: 5.85827
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'Path'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            part: 'drill'
+                        segments: [
+                          [
+                            [
+                              26.91024
+                              0
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              28.8
+                              -1.88976
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                          ]
+                          [
+                            [
+                              30.68976
+                              0
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              28.8
+                              1.88976
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                          ]
+                        ]
+                        closed: true
+                        fillColor: [
+                          0.1451
+                          0.1451
+                          0.1451
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          27.9
+                          0
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '2'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              0
+              -1
+              1
+              0
+              20.25659
+              171.948
+            ]
+            data:
+              aecad:
+                type: 'RpiHeader'
+                name: 'rpi'
+                pad:
+                  width: 3.1
+                  height: 1.5
+                  pin: 40
+                  label: '21'
+                cols:
+                  count: 2
+                  interval: 5.3
+                rows:
+                  count: 20
+                  interval: 2.54
+                dir: 'x'
+                labels:
+                  '1': '3v3'
+                  '2': '5v'
+                  '3': '2'
+                  '4': '5v'
+                  '5': '3'
+                  '6': 'gnd'
+                  '7': '4'
+                  '8': '14'
+                  '9': 'gnd'
+                  '10': '15'
+                  '11': '17'
+                  '12': '18'
+                  '13': '27'
+                  '14': 'gnd'
+                  '15': '22'
+                  '16': '23'
+                  '17': '3v3'
+                  '18': '24'
+                  '19': '10'
+                  '20': 'gnd'
+                  '21': '9'
+                  '22': '25'
+                  '23': '11'
+                  '24': '8'
+                  '25': 'gnd'
+                  '26': '7'
+                  '27': '0'
+                  '28': '1'
+                  '29': '5'
+                  '30': 'gnd'
+                  '31': '6'
+                  '32': '12'
+                  '33': '13'
+                  '34': 'gnd'
+                  '35': '19'
+                  '36': '16'
+                  '37': '26'
+                  '38': '20'
+                  '39': 'gnd'
+                  '40': '21'
+                mirrored: true
+                side: 'B.Cu'
+                rotation: 270
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 1
+                      label: '3v3'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          12.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          12.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '3v3'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 3
+                      label: '2'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          22.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          22.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '2'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 5
+                      label: '3'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          31.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          31.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '3'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 7
+                      label: '4'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          41.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          41.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '4'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 9
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          50.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          50.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 11
+                      label: '17'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          60.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          60.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '17'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 13
+                      label: '27'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          70.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          70.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '27'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 15
+                      label: '22'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          79.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          79.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '22'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 17
+                      label: '3v3'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          89.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          89.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '3v3'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 19
+                      label: '10'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          98.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          98.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '10'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 21
+                      label: '9'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          108.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          108.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '9'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 23
+                      label: '11'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          118.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          118.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '11'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 25
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          127.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          127.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 27
+                      label: '0'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          137.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          137.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '0'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 29
+                      label: '5'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          146.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          146.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '5'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 31
+                      label: '6'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          156.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          156.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '6'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 33
+                      label: '13'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          166.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          166.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '13'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 35
+                      label: '19'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          175.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          175.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '19'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 37
+                      label: '26'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          185.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          185.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '26'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 39
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          25.88976
+                          194.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          24.98976
+                          194.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 2
+                      label: '5v'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          12.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          12.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '5v'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 4
+                      label: '5v'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          22.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          22.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '5v'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 6
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          31.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          31.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 8
+                      label: '14'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          41.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          41.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '14'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 10
+                      label: '15'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          50.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          50.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '15'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 12
+                      label: '18'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          60.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          60.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '18'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 14
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          70.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          70.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 16
+                      label: '23'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          79.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          79.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '23'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 18
+                      label: '24'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          89.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          89.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '24'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 20
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          98.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          98.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 22
+                      label: '25'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          108.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          108.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '25'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 24
+                      label: '8'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          118.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          118.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '8'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 26
+                      label: '7'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          127.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          127.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '7'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 28
+                      label: '1'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          137.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          137.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 30
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          146.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          146.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 32
+                      label: '12'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          156.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          156.43465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '12'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 34
+                      label: 'gnd'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          166.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          166.03465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: 'gnd'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 36
+                      label: '16'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          175.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          175.63465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '16'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 38
+                      label: '20'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          185.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          185.23465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '20'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      width: 3.1
+                      height: 1.5
+                      pin: 40
+                      label: '21'
+                      rotation: 90
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          45.92126
+                          194.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'rectangle'
+                        size: [
+                          11.71654
+                          5.66929
+                        ]
+                        radius: [
+                          0
+                          0
+                        ]
+                        fillColor: [
+                          0
+                          0.50196
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          0
+                          1
+                          -1
+                          0
+                          45.02126
+                          194.83465
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '21'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              1
+              0
+              0
+              1
+              233.49754
+              321.35987
+            ]
+            data:
+              aecad:
+                type: 'Conn_1pin_thd'
+                name: '_1'
+                pad:
+                  dia: 3.1
+                  drill: 1
+                  pin: 1
+                cols:
+                  count: 1
+                rows:
+                  count: 1
+                dir: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      dia: 3.1
+                      drill: 1
+                      pin: 1
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'circle'
+                        size: [
+                          11.71654
+                          11.71654
+                        ]
+                        radius: 5.85827
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'Path'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            part: 'drill'
+                        segments: [
+                          [
+                            [
+                              -1.88976
+                              0
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              -1.88976
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                          ]
+                          [
+                            [
+                              1.88976
+                              0
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              1.88976
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                          ]
+                        ]
+                        closed: true
+                        fillColor: [
+                          0.1451
+                          0.1451
+                          0.1451
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          0
+                          0.9
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              1
+              0
+              0
+              1
+              14.28494
+              321.35987
+            ]
+            data:
+              aecad:
+                type: 'Conn_1pin_thd'
+                name: '_2'
+                pad:
+                  dia: 3.1
+                  drill: 1
+                  pin: 1
+                cols:
+                  count: 1
+                rows:
+                  count: 1
+                dir: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      dia: 3.1
+                      drill: 1
+                      pin: 1
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'circle'
+                        size: [
+                          11.71654
+                          11.71654
+                        ]
+                        radius: 5.85827
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'Path'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            part: 'drill'
+                        segments: [
+                          [
+                            [
+                              -1.88976
+                              0
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              -1.88976
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                          ]
+                          [
+                            [
+                              1.88976
+                              0
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              1.88976
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                          ]
+                        ]
+                        closed: true
+                        fillColor: [
+                          0.1451
+                          0.1451
+                          0.1451
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          14.28494
+                          322.25987
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              1
+              0
+              0
+              1
+              14.28494
+              136.16301
+            ]
+            data:
+              aecad:
+                type: 'Conn_1pin_thd'
+                name: '_3'
+                pad:
+                  dia: 3.1
+                  drill: 1
+                  pin: 1
+                cols:
+                  count: 1
+                rows:
+                  count: 1
+                dir: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      dia: 3.1
+                      drill: 1
+                      pin: 1
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'circle'
+                        size: [
+                          11.71654
+                          11.71654
+                        ]
+                        radius: 5.85827
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'Path'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            part: 'drill'
+                        segments: [
+                          [
+                            [
+                              -1.88976
+                              0
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              -1.88976
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                          ]
+                          [
+                            [
+                              1.88976
+                              0
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              1.88976
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                          ]
+                        ]
+                        closed: true
+                        fillColor: [
+                          0.1451
+                          0.1451
+                          0.1451
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          0
+                          0.9
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+        [
+          'Group'
+          {
+            applyMatrix: false
+            matrix: [
+              1
+              0
+              0
+              1
+              233.49754
+              136.16301
+            ]
+            data:
+              aecad:
+                type: 'Conn_1pin_thd'
+                name: '_4'
+                pad:
+                  dia: 3.1
+                  drill: 1
+                  pin: 1
+                cols:
+                  count: 1
+                rows:
+                  count: 1
+                dir: 'x'
+                side: 'F.Cu'
+            children: [
+              [
+                'Group'
+                {
+                  applyMatrix: true
+                  data:
+                    aecad:
+                      type: 'Pad'
+                      dia: 3.1
+                      drill: 1
+                      pin: 1
+                  children: [
+                    [
+                      'Shape'
+                      {
+                        applyMatrix: false
+                        data:
+                          aecad:
+                            part: 'cu'
+                        type: 'circle'
+                        size: [
+                          11.71654
+                          11.71654
+                        ]
+                        radius: 5.85827
+                        fillColor: [
+                          1
+                          0
+                          0
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'Path'
+                      {
+                        applyMatrix: true
+                        data:
+                          aecad:
+                            part: 'drill'
+                        segments: [
+                          [
+                            [
+                              -1.88976
+                              0
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              -1.88976
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                          ]
+                          [
+                            [
+                              1.88976
+                              0
+                            ]
+                            [
+                              0
+                              -1.04369
+                            ]
+                            [
+                              0
+                              1.04369
+                            ]
+                          ]
+                          [
+                            [
+                              0
+                              1.88976
+                            ]
+                            [
+                              1.04369
+                              0
+                            ]
+                            [
+                              -1.04369
+                              0
+                            ]
+                          ]
+                        ]
+                        closed: true
+                        fillColor: [
+                          0.1451
+                          0.1451
+                          0.1451
+                        ]
+                        strokeWidth: 0
+                      }
+                    ]
+                    [
+                      'PointText'
+                      {
+                        applyMatrix: false
+                        matrix: [
+                          1
+                          0
+                          0
+                          1
+                          0
+                          0.9
+                        ]
+                        data:
+                          aecad:
+                            part: 'ttip'
+                        content: '1'
+                        fillColor: [
+                          1
+                          1
+                          1
+                        ]
+                        fontSize: 3
+                        leading: 3.6
+                        justification: 'center'
+                      }
+                    ]
+                  ]
                 }
               ]
             ]
