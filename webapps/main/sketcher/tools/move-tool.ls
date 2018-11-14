@@ -148,9 +148,10 @@ export MoveTool = ->
                 move.about-to-move = yes
             else if traces.length is 0 and others.length is 0
                 # no items were hit, pan mode
-                selection.clear!
-                move.pan = yes
-                scope.cursor \grabbing
+                unless event.pick-mode
+                    selection.clear!
+                    move.pan = yes
+                    scope.cursor \grabbing
             else
                 debugger
 
@@ -175,10 +176,10 @@ export MoveTool = ->
                 unless move.picked
                     point = scope.ractive.get('pointer')
                     move.down-point = point
-                    move-tool.emit \mousedown, (event <<< {point, downPoint: point})
+                    move-tool.emit \mousedown, (event <<< {point, downPoint: point, pick-mode: yes})
                     move.picked = on
                     move.enabled = yes
-                    scope.cursor \move
+                    #scope.cursor \move
                 else
                     reset!
                     selection.clear!
