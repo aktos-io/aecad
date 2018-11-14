@@ -111,7 +111,10 @@ export class Pad extends ComponentBase
     color: ~
         (val) !->
             @_color = val
-            @cu.fillColor = @_color
+            @cu.fillColor = unless @drill
+                @_color
+            else
+                'orange' # TODO: get "Edge" color for this
 
     clone: (opts={}) ->
         new @constructor @parent, (@opts <<<< opts)
@@ -162,7 +165,7 @@ export class Pad extends ComponentBase
             pin = "#{query.pin}"
             # if label exists, do not match with "pin"
             if @get-data 'label'
-                #console.log "label found, checking given pin: #{pin} against my label: #{that}"
+                #console.log "label found, checking given pin: '#{pin}' against my label: '#{that}'"
                 if pin is that
                     res.push this
             else if pin is "#{@get-data 'pin'}"
