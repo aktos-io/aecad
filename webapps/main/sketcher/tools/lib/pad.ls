@@ -141,7 +141,7 @@ export class Pad extends ComponentBase
 
     rotated: (angle) ->
         @set-data \rotation, angle
-        @ttip.rotate -angle
+        @ttip.rotate angle
         @ttip.bounds.center = @cu.bounds.center
 
     mirrored: (scale-factor, rotation) !->
