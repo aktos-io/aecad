@@ -204,6 +204,7 @@ export {
                           x: data.border.width |> mm2px
                           y: data.border.height |> mm2px
                       stroke-color: 'LightSeaGreen'
+                      stroke-width: 0.5
                       parent: @g
                       radius: 1
               
