@@ -33,7 +33,6 @@ export init = (pcb) ->
 
             libs = []
             for name, src of @get \drawingLs when name.starts-with \lib
-                continue if name is @get \scriptName # prevent duplicate inclusion
                 libs.push {name, src}
             #console.log "drawingls: ", libs
 
@@ -67,7 +66,10 @@ export init = (pcb) ->
             #console.log "libs: ", libs
             for libs
                 insert-dep ..
-            ordered.push {name: @get('scriptName'), src: code}
+
+            # append actual code
+            unless (@get \scriptName).starts-with 'lib' # prevent duplicate inclusion
+                ordered.push {name: @get('scriptName'), src: code}
 
             output = []
             for ordered
