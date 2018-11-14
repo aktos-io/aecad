@@ -128,16 +128,46 @@ export {
       name: "sgw"
       netlist: 
           # Trace_id: "list, of, connected, pads"
-          1: "c1.out, rpi.3v3"
-          2: "c1.onoff, rpi.gnd"
-          3: "c1.vin rpi.25"
-          4: "c1.fb c1.gnd"
+          # Power layer 
+          1: "C1.vin, *vfs, C13.(+)"
+          gnd: """
+              C13.(-) C1.gnd C1.onoff D15.a C10.(-) 
+              C2.gnd D14.a
+              """
+          2: 'C1.out, L1.1, D15.c'
+          _out5v: 'L1.2 C1.fb C10.(+) C2.vin R1.1'
+          _out3v3: 'C11.1 R2.1'
+          out5v: 'R1.2'
+          out3v3: 'R2.2'
+          vff: 'D13.a'
+          vfs: 'D13.c, D14.c'
+      values:
+          '100uF': 'C13' 
+          '0 ohm': 'R1, R2'
+          '10uF': 'C11'
+          '1000uF': 'C10'
+          '100..360uH': 'L1'
+          '1N5822': 'D14, D13, D15'
+      notes: 
+          'L1': """
+              This part is an EMC source, keep it 
+              close to {c1}
+              """
+          'R1, R2': """
+              These parts are used in testing step
+              """
       bom:
-          'LM2576'    : 'c1'
+          'LM2576'    : 'C1, C2'
           'RpiHeader' : 'rpi'
-          'SMD1206'   : 'r1, r2, r3'
+          'SMD1206'   : 'R1, R2, R3, C11'
+          'SMD1206_pn': 'C13, C10'
           'Conn_2pin_thd' : 'pow'
           'Conn_1pin_thd' : '_1, _2, _3, _4'
+          'Inductor': 'L1'
+          'DO214AC': 'D14, D13, D15'
+          
+  # CHECK: C10, C2, C11
+          
   
 '''
 'lib-PinArray': '''
@@ -145,8 +175,11 @@ export {
       (data) -> 
           super ...
           unless @resuming
-              console.log "Creating from scratch PinArray"
-              
+              #console.log "Creating from scratch PinArray"
+              unless data.cols
+                  data.cols = {count: 1}
+              unless data.rows
+                  data.rows = {count: 1}
               for cindex from 1 to data.cols.count
                   for rindex from 1 to data.rows.count
                       pin-num = switch (data.dir or 'x')
@@ -163,6 +196,16 @@ export {
                           
                       p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
                       p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
+              
+              if data.border
+                  new Shape.Rectangle do
+                      center: @g.bounds.center
+                      size: 
+                          x: data.border.width |> mm2px
+                          y: data.border.height |> mm2px
+                      stroke-color: 'LightSeaGreen'
+                      parent: @g
+                      radius: 1
               
               if data.mirrored
                   # useful for female headers 
@@ -223,7 +266,7 @@ export {
               mirrored: yes
               
           data = defaults <<< data 
-          super ... 
+          super data
   
 '''
 'lib-SMD1206': '''
@@ -245,13 +288,46 @@ export {
               cols:
                   count: 2
                   interval: c + b
-              rows:
-                  count: 1
-              dir: 'x'
   
           data = defaults <<< data 
-          super ... 
+          super data
   
+  add-class class SMD1206_pn extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'r_'
+              pad:
+                  width: b
+                  height: a
+              cols:
+                  count: 2
+                  interval: c + b
+              labels:
+                  1: '(-)'
+                  2: '(+)'
+              mark: yes
+  
+          data = defaults <<< data 
+          super data
+  
+  add-class class DO214AC extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'r_'
+              pad:
+                  width: 1.27mm
+                  height: 2.10mm
+              cols:
+                  count: 2
+                  interval: 2.70mm
+              labels:
+                  1: 'c'
+                  2: 'a'
+              mark: yes
+  
+          data = defaults <<< data 
+          super data
+          
 '''
 'lib-LM2576': '''
   #! requires TO263
@@ -284,8 +360,7 @@ export {
           data.symmetry-axis = 'x' # Design criteria
           super ...
           unless @resuming
-              # create from scratch 
-              console.log "Creating from scratch TO263"
+              #console.log "Creating from scratch TO263"
               d = dimensions.to263
     
               pad1 = new Pad this, do
@@ -350,5 +425,32 @@ export {
   #new Conn_2pin_thd
   #new Conn_1pin_thd
   
+'''
+'lib-Inductor': '''
+  # --------------------------------------------------
+  # all lib* scripts will be included automatically.
+  #
+  # This script will also be treated as a library file.
+  # --------------------------------------------------
+  
+  #! requires PinArray
+  add-class class Inductor extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'L_'
+              pad:
+                  width: 4mm
+                  height: 4.5mm
+              cols:
+                  count: 2
+                  interval: 8mm
+              border:
+                  width: 10.7mm
+                  height: 10.2mm
+  
+          data = defaults <<< data 
+          super data
+  
+  #new Inductor
 '''
 }
