@@ -67,8 +67,11 @@ export class PaperDraw implements canvas-control, aecad-methods
             ..on \cleared, ~>
                 @ractive.set \aecadData, {}
 
+        # visual logger
+        @vlog = new VLogger @ractive
+
         @history = new History {
-            @project, @selection, @ractive, name: "sketcher"
+            @project, @selection, @ractive, name: "sketcher", @vlog
         }
         # try to load if a project exists
         @history.load!
@@ -79,9 +82,6 @@ export class PaperDraw implements canvas-control, aecad-methods
         # http://paperjs.org/reference/paperscope/#settings
         @_scope.settings
         #    ..handleSize = 8
-
-        # visual logger
-        @vlog = new VLogger @ractive
 
         # on-zoom subscribers
         @zoom-subs = {}

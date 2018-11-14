@@ -1,5 +1,5 @@
 require! 'actors': {BrowserStorage}
-require! 'aea': {hash}
+require! 'aea': {hash, clone}
 require! 'prelude-ls': {values, difference, keys}
 
 export class History
@@ -7,12 +7,19 @@ export class History
         @project = opts.project
         @ractive = opts.ractive
         @selection = opts.selection
+        @vlog = opts.vlog
         @db = new BrowserStorage opts.name
         @commits = []
         @limit = 200
 
     commit: ->
-        @commits.push @project.exportJSON!
+        json = @project.exportJSON {as-string: no}
+        try
+            backup = clone json
+            @commits.push backup
+        catch
+            @vlog.error "Huston, we have a problem: \n\n #{e.message}"
+            return 
         console.log "added to history"
         if @commits.length > @limit
             console.log "removing old history"
