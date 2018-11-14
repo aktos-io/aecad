@@ -107,6 +107,7 @@ export init = (pcb) ->
                 addClass: 'nonblock'
 
         moveToCenter: (ctx) ->
+            pcb.history.commit!
             center = pcb.ractive.get \lastBounds .center
             for selection.selected
                 ..position.set center
