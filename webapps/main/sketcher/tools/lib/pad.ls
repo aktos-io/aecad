@@ -104,10 +104,6 @@ export class Pad extends ComponentBase
             Object.defineProperty @, .., do
                 get: ~> @g.bounds[..]
 
-    position: ~
-        -> @g.position
-        (val) -> @g.position = val
-
     color: ~
         (val) !->
             @_color = val

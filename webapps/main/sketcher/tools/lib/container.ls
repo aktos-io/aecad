@@ -27,10 +27,6 @@ export class Container extends ComponentBase
                         type: @constructor.name
             parent?add?(this)
 
-    position: ~
-        -> @g.position
-        (val) -> @g.position = val
-
     color: ~
         (val) ->
             for @pads

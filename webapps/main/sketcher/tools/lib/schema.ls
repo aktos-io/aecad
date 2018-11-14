@@ -1,5 +1,5 @@
 require! './find-comp': {find-comp}
-require! 'prelude-ls': {find, empty, unique, difference}
+require! 'prelude-ls': {find, empty, unique, difference, max}
 require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
@@ -158,21 +158,18 @@ export class Schema
         # place all guides
         @guide-all!
 
-    add-footprints: ->
+    add-footprints: !->
         missing = @get-netlist-components! `difference` @get-bom-components!
         unless empty missing
             throw new Error "Netlist components missing in BOM: \n\n#{missing.join(', ')}"
-        pos = null
         curr = @scope.get-components {exclude: <[ Trace ]>}
+        created-components = []
         for type, names of @data.bom
             for c in text2arr names
                 if c not in [..name for curr]
                     console.log "Component #{c} (#{type}) is missing, will be created now."
                     _Component = getClass(type)
-                    comp = new _Component {name: c}
-                    if pos
-                        comp.position = pos.add [50, 50]
-                    pos = comp.position
+                    created-components.push new _Component {name: c}
                 else
                     existing = find (.name is c), curr
                     if type isnt existing.type
@@ -180,7 +177,24 @@ export class Schema
                         but its type (#{existing.type})
                         is wrong, should be: #{type}"
 
+        # fine tune initial placement
+        # TODO: Place left of current bounds by fitting in a height of
+        # current bounds height
+        current = @scope.get-bounds!
+        curr-x = current.top-left
+        prev = {}
+        max-width = 0
+        for created-components
+            if prev.pos
+                ..position = prev.pos.add [0, prev.height + ..bounds.height / 2 + 10]
+            prev.height = ..bounds.height
+            prev.pos = ..position
+            #..selected = yes
+            max-width = max max-width, ..bounds.width
 
+        for created-components
+            # shift out of current bounds
+            ..position = ..position.subtract [max-width + 20, 0]
 
     guide-for: (src) ->
         for @connections

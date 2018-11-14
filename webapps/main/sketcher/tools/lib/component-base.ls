@@ -51,6 +51,18 @@ export class ComponentBase
     get: (query) ->
         console.warn "NOT IMPLEMENTED: Requested a query: ", query
 
+    position: ~
+        -> @g.position
+        (val) -> @g.position = val
+
+    bounds: ~
+        -> @g.bounds
+        (val) -> @g.bounds = val
+
+    selected: ~
+        -> @g.selected
+        (val) -> @g.selected = val
+
     g-pos: ~
         # Global position
         ->
