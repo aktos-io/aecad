@@ -1,5 +1,5 @@
 require! './find-comp': {find-comp}
-require! 'prelude-ls': {find, empty}
+require! 'prelude-ls': {find, empty, unique, difference}
 require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
@@ -62,6 +62,7 @@ export class Schema
         if data
             @data = data
         @scope = new PaperDraw
+        @_netlist = {}
         @connections = []
         @manager = new SchemaManager
             ..register this
@@ -72,6 +73,26 @@ export class Schema
     name: ~
         -> @data.name
 
+    get-netlist-components: ->
+        components = []
+        for id, conn-list of @data.netlist
+            for p-name in text2arr conn-list
+                [name, pin] = p-name.split '.'
+                unless name.starts-with '*'
+                    components.push name
+        res = unique components
+        console.log "netlist components found: ", res
+        return res
+
+    get-bom-components: ->
+        components = []
+        for type, comp-list of @data.bom
+            for name in text2arr comp-list
+                components.push name
+        res = unique components
+        console.log "bom components found: ", res
+        return res
+
     compile: (data) !->
         if data
             @data = data
@@ -79,31 +100,74 @@ export class Schema
         # add needed footprints
         @add-footprints!
 
-        # compile schematic: format: {netlist, bom}
-        @connections.length = 0
-        for trace-id, conn-list of @data.netlist
+        # compile schematic. input format: {netlist, bom}
+        @_netlist = null
+        @_netlist = {}
+        for id, conn-list of @data.netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
-            conn = for p-name in text2arr conn-list
+            conn = [] # list of connected nodes
+            unless @_netlist[id]
+                @_netlist[id] = []
+            for p-name in text2arr conn-list
                 [name, pin] = p-name.split '.'
-                comp = find-comp name
-                pad = (comp?.get {pin}) or []
-                if empty pad
-                    throw new Error "No such pad found: #{p-name}"
-                {src: p-name, c: comp, pad}
+                if name.starts-with '*'
+                    # this is a reference to another trace-id
+                    ref = name.substr 1
+                    console.log "found a reference to another id (to: #{ref})"
+                    @_netlist[id] ++= {connect: ref}
+                else
+                    comp = find-comp name
+                    unless comp
+                        throw new Error "No such pad found: '#{name}'"
 
-            @connections.push conn
+                    pad = (comp.get {pin}) or []
+                    if empty pad
+                        throw new Error "No such pin found: '#{pin}' of '#{name}'"
+                    conn.push {src: p-name, c: comp, pad}
+
+            @_netlist[id] ++= conn
+
+
+        console.log "current netlist: ", @_netlist
+        merge-connections = (target) ~>
+            console.log "merging connection: #{target}"
+            unless target of @_netlist
+                throw new Error "No such trace found: '#{target}'"
+            c = @_netlist[target]
+            for c
+                if ..connect
+                    c ++= merge-connections that
+            c
+
+        @connections.length = 0
+        refs = [] # store ref labels in order to exclude from @connections
+        for id, connections of @_netlist
+            flat = []
+            for node in connections
+                if node.connect
+                    refs.push that
+                    flat ++= merge-connections that
+                else
+                    unless id in refs
+                        flat.push node
+            @connections.push flat
+
+        console.log "Compiled connections: ", @connections
 
         # place all guides
         @guide-all!
 
     add-footprints: ->
+        missing = @get-netlist-components! `difference` @get-bom-components!
+        unless empty missing
+            throw new Error "Netlist components missing in BOM: \n\n#{missing.join(', ')}"
         pos = null
         curr = @scope.get-components {exclude: <[ Trace ]>}
         for type, names of @data.bom
             for c in text2arr names
                 if c not in [..name for curr]
-                    console.log "Component #{c} is missing (type: #{type})"
+                    console.log "Component #{c} (#{type}) is missing, will be created now."
                     _Component = getClass(type)
                     comp = new _Component {name: c}
                     if pos
@@ -119,13 +183,16 @@ export class Schema
 
 
     guide-for: (src) ->
-        for @connections when find (.src is src), ..
+        for @connections
+            if src and ..src isnt src
+                continue
+            if ..length < 2
+                console.warn "Connection has very few nodes, skipping guiding: ", ..
+                continue
             @create-guide ..0.pad.0, ..1.pad.0
 
     guide-all: ->
-        for @connections
-            #console.log "creating guide for: ", ..
-            @create-guide ..0.pad.0, ..1.pad.0
+        @guide-for!
 
     create-guide: (pad1, pad2) ->
         new @scope.Path.Line do
