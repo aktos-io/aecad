@@ -19,6 +19,9 @@ export init = (pcb) ->
 
         undo: (ctx) ->
             pcb.history.back!
+            PNotify.info do
+                text: "Changes reverted."
+                addClass: 'nonblock'
 
         prototypePrint: (ctx) !->
             pcb.history.commit!
@@ -47,10 +50,16 @@ export init = (pcb) ->
             # save project
             #pcb.history.commit! ### No need to bloat the history
             pcb.history.save!
+            PNotify.info do
+                text: "Saved #{Date!}"
+                addClass: 'nonblock'
 
         clear: (ctx) ->
             pcb.history.commit!
             pcb.project.clear!
+            PNotify.info do
+                text: "Cleared."
+                addClass: 'nonblock'
 
         showHelp: (ctx) ->
             @get \vlog .info do
