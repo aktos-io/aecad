@@ -122,6 +122,8 @@ export {
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
+  
+  
   new Schema do 
       name: "sgw"
       netlist: 
@@ -131,9 +133,11 @@ export {
           3: "c1.vin rpi.25"
           4: "c1.fb c1.gnd"
       bom:
-          LM2576    : 'c1'
-          RpiHeader : 'rpi'
-          SMD1206   : 'r1, r2, r3'
+          'LM2576'    : 'c1'
+          'RpiHeader' : 'rpi'
+          'SMD1206'   : 'r1, r2, r3'
+          'Conn_2pin_thd' : 'pow'
+          'Conn_1pin_thd' : '_1, _2, _3, _4'
   
 '''
 'lib-PinArray': '''
@@ -152,11 +156,9 @@ export {
                           rindex + (cindex - 1) * data.rows.count
       
                       pin-label = data.labels?[pin-num]
-      
-                      p = new Pad this, do
+  
+                      p = new Pad this, data.pad <<< do
                           pin: pin-num
-                          width: data.pad.width
-                          height: data.pad.height
                           label: if data.labels? => (pin-label or '?') 
                           
                       p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
@@ -310,10 +312,43 @@ export {
   
   
 '''
-hello: '''
-  # --------------------------------------------------
-  # all lib* scripts will be included automatically.
-  # --------------------------------------------------
+'lib-Conn': '''
+  #! requires PinArray
+  add-class class Conn_2pin_thd extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'conn_'
+              pad:
+                  dia: 3.1mm
+                  drill: 1mm
+              cols:
+                  count: 2
+                  interval: 3.81mm
+              rows:
+                  count: 1
+              dir: 'x'
+  
+          data = defaults <<< data 
+          super data
+  
+  add-class class Conn_1pin_thd extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'conn_'
+              pad:
+                  dia: 3.1mm
+                  drill: 1mm
+              cols:
+                  count: 1
+              rows:
+                  count: 1
+              dir: 'x'
+  
+          data = defaults <<< data 
+          super data
+  
+  #new Conn_2pin_thd
+  #new Conn_1pin_thd
   
 '''
 }
