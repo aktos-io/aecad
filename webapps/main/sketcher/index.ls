@@ -34,6 +34,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             handlers <<< part
 
         @on handlers
+        @fire 'fitAll'
 
     computed:
         currProps:
