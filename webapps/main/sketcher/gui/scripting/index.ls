@@ -35,7 +35,7 @@ export init = (pcb) ->
             for name, src of @get \drawingLs when name.starts-with \lib
                 continue if name is @get \scriptName # prevent duplicate inclusion
                 libs.push {name, src}
-            console.log "drawingls: ", libs
+            #console.log "drawingls: ", libs
 
             # Correctly sort according to their class definitions
             for lib in libs
@@ -43,10 +43,10 @@ export init = (pcb) ->
                     if ..match /.*\b(class)\s+([^\s]+)\b/
                         _cls = that.2
                         lib.[]exposes.push _cls
-                        console.log "------> #{lib.name} exposes #{_cls}"
+                        #console.log "------> #{lib.name} exposes #{_cls}"
                     if ..match /#!\s*requires\s+(.*)\b/
-                        console.log "----> #{lib.name} depends #{that.1}"
                         lib.[]depends.push that.1
+                        #console.log "----> #{lib.name} depends #{that.1}"
 
             ordered = []
             insert-dep = (lib) !->
@@ -55,7 +55,7 @@ export init = (pcb) ->
                         # currently no lib presents that exposes the dependency
                         if find (-> dep in it.[]exposes), libs
                             # recursively check its dependencies
-                            console.log "inserting dep #{dep}: ", that
+                            #console.log "inserting sub-dep #{dep}: ", that
                             insert-dep that
                         else
                             debugger
@@ -64,7 +64,7 @@ export init = (pcb) ->
                 unless find (.name is lib.name), ordered
                     ordered.push lib
 
-            console.log "libs: ", libs
+            #console.log "libs: ", libs
             for libs
                 insert-dep ..
             ordered.push {name: @get('scriptName'), src: code}
