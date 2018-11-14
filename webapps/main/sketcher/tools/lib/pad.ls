@@ -3,7 +3,7 @@ require! './component-base': {ComponentBase}
 require! 'aea/do-math': {mm2px}
 
 export class Pad extends ComponentBase
-    (parent, opts) ->
+    (opts) ->
         {Group, Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
         super ...
         # opts:
@@ -22,8 +22,9 @@ export class Pad extends ComponentBase
                 @[part] = ..
         else
             # create object from scratch
-            @parent = parent
+            @parent = opts.parent
             @opts = opts
+            try delete opts.parent
 
             if @opts.width and @opts.height
                 geometry = \Rectangle

@@ -3,11 +3,11 @@ require! './component-base': {ComponentBase}
 require! './get-aecad': {get-aecad}
 
 export class Container extends ComponentBase
-    (parent) ->
+    (data) ->
+        @pads = []
         super ...
         {Group} = new PaperDraw
 
-        @pads = []
         if @init-with-data arguments.0
             #console.log "Container init:", init
             data = that
@@ -21,11 +21,11 @@ export class Container extends ComponentBase
             # create main container
             @g = new Group do
                 applyMatrix: no
-                parent: parent?g
+                parent: data?parent?g
                 data:
                     aecad:
                         type: @constructor.name
-            parent?add?(this)
+            data?parent?add?(this)
 
     color: ~
         (val) ->

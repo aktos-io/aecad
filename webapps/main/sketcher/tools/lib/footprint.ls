@@ -12,4 +12,5 @@ export class Footprint extends Container
             # initialize from scratch
             @data = {type: @constructor.name}
             @data <<<< data
+            try delete @data.parent
             @g.data = aecad: @data
