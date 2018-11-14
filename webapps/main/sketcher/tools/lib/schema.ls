@@ -181,20 +181,32 @@ export class Schema
         # TODO: Place left of current bounds by fitting in a height of
         # current bounds height
         current = @scope.get-bounds!
-        curr-x = current.top-left
+        allowed-height = current.height
         prev = {}
-        max-width = 0
+        placement = []
+        voffset = 10
         for created-components
-            if prev.pos
-                ..position = prev.pos.add [0, prev.height + ..bounds.height / 2 + 10]
-            prev.height = ..bounds.height
-            prev.pos = ..position
-            #..selected = yes
-            max-width = max max-width, ..bounds.width
+            lp = placement[*-1]
+            if (empty placement) or ((lp?.height or + voffset) + ..bounds.height > allowed-height)
+                # create a new column
+                placement.push {list: [], height: 0, width: 0}
+                lp = placement[*-1]
+            lp.list.push ..
+            lp.height += ..bounds.height + voffset
+            lp.width = max lp.width, ..bounds.width
 
-        for created-components
-            # shift out of current bounds
-            ..position = ..position.subtract [max-width + 20, 0]
+        console.log "Placements so far: ", placement
+        prev-width = 0
+        hoffset = 50
+        for index, pl of placement
+            for pl.list
+                ..position = ..position.subtract [pl.width + hoffset + prev-width, 0]
+                if prev.pos
+                    ..position.y = prev.pos.y + prev.height / 2 + ..bounds.height / 2 + voffset
+                prev.height = ..bounds.height
+                prev.pos = ..position
+            prev.pos = null
+            prev-width += pl.width + hoffset
 
     guide-for: (src) ->
         for @connections
