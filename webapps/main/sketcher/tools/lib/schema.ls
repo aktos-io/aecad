@@ -1,5 +1,5 @@
 require! './find-comp': {find-comp}
-require! 'prelude-ls': {find, empty, unique, difference, max}
+require! 'prelude-ls': {find, empty, unique, difference, max, keys}
 require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
@@ -29,11 +29,14 @@ export class SchemaManager
         # ------------------------------
         @schemas = {}
         @curr-name = null
+        @using = null
 
     register: (schema) ->
         name = schema.name
         unless name
             throw new Error "Schema must have a name."
+
+        # auto activate last defined schema
         @curr-name = name
 
         if name of @schemas
@@ -46,7 +49,12 @@ export class SchemaManager
         @schemas[name] = schema
 
     curr: ~
-        -> @schemas[@curr-name]
+        -> @schemas[@using or @curr-name]
+
+    use: (name) ->
+        @using = name
+        @curr.compile!
+
 
 export class Schema
     (data) ->
@@ -67,38 +75,12 @@ export class Schema
         @manager = new SchemaManager
             ..register this
 
-        if data.netlist and data.bom
-            @compile!
-
     name: ~
         -> @data.name
 
-    get-netlist-components: ->
-        components = []
-        for id, conn-list of @data.netlist
-            for p-name in text2arr conn-list
-                [name, pin] = p-name.split '.'
-                unless name.starts-with '*'
-                    components.push name
-        res = unique components
-        console.log "netlist components found: ", res
-        return res
-
-    get-bom-components: ->
-        components = []
-        for type, comp-list of @data.bom
-            for name in text2arr comp-list
-                components.push name
-        res = unique components
-        console.log "bom components found: ", res
-        return res
-
-    compile: (data) !->
-        if data
-            @data = data
-
+    compile: (opts={prefix: ''}) !->
         # add needed footprints
-        @add-footprints!
+        @add-footprints opts
 
         # compile schematic. input format: {netlist, bom}
         @_netlist = null
@@ -113,10 +95,16 @@ export class Schema
                 [name, pin] = p-name.split '.'
                 if name.starts-with '*'
                     # this is a reference to another trace-id
-                    ref = name.substr 1
+                    ref = p-name.substr 1
+                    ref = opts.prefix + ref
                     console.log "found a reference to another id (to: #{ref})"
                     @_netlist[id] ++= {connect: ref}
                 else
+                    name = opts.prefix + name
+                    if name in keys @sub-schemas
+                        # this is a sub-schema, do not search for a regular component
+                        # it should be already handled in "add-footprints" step
+                        continue
                     comp = find-comp name
                     unless comp
                         throw new Error "No such pad found: '#{name}'"
@@ -129,12 +117,12 @@ export class Schema
             @_netlist[id] ++= conn
 
 
-        console.log "current netlist: ", @_netlist
+        console.log "current raw netlist: ", @_netlist
         merge-connections = (target) ~>
             console.log "merging connection: #{target}"
-            unless target of @_netlist
-                throw new Error "No such trace found: '#{target}'"
-            c = @_netlist[target]
+            unless target of @get-netlist(opts)
+                throw new Error "No such trace found: '#{target}' (opts: #{JSON.stringify opts})"
+            c = @get-netlist(opts)[target]
             for c
                 if ..connect
                     c ++= merge-connections that
@@ -142,7 +130,7 @@ export class Schema
 
         @connections.length = 0
         refs = [] # store ref labels in order to exclude from @connections
-        for id, connections of @_netlist
+        for id, connections of @get-netlist(opts)
             flat = []
             for node in connections
                 if node.connect
@@ -158,60 +146,125 @@ export class Schema
         # place all guides
         @guide-all!
 
-    add-footprints: !->
-        missing = @get-netlist-components! `difference` @get-bom-components!
+    get-netlist: (opts={}) ->
+        # prefixed netlist
+        pfx = opts.prefix or ''
+        netlist = {}
+        for trace-id, conn-list of @_netlist
+            netlist[pfx + trace-id] = []
+            for conn-list
+                netlist[pfx + trace-id].push if ..connect
+                    # This is a cross reference
+                    {connect: ..connect}
+                else
+                    {src: "#{pfx}#{..src}", ..c, ..pad}
+
+        for name, sch of @sub-schemas
+            netlist <<< sch.schema.get-netlist({prefix: "#{name}."})
+        console.log "returning netlist: ", netlist
+        netlist
+
+    sub-schemas: ~
+        ->
+            # Return sub-schemas
+            sch = {}
+            if @data.schemas
+                for cls, instances of that
+                    for instance in text2arr instances
+                        #console.log "Found sub-schema: #{instance} (an instance of #{cls})"
+                        sch[instance] = {type: cls, schema: @manager.schemas[cls]}
+            sch
+
+
+    get-netlist-components: ->
+        components = []
+        for id, conn-list of @data.netlist
+            for p-name in text2arr conn-list
+                unless p-name.starts-with '*'
+                    #console.log "examining #{p-name}"
+                    [name, pin] = p-name.split '.'
+                    components.push name
+        res = unique components
+        console.log "netlist components found: ", res
+        return res
+
+    get-bom-components: ->
+        components = []
+        for type, comp-list of @data.bom
+            for name in text2arr comp-list
+                components.push name
+        res = unique components
+        console.log "bom components found: ", res
+        return res
+
+    add-footprints: (opts) !->
+        missing = @get-netlist-components(opts) `difference` @get-bom-components(opts)
+        missing = missing `difference` keys(@sub-schemas)
+        unless empty keys @sub-schemas
+            console.log "Sub-schemas found: ", @sub-schemas
         unless empty missing
             throw new Error "Netlist components missing in BOM: \n\n#{missing.join(', ')}"
-        curr = @scope.get-components {exclude: <[ Trace ]>}
+
         created-components = []
+        # create sub-schema components
+        for name, sch of @sub-schemas
+            sch.schema.compile {prefix: "#{name}."}
+            created-components ++= sch.schema.components
+
+        @components = []
+        curr = @scope.get-components {exclude: <[ Trace ]>}
         for type, names of @data.bom
             for c in text2arr names
-                if c not in [..name for curr]
-                    console.log "Component #{c} (#{type}) is missing, will be created now."
+                prefixed = "#{opts.prefix or ''}#{c}"
+                if prefixed not in [..name for curr]
+                    console.log "Component #{prefixed} (#{type}) is missing, will be created now."
                     _Component = getClass(type)
-                    created-components.push new _Component {name: c}
+                    @components.push new _Component {name: prefixed}
                 else
-                    existing = find (.name is c), curr
+                    existing = find (.name is prefixed), curr
                     if type isnt existing.type
-                        console.log "Component #{c} exists,
+                        console.log "Component #{prefixed} exists,
                         but its type (#{existing.type})
                         is wrong, should be: #{type}"
 
-        # fine tune initial placement
-        # TODO: Place left of current bounds by fitting in a height of
-        # current bounds height
-        current = @scope.get-bounds!
-        allowed-height = current.height
-        prev = {}
-        placement = []
-        voffset = 10
-        for created-components
-            lp = placement[*-1]
-            if (empty placement) or ((lp?.height or + voffset) + ..bounds.height > allowed-height)
-                # create a new column
-                placement.push {list: [], height: 0, width: 0}
+        unless opts.prefix
+            # fine tune initial placement
+            # ----------------------------
+            # Place left of current bounds by fitting in a height of
+            # current bounds height
+            current = @scope.get-bounds!
+            allowed-height = current.height
+            prev = {}
+            placement = []
+            voffset = 10
+            created-components ++= @components
+            for created-components
                 lp = placement[*-1]
-            lp.list.push ..
-            lp.height += ..bounds.height + voffset
-            lp.width = max lp.width, ..bounds.width
+                if (empty placement) or ((lp?.height or + voffset) + ..bounds.height > allowed-height)
+                    # create a new column
+                    placement.push {list: [], height: 0, width: 0}
+                    lp = placement[*-1]
+                lp.list.push ..
+                lp.height += ..bounds.height + voffset
+                lp.width = max lp.width, ..bounds.width
 
-        console.log "Placements so far: ", placement
-        prev-width = 0
-        hoffset = 50
-        for index, pl of placement
-            for pl.list
-                ..position = ..position.subtract [pl.width + hoffset + prev-width, 0]
-                if prev.pos
-                    ..position.y = prev.pos.y + prev.height / 2 + ..bounds.height / 2 + voffset
-                prev.height = ..bounds.height
-                prev.pos = ..position
-            prev.pos = null
-            prev-width += pl.width + hoffset
+            console.log "Placements so far: ", placement
+            prev-width = 0
+            hoffset = 50
+            for index, pl of placement
+                for pl.list
+                    ..position = ..position.subtract [pl.width + hoffset + prev-width, 0]
+                    if prev.pos
+                        ..position.y = prev.pos.y + prev.height / 2 + ..bounds.height / 2 + voffset
+                    prev.height = ..bounds.height
+                    prev.pos = ..position
+                prev.pos = null
+                prev-width += pl.width + hoffset
 
     guide-for: (src) ->
         for @connections
             if src and ..src isnt src
-                continue
+                continue # Only create a specific guide for "src", skip the others
             if ..length < 2
                 console.warn "Connection has very few nodes, skipping guiding: ", ..
                 continue
