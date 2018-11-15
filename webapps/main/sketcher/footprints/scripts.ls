@@ -162,7 +162,7 @@ export {
               """
       bom:
           'LM2576'    : 'C1'
-          'SOT23'     : 'C2'
+          'SOT223'     : 'C2'
           'RpiHeader' : 'rpi'
           'SMD1206'   : 'R1, R2, R3, C11'
           'SMD1206_pn': 'C13, C10'
@@ -490,31 +490,30 @@ export {
   
 '''
 'double-pin-array-test': '''
-  # Sot23
-  new SOT23 do
+  new SOT223 do
       name: 'hello'
   
 '''
-'lib-SOT23': '''
+'lib-SOT223': '''
   # Sot23
   #! requires DoublePinArray
-  add-class class SOT23 extends DoublePinArray
+  add-class class SOT223 extends DoublePinArray
       (data={}) -> 
           defaults =
               name: 'c_'
-              distance: 5.8mm
+              distance: 6.3mm
               left: 
                   start: 4
                   pad:
                       width: 2.15mm
-                      height: 3.25mm
+                      height: 3.8mm
                   cols:
                       count: 1
               right:
                   dir: '-y'
                   pad:
-                      width: 2.15mm
-                      height: 1mm
+                      width: 2mm
+                      height: 1.5mm
                   rows:
                       count: 3
                       interval: 2.3mm
