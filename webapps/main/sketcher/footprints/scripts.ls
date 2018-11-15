@@ -175,9 +175,9 @@ export {
       netlist:
           1: 'rpi.gnd *gnd'
           gnd: 'P.gnd cn.1'
-          vff: '*P.vff, cn.2'
-          3v3: '*P.out3v3 rpi.3v3'
-          5v: '*P.out5v rpi.5v'
+          vff: 'P.vff, cn.2'
+          3v3: 'P.out3v3 rpi.3v3'
+          5v: 'P.out5v rpi.5v'
       bom:
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
