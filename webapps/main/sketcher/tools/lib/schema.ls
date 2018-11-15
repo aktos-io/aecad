@@ -281,9 +281,10 @@ export class Schema
             from: pad1.g-pos
             to: pad2.g-pos
             stroke-color: 'lime'
+            stroke-width: 0.1
             selected: yes
             data: {+tmp, +guide}
-    
+
     clear-guides: ->
         for @scope.project.layers
             for ..getItems {-recursive} when ..data.tmp and ..data.guide
