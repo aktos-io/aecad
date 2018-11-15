@@ -2,6 +2,7 @@ require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! 'aea/do-math': {mm2px}
 require! './schema': {SchemaManager}
+require! 'prelude-ls': {empty}
 
 export class Pad extends ComponentBase
     (opts) ->
@@ -101,6 +102,8 @@ export class Pad extends ComponentBase
         if @g.data.aecad.color
             @color = that
 
+        @schema = new SchemaManager
+
         # declare Pad.left, Pad.top, ...
         for <[ left right top bottom center ]>
             Object.defineProperty @, .., do
@@ -192,9 +195,9 @@ export class Pad extends ComponentBase
             else
                 @get-data 'pin'
 
-    /*
     on-move: (disp, opts) ~>
-        console.log "Pad............... (#{@owner.name}.#{@pin}) is being moved: ", disp
-        try
-            new SchemaManager .curr?.guide-for "#{@owner.name}.#{@pin}"
-    */
+        me = "#{@owner.name}.#{@pin}"
+        if @schema.curr and empty (@guides or [])
+            @guides = @schema.curr.guide-for "#{me}"
+            #console.log "Created guides: ", @guides
+        @guides?.for-each (g) ~> g.segments.0.point.set @g-pos

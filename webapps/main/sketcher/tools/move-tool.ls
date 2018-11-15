@@ -58,6 +58,7 @@ export MoveTool = ->
             ..mode = null
             ..about-to-move = no
             ..picked = no
+            ..aecad = null
 
         scope.cursor 'default'
 
@@ -86,7 +87,11 @@ export MoveTool = ->
                 unless move.mode is \trace
                     # move an item regularly
                     for selection.selected
-                        if get-aecad ..
+                        if not move.aecad
+                            console.log "..........creating aeCAD object...."
+                            move.aecad = get-aecad ..
+
+                        if move.aecad
                             that.move snap.delta
                         else
                             .. `shift-item` snap.delta

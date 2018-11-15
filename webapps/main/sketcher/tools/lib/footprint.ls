@@ -20,11 +20,6 @@ export class Footprint extends Container
         # Moves the component with a provided amount of displacement. Default: Relative
         # opts:
         #       absolute: [Bool] move absolute amount
-        console.log "Footprint is moved by: ", displacement
-        return
-
-
-        
         unless opts.absolute
             @g.position.set @g.position.add displacement
         else

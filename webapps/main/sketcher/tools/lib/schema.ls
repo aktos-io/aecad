@@ -117,9 +117,9 @@ export class Schema
             @_netlist[id] ++= conn
 
 
-        console.log "current raw netlist: ", @_netlist
+        #console.log "current raw netlist: ", @_netlist
         merge-connections = (target) ~>
-            console.log "merging connection: #{target}"
+            #console.log "merging connection: #{target}"
             unless target of @get-netlist(opts)
                 throw new Error "No such trace found: '#{target}' (opts: #{JSON.stringify opts})"
             c = @get-netlist(opts)[target]
@@ -140,12 +140,8 @@ export class Schema
                     unless id in refs
                         flat.push node
             @connections.push flat
+        #console.log "Compiled connections: ", @connections
 
-        console.log "Compiled connections: ", @connections
-
-        unless opts.prefix
-            # place all guides
-            @guide-all!
 
     get-netlist: (opts={}) ->
         # prefixed netlist
@@ -162,7 +158,7 @@ export class Schema
 
         for name, sch of @sub-schemas
             netlist <<< sch.schema.get-netlist({prefix: "#{name}."})
-        console.log "returning netlist: ", netlist
+        #console.log "returning netlist: ", netlist
         netlist
 
     sub-schemas: ~
@@ -186,7 +182,7 @@ export class Schema
                     [name, pin] = p-name.split '.'
                     components.push name
         res = unique components
-        console.log "netlist components found: ", res
+        #console.log "netlist components found: ", res
         return res
 
     get-bom-components: ->
@@ -195,14 +191,15 @@ export class Schema
             for name in text2arr comp-list
                 components.push name
         res = unique components
-        console.log "bom components found: ", res
+        #console.log "bom components found: ", res
         return res
 
     add-footprints: (opts) !->
         missing = @get-netlist-components(opts) `difference` @get-bom-components(opts)
         missing = missing `difference` keys(@sub-schemas)
         unless empty keys @sub-schemas
-            console.log "Sub-schemas found: ", @sub-schemas
+            #console.log "Sub-schemas found: ", @sub-schemas
+            void
         unless empty missing
             throw new Error "Netlist components missing in BOM: \n\n#{missing.join(', ')}"
 
@@ -263,15 +260,18 @@ export class Schema
                 prev-width += pl.width + hoffset
 
     guide-for: (src) ->
+        guides = []
         for node in @connections
-            if src and node.src isnt src
+            if src and src not in [..src for node]
                 continue # Only create a specific guide for "src", skip the others
             if node.length < 2
                 console.warn "Connection has very few nodes, skipping guiding: ", node
                 continue
             for i in node
                 for j in node
-                    @create-guide i.pad.0, j.pad.0
+                    guides.push @create-guide i.pad.0, j.pad.0
+        return guides
+
 
     guide-all: ->
         @guide-for!
@@ -284,6 +284,7 @@ export class Schema
             stroke-width: 0.1
             selected: yes
             data: {+tmp, +guide}
+
 
     clear-guides: ->
         for @scope.project.layers
