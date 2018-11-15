@@ -114,6 +114,7 @@ export {
   new RpiHeader do
       name: 'rpi2'
   
+  
   /*
   x = find-comp 'rpi2'
   <~ sleep 500ms
@@ -236,7 +237,7 @@ export {
                       parent: @g
                       radius: 1
               
-              if data.mirrored
+              if data.mirror
                   # useful for female headers 
                   @mirror!
                   
@@ -296,7 +297,7 @@ export {
                   interval: 2.54mm
               dir: 'x'
               labels: table
-              mirrored: yes
+              mirror: yes
               
           data = defaults <<< data 
           super data
@@ -549,59 +550,6 @@ export {
               3: 'vin'
               4: 'vout'
           super ...
-  
-'''
-'schematic-test (update: 1542248079946)': '''
-  # --------------------------------------------------
-  # all lib* scripts will be included automatically.
-  # --------------------------------------------------
-  
-  
-  new Schema do 
-      name: "sgw"
-      netlist: 
-          # Trace_id: "list, of, connected, pads"
-          # Power layer 
-          1: "C1.vin, *vfs, C13.(+)"
-          gnd: """
-              C13.(-) C1.gnd C1.onoff D15.a C10.(-) 
-              C2.gnd D14.a
-              """
-          2: 'C1.out, L1.1, D15.c'
-          _out5v: 'L1.2 C1.fb C10.(+) C2.vin R1.1'
-          _out3v3: 'C11.1 R2.1 C2.vout'
-          out5v: 'R1.2'
-          out3v3: 'R2.2'
-          vff: 'D13.a'
-          vfs: 'D13.c, D14.c'
-      values:
-          '100uF': 'C13' 
-          '0 ohm': 'R1, R2'
-          '10uF': 'C11'
-          '1000uF': 'C10'
-          '100..360uH': 'L1'
-          '1N5822': 'D14, D13, D15'
-      notes: 
-          'L1': """
-              This part is an EMC source, keep it 
-              close to {c1}
-              """
-          'R1, R2': """
-              These parts are used in testing step
-              """
-      bom:
-          'LM2576'    : 'C1'
-          'LM1117'     : 'C2'
-          'RpiHeader' : 'rpi'
-          'SMD1206'   : 'R1, R2, R3, C11'
-          'SMD1206_pn': 'C13, C10'
-          'Conn_2pin_thd' : 'pow'
-          'Conn_1pin_thd' : '_1, _2, _3, _4'
-          'Inductor': 'L1'
-          'DO214AC': 'D14, D13, D15'
-          
-  # CHECK: C10, C2, C11
-          
   
 '''
 }

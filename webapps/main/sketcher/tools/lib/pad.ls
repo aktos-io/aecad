@@ -141,11 +141,14 @@ export class Pad extends ComponentBase
 
     rotated: (angle) ->
         @set-data \rotation, angle
+        unless @get-data 'mirrored'
+            angle = -angle
         @ttip.rotate angle
         @ttip.bounds.center = @cu.bounds.center
 
     mirrored: (scale-factor, rotation) !->
         console.warn "TODO: set text rotation correctly"
+        @toggle-data 'mirrored'
         @ttip.scale ...scale-factor
         @ttip.rotate (180 + 2 * rotation), @ttip.bounds.center
 
