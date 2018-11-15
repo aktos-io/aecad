@@ -134,12 +134,17 @@ export {
       netlist: 
           # Trace_id: "list, of, connected, pads"
           # Power layer 
-          1: "C1.vin, *vfs, C13.(+)"
-          gnd: """ C13.(-) C1.gnd C1.onoff 
-              D15.a C10.(-) C2.gnd D14.a 
+          1: "C1.vin, *vfs, C13.a"
+          gnd: """ 
+              C13.c C1.gnd C1.onoff 
+              D15.a C10.c C2.gnd D14.a 
               """
           2: 'C1.out, L1.1, D15.c'
-          _out5v: 'L1.2 C1.fb C10.(+) C2.vin R1.1'
+          _out5v: """ 
+              L1.2 C1.fb C10.a D15.c
+              R1.1
+              C2.vin 
+              """
           _out3v3: 'C11.1 R2.1 C2.vout'
           out5v: 'R1.2'
           out3v3: 'R2.2'
@@ -156,16 +161,17 @@ export {
           # CHECK: C10, C11
           'L1': """
               This part is an EMC source, keep it 
-              close to {c1}
+              close to LM2576
               """
           'R1, R2': """
               These parts are used in testing step
               """
+          'D15': "Should be VERY CLOSE to LM2576"
       bom:
-          'LM2576'    : 'C1'
-          'LM1117'     : 'C2'
-          'SMD1206'   : 'R1, R2, C11'
-          'SMD1206_pn': 'C13, C10'
+          'LM2576': 'C1'
+          'LM1117': 'C2'
+          'SMD1206': 'R1, R2, C11'
+          'C1206': 'C13, C10'
           'Inductor': 'L1'
           'DO214AC': 'D14, D13, D15'
           
@@ -175,13 +181,15 @@ export {
           'power': 'P'
       netlist:
           1: 'rpi.gnd *gnd'
-          gnd: 'P.gnd cn.1'
+          gnd: "P.gnd cn.1 red.c green.c"
           vff: 'P.vff, cn.2'
           3v3: 'P.out3v3 rpi.3v3'
           5v: 'P.out5v rpi.5v'
       bom:
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
+          'LED1206': 'red, green'
+          
           
           # Virtual components
           'Conn_1pin_thd' : '_1, _2, _3, _4'
@@ -312,6 +320,7 @@ export {
       c: 2mm
   
   {a, b, c} = smd1206
+  
   add-class class SMD1206 extends PinArray
       (data={}) -> 
           defaults =
@@ -323,45 +332,37 @@ export {
                   count: 2
                   interval: c + b
   
-          data = defaults <<< data 
-          super data
+          super defaults <<< data 
   
-  add-class class SMD1206_pn extends PinArray
+  
+  add-class class SMD1206_pol extends SMD1206
+      # Polarized version of SMD1206
       (data={}) -> 
-          defaults =
-              name: 'r_'
-              pad:
-                  width: b
-                  height: a
-              cols:
-                  count: 2
-                  interval: c + b
+          overrides = 
+              name: 'c_'
               labels:
-                  1: '(-)'
-                  2: '(+)'
+                  1: 'c'
+                  2: 'a'
               mark: yes
+          
+          super overrides <<< data 
   
-          data = defaults <<< data 
-          super data
+  add-class class LED1206 extends SMD1206_pol
+  add-class class C1206 extends SMD1206_pol
   
-  add-class class DO214AC extends PinArray
+  add-class class DO214AC extends SMD1206_pol
       (data={}) -> 
-          defaults =
-              name: 'r_'
+          overrides =
+              name: 'd_'
               pad:
                   width: 1.27mm
                   height: 2.10mm
               cols:
                   count: 2
                   interval: 2.70mm
-              labels:
-                  1: 'c'
-                  2: 'a'
-              mark: yes
   
-          data = defaults <<< data 
-          super data
-          
+          super overrides <<< data 
+  
 '''
 'lib-LM2576': '''
   #! requires TO263
