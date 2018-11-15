@@ -3,7 +3,7 @@ require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/snap-move': {snap-move}
 require! './lib/trace/lib': {is-trace}
-require! './lib': {getAecad}
+require! './lib': {get-aecad}
 
 movement = (operand, left, right) -->
     if operand in <[ add subtract ]>
@@ -86,7 +86,10 @@ export MoveTool = ->
                 unless move.mode is \trace
                     # move an item regularly
                     for selection.selected
-                        .. `shift-item` snap.delta
+                        if get-aecad ..
+                            that.move snap.delta
+                        else
+                            .. `shift-item` snap.delta
                 else
                     # handle trace movement specially
                     # 1. preserve left and right curve slope

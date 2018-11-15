@@ -1,6 +1,7 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! 'aea/do-math': {mm2px}
+require! './schema': {SchemaManager}
 
 export class Pad extends ComponentBase
     (opts) ->
@@ -159,6 +160,17 @@ export class Pad extends ComponentBase
         ->
             @cu.selected
 
+    /*
+    get: (query) ->
+        res = []
+        if \pin of query
+            console.log "Checking pin #{query.pin} against ours: #{@pin}"
+            # if label exists, do not match with "pin"
+            if "#{query.pin}" is @pin
+                res.push this
+        res
+        */
+
     get: (query) ->
         res = []
         if \pin of query
@@ -171,3 +183,18 @@ export class Pad extends ComponentBase
             else if pin is "#{@get-data 'pin'}"
                 res.push this
         res
+
+    pin: ~
+        # Get pin label or number
+        ->
+            if @get-data 'label'
+                that
+            else
+                @get-data 'pin'
+
+    /*
+    on-move: (disp, opts) ~>
+        console.log "Pad............... (#{@owner.name}.#{@pin}) is being moved: ", disp
+        try
+            new SchemaManager .curr?.guide-for "#{@owner.name}.#{@pin}"
+    */
