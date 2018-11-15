@@ -15,6 +15,9 @@ export class ComponentBase
     get-data: (keypath) ->
         get-keypath @g.data.aecad, keypath
 
+    toggle-data: (keypath) ->
+        @set-data keypath, not @get-data keypath
+
     add-data: (keypath, value) ->
         curr = (@get-data keypath) or 0 |> parse-int
         set-keypath @g.data.aecad, keypath, curr + value
