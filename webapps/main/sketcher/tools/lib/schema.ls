@@ -263,13 +263,15 @@ export class Schema
                 prev-width += pl.width + hoffset
 
     guide-for: (src) ->
-        for @connections
-            if src and ..src isnt src
+        for node in @connections
+            if src and node.src isnt src
                 continue # Only create a specific guide for "src", skip the others
-            if ..length < 2
-                console.warn "Connection has very few nodes, skipping guiding: ", ..
+            if node.length < 2
+                console.warn "Connection has very few nodes, skipping guiding: ", node
                 continue
-            @create-guide ..0.pad.0, ..1.pad.0
+            for i in node
+                for j in node
+                    @create-guide i.pad.0, j.pad.0
 
     guide-all: ->
         @guide-for!
@@ -281,7 +283,7 @@ export class Schema
             stroke-color: 'lime'
             selected: yes
             data: {+tmp, +guide}
-
+    
     clear-guides: ->
         for @scope.project.layers
             for ..getItems {-recursive} when ..data.tmp and ..data.guide
