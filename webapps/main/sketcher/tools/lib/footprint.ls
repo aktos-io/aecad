@@ -24,4 +24,7 @@ export class Footprint extends Container
             @g.position.set @g.position.add displacement
         else
             @g.position.set displacement
-        super ...
+
+        for @pads
+            # DO NOT USE yadayada here!
+            ..on-move ...arguments

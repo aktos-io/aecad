@@ -75,14 +75,6 @@ export class ComponentBase
     name: ~
         -> @get-data \name
 
-    move: (displacement, opts={-absolute}) ->
-        for @pads
-            ..on-move ...
-
-    on-move: ->
-        for @pads
-            ..on-move ...
-
     owner: ~
         ->
             _owner = this

@@ -88,7 +88,6 @@ export class Container extends ComponentBase
             #console.log "color of #{curr-side} is #{layer-color}"
             @color = layer-color
 
-
     get: (query) ->
         '''
         Collects sub query results and returns them
@@ -97,3 +96,7 @@ export class Container extends ComponentBase
         for pad in @pads
             res ++= pad.get query
         res
+
+    on-move: ->
+        for @pads
+            ..on-move ...arguments
