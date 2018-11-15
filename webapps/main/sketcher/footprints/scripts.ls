@@ -162,7 +162,7 @@ export {
               """
       bom:
           'LM2576'    : 'C1'
-          'SOT223'     : 'C2'
+          'LM1117'     : 'C2'
           'RpiHeader' : 'rpi'
           'SMD1206'   : 'R1, R2, R3, C11'
           'SMD1206_pn': 'C13, C10'
@@ -517,14 +517,22 @@ export {
                   rows:
                       count: 3
                       interval: 2.3mm
-              labels:
-                  1: 'gnd'
-                  2: 'vout'
-                  3: 'vin'
-                  4: 'vout'
   
           data = defaults <<< data 
           super data
+  
+'''
+'lib-LM1117': '''
+  #! requires SOT223
+  add-class class LM1117 extends SOT223
+      (data) -> 
+          data.labels = 
+              # Pin_id: Label
+              1: 'gnd'
+              2: 'vout'
+              3: 'vin'
+              4: 'vout'
+          super ...
   
 '''
 }
