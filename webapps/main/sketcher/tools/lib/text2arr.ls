@@ -3,5 +3,6 @@
 export text2arr = (text) ->
     text
         .replace /[\n,\s]+/g, ' '
-        .split " "
+        .split ' '
+        .filter (-> !!it)   # Remove falsy values
         .map (.trim!)
