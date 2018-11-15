@@ -143,8 +143,9 @@ export class Schema
 
         console.log "Compiled connections: ", @connections
 
-        # place all guides
-        @guide-all!
+        unless opts.prefix
+            # place all guides
+            @guide-all!
 
     get-netlist: (opts={}) ->
         # prefixed netlist
