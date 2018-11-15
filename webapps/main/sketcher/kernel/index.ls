@@ -129,7 +129,7 @@ export class PaperDraw implements canvas-control, aecad-methods
                     if event.modifiers.control
                         @history.back!
 
-                | \shift =>
+                | \alt =>
                     unless event.modifiers.control
                         #console.log "global pan mode enabled."
                         move.pan = yes
@@ -143,10 +143,19 @@ export class PaperDraw implements canvas-control, aecad-methods
                         move.pan-lock = Date.now!
                         #console.log "pan lock diff: ", (move.pan-lock - move.pan-lock0)
 
+            ..onMouseDown = (event) ~>
+                if move.pan
+                    #console.log "global pan mode disabled."
+                    move.grab-point = null
+                    move.pan = null
+                    move.speed = null
+                    move.pan-locked = null
+                    @cursor move.prev-cursor
+
             ..onKeyUp = (event) ~>
                 switch event.key
-                | \shift =>
-                    if (move.pan-lock - move.pan-lock0) > 300ms
+                | \alt, \escape =>
+                    if (move.pan-lock - move.pan-lock0) > 300ms or (event.key is \escape)
                         if move.pan
                             #console.log "global pan mode disabled."
                             move.grab-point = null
