@@ -150,7 +150,7 @@ export class Pad extends ComponentBase
         console.warn "TODO: set text rotation correctly"
         @toggle-data 'mirrored'
         @ttip.scale ...scale-factor
-        @ttip.rotate (180 + 2 * rotation), @ttip.bounds.center
+        @ttip.rotate (180 - 2 * (rotation % 360)), @ttip.bounds.center
 
     selected: ~
         # TODO: Create a more beautiful selection shape
