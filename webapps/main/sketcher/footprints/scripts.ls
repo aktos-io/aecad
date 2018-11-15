@@ -2,6 +2,7 @@ export {
 'LM 2576': '''
   new LM2576 do
       name: 'c1'
+      color: 'blue'
   
 '''
 'find-test': '''
@@ -97,12 +98,12 @@ export {
           width: 2mm
           height: 1.2mm
       cols:
-          count: 2
+          count: 6
           interval: 3.34mm
       rows:
           count: 4
           interval: 2.54mm
-      dir: 'x' # numbering direction, 'x' or 'y', default 'x'
+      dir: '-y' # numbering direction, 'x' or 'y', default 'x'
   
 '''
 'rpi-header-test': '''
@@ -113,10 +114,13 @@ export {
   new RpiHeader do
       name: 'rpi2'
   
+  /*
   x = find-comp 'rpi2'
   <~ sleep 500ms
   x.rotate -45
-  
+  <~ sleep 500ms
+  x.rotate -45
+  */
 '''
 'schematic-test': '''
   # --------------------------------------------------
@@ -136,7 +140,7 @@ export {
               """
           2: 'C1.out, L1.1, D15.c'
           _out5v: 'L1.2 C1.fb C10.(+) C2.vin R1.1'
-          _out3v3: 'C11.1 R2.1'
+          _out3v3: 'C11.1 R2.1 C2.vout'
           out5v: 'R1.2'
           out3v3: 'R2.2'
           vff: 'D13.a'
@@ -157,7 +161,8 @@ export {
               These parts are used in testing step
               """
       bom:
-          'LM2576'    : 'C1, C2'
+          'LM2576'    : 'C1'
+          'SOT23'     : 'C2'
           'RpiHeader' : 'rpi'
           'SMD1206'   : 'R1, R2, R3, C11'
           'SMD1206_pn': 'C13, C10'
@@ -174,25 +179,32 @@ export {
   add-class class PinArray extends Footprint
       (data) -> 
           super ...
+          delete data.parent
           unless @resuming
               #console.log "Creating from scratch PinArray"
+              start = data.start or 1
               unless data.cols
                   data.cols = {count: 1}
               unless data.rows
                   data.rows = {count: 1}
-              for cindex from 1 to data.cols.count
-                  for rindex from 1 to data.rows.count
-                      pin-num = switch (data.dir or 'x')
+              for cindex to data.cols.count - 1
+                  for rindex to data.rows.count - 1
+                      pin-num = start + switch (data.dir or 'x')
                       | 'x' => 
-                          cindex + (rindex - 1) * data.cols.count
+                          cindex + rindex * data.cols.count
+                      | '-x' => 
+                          data.cols.count - 1 - cindex + rindex * data.cols.count
                       | 'y' =>
-                          rindex + (cindex - 1) * data.rows.count
-      
-                      pin-label = data.labels?[pin-num]
+                          rindex + cindex * data.rows.count
+                      | '-y' =>
+                          data.rows.count - 1 - rindex + cindex * data.rows.count
   
-                      p = new Pad this, data.pad <<< do
+                      pin-label = data.labels?[pin-num]
+                      
+                      p = new Pad data.pad <<< do
                           pin: pin-num
                           label: if data.labels? => (pin-label or '?') 
+                          parent: this
                           
                       p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
                       p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
@@ -211,6 +223,10 @@ export {
               if data.mirrored
                   # useful for female headers 
                   @mirror!
+                  
+              if @parent
+                  console.log "adding pinarray to parent", that
+                  that.add this
   
 '''
 'lib-RpiHeader': '''
@@ -363,17 +379,22 @@ export {
           unless @resuming
               #console.log "Creating from scratch TO263"
               d = dimensions.to263
-    
-              pad1 = new Pad this, do
+              self = this
+              pad1 = new Pad do
                   pin: 1
                   width: d.die.x
                   height: d.die.y
                   label: data.labels[1]
+                  parent: self
               
-              c = new Container this
+              c = new Container do
+                  parent: self
+                  
+              console.log "c in to263: ", c
               
               for index in [1 to 5]
-                  pad = new Pad c, do 
+                  pad = new Pad do
+                      parent: c
                       pin: index
                       width: d.pads.x
                       height: d.pads.y
@@ -453,5 +474,58 @@ export {
           super data
   
   #new Inductor
+'''
+'lib-DoublePinArray': '''
+  add-class class DoublePinArray extends Footprint
+      (data) -> 
+          super ...
+          unless @resuming
+              overwrites = 
+                  parent: @
+                  labels: data.labels
+  
+              left = new PinArray data.left <<< overwrites
+              right = new PinArray data.right <<< overwrites
+              right.position = left.position.add [data.distance |> mm2px, 0]
+  
+'''
+'double-pin-array-test': '''
+  # Sot23
+  new SOT23 do
+      name: 'hello'
+  
+'''
+'lib-SOT23': '''
+  # Sot23
+  #! requires DoublePinArray
+  add-class class SOT23 extends DoublePinArray
+      (data={}) -> 
+          defaults =
+              name: 'c_'
+              distance: 5.8mm
+              left: 
+                  start: 4
+                  pad:
+                      width: 2.15mm
+                      height: 3.25mm
+                  cols:
+                      count: 1
+              right:
+                  dir: '-y'
+                  pad:
+                      width: 2.15mm
+                      height: 1mm
+                  rows:
+                      count: 3
+                      interval: 2.3mm
+              labels:
+                  1: 'gnd'
+                  2: 'vout'
+                  3: 'vin'
+                  4: 'vout'
+  
+          data = defaults <<< data 
+          super data
+  
 '''
 }
