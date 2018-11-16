@@ -5,6 +5,7 @@ require! 'prelude-ls': {
 require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
+require! './get-aecad': {get-aecad}
 
 combinations = (input, ffunc=(-> it)) ->
     comb = []
@@ -122,7 +123,7 @@ export class Schema
                 throw new Error "Name is required for Schema"
             @name = opts.schema-name or opts.name
             @data = opts.data
-            @prefix = if opts.parent => opts.name else ''
+            @prefix = opts.prefix or ''
         else
             throw new Error "Data should be provided in {name, data} format."
         @scope = new PaperDraw
@@ -157,7 +158,9 @@ export class Schema
                         params: group.params
                         parent: @name
                         data: @data.schemas?[type]
+                        type: type
                         schema-name: "#{@name}-#{name}" # for convenience in constructor
+                        prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
         #console.log "Compiled bom is: ", bom
         @bom = bom
         bom
@@ -166,7 +169,7 @@ export class Schema
         @compiled = true
 
         # Compile sub-circuits first
-        for sch in filter (.data), values @get-bom!
+        for sch in values @get-bom! when sch.data
             console.log "Initializing sub-circuit: #{sch.name} ", sch
             @sub-circuits[sch.name] = new Schema sch
                 ..compile!
@@ -195,7 +198,7 @@ export class Schema
                 name = name.join '.'
                 console.log "Searching for component/entity: #{name} and pin: #{pin}"
 
-                # Look for component in sub-schemas first:
+                # Look for component in sub-circuits first:
                 if name of @netlist
                     # This component might be already included by sub-schema
                     continue
@@ -237,6 +240,9 @@ export class Schema
         #console.log "Compiled connections: ", @connections
 
     get-netlist: (opts={}) ->
+
+        # TODO: REFACTOR THIS
+
         # prefixed netlist
         pfx = opts.prefix or ''
         netlist = {}
@@ -292,28 +298,42 @@ export class Schema
         unless empty missing
             throw new Error "Netlist components missing in BOM: \n\n#{missing.join(', ')}"
 
-
-        return
-        created-components = []
-        # create sub-schema components
-        for name, sch of @sub-schemas
-            created-components ++= sch.schema.components
-
         @components = []
+        # add sub-circuit components
+        for name, sch of @sub-circuits
+            for sch.components
+                @components.push do
+                    component: ..component
+                    source: sch
+                    existing: ..existing
+
         curr = @scope.get-components {exclude: <[ Trace ]>}
+        for {name, type, data} in values @get-bom! when not data # loop through only raw components
+            pfx-name = "#{@prefix}#{name}"
+            if pfx-name not in [..name for curr]
+                # This component hasn't been created yet, create it
+                _Component = getClass(type)
+                @components.push do
+                    component: new _Component {name: pfx-name}
+            else
+                existing = find (.name is pfx-name), curr
+                if type isnt existing.type
+                    console.log "Component #{pfx-name} exists,
+                    but its type (#{existing.type})
+                    is wrong, should be: #{type}"
+                @components.push do
+                    component: get-aecad existing.item
+                    existing: yes
+
+        console.log "Created components: ", @components
+        return
+        created-components = [] # TODO: REMOVE THIS
+
         for type, names of @data.bom
             for c in text2arr names
                 prefixed = "#{opts.prefix or ''}#{c}"
                 if prefixed not in [..name for curr]
                     console.log "Component #{prefixed} (#{type}) is missing, will be created now."
-                    _Component = getClass(type)
-                    @components.push new _Component {name: prefixed}
-                else
-                    existing = find (.name is prefixed), curr
-                    if type isnt existing.type
-                        console.log "Component #{prefixed} exists,
-                        but its type (#{existing.type})
-                        is wrong, should be: #{type}"
 
         unless opts.prefix
             # fine tune initial placement
