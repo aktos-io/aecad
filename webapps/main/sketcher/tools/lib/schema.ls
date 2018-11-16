@@ -1,11 +1,13 @@
 require! './find-comp': {find-comp}
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
+    group-by
 }
 require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
 require! './get-aecad': {get-aecad}
+require! 'aea': {clone}
 
 combinations = (input, ffunc=(-> it)) ->
     comb = []
@@ -94,6 +96,53 @@ export class SchemaManager
             @curr.compile!
 
 
+parse-name = (full-name, opts) ->
+    unless opts => opts = {}
+    link = no
+    [...name, pin] = full-name.split '.'
+    name = name.join '.'
+    res = {name, pin}
+    ext = [..name for (opts.external or [])]
+    #console.log "externals: ", ext
+    if name in ext
+        res.link = yes
+        res.name = full-name
+        console.log "..............", full-name
+
+    unless name
+        # This is a cross reference
+        res.name = full-name
+        delete res.pin
+        res.link = yes
+
+    if opts.prefix
+        res.raw = res.name
+        res.name = "#{that}#{res.name}"
+    return res
+
+tests =
+    1:
+        full-name: "a.b.c.d"
+        expected: {name: "a.b.c", pin: 'd'}
+    2:
+        full-name: "a"
+        expected: {name: "a", link: yes}
+    3:
+        full-name: "a"
+        opts: {prefix: 'hello.'}
+        expected: {name: "hello.a", link: yes, raw: 'a'}
+    4:
+        full-name: "a.b"
+        opts: {prefix: 'hello.'}
+        expected: {name: "hello.a", pin: 'b', raw: 'a'}
+
+for k, test of tests
+    res = parse-name(test.full-name, test.opts)
+    unless JSON.stringify(res) is JSON.stringify(test.expected)
+        console.error "Expected: ", test.expected, "Got: ", res
+        throw new Error "Test failed for 'parse-name': at test num: #{k}"
+
+
 export class Schema
     (opts) ->
         '''
@@ -118,14 +167,15 @@ export class Schema
                         params: value
                 notes: Notes for each component
         '''
-        if opts
-            unless that.name
-                throw new Error "Name is required for Schema"
-            @name = opts.schema-name or opts.name
-            @data = opts.data
-            @prefix = opts.prefix or ''
-        else
-            throw new Error "Data should be provided in {name, data} format."
+        unless opts
+            throw new Error "Data should be provided on init."
+
+        unless opts.name
+            throw new Error "Name is required for Schema"
+        @name = opts.schema-name or opts.name
+        @data = opts.data
+        @prefix = opts.prefix or ''
+
         @scope = new PaperDraw
         @connections = []
         @manager = new SchemaManager
@@ -163,7 +213,52 @@ export class Schema
                         prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
         #console.log "Compiled bom is: ", bom
         @bom = bom
-        bom
+
+    external-components: ~
+        # Current schema's external components
+        -> [.. for values @bom when ..data]
+
+    flatten-netlist: ~
+        ->
+            netlist = {}
+            for c-name, net of @data.netlist
+                netlist[c-name] = text2arr net
+
+            for @iface
+                # interfaces are null nets
+                unless .. of netlist
+                    netlist[..] = []
+
+            for c-name, circuit of @sub-circuits
+                #console.log "adding sub-circuit #{c-name} to netlist:", circuit
+                for trace-id, net of circuit.flatten-netlist
+                    prefixed = "#{c-name}.#{trace-id}"
+                    #console.log "...added #{trace-id} as #{prefixed}: ", net
+                    netlist[prefixed] = net .map (-> "#{c-name}.#{it}")
+
+                for circuit.iface
+                    # interfaces are null nets
+                    prefixed = "#{c-name}.#{..}"
+                    unless prefixed of netlist
+                        netlist[prefixed] = []
+            #console.log "FLATTEN NETLIST: ", netlist
+            netlist
+
+    components-by-name: ~
+        ->
+            by-name = {}
+            for @components
+                by-name[..component.name] = ..component
+            by-name
+
+    is-link: (name) ->
+        if name of @flatten-netlist
+            yes
+        else
+            no
+
+    iface: ~
+        -> text2arr @data.iface
 
     compile: !->
         @compiled = true
@@ -177,41 +272,55 @@ export class Schema
         # add needed footprints
         @add-footprints!
 
-        return
-
+        # compile netlist
+        # -----------------
+        #
+        #   @netlist = Object
+        #       trace-id   : left-hand of netlist
+        #           * src        : Exact name of node (same in netlist)
+        #             c          : Component that holds this pin
+        #             pad        : Pad object
+        #           ...
+        #
         @netlist = null
         @netlist = {}
-        # @netlist = Object
-        #     trace-id   : left-hand of netlist
-        #         * src        : Exact name of node (same in netlist)
-        #           c          : Component that holds this pin
-        #           pad        : Pad object
-        #         ...
-        #
-        for id, conn-list of _netlist
+        console.log "Compiling netlist for schema: #{@name}"
+        console.log "--------------------------------------"
+        for id, conn-list of @flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
             @netlist[id] = [] unless id of @netlist
-            conn = [] # cache (list of connected nodes)
-            for fname in text2arr conn-list
-                [...name, pin] = (opts.prefix + fname).split('.')
-                name = name.join '.'
-                console.log "Searching for component/entity: #{name} and pin: #{pin}"
+            conn = {merge: null, list: []} # cache (list of connected nodes)
+            for full-name in conn-list
+                {name, pin, link, raw} = parse-name full-name, do
+                    prefix: @prefix
+                    external: @external-components
+                console.log "Searching for component/entity: #{name} and pin: #{pin} (link: #{link}), pfx: #{@prefix}"
+                if @is-link full-name
+                    # Merge into parent net
+                    # IMPORTANT: Links must be key of netlist in order to prevent accidental namings
+                    console.log "Found link: #{full-name}"
+                    console.warn "HANDLE LINK"
+                else
+                    comp = @components-by-name[name]
+                    unless comp
+                        if name in @iface
+                            console.log "Found an interface handle: #{name}. Silently skipping."
+                            continue
+                        else
+                            console.error "Current components: ", @components-by-name
+                            console.warn "Current netlist: ", @flatten-netlist
+                            throw new Error "No such component found: '#{name}' (full name: #{full-name}), pfx: #{@prefix}"
 
-                # Look for component in sub-circuits first:
-                if name of @netlist
-                    # This component might be already included by sub-schema
-                    continue
-                comp = find-comp name
-                unless comp
-                    throw new Error "No such pad found: '#{name}'"
+                    pad = (comp.get {pin}) or []
+                    if empty pad
+                        throw new Error "No such pin found: '#{pin}' of '#{name}'"
+                    conn.list.push {name, c: comp, pad}
 
-                pad = (comp.get {pin}) or []
-                if empty pad
-                    throw new Error "No such pin found: '#{pin}' of '#{name}'"
-                conn.push {src: p-name, c: comp, pad}
+            @netlist[id] ++= conn
 
-            @_netlist[id] ++= conn
+        console.warn "breakpoint."
+        return
 
 
         #console.log "current raw netlist: ", @_netlist
@@ -264,17 +373,13 @@ export class Schema
         components = []
         for id, conn-list of @data.netlist
             for n-name in text2arr conn-list # node-name
-                [...name, pin] = n-name.split '.'
-                name = name.join '.'
-                unless name
-                    # This is a cross reference
-                    name = n-name
+                {name, link} = parse-name n-name
 
                 if name in text2arr @data.iface
                     # This is an interface reference, not a physical component
                     continue
 
-                if name in keys @data.netlist
+                if link
                     # this is only a cross reference, ignore it
                     continue
 
@@ -324,7 +429,7 @@ export class Schema
                     update-needed: type isnt existing.type
 
         console.log "Schema (#{@name}) components: ", @components
-        
+
         unless @prefix
             # fine tune initial placement
             # ----------------------------
