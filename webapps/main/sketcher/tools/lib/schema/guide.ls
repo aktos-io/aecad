@@ -1,18 +1,11 @@
-# global imports
-require! 'prelude-ls': {
-    find, empty, unique, difference, max, keys, flatten, filter, values
-}
-
 # deps
-require! './deps': {
-    find-comp, PaperDraw, text2arr, get-class, get-aecad
-}
+require! './lib': {combinations}
 
 export do
     guide-for: (src) ->
         guides = []
         for pads in @netlist
-            for combinations [nodes, nodes]
+            for combinations [pads, pads]
                 [f, s] = ..
                 console.log "creating gude "
                 guides.push @create-guide f, s

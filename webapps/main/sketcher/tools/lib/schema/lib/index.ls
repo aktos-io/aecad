@@ -1,6 +1,6 @@
 require! 'prelude-ls': {empty, difference}
 
-combinations = (input, ffunc=(-> it)) ->
+export combinations = (input, ffunc=(-> it)) ->
     comb = []
     for i in input.0
         :second for j in input.1
