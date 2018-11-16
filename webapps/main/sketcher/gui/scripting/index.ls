@@ -79,7 +79,7 @@ export init = (pcb) ->
 
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
-            js = lsc.compile whole-src, {+bare, -header}
+            js = lsc.compile whole-src, {+bare, -header, map: 'embedded'}
             compiled = yes
         catch err
             @set \output, "Compile error: #{err.to-string!}"
@@ -95,7 +95,7 @@ export init = (pcb) ->
                     layer.clear!
 
                 #console.log "Added global modules: ", keys modules
-                func = new Function ...(keys modules), js
+                func = new Function ...(keys modules), js.code
                 func.call pcb, ...(values modules)
                 #pcb._scope.execute js
             catch
@@ -103,8 +103,8 @@ export init = (pcb) ->
                 @get \vlog .error do
                     title: 'Runtime Error'
                     message: e
-                #throw e
-                console.error e
+                console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
+                # See https://github.com/ceremcem/aecad/issues/8
 
     # Register all classes on app load
     runScript '# placeholder content', {-clear}
