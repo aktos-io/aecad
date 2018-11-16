@@ -12,6 +12,7 @@ export class Container extends ComponentBase
             #console.log "Container init:", init
             data = that
             @g = data.item
+            @parent = data.parent
             data.parent?add this # register to parent if provided
             for @g.children
                 #console.log "has child"
@@ -26,6 +27,7 @@ export class Container extends ComponentBase
                     aecad:
                         type: @constructor.name
             data?parent?add?(this)
+            @parent = data?.parent
 
     color: ~
         (val) ->

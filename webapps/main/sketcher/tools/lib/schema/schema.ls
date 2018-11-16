@@ -1,6 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
+    first
 }
 
 # deps
@@ -44,12 +45,14 @@ export class Schema implements bom, footprints, netlist, guide
         @name = opts.schema-name or opts.name
         @data = opts.data
         @prefix = opts.prefix or ''
+        @parent = opts.parent
         @scope = new PaperDraw
         @connections = []
         @manager = new SchemaManager
             ..register this
         @compiled = false
         @sub-circuits = {}
+        @netlist = []
 
     external-components: ~
         # Current schema's external components
@@ -111,23 +114,12 @@ export class Schema implements bom, footprints, netlist, guide
 
         # compile netlist
         # -----------------
-        #
-        #   @netlist = Object
-        #       trace-id   : left-hand of netlist
-        #           * src        : Exact name of node (same in netlist)
-        #             c          : Component that holds this pin
-        #             pad        : Pad object
-        #           ...
-        #
-        @netlist = null
-        @netlist = {}
+        netlist = {}
         console.log "Compiling netlist for schema: #{@name}"
-        console.log "--------------------------------------"
         for id, conn-list of @flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
-            @netlist[id] = [] unless id of @netlist
-            conn = {merge: null, list: []} # cache (list of connected nodes)
+            net = [] # cache (list of connected nodes)
             for full-name in conn-list
                 {name, pin, link, raw} = parse-name full-name, do
                     prefix: @prefix
@@ -137,6 +129,7 @@ export class Schema implements bom, footprints, netlist, guide
                     # Merge into parent net
                     # IMPORTANT: Links must be key of netlist in order to prevent accidental namings
                     #console.warn "HANDLE LINK: #{full-name}"
+                    net.push {link: yes, name: full-name}
                     continue
                 else
                     comp = @components-by-name[name]
@@ -149,67 +142,34 @@ export class Schema implements bom, footprints, netlist, guide
                             console.warn "Current netlist: ", @flatten-netlist
                             throw new Error "No such component found: '#{name}' (full name: #{full-name}), pfx: #{@prefix}"
 
-                    pad = (comp.get {pin}) or []
-                    if empty pad
+                    pads = (comp.get {pin}) or []
+                    if empty pads
                         throw new Error "No such pin found: '#{pin}' of '#{name}'"
-                    conn.list.push {name, c: comp, pad}
-
-            @netlist[id] ++= conn
+                    net.push {name, pads}
+            netlist[id] = net
 
         unless @parent
-            console.log "-----------------------------"
-            console.log "Flatten netlist:"
-            console.log @flatten-netlist
-            console.log "-----------------------------"
-            console.log "Netlist: "
-            console.log @netlist
-            console.log "-----------------------------"
-        console.warn "breakpoint."
-        return
+            #console.log "Flatten netlist:", @flatten-netlist
+            console.log "Netlist: ", netlist
 
-
-        #console.log "current raw netlist: ", @_netlist
-        merge-connections = (target) ~>
-            #console.log "merging connection: #{target}"
-            unless target of @get-netlist(opts)
-                throw new Error "No such trace found: '#{target}' (opts: #{JSON.stringify opts})"
-            c = @get-netlist(opts)[target]
-            for c
-                if ..connect
-                    c ++= merge-connections that
-            c
-
-        @connections.length = 0
-        refs = [] # store ref labels in order to exclude from @connections
-        for id, connections of @get-netlist(opts)
-            flat = []
-            for node in connections
-                if node.connect
-                    refs.push that
-                    flat ++= merge-connections that
+        # Recursively walk through links
+        get-net = (id) ~>
+            #console.log "...getting net for #{id}"
+            reduced = []
+            for netlist[id]
+                if ..link
+                    # follow the link
+                    #reduced.unshift ..
+                    reduced ++= get-net ..name
                 else
-                    unless id in refs
-                        flat.push node
-            @connections.push flat
-        #console.log "Compiled connections: ", @connections
+                    reduced ++= ..pads
+            reduced
 
-    get-netlist: (opts={}) ->
+        unless @parent
+            # Report only for the top level circuit
+            @netlist.length = 0
+            for id of netlist
+                @netlist.push get-net id
 
-        # TODO: REFACTOR THIS
-
-        # prefixed netlist
-        pfx = opts.prefix or ''
-        netlist = {}
-        for trace-id, conn-list of @_netlist
-            netlist[pfx + trace-id] = []
-            for conn-list
-                netlist[pfx + trace-id].push if ..connect
-                    # This is a cross reference
-                    {connect: ..connect}
-                else
-                    {src: "#{pfx}#{..src}", ..c, ..pad}
-
-        for name, sch of @sub-schemas
-            netlist <<< sch.schema.get-netlist({prefix: "#{name}."})
-        #console.log "returning netlist: ", netlist
-        netlist
+            for index, pads of @netlist
+                console.log "Netlist: #{index}: netlist: ", pads.map (.pin)

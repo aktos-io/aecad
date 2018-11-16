@@ -159,6 +159,7 @@ export class Pad extends ComponentBase
     selected: ~
         # TODO: Create a more beautiful selection shape
         (val) ->
+            @g.selected = false
             @cu.selected = val
         ->
             @cu.selected
@@ -188,16 +189,21 @@ export class Pad extends ComponentBase
         res
 
     pin: ~
-        # Get pin label or number
+        # Get full pin label or number
         ->
-            if @get-data 'label'
+            pin = if @get-data 'label'
                 that
             else
                 @get-data 'pin'
+            "#{@owner.name}.#{pin}"
 
     on-move: (disp, opts) ~>
-        me = "#{@owner.name}.#{@pin}"
         if @schema.curr and empty (@guides or [])
-            @guides = @schema.curr.guide-for "#{me}"
-            #console.log "Created guides: ", @guides
-        @guides?.for-each (g) ~> g.segments.0.point.set @g-pos
+            @guides = @schema.curr.guide-for "#{@pin}"
+            console.log "Created guides: ", @guides
+        @guides?.for-each (g) ~>
+            return
+            unless g.segments.0.point.equals @g-pos
+                g.segments.1.point.set @g-pos
+            else
+                g.segments.0.point.set @g-pos
