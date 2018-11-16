@@ -306,6 +306,7 @@ export class Schema
                     component: ..component
                     source: sch
                     existing: ..existing
+                    update-needed: ..update-needed
 
         curr = @scope.get-components {exclude: <[ Trace ]>}
         for {name, type, data} in values @get-bom! when not data # loop through only raw components
@@ -317,14 +318,13 @@ export class Schema
                     component: new _Component {name: pfx-name}
             else
                 existing = find (.name is pfx-name), curr
-                if type isnt existing.type
-                    console.log "Component #{pfx-name} exists,
-                    but its type (#{existing.type})
-                    is wrong, should be: #{type}"
                 @components.push do
                     component: get-aecad existing.item
                     existing: yes
+                    update-needed: type isnt existing.type
 
+        console.log "Schema (#{@name}) components: ", @components
+        
         unless @prefix
             # fine tune initial placement
             # ----------------------------
