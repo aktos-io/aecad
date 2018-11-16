@@ -132,12 +132,11 @@ export class Schema implements bom, footprints, netlist, guide
                 {name, pin, link, raw} = parse-name full-name, do
                     prefix: @prefix
                     external: @external-components
-                console.log "Searching for component/entity: #{name} and pin: #{pin} (link: #{link}), pfx: #{@prefix}"
+                #console.log "Searching for entity: #{name} and pin: #{pin}, pfx: #{@prefix}"
                 if @is-link full-name
                     # Merge into parent net
                     # IMPORTANT: Links must be key of netlist in order to prevent accidental namings
-                    console.log "Found link: #{full-name}"
-                    console.warn "HANDLE LINK"
+                    console.warn "HANDLE LINK: #{full-name}"
                 else
                     comp = @components-by-name[name]
                     unless comp
@@ -156,6 +155,14 @@ export class Schema implements bom, footprints, netlist, guide
 
             @netlist[id] ++= conn
 
+        unless @parent
+            console.log "-----------------------------"
+            console.log "Flatten netlist:"
+            console.log @flatten-netlist
+            console.log "-----------------------------"
+            console.log "Netlist: "
+            console.log @netlist
+            console.log "-----------------------------"
         console.warn "breakpoint."
         return
 

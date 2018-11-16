@@ -39,7 +39,7 @@ export do
                     existing: yes
                     update-needed: type isnt existing.type
 
-        console.log "Schema (#{@name}) components: ", @components
+        #console.log "Schema (#{@name}) components: ", @components
 
         unless @prefix
             # fine tune initial placement

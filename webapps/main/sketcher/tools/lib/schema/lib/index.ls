@@ -61,7 +61,6 @@ export parse-name = (full-name, opts) ->
     if name in ext
         res.link = yes
         res.name = full-name
-        console.log "..............", full-name
 
     unless name
         # This is a cross reference
