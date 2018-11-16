@@ -1,5 +1,5 @@
 require! './find-comp': {find-comp}
-require! 'prelude-ls': {find, empty, unique, difference, max, keys}
+require! 'prelude-ls': {find, empty, unique, difference, max, keys, flatten}
 require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
@@ -163,11 +163,10 @@ export class Schema
                         @sub-circuits[sch.prefix] = new Schema sch
                             ..compile!
 
+        # add needed footprints
+        @add-footprints!
 
         return
-
-        # add needed footprints
-        @add-footprints opts
 
         @netlist = null
         @netlist = {}
@@ -247,48 +246,59 @@ export class Schema
         #console.log "returning netlist: ", netlist
         netlist
 
-    sub-schemas: ~
-        ->
-            # Return sub-schemas
-            sch = {}
-            if @data.schemas
-                for cls, instances of that
-                    for instance in text2arr instances
-                        #console.log "Found sub-schema: #{instance} (an instance of #{cls})"
-                        sch[instance] = {type: cls, schema: @manager.schemas[cls]}
-            sch
-
-
     get-netlist-components: ->
         components = []
         for id, conn-list of @data.netlist
-            for p-name in text2arr conn-list
-                unless p-name.starts-with '*'
-                    #console.log "examining #{p-name}"
-                    [name, pin] = p-name.split '.'
+            for n-name in text2arr conn-list # node-name
+                [...name, pin] = n-name.split '.'
+                name = name.join '.'
+                unless name
+                    # This is a cross reference
+                    name = n-name
+
+                if name in text2arr @data.iface
+                    # This is an interface reference, not a physical component
+                    continue
+
+                if name in keys @data.netlist
+                    # this is only a cross reference, ignore it
+                    continue
+
+                if name in keys @sub-circuits
+                    # this is a sub-circuit element, it has been handled in its Schema
+                    continue
+
+                unless name in components
                     components.push name
-        res = unique components
-        #console.log "netlist components found: ", res
-        return res
+
+        console.log "netlist raw components found: ", components
+        return components
 
     get-bom-components: ->
-        components = []
-        for type, comp-list of @data.bom
-            for name in text2arr comp-list
-                components.push name
-        res = unique components
-        #console.log "bom components found: ", res
-        return res
+        instances = []
+        if typeof! @data.bom is \Array
+            throw new Error "BOM should be Object, not Array"
+        for type, val of @data.bom
+            if type in keys @data.schemas
+                continue # This is a sub-circuit, skip
+
+            switch typeof! val
+            | 'String' =>
+                instances.push text2arr val
+            | 'Object' =>
+                # params: list of instances
+                for params, names of val
+                    instances.push text2arr names
+        b = flatten instances
+        #console.log "bom raw components found:", b
+        return b
 
     add-footprints: (opts) !->
-        missing = @get-netlist-components(opts) `difference` @get-bom-components(opts)
-        missing = missing `difference` keys(@sub-schemas)
-        unless empty keys @sub-schemas
-            #console.log "Sub-schemas found: ", @sub-schemas
-            void
+        missing = @get-netlist-components! `difference` @get-bom-components!
         unless empty missing
             throw new Error "Netlist components missing in BOM: \n\n#{missing.join(', ')}"
 
+        return
         created-components = []
         # create sub-schema components
         for name, sch of @sub-schemas
