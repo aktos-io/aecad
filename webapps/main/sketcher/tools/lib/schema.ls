@@ -120,9 +120,9 @@ export class Schema
         if opts
             unless that.name
                 throw new Error "Name is required for Schema"
-            @name = that.name
-            @data = that.data
-            @prefix = that.prefix or ''
+            @name = opts.schema-name or opts.name
+            @data = opts.data
+            @prefix = if opts.parent => opts.name else ''
         else
             throw new Error "Data should be provided in {name, data} format."
         @scope = new PaperDraw
@@ -153,10 +153,11 @@ export class Schema
                 for name in group.names
                     # create every #name with params: group.params
                     bom[name] =
-                        name: "#{@name}-#{name}"
+                        name: name
                         params: group.params
-                        prefix: name
+                        parent: @name
                         data: @data.schemas?[type]
+                        schema-name: "#{@name}-#{name}" # for convenience in constructor
         #console.log "Compiled bom is: ", bom
         @bom = bom
         bom
@@ -167,7 +168,7 @@ export class Schema
         # Compile sub-circuits first
         for sch in filter (.data), values @get-bom!
             console.log "Initializing sub-circuit: #{sch.name} ", sch
-            @sub-circuits[sch.prefix] = new Schema sch
+            @sub-circuits[sch.name] = new Schema sch
                 ..compile!
 
         # add needed footprints
@@ -282,7 +283,7 @@ export class Schema
         return components
 
     get-bom-components: ->
-        b = flatten [..prefix for filter (-> not it.data), values @get-bom!]
+        b = flatten [..name for filter (-> not it.data), values @get-bom!]
         #console.log "bom raw components found:", b
         return b
 
