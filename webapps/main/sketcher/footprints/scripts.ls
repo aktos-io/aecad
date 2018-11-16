@@ -146,7 +146,7 @@ export {
           1: "C1.vin, vfs, C13.a"
           gnd: """ 
               C13.c C1.gnd C1.onoff 
-              D15.a C10.c C2.gnd D14.a 
+              D15.a C10.c C2.gnd D14.a C11.c
               """
           2: 'C1.out, L1.1, D15.c'
           _5v: """ 
@@ -154,13 +154,12 @@ export {
               R1.1
               C2.vin 
               """
-          _3v3: 'C11.1 R2.1 C2.vout'
+          _3v3: 'C11.a R2.1 C2.vout'
           '5v': 'R1.2'
           '3v3': 'R2.2'
           vff: 'D13.a'
           vfs: 'D13.c, D14.c'
       notes: 
-          # CHECK: C10, C11
           'L1': """
               This part is an EMC source, keep it 
               close to LM2576
@@ -227,8 +226,8 @@ export {
           1: 'rpi.gnd gnd'
           gnd: "P.gnd cn.1 Pow- led1.gnd led2.gnd"
           vff: 'P.vff, cn.2, Pow+'
-          3v3: 'P.3v3 rpi.3v3'
-          5v: 'P.5v rpi.5v led1.vcc led2.vcc'
+          '3v3': 'P.3v3 rpi.3v3'
+          '5v': 'P.5v rpi.5v led1.vcc led2.vcc'
           
       schemas: {power, signal-led}
       iface: "Pow+, Pow-"
@@ -297,7 +296,6 @@ export {
                   @mirror!
                   
               if @parent
-                  console.log "adding pinarray to parent", that
                   that.add this
   
 '''
@@ -415,14 +413,15 @@ export {
   #! requires TO263
   add-class class LM2576 extends TO263
       (data) -> 
-          data.labels = 
-              # Pin_id: Label
-              1: \\vin 
-              2: \\out
-              3: \\gnd
-              4: \\fb 
-              5: \\onoff
-          super ...
+          defaults = 
+              labels: 
+                  # Pin_id: Label
+                  1: \\vin 
+                  2: \\out
+                  3: \\gnd
+                  4: \\fb 
+                  5: \\onoff
+          super data <<< defaults
   
 '''
 'lib-TO263': '''
@@ -455,8 +454,6 @@ export {
               c = new Container do
                   parent: self
                   
-              console.log "c in to263: ", c
-              
               for index in [1 to 5]
                   pad = new Pad do
                       parent: c
