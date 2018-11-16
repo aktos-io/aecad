@@ -4,6 +4,40 @@ require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
 
+combinations = (input, ffunc=(-> it)) ->
+    comb = []
+    for i in input.0
+        :second for j in input.1
+            continue if i is j
+            for comb
+                if empty difference [i, j].map(ffunc), ..map(ffunc)
+                    continue second
+            comb.push [i, j]
+    comb
+
+a = <[ a b c d ]>
+out = combinations [a, a]
+expected = [["a","b"],["a","c"],["a","d"],["b","c"],["b","d"],["c","d"]]
+if JSON.stringify(out) isnt JSON.stringify(expected)
+    throw "Problem in combinations: 1"
+
+a =
+    {src: 'a'}
+    {src: 'b'}
+    {src: 'c'}
+    {src: 'd'}
+out = combinations [a, a]
+expected =
+    [{src: 'a'},{src: "b"}]
+    [{src: "a"},{src: "c"}]
+    [{src: "a"},{src: "d"}]
+    [{src: "b"},{src: "c"}]
+    [{src: "b"},{src: "d"}]
+    [{src: "c"},{src: "d"}]
+if JSON.stringify(out) isnt JSON.stringify(expected)
+    throw "Problem in combinations: 2"
+
+
 '''
 Usage:
 
@@ -53,66 +87,119 @@ export class SchemaManager
 
     use: (name) ->
         @using = name
-        @curr.compile!
+        unless @curr.compiled
+            @curr.compile!
 
 
 export class Schema
-    (data) ->
+    (opts) ->
         '''
         # TODO: Implement parent schema handling
 
-        data:
-            netlist: Connection list
-            bom: Bill of Materials
-            name: Schema name
-            iface: Interface labeling
+
+        opts:
+            name: Name of schema
+            prefix: *Optional* Prefix of components
+            params: Variant definition
+            data:
+                iface: Interface labeling
+                netlist: Connection list
+                schemas: [Object] Available sub-circuits
+                bom: Bill of Materials
+
+                    key: value => Component's exact name: List of instances
+
+                    # or
+
+                    key:
+                        params: value
+                notes: Notes for each component
         '''
-        if data
-            @data = data
+        if opts
+            unless that.name
+                throw new Error "Name is required for Schema"
+            @name = that.name
+            @data = that.data
+            @prefix = that.prefix or ''
+        else
+            throw new Error "Data should be provided in {name, data} format."
         @scope = new PaperDraw
-        @_netlist = {}
         @connections = []
         @manager = new SchemaManager
             ..register this
+        @compiled = false
+        @sub-circuits = {}
 
-    name: ~
-        -> @data.name
+    compile: !->
+        @compiled = true
 
-    compile: (opts={prefix: ''}) !->
+        # Compile sub-circuits first
+        for schema-name, schema-data of @data.schemas
+            for type, val of @data.bom when type is schema-name
+                instances = []  # instances to be created
+                switch typeof! val
+                | 'String' =>
+                    instances.push do
+                        params: ''
+                        names: text2arr val # array of instance names
+                | 'Object' =>
+                    # params: list of instances
+                    for params, names of val
+                        instances.push do
+                            params: params
+                            names: text2arr names
+
+                # create schemas
+                for group in instances
+                    for name in group.names
+                        # create every #name with params: group.params
+                        sch = #new Schema do
+                            name: "#{@name}-#{name}"
+                            params: group.params
+                            prefix: name
+                            data: schema-data
+
+                        console.log "Initializing sub-circuit: #{sch.name} ", sch
+                        @sub-circuits[sch.prefix] = new Schema sch
+                            ..compile!
+
+
+        return
+
         # add needed footprints
         @add-footprints opts
 
-        # compile schematic. input format: {netlist, bom}
-        @_netlist = null
-        @_netlist = {}
-        for id, conn-list of @data.netlist
+        @netlist = null
+        @netlist = {}
+        # @netlist = Object
+        #     trace-id   : left-hand of netlist
+        #         * src        : Exact name of node (same in netlist)
+        #           c          : Component that holds this pin
+        #           pad        : Pad object
+        #         ...
+        #
+        for id, conn-list of _netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
-            conn = [] # list of connected nodes
-            unless @_netlist[id]
-                @_netlist[id] = []
-            for p-name in text2arr conn-list
-                [name, pin] = p-name.split '.'
-                if name.starts-with '*'
-                    # this is a reference to another trace-id
-                    ref = p-name.substr 1
-                    ref = opts.prefix + ref
-                    console.log "found a reference to another id (to: #{ref})"
-                    @_netlist[id] ++= {connect: ref}
-                else
-                    name = opts.prefix + name
-                    if name in keys @sub-schemas
-                        # this is a sub-schema, do not search for a regular component
-                        # it should be already handled in "add-footprints" step
-                        continue
-                    comp = find-comp name
-                    unless comp
-                        throw new Error "No such pad found: '#{name}'"
+            @netlist[id] = [] unless id of @netlist
+            conn = [] # cache (list of connected nodes)
+            for fname in text2arr conn-list
+                [...name, pin] = (opts.prefix + fname).split('.')
+                name = name.join '.'
+                console.log "Searching for component/entity: #{name} and pin: #{pin}"
 
-                    pad = (comp.get {pin}) or []
-                    if empty pad
-                        throw new Error "No such pin found: '#{pin}' of '#{name}'"
-                    conn.push {src: p-name, c: comp, pad}
+                # Look for component in sub-schemas first:
+                if name of @netlist
+                    # This component might be already included by sub-schema
+                    continue
+                comp = find-comp name
+                unless comp
+                    throw new Error "No such pad found: '#{name}'"
+
+                pad = (comp.get {pin}) or []
+                if empty pad
+                    throw new Error "No such pin found: '#{pin}' of '#{name}'"
+                conn.push {src: p-name, c: comp, pad}
 
             @_netlist[id] ++= conn
 
@@ -141,7 +228,6 @@ export class Schema
                         flat.push node
             @connections.push flat
         #console.log "Compiled connections: ", @connections
-
 
     get-netlist: (opts={}) ->
         # prefixed netlist
@@ -262,16 +348,22 @@ export class Schema
     guide-for: (src) ->
         guides = []
         for node in @connections
-            if src and src not in [..src for node]
-                continue # Only create a specific guide for "src", skip the others
+            if src
+                # Only create a specific guide for "src", skip the others
+                if src not in [..src for node]
+                    continue
+                console.log "Creating guide for #{src}"
             if node.length < 2
                 console.warn "Connection has very few nodes, skipping guiding: ", node
                 continue
-            for i in node
-                for j in node
-                    guides.push @create-guide i.pad.0, j.pad.0
-        return guides
 
+            for combinations [node, node], (.src)
+                [f, s] = ..
+                if src in ..map (.src)
+                    continue
+                console.log "creating gude #{f.src} -> #{s.src} (#{f.pad.0.g-pos} -> #{s.pad.0.g-pos})"
+                guides.push @create-guide f.pad.0, s.pad.0
+        return guides
 
     guide-all: ->
         @guide-for!
@@ -284,7 +376,6 @@ export class Schema
             stroke-width: 0.1
             selected: yes
             data: {+tmp, +guide}
-
 
     clear-guides: ->
         for @scope.project.layers
