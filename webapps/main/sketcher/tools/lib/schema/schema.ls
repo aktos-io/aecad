@@ -136,7 +136,8 @@ export class Schema implements bom, footprints, netlist, guide
                 if @is-link full-name
                     # Merge into parent net
                     # IMPORTANT: Links must be key of netlist in order to prevent accidental namings
-                    console.warn "HANDLE LINK: #{full-name}"
+                    #console.warn "HANDLE LINK: #{full-name}"
+                    continue
                 else
                     comp = @components-by-name[name]
                     unless comp
