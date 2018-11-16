@@ -128,35 +128,37 @@ export {
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
   
+  add-class class NPN extends SOT223 
+      (data={}) -> 
+          defaults =
+              labels:
+                  1: 'b'
+                  2: 'c'
+                  3: 'e'
+          super defaults <<< data 
   
-  new Schema do 
-      name: "power"
+  
+  power = 
+      iface: 'vfs, vff, 5v, 3v3, gnd'
       netlist: 
           # Trace_id: "list, of, connected, pads"
           # Power layer 
-          1: "C1.vin, *vfs, C13.a"
+          1: "C1.vin, vfs, C13.a"
           gnd: """ 
               C13.c C1.gnd C1.onoff 
               D15.a C10.c C2.gnd D14.a 
               """
           2: 'C1.out, L1.1, D15.c'
-          _out5v: """ 
-              L1.2 C1.fb C10.a D15.c
+          _5v: """ 
+              L1.2 C1.fb C10.a
               R1.1
               C2.vin 
               """
-          _out3v3: 'C11.1 R2.1 C2.vout'
-          out5v: 'R1.2'
-          out3v3: 'R2.2'
+          _3v3: 'C11.1 R2.1 C2.vout'
+          '5v': 'R1.2'
+          '3v3': 'R2.2'
           vff: 'D13.a'
           vfs: 'D13.c, D14.c'
-      values:
-          '100uF': 'C13' 
-          '0 ohm': 'R1, R2'
-          '1000uF': 'C10'
-          '10uF': 'C11'
-          '100..360uH': 'L1'
-          '1N5822': 'D14, D13, D15'
       notes: 
           # CHECK: C10, C11
           'L1': """
@@ -170,35 +172,80 @@ export {
       bom:
           'LM2576': 'C1'
           'LM1117': 'C2'
-          'SMD1206': 'R1, R2, C11'
-          'C1206': 'C13, C10'
-          'Inductor': 'L1'
-          'DO214AC': 'D14, D13, D15'
+          'SMD1206': 
+              "0 ohm": "R1, R2"
+          'C1206': 
+              "100uF": 'C13'
+              "1000uF": "C10"
+              "10uF": "C11"
+          'Inductor': 
+              "100..360uH": 'L1'
+          'DO214AC':
+              '1N5822': 'D14, D13, D15'
+  
+  led-driver = 
+      iface: "out, in, Vcc, gnd"
+      doc:
+          """
+          Current sink led driver 
+          --------------------
+          Q1: Driver transistor
+          R1: Base resistor
+          R2: Current limit resistor 
           
-  new Schema do 
-      name: 'sgw'
-      schemas:
-          'power': 'P'
-      netlist:
-          1: 'rpi.gnd *gnd'
-          gnd: "P.gnd cn.1 red.c green.c"
-          vff: 'P.vff, cn.2'
-          3v3: 'P.out3v3 rpi.3v3'
-          5v: 'P.out5v rpi.5v'
+          out: Current sink output
+          """
+      netlist: 
+          1: "Q1.b R1.1"
+          in: "R1.2"
+          gnd: "Q1.e"
+          out: "Q1.c"
+          Vcc: null
       bom:
+          NPN:
+              "2N2222": "Q1"
+          SMD1206:
+              "300 ohm": "R1"
+      
+  signal-led = 
+      iface: "gnd, in, vcc"
+      netlist:
+          vcc: "D1.a DR.Vcc"
+          2: "D1.c DR.out"
+          in: "DR.in"
+          gnd: "DR.gnd"
+      params: 
+          regex: /[a-z]+/
+          map: 'color'
+      schemas: {led-driver}
+      bom:
+          led-driver: 'DR'
+          C1206: 
+              "$color": "D1"
+  sgw =         
+      netlist:
+          1: 'rpi.gnd gnd'
+          gnd: "P.gnd cn.1 Pow- led1.gnd led2.gnd"
+          vff: 'P.vff, cn.2, Pow+'
+          3v3: 'P.3v3 rpi.3v3'
+          5v: 'P.5v rpi.5v led1.vcc led2.vcc'
+          
+      schemas: {power, signal-led}
+      iface: "Pow+, Pow-"
+      bom:
+          power: 'P'
+          signal-led:
+              'red': 'led1'
+              'green': 'led2'
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
-          'LED1206': 'red, green'
-          
-          
+  
           # Virtual components
           'Conn_1pin_thd' : '_1, _2, _3, _4'
   
-  
-  # Declare active schema
-  sch = new SchemaManager 
-      ..use \\sgw
-  
+  sch = new Schema {name: 'sgw', data: sgw}
+      ..compile!
+      ..guide-all!
 '''
 'lib-PinArray': '''
   add-class class PinArray extends Footprint
