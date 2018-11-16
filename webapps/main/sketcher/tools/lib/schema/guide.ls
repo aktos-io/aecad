@@ -5,10 +5,10 @@ export do
     guide-for: (src) ->
         guides = []
         for pads in @netlist
-            for combinations [pads, pads]
-                [f, s] = ..
-                console.log "creating gude "
-                guides.push @create-guide f, s
+            for index to pads.length
+                console.log "creating guide: ", index
+                break if index + 1 >= pads.length
+                @create-guide pads[index], pads[index + 1]
         return guides
 
     guide-all: ->
