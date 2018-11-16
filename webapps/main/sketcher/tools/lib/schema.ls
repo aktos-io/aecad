@@ -170,7 +170,7 @@ export class Schema
 
         # Compile sub-circuits first
         for sch in values @get-bom! when sch.data
-            console.log "Initializing sub-circuit: #{sch.name} ", sch
+            #console.log "Initializing sub-circuit: #{sch.name} ", sch
             @sub-circuits[sch.name] = new Schema sch
                 ..compile!
 
@@ -325,41 +325,31 @@ export class Schema
                     component: get-aecad existing.item
                     existing: yes
 
-        console.log "Created components: ", @components
-        return
-        created-components = [] # TODO: REMOVE THIS
-
-        for type, names of @data.bom
-            for c in text2arr names
-                prefixed = "#{opts.prefix or ''}#{c}"
-                if prefixed not in [..name for curr]
-                    console.log "Component #{prefixed} (#{type}) is missing, will be created now."
-
-        unless opts.prefix
+        unless @prefix
             # fine tune initial placement
             # ----------------------------
             # Place left of current bounds by fitting in a height of
             # current bounds height
             current = @scope.get-bounds!
             allowed-height = current.height
-            prev = {}
             placement = []
             voffset = 10
-            created-components ++= @components
-            for created-components
+            for {component, existing} in @components when not existing
                 lp = placement[*-1]
-                if (empty placement) or ((lp?.height or + voffset) + ..bounds.height > allowed-height)
+                if (empty placement) or ((lp?.height or + voffset) + component.bounds.height > allowed-height)
                     # create a new column
                     placement.push {list: [], height: 0, width: 0}
                     lp = placement[*-1]
-                lp.list.push ..
-                lp.height += ..bounds.height + voffset
-                lp.width = max lp.width, ..bounds.width
+                lp.list.push component
+                lp.height += component.bounds.height + voffset
+                lp.width = max lp.width, component.bounds.width
 
-            console.log "Placements so far: ", placement
+            #console.log "Placements so far: ", placement
+            prev = {}
             prev-width = 0
             hoffset = 50
             for index, pl of placement
+                #console.log "Actually placing index: #{index}"
                 for pl.list
                     ..position = ..position.subtract [pl.width + hoffset + prev-width, 0]
                     if prev.pos
