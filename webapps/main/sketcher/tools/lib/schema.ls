@@ -1,5 +1,7 @@
 require! './find-comp': {find-comp}
-require! 'prelude-ls': {find, empty, unique, difference, max, keys, flatten}
+require! 'prelude-ls': {
+    find, empty, unique, difference, max, keys, flatten, filter, values
+}
 require! '../../kernel': {PaperDraw}
 require! './text2arr': {text2arr}
 require! './get-class': {get-class}
@@ -130,38 +132,43 @@ export class Schema
         @compiled = false
         @sub-circuits = {}
 
+    get-bom: ->
+        bom = {}
+        if typeof! @data.bom is \Array
+            throw new Error "BOM should be Object, not Array"
+        for type, val of @data.bom
+            if typeof! val is 'String'
+                # this is shorthand for "empty parametered instances"
+                val = {'': val}
+
+            # params: list of instances
+            instances = []
+            for params, names of val
+                instances.push do
+                    params: params
+                    names: text2arr names
+
+            # create
+            for group in instances
+                for name in group.names
+                    # create every #name with params: group.params
+                    bom[name] =
+                        name: "#{@name}-#{name}"
+                        params: group.params
+                        prefix: name
+                        data: @data.schemas?[type]
+        #console.log "Compiled bom is: ", bom
+        @bom = bom
+        bom
+
     compile: !->
         @compiled = true
 
         # Compile sub-circuits first
-        for schema-name, schema-data of @data.schemas
-            for type, val of @data.bom when type is schema-name
-                instances = []  # instances to be created
-                switch typeof! val
-                | 'String' =>
-                    instances.push do
-                        params: ''
-                        names: text2arr val # array of instance names
-                | 'Object' =>
-                    # params: list of instances
-                    for params, names of val
-                        instances.push do
-                            params: params
-                            names: text2arr names
-
-                # create schemas
-                for group in instances
-                    for name in group.names
-                        # create every #name with params: group.params
-                        sch = #new Schema do
-                            name: "#{@name}-#{name}"
-                            params: group.params
-                            prefix: name
-                            data: schema-data
-
-                        console.log "Initializing sub-circuit: #{sch.name} ", sch
-                        @sub-circuits[sch.prefix] = new Schema sch
-                            ..compile!
+        for sch in filter (.data), values @get-bom!
+            console.log "Initializing sub-circuit: #{sch.name} ", sch
+            @sub-circuits[sch.prefix] = new Schema sch
+                ..compile!
 
         # add needed footprints
         @add-footprints!
@@ -271,25 +278,11 @@ export class Schema
                 unless name in components
                     components.push name
 
-        console.log "netlist raw components found: ", components
+        #console.log "netlist raw components found: ", components
         return components
 
     get-bom-components: ->
-        instances = []
-        if typeof! @data.bom is \Array
-            throw new Error "BOM should be Object, not Array"
-        for type, val of @data.bom
-            if type in keys @data.schemas
-                continue # This is a sub-circuit, skip
-
-            switch typeof! val
-            | 'String' =>
-                instances.push text2arr val
-            | 'Object' =>
-                # params: list of instances
-                for params, names of val
-                    instances.push text2arr names
-        b = flatten instances
+        b = flatten [..prefix for filter (-> not it.data), values @get-bom!]
         #console.log "bom raw components found:", b
         return b
 
@@ -298,11 +291,11 @@ export class Schema
         unless empty missing
             throw new Error "Netlist components missing in BOM: \n\n#{missing.join(', ')}"
 
+
         return
         created-components = []
         # create sub-schema components
         for name, sch of @sub-schemas
-            sch.schema.compile {prefix: "#{name}."}
             created-components ++= sch.schema.components
 
         @components = []
