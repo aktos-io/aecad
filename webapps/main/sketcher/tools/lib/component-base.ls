@@ -115,3 +115,13 @@ export class ComponentBase
                     break
                 res.push l
             {names: res.map (.@@name)}
+
+    trigger: !->
+        # trigger an event for children
+        for @pads
+            ..on ...arguments
+
+    on: !->
+        # propagate the event to the children by default
+        for @pads
+            ..on ...arguments

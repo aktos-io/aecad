@@ -193,10 +193,10 @@ export class Pad extends ComponentBase
             # TODO: assign relevant net on schema.compile! time
         ->
             unless @_net
-                :found for net in @smanager.curr.netlist
+                :search for net in @smanager.curr.netlist
                     for net when ..uname is @uname
                         @_net = net
-                        break found
+                        break search
             return @_net
 
     connections: ~
@@ -209,9 +209,23 @@ export class Pad extends ComponentBase
                 conn.push [this, ..]
             return conn
 
-    on-move: (disp, opts) ->
-        if @smanager.curr and empty (@guides or [])
-            @guides = for conn in @connections
+    create-guides: ->
+        if @smanager.curr and empty (@_guides or [])
+            @_guides = for conn in @connections
                 @smanager.curr.create-guide ...conn
-        @guides?.for-each (g) ~>
-            g.segments.0.point.set @g-pos
+        @_guides
+
+    guides: ~
+        ->
+            unless @_guides
+                @create-guides!
+            @_guides
+
+    on-move: (disp, opts) ->
+        for @guides
+            ..first-segment.point = @g-pos
+
+    on: (event, ...args) ->
+        switch event
+        | 'create-guides' =>
+            @create-guides!

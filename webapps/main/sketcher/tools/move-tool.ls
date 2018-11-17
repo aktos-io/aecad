@@ -134,6 +134,14 @@ export MoveTool = ->
 
             if scope.selection.count is 0
                 scope.get-tool \select .onMouseDown event
+
+            # highlight pad connections
+            for selection.selected
+                o = get-aecad ..
+                o.trigger 'create-guides'
+                console.log "Highlighting pad connections for", o
+            
+
             hits = scope.hitTestAll event.point, {tolerance: 2, +selected}
             types = []
             for hits
