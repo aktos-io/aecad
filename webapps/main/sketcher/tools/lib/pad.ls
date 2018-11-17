@@ -102,7 +102,7 @@ export class Pad extends ComponentBase
         if @g.data.aecad.color
             @color = that
 
-        @schema = new SchemaManager
+        @smanager = new SchemaManager
 
         # declare Pad.left, Pad.top, ...
         for <[ left right top bottom center ]>
@@ -188,9 +188,30 @@ export class Pad extends ComponentBase
         # Unique display name
         -> "#{@pin}(#{@num})"
 
+    net: ~
+        (val) ->
+            # TODO: assign relevant net on schema.compile! time
+        ->
+            unless @_net
+                :found for net in @smanager.curr.netlist
+                    for net when ..uname is @uname
+                        @_net = net
+                        break found
+            return @_net
+
+    connections: ~
+        ->
+            conn = []
+            for @net when ..uname isnt @uname
+                # skip to this component's same labels
+                if ..label is @label
+                    continue
+                conn.push [this, ..]
+            return conn
+
     on-move: (disp, opts) ->
-        if @schema.curr and empty (@guides or [])
-            @guides = @schema.curr.guide-for this
+        if @smanager.curr and empty (@guides or [])
+            @guides = for conn in @connections
+                @smanager.curr.create-guide ...conn
         @guides?.for-each (g) ~>
             g.segments.0.point.set @g-pos
-            
