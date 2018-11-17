@@ -1,6 +1,7 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! './get-aecad': {get-aecad}
+require! 'prelude-ls': {find}
 
 export class Container extends ComponentBase
     (data) ->
@@ -41,7 +42,10 @@ export class Container extends ComponentBase
             ..print-mode ...args
 
     add: (item) !->
-        @pads.push item
+        if find (.cid is item.cid), @pads
+            throw new Error "Tried to add duplicate child, check: #{item@@name}."
+        else
+            @pads.push item
 
     rotate: (angle) ->
         # rotate this item and inform children
