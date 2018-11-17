@@ -47,7 +47,7 @@ export TraceTool = (scope) ->
                     ractive.set \currTool, \sl
             | 'v' =>
                 trace.add-via!
-            | 'e' =>
+            | 'ü' =>
                 unless event.modifiers.shift
                     trace.remove-last-point!
                 else
