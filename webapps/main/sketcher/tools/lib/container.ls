@@ -92,11 +92,19 @@ export class Container extends ComponentBase
 
     get: (query) ->
         '''
-        Collects sub query results and returns them
+        Collect sub query results and return them
         '''
         res = []
         for pad in @pads
             res ++= pad.get query
+
+        # Precaution for alpha stage of aeCAD
+        for i1, r1 of res
+            for i2, r2 of res when i2 > i1
+                if r1.uname is r2.uname
+                    console.error "..........we are reporting duplicate pads!", (res.map (.uname) .join ', ')
+                    console.log r1, r2
+        # end of precaution
         res
 
     on-move: ->
