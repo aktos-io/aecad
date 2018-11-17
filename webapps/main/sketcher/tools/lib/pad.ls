@@ -164,46 +164,33 @@ export class Pad extends ComponentBase
         ->
             @cu.selected
 
-    /*
     get: (query) ->
         res = []
         if \pin of query
-            console.log "Checking pin #{query.pin} against ours: #{@pin}"
-            # if label exists, do not match with "pin"
-            if "#{query.pin}" is @pin
+            if "#{query.pin}" is @label
                 res.push this
         res
-        */
 
-    get: (query) ->
-        res = []
-        if \pin of query
-            pin = "#{query.pin}"
-            # if label exists, do not match with "pin"
-            if @get-data 'label'
-                #console.log "label found, checking given pin: '#{pin}' against my label: '#{that}'"
-                if pin is that
-                    res.push this
-            else if pin is "#{@get-data 'pin'}"
-                res.push this
-        res
+    label: ~
+        ->
+            label = @get-data 'label'
+            "#{label or @num}"
 
     pin: ~
-        # Get full pin label or number
-        ->
-            pin = if @get-data 'label'
-                that
-            else
-                @get-data 'pin'
-            "#{@owner.name}.#{pin}"
+        # Get fully qualified pin label
+        -> "#{@owner.name}.#{@label}"
 
-    on-move: (disp, opts) ~>
+    num: ~
+        # Return pin number.
+        -> @get-data 'pin'
+
+    uname: ~
+        # Unique display name
+        -> "#{@pin}(#{@num})"
+
+    on-move: (disp, opts) ->
         if @schema.curr and empty (@guides or [])
-            @guides = @schema.curr.guide-for "#{@pin}"
-            console.log "Created guides: ", @guides
+            @guides = @schema.curr.guide-for this
         @guides?.for-each (g) ~>
-            return
-            unless g.segments.0.point.equals @g-pos
-                g.segments.1.point.set @g-pos
-            else
-                g.segments.0.point.set @g-pos
+            g.segments.0.point.set @g-pos
+            
