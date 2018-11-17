@@ -26,13 +26,6 @@ export do
 
     create-guide: (pad1, pad2) ->
         #console.log "Created guide for #{pad1.uname} -> #{pad2.uname}"
-        new @scope.Shape.Circle do
-            data: {+tmp}
-            center: pad1.g-pos
-            fill-color: 'lime'
-            radius: 5
-            opacity: 0.6
-
         return new @scope.Path.Line do
             from: pad1.g-pos
             to: pad2.g-pos
