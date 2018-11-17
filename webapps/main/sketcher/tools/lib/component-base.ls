@@ -104,3 +104,14 @@ export class ComponentBase
 
     nextid: ->
         @_next_id++
+
+    pedigree: ~
+        ->
+            res = []
+            l = @__proto__
+            for to 100
+                l = l.__proto__
+                if l@@name is \Object
+                    break
+                res.push l
+            {names: res.map (.@@name)}
