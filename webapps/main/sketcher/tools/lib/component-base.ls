@@ -1,13 +1,30 @@
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! '../../kernel': {PaperDraw}
 
+export class ComponentManager
+    @instance = null
+    ->
+        # Make this class Singleton
+        # ------------------------------
+        return @@instance if @@instance
+        @@instance = this
+        # ------------------------------
+        @cid = 1
+
+    register: (component) ->
+        # assign unique id only
+        component.cid = @cid++  # component-id
+
+
 # basic methods that every component should have
 export class ComponentBase
     ->
         @scope = new PaperDraw
         @ractive = @scope.ractive
-
+        @manager = new ComponentManager
+            ..register this
         @resuming = @init-with-data arguments.0
+        @_next_id = 1 # will be used for enumerating pads
 
     set-data: (keypath, value) ->
         set-keypath @g.data.aecad, keypath, value
@@ -84,3 +101,6 @@ export class ComponentBase
                 else
                     break
             return _owner
+
+    nextid: ->
+        @_next_id++
