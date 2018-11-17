@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first
+    first, unique-by
 }
 
 # deps
@@ -129,7 +129,12 @@ export class Schema implements bom, footprints, netlist, guide
                     # Merge into parent net
                     # IMPORTANT: Links must be key of netlist in order to prevent accidental namings
                     #console.warn "HANDLE LINK: #{full-name}"
-                    net.push {link: yes, name: full-name}
+                    net.push {link: yes, target: full-name}
+
+                    # create a cross link
+                    unless full-name of netlist
+                        netlist[full-name] = []
+                    netlist[full-name].push {link: yes, target: id, type: \cross-link}
                     continue
                 else
                     comp = @components-by-name[name]
@@ -145,31 +150,69 @@ export class Schema implements bom, footprints, netlist, guide
                     pads = (comp.get {pin}) or []
                     if empty pads
                         throw new Error "No such pin found: '#{pin}' of '#{name}'"
+
+                    # find duplicate pads (shouldn't be)
+                    if (unique-by (.uname), pads).length isnt pads.length
+                        console.error "FOUND DUPLICATE PADS in ", name
+
                     net.push {name, pads}
-            netlist[id] = net
+            unless id of netlist
+                netlist[id] = []
+            netlist[id] ++= net  # it might be already created by cross-link
 
         unless @parent
             #console.log "Flatten netlist:", @flatten-netlist
-            console.log "Netlist: ", netlist
+            console.log "Netlist (raw): ", netlist
+            null
 
         # Recursively walk through links
-        get-net = (id) ~>
+        get-net = (id, included=[], mark) ~>
             #console.log "...getting net for #{id}"
             reduced = []
+            included.push id
+            if find (.remove), netlist[id]
+                #console.warn "Netlist(#{id}) is marked to be removed (already merged?)"
+                return []
             for netlist[id]
                 if ..link
                     # follow the link
-                    #reduced.unshift ..
-                    reduced ++= get-net ..name
+                    unless ..target in included
+                        linked = get-net ..target, included, {+remove}
+                        for linked
+                            unless ..uname in reduced
+                                reduced.push ..
+                            else
+                                console.warn "Skipping duplicate pads from linked net"
                 else
                     reduced ++= ..pads
+            if mark
+                # do not include this net in other lookups
+                netlist[id].push mark
             reduced
 
+        # Create compiled netlist only for the top level circuit
         unless @parent
-            # Report only for the top level circuit
             @netlist.length = 0
             for id of netlist
-                @netlist.push get-net id
+                net = get-net id
+                unless empty net
+                    @netlist.push net
 
             for index, pads of @netlist
-                console.log "Netlist: #{index}: netlist: ", pads.map (.pin)
+                console.log "Netlist.#{index}:", (pads.map (.uname) .join ', ')
+
+            # Error report (will stay for Alpha stage)
+            for index, pads of @netlist
+                # Check for duplicate pads in the same net
+                for _i1, p1 of pads
+                    for _i2, p2 of pads when _i2 > _i1
+                        if p1.uname and p2.uname and p1.uname is p2.uname
+                            console.error "Duplicate pads found: #{p1.cid} and #{p2.cid}: in #{_i1} and #{_i2} ", p1.uname, p1
+
+                # Find unmerged nets
+                for _i, _pads of @netlist when _i > index
+                    for p1 in pads
+                        for p2 in _pads
+                            if p1.uname is p2.uname
+                                console.error "Unmerged nets found
+                                : Netlist(#{index}) and Netlist(#{_i}) both contains #{p1.uname}"
