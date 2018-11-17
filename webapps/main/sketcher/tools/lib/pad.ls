@@ -102,7 +102,7 @@ export class Pad extends ComponentBase
         if @g.data.aecad.color
             @color = that
 
-        @smanager = new SchemaManager
+        @sm = new SchemaManager
 
         # declare Pad.left, Pad.top, ...
         for <[ left right top bottom center ]>
@@ -193,7 +193,7 @@ export class Pad extends ComponentBase
             # TODO: assign relevant net on schema.compile! time
         ->
             unless @_net
-                :search for net in @smanager.curr.netlist
+                :search for net in @sm.curr.netlist
                     for net when ..uname is @uname
                         @_net = net
                         break search
@@ -204,15 +204,17 @@ export class Pad extends ComponentBase
             conn = []
             for @net when ..uname isnt @uname
                 # skip to this component's same labels
-                if ..label is @label
+                if ..pin is @pin
+                    console.warn "Skipping connection for: ", ..pin, ..uname
                     continue
                 conn.push [this, ..]
             return conn
 
     create-guides: ->
-        if @smanager.curr and empty (@_guides or [])
+        if @sm.active and empty (@_guides or [])
+            console.log "Creating guides for #{@uname}, net is: ", @net
             @_guides = for conn in @connections
-                @smanager.curr.create-guide ...conn
+                @sm.active.create-guide ...conn
         @_guides
 
     guides: ~
