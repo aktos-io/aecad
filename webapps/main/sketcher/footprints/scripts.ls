@@ -422,50 +422,42 @@ export {
   #a.get {pin: 'vin'}
 '''
 'lib-TO263': '''
+  # TO263 footprint 
+  #
+  #! requires DoublePinArray
+  # ---------------------------
+  
   dimensions = 
+      # See http://www.ti.com/lit/ds/symlink/lm2576.pdf
       to263:
-          # See http://www.ti.com/lit/ds/symlink/lm2576.pdf
           H   : 14.17mm
           die : x:8mm     y:10.8mm
           pads: x:2.16mm  y:1.07mm
           pd  : 1.702
   
-  
-  # TO263 footprint 
-  # ---------------------------
-  add-class class TO263 extends Footprint
+  add-class class TO263 extends DoublePinArray
       (data={}) -> 
-          data.symmetry-axis = 'x' # Design criteria
-          super ...
-          unless @resuming
-              #console.log "Creating from scratch TO263"
-              d = dimensions.to263
-              
-              c = new Container do
-                  parent: this
-                  
-              for index in [1 to 5]
-                  part-id = @nextid!
-                  pad = new Pad do
-                      parent: c
-                      pin: part-id
-                      width: d.pads.x
-                      height: d.pads.y
-                      label: data.labels?[part-id]
-              
-                  pad.position.y -= (d.pd |> mm2px) * index
+          {H, die, pads, pd} = dimensions.to263
+          defaults =
+              name: 'c_'
+              distance: H - die.x/2
+              left: 
+                  start: 6
+                  pad:
+                      width: die.x
+                      height: die.y
+                  cols:
+                      count: 1
+              right:
+                  dir: '-y'
+                  pad:
+                      width: pads.x
+                      height: pads.y
+                  rows:
+                      count: 5
+                      interval: pd
   
-              part-id = @nextid!
-              pad1 = new Pad do
-                  pin: part-id
-                  width: d.die.x
-                  height: d.die.y
-                  label: data.labels?[part-id]
-                  parent: this
-                  
-              c.position = pad1.position
-              c.position.x += (d.H - d.die.x / 2) |> mm2px
-  
+          super defaults <<< data 
   
   #new TO263
   
@@ -580,8 +572,7 @@ export {
                       count: 3
                       interval: 2.3mm
   
-          data = defaults <<< data 
-          super data
+          super defaults <<< data 
   
 '''
 'lib-LM1117': '''
