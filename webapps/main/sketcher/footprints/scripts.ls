@@ -1,10 +1,4 @@
 export {
-'LM 2576': '''
-  new LM2576 do
-      name: 'c1'
-      color: 'blue'
-  
-'''
 'find-test': '''
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
@@ -92,7 +86,7 @@ export {
   
 '''
 'pin-array-test': '''
-  new PinArray do
+  a = new PinArray do
       name: 'mypins1'
       pad:
           width: 2mm
@@ -104,6 +98,7 @@ export {
           count: 4
           interval: 2.54mm
       dir: '-y' # numbering direction, 'x' or 'y', default 'x'
+  
   
 '''
 'rpi-header-test': '''
@@ -135,6 +130,7 @@ export {
                   1: 'b'
                   2: 'c'
                   3: 'e'
+                  4: 'e'
           super defaults <<< data 
   
   
@@ -228,6 +224,7 @@ export {
           vff: 'P.vff, cn.2, Pow+'
           '3v3': 'P.3v3 rpi.3v3'
           '5v': 'P.5v rpi.5v led1.vcc led2.vcc'
+          2: 'led2.in rpi.3'
           
       schemas: {power, signal-led}
       iface: "Pow+, Pow-"
@@ -244,7 +241,7 @@ export {
   
   sch = new Schema {name: 'sgw', data: sgw}
       ..compile!
-      ..guide-all!
+      ..guide-all!    
 '''
 'lib-PinArray': '''
   add-class class PinArray extends Footprint
@@ -295,9 +292,6 @@ export {
                   # useful for female headers 
                   @mirror!
                   
-              if @parent
-                  that.add this
-  
 '''
 'lib-RpiHeader': '''
   #! requires PinArray
@@ -412,17 +406,20 @@ export {
 'lib-LM2576': '''
   #! requires TO263
   add-class class LM2576 extends TO263
-      (data) -> 
+      (data={}) -> 
           defaults = 
               labels: 
                   # Pin_id: Label
                   1: \\vin 
+                  6: \\vin
                   2: \\out
                   3: \\gnd
                   4: \\fb 
                   5: \\onoff
           super data <<< defaults
   
+  #a = new LM2576
+  #a.get {pin: 'vin'}
 '''
 'lib-TO263': '''
   dimensions = 
@@ -437,38 +434,40 @@ export {
   # TO263 footprint 
   # ---------------------------
   add-class class TO263 extends Footprint
-      (data) -> 
+      (data={}) -> 
           data.symmetry-axis = 'x' # Design criteria
           super ...
           unless @resuming
               #console.log "Creating from scratch TO263"
               d = dimensions.to263
-              self = this
-              pad1 = new Pad do
-                  pin: 1
-                  width: d.die.x
-                  height: d.die.y
-                  label: data.labels[1]
-                  parent: self
               
               c = new Container do
-                  parent: self
+                  parent: this
                   
               for index in [1 to 5]
+                  part-id = @nextid!
                   pad = new Pad do
                       parent: c
-                      pin: index
+                      pin: part-id
                       width: d.pads.x
                       height: d.pads.y
-                      label: data.labels[index]
+                      label: data.labels?[part-id]
               
                   pad.position.y -= (d.pd |> mm2px) * index
+  
+              part-id = @nextid!
+              pad1 = new Pad do
+                  pin: part-id
+                  width: d.die.x
+                  height: d.die.y
+                  label: data.labels?[part-id]
+                  parent: this
                   
               c.position = pad1.position
               c.position.x += (d.H - d.die.x / 2) |> mm2px
   
   
-  
+  #new TO263
   
 '''
 'lib-Conn': '''
@@ -552,12 +551,13 @@ export {
   
 '''
 'double-pin-array-test': '''
-  new SOT223 do
+  a = new SOT223 do
       name: 'hello'
   
+  console.log a.get {pin: 1}
 '''
 'lib-SOT223': '''
-  # Sot23
+  # Sot223
   #! requires DoublePinArray
   add-class class SOT223 extends DoublePinArray
       (data={}) -> 
