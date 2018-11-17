@@ -193,6 +193,7 @@ export class Pad extends ComponentBase
             # TODO: assign relevant net on schema.compile! time
         ->
             unless @_net
+                @_net = [] # return empty list by default
                 :search for net in @sm.curr.netlist
                     for net when ..uname is @uname
                         @_net = net
@@ -220,6 +221,7 @@ export class Pad extends ComponentBase
     guides: ~
         ->
             unless @_guides
+                @_guides = []
                 @create-guides!
             @_guides
 
