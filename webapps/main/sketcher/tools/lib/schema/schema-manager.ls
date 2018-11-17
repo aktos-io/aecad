@@ -16,8 +16,9 @@ export class SchemaManager
         unless name
             throw new Error "Schema must have a name."
 
-        # auto activate last defined schema
-        @curr-name = name
+        # auto activate last defined parent schema
+        unless schema.parent
+            @curr-name = name
 
         if name of @schemas
             console.log "Updating schema: #{name}"
