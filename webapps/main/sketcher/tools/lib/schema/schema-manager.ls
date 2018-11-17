@@ -8,7 +8,7 @@ export class SchemaManager
         @@instance = this
         # ------------------------------
         @schemas = {}
-        @curr-name = null
+        @active-schema = null
         @using = null
 
     register: (schema) ->
@@ -18,7 +18,7 @@ export class SchemaManager
 
         # auto activate last defined parent schema
         unless schema.parent
-            @curr-name = name
+            @active-schema = name
 
         if name of @schemas
             console.log "Updating schema: #{name}"
@@ -30,7 +30,11 @@ export class SchemaManager
         @schemas[name] = schema
 
     curr: ~
-        -> @schemas[@using or @curr-name]
+        -> @active
+
+    active: ~
+        -> @schemas[@using or @active-schema]
+
 
     use: (name) ->
         @using = name
