@@ -92,13 +92,38 @@ export class PaperDraw implements canvas-control, aecad-methods
             inactive: 1.5 # inactive radius
 
         normalized = (point) ~>
-            point.multiply @_scope.view.zoom
+            point.divide @_scope.view.zoom
 
+        marker = new @Shape.Circle do
+            point: @view.center
+            radius: 5
+            stroke-width: 2
+            opacity: 0.5
+            stroke-color: 'yellow'
+            data: {+tmp}
+        marker2 = new @Shape.Circle do
+            point: @view.center
+            radius: 7
+            stroke-width: 2
+            opacity: 0.5
+            stroke-color: 'red'
+            data: {+tmp}
+
+        old-zoom = @view.zoom
         @_scope.view
             ..onFrame = (event) ~>
+                if event.count % 2 is 0
+                    # skip half of frames
+                    return
                 if move.speed and move.pan
-                    @_scope.view.center = @_scope.view.center.add move.speed
-                    move.grab-point.set move.grab-point.add move.speed
+                    nspeed = normalized move.speed
+                    dead-radius = (speed-drag.inactive / @view.zoom * 20)
+                    marker.radius = dead-radius
+                    if move.speed.length > (dead-radius / @view.zoom)
+                        speed = move.speed.divide 20 .multiply @view.zoom
+                        @view.center = @view.center.add speed
+                        move.grab-point.set move.grab-point.add speed
+                    marker.position = move.grab-point
 
             ..onMouseMove = (event) ~>
                 if move.pan
@@ -116,14 +141,14 @@ export class PaperDraw implements canvas-control, aecad-methods
                             #console.log "global grab point is: ", event.point, move.grab-point
                             move.grab-point = event.point
 
-                        move.speed = event.point.subtract move.grab-point .divide(20)
+                        /*
+                        if @view.zoom isnt old-zoom
+                            move.grab-point = move.grab-point.multiply(@view.zoom / old-zoom)
+                            old-zoom = @view.zoom
+                        */
 
-                        # set pan speed to zero if it's too slow
-                        nspeed = normalized move.speed
-                        if nspeed.length < speed-drag.inactive
-                            #console.log "Normalized: ", nspeed.length, move.speed.length
-                            move.speed = null
-                        #console.log "Move speed is: ", move.speed?.length
+                        move.speed = (event.point.subtract move.grab-point).divide(@view.zoom)
+
 
                 @ractive.set \pointer, event.point
 
