@@ -80,7 +80,7 @@ export init = (pcb) ->
 
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
-            js = lsc.compile whole-src, {+bare, -header, map: 'embedded'}
+            js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
             compiled = yes
         catch err
             @set \output, "Compile error: #{err.to-string!}"
