@@ -148,24 +148,20 @@ export class PaperDraw implements canvas-control, aecad-methods
                                 @cursor \grabbing
                             else
                                 @cursor \all-scroll
+                        else
+                            PNotify.info do
+                                text: "Joystick mode disabled"
+                                addClass: 'nonblock'
+
                         move.direction = null
                         move.pan-lock0 = move.pan-lock or 0
                         move.pan-lock = Date.now!
                         #console.log "pan lock diff: ", (move.pan-lock - move.pan-lock0)
 
-            ..onMouseDown = (event) ~>
-                if move.pan
-                    #console.log "global pan mode disabled."
-                    move.grab-point = null
-                    move.pan = null
-                    move.speed = null
-                    move.pan-locked = null
-                    @cursor move.prev-cursor
-
             ..onKeyUp = (event) ~>
                 switch event.key
-                | \meta, \escape =>
-                    if (move.pan-lock - move.pan-lock0) > 300ms or (event.key is \escape)
+                | \meta =>
+                    if (move.pan-lock - move.pan-lock0) > 300ms
                         if move.pan
                             #console.log "global pan mode disabled."
                             move.grab-point = null
@@ -175,6 +171,9 @@ export class PaperDraw implements canvas-control, aecad-methods
                             @cursor move.prev-cursor
                     else
                         move.pan-locked = true
+                        PNotify.notice do
+                            text: "Joystick mode enabled. \nPress meta to disable."
+                            addClass: 'nonblock'
 
     export-svg: ->
         old-zoom = @view.zoom
