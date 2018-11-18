@@ -39,33 +39,35 @@ export class ComponentBase
             {Group} = new PaperDraw
             if data?parent
                 @parent = data?.parent
-                delete data.parent # Prevent circular reference errors
+                delete data.parent      # Prevent circular reference errors
 
             @g = new Group do
-                applyMatrix: no # Insert further items relatively positioned
+                applyMatrix: no         # Insert further items relatively positioned
                 parent: @parent?g
 
+            # Set type to implementor class' name
             @set-data 'type', @@@name
+
+            # Merge data with existing one
             if data
                 @merge-data '.', that
-            @parent?.add this # Auto register to parent if provided
-            @set-version!
+
+            # Auto register to parent if provided
+            @parent?.add this
+
+            # Save creator class' version information
+            if version = @@@["rev_#{@@@name}"]
+                console.log "Creating a new #{@@@name}, registering version: #{version}"
+                @set-data 'version', version
+
 
         @_next_id = 1 # will be used for enumerating pads
 
     _loader: (item) ->
         console.warn "How do we load the item in #{@@@name}: ", item
 
-    set-version: ->
-        /* Gets version from @rev_ClassName property of leaf class */
-        version = @@@["rev_#{@@@name}"]
-        if version
-            console.log "Creating a new #{@@@name}, registering version: #{version}"
-            @set-data 'version', version
-
     set-data: (keypath, value) ->
         _keypath = prefix-keypath 'aecad', keypath
-        console.log "Setting keypath: #{_keypath} to value: ", value
         set-keypath @g.data, _keypath, value
 
     get-data: (keypath) ->
