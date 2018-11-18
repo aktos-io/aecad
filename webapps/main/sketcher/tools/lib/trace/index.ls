@@ -231,10 +231,11 @@ export class Trace extends Container implements follow, helpers, end
         outer-dia = @ractive.get \currTrace.via.outer
         inner-dia = @ractive.get \currTrace.via.inner
 
-        via = new Pad this, do
+        via = new Pad do
             dia: outer-dia
             drill: inner-dia
             color: \orange
+            parent: this
 
         via.g.position = @moving-point
 
