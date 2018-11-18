@@ -123,14 +123,14 @@ export {
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
   
-  add-class class NPN extends SOT223 
+  add-class class NPN extends SOT23
+      @rev_NPN = 1
       (data={}) -> 
           defaults =
               labels:
                   1: 'b'
-                  2: 'c'
-                  3: 'e'
-                  4: 'e'
+                  2: 'e'
+                  3: 'c'
           super defaults <<< data 
   
   
@@ -241,7 +241,11 @@ export {
   
   sch = new Schema {name: 'sgw', data: sgw}
       ..compile!
-      ..guide-all!    
+      ..guide-all!
+  
+  upgrades = sch.get-upgrades!
+  unless empty upgrades
+      pcb.vlog.info upgrades.map((.reason)).join('\\n\\n')
 '''
 'lib-PinArray': '''
   add-class class PinArray extends Footprint
@@ -277,20 +281,12 @@ export {
                       p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
                       p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
               
-              if data.border
-                  new Shape.Rectangle do
-                      center: @g.bounds.center
-                      size: 
-                          x: data.border.width |> mm2px
-                          y: data.border.height |> mm2px
-                      stroke-color: 'LightSeaGreen'
-                      stroke-width: 0.5
-                      parent: @g
-                      radius: 1
               
               if data.mirror
                   # useful for female headers 
                   @mirror!
+                  
+              @make-border!
                   
 '''
 'lib-RpiHeader': '''
@@ -540,7 +536,7 @@ export {
               left = new PinArray data.left <<< overwrites
               right = new PinArray data.right <<< overwrites
               right.position = left.position.add [data.distance |> mm2px, 0]
-  
+              @make-border!
 '''
 'double-pin-array-test': '''
   a = new SOT223 do
@@ -574,6 +570,33 @@ export {
   
           super defaults <<< data 
   
+  add-class class SOT23 extends DoublePinArray
+      (data={}) -> 
+          pad = 
+              width: 0.9mm
+              height: 0.7mm
+              
+          defaults =
+              name: 'c_'
+              distance: 2mm
+              left: 
+                  start: 3
+                  pad: pad 
+                  cols:
+                      count: 1
+              right:
+                  dir: '-y'
+                  pad: pad
+                  rows:
+                      count: 2
+                      interval: 1.9mm
+              border:
+                  width: 1.43mm
+                  height: 3mm
+  
+          super defaults <<< data 
+  
+  #new SOT23
 '''
 'lib-LM1117': '''
   #! requires SOT223

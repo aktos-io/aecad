@@ -24,7 +24,17 @@ export class ComponentBase
         @manager = new ComponentManager
             ..register this
         @resuming = @init-with-data arguments.0
+        unless @resuming
+            <~ sleep 10ms # ensure to run after end of constructor
+            @set-version!
         @_next_id = 1 # will be used for enumerating pads
+
+    set-version: ->
+        #@set-data 'version', @@
+        version = @@@["rev_#{@@@name}"]
+        if version 
+            console.log "Creating new #{@@@name}, registering version: #{version}"
+            @set-data 'version', version
 
     set-data: (keypath, value) ->
         set-keypath @g.data.aecad, keypath, value

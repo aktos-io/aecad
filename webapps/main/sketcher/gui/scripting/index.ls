@@ -12,7 +12,7 @@ require! '../../kernel': {PaperDraw}
 
 export init = (pcb) ->
     # Modules to be included into dynamic scripts
-    modules = {aea, lib, lsc, PaperDraw, mm2px}
+    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
