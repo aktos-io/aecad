@@ -6,33 +6,20 @@ require! 'prelude-ls': {empty}
 
 export class Pad extends ComponentBase
     (opts) ->
-        {Group, Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
+        {Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
         super ...
         # opts:
         #     # Required
         #     pin
         #     width
         #     height
-
-        if @init-with-data arguments.0
-            @g = that.item
-            @parent = that.parent
-            @parent.add this
-            for @g.children
-                # get cu, ttip etc.
-                part = ..data.aecad.part
-                @[part] = ..
-        else
+        unless @resuming
             # create object from scratch
-            @parent = opts.parent
-            @opts = opts
-            try delete opts.parent
-
-            if @opts.width and @opts.height
+            if opts.width and opts.height
                 geometry = \Rectangle
                 dimensions =
-                    x: @opts.width |> mm2px
-                    y: @opts.height |> mm2px
+                    x: opts.width |> mm2px
+                    y: opts.height |> mm2px
 
                 rect = new Rectangle do
                     from: [0, 0]
@@ -40,9 +27,9 @@ export class Pad extends ComponentBase
 
                 geo-params = {rectangle: dimensions}
 
-            else if @opts.dia
+            else if opts.dia
                 geometry = \Circle
-                x = @opts.dia |> mm2px
+                x = opts.dia |> mm2px
                 dimensions =
                     radius: x / 2
                     x: x
@@ -54,20 +41,9 @@ export class Pad extends ComponentBase
 
                 geo-params = {radius: dimensions.radius}
 
-
-            aecad-data =
-                type: @constructor.name
-
-            aecad-data <<< @opts
-
-            @g = new Group do
-                position: rect.center
-                parent: @parent.g
-                data:
-                    aecad: aecad-data
-                applyMatrix: yes
-
-            @parent.add this
+            # FIXME
+            @g.position = rect.center # TODO: Is it necessary?
+            @g.applyMatrix = true # TODO: Is it necessary?
 
             @cu = new Shape[geometry] geo-params <<< do
                 rectangle: rect
@@ -76,9 +52,9 @@ export class Pad extends ComponentBase
                 stroke-width: 0
                 data: aecad: part: \cu
 
-            if @opts.drill
+            if opts.drill
                 @drill = new Path.Circle do
-                    radius: (@opts.drill / 2) |> mm2px
+                    radius: (opts.drill / 2) |> mm2px
                     fillColor: canvas.style.background
                     parent: @g
                     position: @cu.position
@@ -87,7 +63,7 @@ export class Pad extends ComponentBase
 
             @ttip = new PointText do
                 point: @cu.bounds.center
-                content: @opts.label or @opts.pin
+                content: opts.label or opts.pin
                 fill-color: 'white'
                 parent: @g
                 font-size: 3
@@ -117,8 +93,10 @@ export class Pad extends ComponentBase
             else
                 'orange' # TODO: get "Edge" color for this
 
+    /*
     clone: (opts={}) ->
-        new @constructor @parent, (@opts <<<< opts)
+        new @constructor @parent, (opts <<<< opts)
+    */
 
     print-mode: (layers, our-side) ->
         if layers

@@ -1,5 +1,8 @@
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! '../../kernel': {PaperDraw}
+require! './get-aecad': {get-aecad}
+require! 'aea': {merge}
+
 
 export class ComponentManager
     @instance = null
@@ -18,16 +21,54 @@ export class ComponentManager
 
 # basic methods that every component should have
 export class ComponentBase
-    ->
+    (data) ->
         @scope = new PaperDraw
         @ractive = @scope.ractive
         @manager = new ComponentManager
             ..register this
-        @resuming = @init-with-data arguments.0
-        unless @resuming
-            <~ sleep 10ms # ensure to run after end of constructor
+        @pads = []
+        if @init-with-data arguments.0
+            # initialize by provided item
+            @resuming = yes
+            #console.log "Container init:", init
+            data = that
+            @g = data.item
+            if data.parent
+                # parent must be an aeCAD obect
+                @parent = that
+                    ..add this # register to parent
+            for @g.children
+                #console.log "has child"
+                if ..data?.aecad?.part
+                    # register as a regular drawing part
+                    @[that] = ..
+                else
+                    # try to convert to aeCAD object
+                    unless get-aecad .., this
+                        # if failed, try to load by provided loader
+                        @_loader ..
+        else
+            # create from scratch
+            {Group} = new PaperDraw
+            if data?parent
+                @parent = data?.parent
+                delete data.parent # Prevent circular reference errors
+
+            @g = new Group do
+                applyMatrix: no # Insert further items relatively positioned
+                parent: @parent?g
+                data:
+                    aecad:
+                        type: @@@name
+            if data
+                @merge-data that
+            @parent?.add this # Auto register to parent if provided
             @set-version!
+
         @_next_id = 1 # will be used for enumerating pads
+
+    _loader: (item) ->
+        console.warn "How do we load the item in #{@@@name}: ", item
 
     set-version: ->
         /* Gets version from @rev_ClassName property of leaf class */
@@ -48,6 +89,10 @@ export class ComponentBase
     add-data: (keypath, value) ->
         curr = (@get-data keypath) or 0 |> parse-int
         set-keypath @g.data.aecad, keypath, curr + value
+
+    merge-data: (value) ->
+        curr = @get-data!
+        curr `merge` value
 
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name

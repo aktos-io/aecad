@@ -5,30 +5,7 @@ require! 'prelude-ls': {find}
 
 export class Container extends ComponentBase
     (data) ->
-        @pads = []
         super ...
-        {Group} = new PaperDraw
-
-        if @init-with-data arguments.0
-            #console.log "Container init:", init
-            data = that
-            @g = data.item
-            @parent = data.parent
-            data.parent?add this # register to parent if provided
-            for @g.children
-                #console.log "has child"
-                unless get-aecad .., this
-                    @_loader ..
-        else
-            # create main container
-            @g = new Group do
-                applyMatrix: no
-                parent: data?parent?g
-                data:
-                    aecad:
-                        type: @constructor.name
-            data?parent?add?(this)
-            @parent = data?.parent
 
     color: ~
         (val) ->
@@ -43,7 +20,7 @@ export class Container extends ComponentBase
 
     add: (item) !->
         if find (.cid is item.cid), @pads
-            throw new Error "Tried to add duplicate child, check: #{item@@name}."
+            throw new Error "Tried to add duplicate child, check: #{item@@name} or #{item.pedigree.names.join ', '}."
         else
             @pads.push item
 
