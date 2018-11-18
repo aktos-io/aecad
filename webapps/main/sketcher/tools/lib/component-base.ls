@@ -18,6 +18,39 @@ export class ComponentManager
         # assign unique id only
         component.cid = @cid++  # component-id
 
+prefix-keypath = (prefix, keypath) ->
+    _keypath = (keypath or '').split '.'
+    _prefix = (prefix or '').split '.'
+    (_prefix ++ _keypath).filter((Boolean)).join('.')
+
+tests =
+    1:
+        prefix: null
+        keypath: "a.b.c.d"
+        expected: "a.b.c.d"
+    2:
+        prefix: '.'
+        keypath: "a.b.c.d"
+        expected: "a.b.c.d"
+    3:
+        prefix: '..'
+        keypath: "a.b.c.d"
+        expected: "a.b.c.d"
+    4:
+        prefix: 'hello'
+        keypath: "a"
+        expected: "hello.a"
+    5:
+        prefix: 'hello'
+        keypath: null
+        expected: "hello"
+
+for k, test of tests
+    res = prefix-keypath(test.prefix, test.keypath)
+    unless JSON.stringify(res) is JSON.stringify(test.expected)
+        console.error "Expected: ", test.expected, "Got: ", res
+        throw new Error "Test failed for 'parse-name': at test num: #{k}"
+
 
 # basic methods that every component should have
 export class ComponentBase
@@ -57,11 +90,10 @@ export class ComponentBase
             @g = new Group do
                 applyMatrix: no # Insert further items relatively positioned
                 parent: @parent?g
-                data:
-                    aecad:
-                        type: @@@name
+
+            @set-data 'type', @@@name
             if data
-                @merge-data that
+                @merge-data '.', that
             @parent?.add this # Auto register to parent if provided
             @set-version!
 
@@ -78,21 +110,25 @@ export class ComponentBase
             @set-data 'version', version
 
     set-data: (keypath, value) ->
-        set-keypath @g.data.aecad, keypath, value
+        _keypath = prefix-keypath 'aecad', keypath
+        console.log "Setting keypath: #{_keypath} to value: ", value
+        set-keypath @g.data, _keypath, value
 
     get-data: (keypath) ->
-        get-keypath @g.data.aecad, keypath
+        _keypath = prefix-keypath 'aecad', keypath
+        get-keypath @g.data, _keypath
 
     toggle-data: (keypath) ->
         @set-data keypath, not @get-data keypath
 
     add-data: (keypath, value) ->
         curr = (@get-data keypath) or 0 |> parse-int
-        set-keypath @g.data.aecad, keypath, curr + value
+        @set-data keypath, curr + value
 
-    merge-data: (value) ->
-        curr = @get-data!
+    merge-data: (keypath, value) ->
+        curr = @get-data(keypath) or {}
         curr `merge` value
+        @set-data keypath, curr
 
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
