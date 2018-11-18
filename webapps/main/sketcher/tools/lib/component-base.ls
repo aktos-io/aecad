@@ -30,10 +30,10 @@ export class ComponentBase
         @_next_id = 1 # will be used for enumerating pads
 
     set-version: ->
-        #@set-data 'version', @@
+        /* Gets version from @rev_ClassName property of leaf class */
         version = @@@["rev_#{@@@name}"]
-        if version 
-            console.log "Creating new #{@@@name}, registering version: #{version}"
+        if version
+            console.log "Creating a new #{@@@name}, registering version: #{version}"
             @set-data 'version', version
 
     set-data: (keypath, value) ->
