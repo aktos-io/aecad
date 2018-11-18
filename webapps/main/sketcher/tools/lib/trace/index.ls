@@ -10,6 +10,7 @@ require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
 require! '../get-aecad': {get-parent-aecad, get-aecad}
 require! '../schema': {SchemaManager}
+require! './end'
 
 /* Trace structure:
     data:
@@ -25,23 +26,17 @@ require! '../schema': {SchemaManager}
 */
 
 
-export class Trace extends Container implements follow, helpers
+export class Trace extends Container implements follow, helpers, end
     (data) ->
         @paths = [] # used by @_loader
         super ...
 
-        if @init-with-data arguments.0
-            # initialize with provided data
-            null # no special action needed
-        else
+        unless @resuming
             # initialize from scratch
-            @data =
-                type: @constructor.name
-                tid: shortid.generate!
+            @set-data 'tid', shortid.generate!
+            @routes = [[]]
 
-            @data <<<< data
-            @g.data = aecad: @data
-
+        # common actions
         @schema = new SchemaManager!
         @line = null
         @modifiers = {}
@@ -87,55 +82,6 @@ export class Trace extends Container implements follow, helpers
 
     _loader: (item) ->
         @paths.push item
-
-    reduce: (line) !->
-        to-be-removed = []
-        last-index = line.segments.length - 1
-        for i in [til last-index]
-            if line.segments[i].point.isClose line.segments[i + 1].point, 1
-                seg-index = i
-                if seg-index is 0
-                    console.log "we won't reduce first segment!"
-                    if seg-index + 1 is last-index
-                        console.log "...but we don't have a choice as segment index:", last-index
-                    else
-                        seg-index += 1
-                if seg-index is last-index
-                    console.log "we won't reduce last segment!"
-                    if seg-index <= 1
-                        console.log "...but we don't have a choice as segment index:", last-index
-                    else
-                        seg-index -= 1
-                to-be-removed.push seg-index
-        for i, s of to-be-removed
-            line.segments[s - i].remove!
-
-    end: ->
-        if @line
-            # remove moving point
-            @line.removeSegment (@line.segments.length - 1)
-            if @corr-point
-                @line.removeSegment (@line.segments.length - 1)
-                @corr-point = null
-            @line.selected = no
-
-            if @line.segments.length is 1
-                @line.remove!
-
-            @reduce @line
-            @schema.curr?.guide-all!
-
-        unless @g.hasChildren()
-            console.log "empty trace, removing"
-            @g.remove!
-        else
-            #@g.bounds.selected = true
-            void
-
-        @line = null
-        @removed-last-segment = null
-        @remove-helpers!
-        @vias.length = 0
 
     continues: ~
         -> @line?
@@ -194,7 +140,6 @@ export class Trace extends Container implements follow, helpers
         actaul-hit = null
         for hit in hits
             #console.log "trace hit to: ", hit
-
             # hit only pads
             _item = hit.item
             is-pad = no
@@ -206,21 +151,12 @@ export class Trace extends Container implements follow, helpers
                 break if _item.parent.getClassName! is \Layer
                 _item = _item.parent
             continue unless is-pad
+            pad-item = _item
             # end of pad hit
-
+            actual-hit = hit
             if hit.segment
                 console.log "snapping to segment: ", hit.segment
                 snap = hit.segment.point.clone!
-
-                # debug point
-                new @scope.Shape.Circle do
-                    fill-color: 'yellow'
-                    radius: 0.5
-                    opacity: 0.5
-                    center: snap
-                    data: {+tmp}
-                    selected: true
-
             else if hit.location
                 # this is a curve, use nearest point on path
                 console.log "snapping to curve: ", hit.location
@@ -229,13 +165,16 @@ export class Trace extends Container implements follow, helpers
                 # this is an item (pad, etc.)
                 console.log "snapping to item: ", hit.item
                 snap = hit.item.bounds.center.clone!
-            actual-hit = hit
             break
 
         unless @continues or actual-hit
             console.warn "Not a pad, won't connect"
             return
+
         #console.log "Actual hit is: ", actual-hit
+        #pad = get-aecad pad-item
+        #snap = pad.g-pos
+        #pad.set-data 'connected', @trace-id
         if actual-hit?item
             snap = that.parent.localToGlobal(snap)
 
