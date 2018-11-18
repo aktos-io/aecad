@@ -2,6 +2,8 @@ require! './get-class': {get-class, list-classes}
 
 export get-aecad = (item-part, parent-ae) ->
     # rehydrate an aeCAD object by its child or root graphic item
+    unless item-part
+        return null 
 
     if parent-ae
         item-is-root = yes
