@@ -99,11 +99,11 @@ export class ComponentBase
         console.warn "Print mode requested but no custom method is provided."
 
     _loader: (item) ->
-        # loader method for non-aecad objects
-        console.warn "Item is not aeCAD object, how do we load this:", item
+        # custom loader method for non-standard items
+        console.warn "#{@@@name} has a stray item: How do we rehydrate this?:", item
 
     get: (query) ->
-        console.warn "NOT IMPLEMENTED: Requested a query: ", query
+        console.error "NOT IMPLEMENTED: Requested a query: ", query
 
     position: ~
         -> @g.position
@@ -159,3 +159,6 @@ export class ComponentBase
         # propagate the event to the children by default
         for @pads
             ..on ...arguments
+
+    add-part: (part-name, item) ->
+        set-keypath item.data, "aecad.part", part-name

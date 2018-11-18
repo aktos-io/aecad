@@ -25,7 +25,7 @@ export class Footprint extends Container
 
     make-border: ->
         if @get-data \border
-            new @scope.Shape.Rectangle do
+            @add-part 'border', new @scope.Shape.Rectangle do
                 center: @g.bounds.center
                 size:
                     x: that.width |> mm2px
@@ -34,3 +34,8 @@ export class Footprint extends Container
                 stroke-width: 0.2
                 parent: @g
                 radius: 0.3
+
+    _loader: (item) ->
+        console.warn "We have a stray item, selecting it: ", item
+        item.selected = yes
+    
