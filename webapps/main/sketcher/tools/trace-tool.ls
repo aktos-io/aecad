@@ -42,9 +42,6 @@ export TraceTool = (scope) ->
                 if trace.continues
                     trace.end!
                     trace := new Trace
-                else
-                    #ractive.find-id \toolChanger .fire \select, {}, \sl
-                    ractive.set \currTool, \sl
             | 'v' =>
                 trace.add-via!
             | 'ü' =>
