@@ -48,6 +48,9 @@ export class Trace extends Container implements follow, helpers, end
         @vias = []
         @tolerance = 10
 
+    tid: ~
+        -> @get-data \tid
+
     moving-point: ~
         # point that *tries* to follow the pointer (might be currently snapped)
         -> @line?.segments[* - 1].point
@@ -171,13 +174,9 @@ export class Trace extends Container implements follow, helpers, end
             console.warn "Not a pad, won't connect"
             return
 
-        console.log "Actual hit is: ", actual-hit
         pad = get-aecad pad-item
-        debugger
-        #snap = pad.g-pos
-        #pad.set-data 'connected', @trace-id
-        if actual-hit?item
-            snap = that.parent.localToGlobal(snap)
+        snap = pad.g-pos
+        pad.set-data 'connected', @tid
 
         new-trace = no
         if not @line or flip-side
