@@ -68,8 +68,9 @@ export init = (pcb) ->
                 insert-dep ..
 
             # append actual code
-            unless (@get \scriptName).starts-with 'lib' # prevent duplicate inclusion
-                ordered.push {name: @get('scriptName'), src: code}
+            if @get \scriptName
+                unless that.starts-with 'lib' # prevent duplicate inclusion
+                    ordered.push {name: @get('scriptName'), src: code}
 
             output = []
             for ordered
