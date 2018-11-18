@@ -4,6 +4,7 @@ require! './get-aecad': {get-aecad}
 require! 'aea': {merge}
 require! './lib': {prefix-keypath}
 require! './component-manager': {ComponentManager}
+require! './schema': {SchemaManager}
 
 
 # Basic methods that every component should have
@@ -14,6 +15,7 @@ export class ComponentBase
         @ractive = @scope.ractive
         @manager = new ComponentManager
             ..register this
+        @_schema_manager = new SchemaManager
         @pads = []
         if data and (init=data.init)
             # initialize by provided item (data)
@@ -162,3 +164,6 @@ export class ComponentBase
 
     add-part: (part-name, item) ->
         set-keypath item.data, "aecad.part", part-name
+
+    schema: ~
+        -> @_schema_manager.active
