@@ -37,3 +37,12 @@ export follow =
 
             @curr = event
                 ..point = @moving-point
+
+            if @schema
+                # Create guides unless created before
+                unless @target-guides
+                    @target-guides = [@schema.create-guide(point, .., {-selected}) for @src-pad.targets]
+
+                # Follow the guides
+                for @target-guides
+                    ..segments.0.point.set @moving-point

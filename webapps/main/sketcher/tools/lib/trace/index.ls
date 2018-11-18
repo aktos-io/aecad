@@ -9,7 +9,6 @@ require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
 require! '../get-aecad': {get-parent-aecad, get-aecad}
-require! '../schema': {SchemaManager}
 require! './end'
 
 /* Trace structure:
@@ -37,7 +36,6 @@ export class Trace extends Container implements follow, helpers, end
             @routes = [[]]
 
         # common actions
-        @schema = new SchemaManager!
         @line = null
         @modifiers = {}
         @prev-hover = []
@@ -133,7 +131,9 @@ export class Trace extends Container implements follow, helpers, end
             console.log "not adding segment as tracing is paused"
             return
 
-        @schema.curr?.clear-guides!
+        unless @target-guides
+            @schema?.clear-guides!
+
         # Check if we should snap to the hit point
         hits = @scope.hitTestAll point, {
             tolerance: 1,
@@ -170,13 +170,18 @@ export class Trace extends Container implements follow, helpers, end
                 snap = hit.item.bounds.center.clone!
             break
 
-        unless @continues or actual-hit
-            console.warn "Not a pad, won't connect"
-            return
+        unless @continues
+            if not actual-hit
+                console.warn "Not a pad, won't connect"
+                return
 
-        pad = get-aecad pad-item
-        snap = pad.g-pos
-        pad.set-data 'connected', @tid
+        if actual-hit
+            console.log "Detected pad item: ", pad-item
+            pad = get-aecad pad-item
+            snap = pad.g-pos
+            @src-pad = pad
+        else
+            # leave snap as is
 
         new-trace = no
         if not @line or flip-side

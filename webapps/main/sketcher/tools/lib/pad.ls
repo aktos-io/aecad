@@ -1,7 +1,6 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! 'aea/do-math': {mm2px}
-require! './schema': {SchemaManager}
 require! 'prelude-ls': {empty}
 
 export class Pad extends ComponentBase
@@ -78,8 +77,6 @@ export class Pad extends ComponentBase
         # -----------------------------
         if @g.data.aecad.color
             @color = that
-
-        @sm = new SchemaManager
 
         # declare Pad.left, Pad.top, ...
         for <[ left right top bottom center ]>
@@ -177,28 +174,34 @@ export class Pad extends ComponentBase
         ->
             unless @_net
                 @_net = [] # return empty list by default
-                :search for net in @sm.curr.netlist
-                    for net when ..uname is @uname
-                        @_net = net
-                        break search
+                if @schema
+                    :search for net in @schema.netlist
+                        for net when ..uname is @uname
+                            @_net = net
+                            break search
             return @_net
 
-    connections: ~
+    targets: ~
         ->
-            conn = []
+            # target connections: same as @net, but excluding `this` and
+            # the pads that has same visible label inside the same @owner
+            res = []
             for @net when ..uname isnt @uname
                 # skip to this component's same labels
                 if ..pin is @pin
-                    console.warn "Skipping connection for: ", ..pin, ..uname
+                    #console.warn "Skipping connection for: ", ..pin, ..uname
                     continue
-                conn.push [this, ..]
-            return conn
+                res.push ..
+            res
+
+    connections: ~
+        -> [[this, ..] for @targets]
 
     create-guides: ->
-        if @sm.active and empty (@_guides or [])
+        if @schema and empty (@_guides or [])
             console.log "Creating guides for #{@uname}, net is: ", @net
             @_guides = for conn in @connections
-                @sm.active.create-guide ...conn
+                @schema.create-guide ...conn
         @_guides
 
     guides: ~
