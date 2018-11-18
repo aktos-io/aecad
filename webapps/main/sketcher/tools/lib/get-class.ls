@@ -7,15 +7,18 @@ export function getClass data
         throw new Error "Arbitrary code execution is not allowed."
 */
 
-classes = {}
+ae-classes = {}
 
 export get-class = (data) ->
     name = data?aecad?type or data
-    if name? and classes[name]
+    if name? and ae-classes[name]
         return that
     else
         throw new Error "Can not find type: #{name}"
 
 export add-class = (cls) ->
     #console.log "Registering component type:", cls.name
-    classes[cls.name] = cls
+    ae-classes[cls.name] = cls
+
+export list-classes = ->
+    Object.keys ae-classes

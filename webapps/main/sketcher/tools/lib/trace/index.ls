@@ -171,8 +171,9 @@ export class Trace extends Container implements follow, helpers, end
             console.warn "Not a pad, won't connect"
             return
 
-        #console.log "Actual hit is: ", actual-hit
-        #pad = get-aecad pad-item
+        console.log "Actual hit is: ", actual-hit
+        pad = get-aecad pad-item
+        debugger
         #snap = pad.g-pos
         #pad.set-data 'connected', @trace-id
         if actual-hit?item

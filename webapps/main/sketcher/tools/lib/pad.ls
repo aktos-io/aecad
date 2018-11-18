@@ -6,13 +6,14 @@ require! 'prelude-ls': {empty}
 
 export class Pad extends ComponentBase
     (opts) ->
-        {Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
-        super ...
         # opts:
         #     # Required
         #     pin
         #     width
         #     height
+        #
+        {Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
+        super ...
         unless @resuming
             # create object from scratch
             if opts.width and opts.height

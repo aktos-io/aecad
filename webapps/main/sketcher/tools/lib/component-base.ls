@@ -6,7 +6,8 @@ require! './lib': {prefix-keypath}
 require! './component-manager': {ComponentManager}
 
 
-# basic methods that every component should have
+# Basic methods that every component should have
+# -----------------------------------------------
 export class ComponentBase
     (data) ->
         @scope = new PaperDraw
@@ -14,16 +15,15 @@ export class ComponentBase
         @manager = new ComponentManager
             ..register this
         @pads = []
-        if @init-with-data arguments.0
-            # initialize by provided item
-            @resuming = yes
-            #console.log "Container init:", init
-            data = that
-            @g = data.item
-            if data.parent
-                # parent must be an aeCAD obect
+        if data and (init=data.init)
+            # initialize by provided item (data)
+            @resuming = yes     # flag for sub-classers
+            if init.parent      # must be an aeCAD obect
                 @parent = that
-                    ..add this # register to parent
+                    ..add this  # Register to parent
+
+            @g = init.item
+
             for @g.children
                 #console.log "has child"
                 if ..data?.aecad?.part
@@ -86,19 +86,6 @@ export class ComponentBase
 
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
-
-    init-with-data: (first-arg) ->
-        # detect if the component is initialized with
-        # initialization data or being created from scratch
-        #
-        # Format:
-        #   {
-        #     init:
-        #       item: Paper.js item
-        #       parent: parent Component (optional)
-        #   }
-        if first-arg and \init of first-arg
-            return first-arg.init
 
     print-mode: (layers, our-side) ->
         # layers: [Array] String array indicates which layers (sides)
