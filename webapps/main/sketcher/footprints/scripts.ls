@@ -216,7 +216,7 @@ export {
       bom:
           led-driver: 'DR'
           C1206: 
-              "$color": "D1"
+              "$color": "D1"  # Led aaaa
   sgw =         
       netlist:
           1: 'rpi.gnd gnd'
@@ -366,9 +366,13 @@ export {
               cols:
                   count: 2
                   interval: c + b
+              border:
+                  width: c
+                  height: a
   
           super defaults <<< data 
   
+  #new SMD1206
   
   add-class class SMD1206_pol extends SMD1206
       # Polarized version of SMD1206
@@ -567,7 +571,10 @@ export {
                   rows:
                       count: 3
                       interval: 2.3mm
-  
+              border:
+                  width: 3.5mm
+                  height: 6.5mm
+                  
           super defaults <<< data 
   
   add-class class SOT23 extends DoublePinArray
@@ -610,5 +617,59 @@ export {
               4: 'vout'
           super ...
   
+'''
+'lib-SOT223 (update: 1542508841617)': '''
+  # Sot223
+  #! requires DoublePinArray
+  add-class class SOT223 extends DoublePinArray
+      (data={}) -> 
+          defaults =
+              name: 'c_'
+              distance: 6.3mm
+              left: 
+                  start: 4
+                  pad:
+                      width: 2.15mm
+                      height: 3.8mm
+                  cols:
+                      count: 1
+              right:
+                  dir: '-y'
+                  pad:
+                      width: 2mm
+                      height: 1.5mm
+                  rows:
+                      count: 3
+                      interval: 2.3mm
+  
+          super defaults <<< data 
+  
+  add-class class SOT23 extends DoublePinArray
+      (data={}) -> 
+          pad = 
+              width: 0.9mm
+              height: 0.7mm
+              
+          defaults =
+              name: 'c_'
+              distance: 2mm
+              left: 
+                  start: 3
+                  pad: pad 
+                  cols:
+                      count: 1
+              right:
+                  dir: '-y'
+                  pad: pad
+                  rows:
+                      count: 2
+                      interval: 1.9mm
+              border:
+                  width: 1.43mm
+                  height: 3mm
+  
+          super defaults <<< data 
+  
+  #new SOT23
 '''
 }
