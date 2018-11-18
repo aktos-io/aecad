@@ -1,4 +1,5 @@
 require! './container': {Container}
+require! 'aea/do-math': {mm2px}
 
 export class Footprint extends Container
     (data) ->
@@ -28,3 +29,15 @@ export class Footprint extends Container
         for @pads
             # DO NOT USE yadayada here!
             ..on-move ...arguments
+
+    make-border: ->
+        if @get-data \border
+            new @scope.Shape.Rectangle do
+                center: @g.bounds.center
+                size:
+                    x: that.width |> mm2px
+                    y: that.height |> mm2px
+                stroke-color: 'LightSeaGreen'
+                stroke-width: 0.2
+                parent: @g
+                radius: 0.3
