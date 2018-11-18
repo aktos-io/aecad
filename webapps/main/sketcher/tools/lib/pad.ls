@@ -41,9 +41,9 @@ export class Pad extends ComponentBase
 
                 geo-params = {radius: dimensions.radius}
 
-            # FIXME
-            @g.position = rect.center # TODO: Is it necessary?
-            @g.applyMatrix = true # TODO: Is it necessary?
+            # TODO: Are those necessary?
+            @g.position = rect.center
+            @g.applyMatrix = true
 
             @cu = new Shape[geometry] geo-params <<< do
                 rectangle: rect
