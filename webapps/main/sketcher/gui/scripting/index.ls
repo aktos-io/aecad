@@ -12,7 +12,7 @@ require! '../../kernel': {PaperDraw}
 
 export init = (pcb) ->
     # Modules to be included into dynamic scripts
-    modules = {aea, lib, lsc, PaperDraw, mm2px}
+    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
@@ -68,8 +68,9 @@ export init = (pcb) ->
                 insert-dep ..
 
             # append actual code
-            unless (@get \scriptName).starts-with 'lib' # prevent duplicate inclusion
-                ordered.push {name: @get('scriptName'), src: code}
+            if @get \scriptName
+                unless that.starts-with 'lib' # prevent duplicate inclusion
+                    ordered.push {name: @get('scriptName'), src: code}
 
             output = []
             for ordered
@@ -79,7 +80,7 @@ export init = (pcb) ->
 
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
-            js = lsc.compile whole-src, {+bare, -header}
+            js = lsc.compile whole-src, {+bare, -header, map: 'embedded'}
             compiled = yes
         catch err
             @set \output, "Compile error: #{err.to-string!}"
@@ -95,7 +96,7 @@ export init = (pcb) ->
                     layer.clear!
 
                 #console.log "Added global modules: ", keys modules
-                func = new Function ...(keys modules), js
+                func = new Function ...(keys modules), js.code
                 func.call pcb, ...(values modules)
                 #pcb._scope.execute js
             catch
@@ -103,8 +104,8 @@ export init = (pcb) ->
                 @get \vlog .error do
                     title: 'Runtime Error'
                     message: e
-                #throw e
-                console.error e
+                console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
+                # See https://github.com/ceremcem/aecad/issues/8
 
     # Register all classes on app load
     runScript '# placeholder content', {-clear}

@@ -102,7 +102,7 @@ export class Pad extends ComponentBase
         if @g.data.aecad.color
             @color = that
 
-        @schema = new SchemaManager
+        @sm = new SchemaManager
 
         # declare Pad.left, Pad.top, ...
         for <[ left right top bottom center ]>
@@ -159,45 +159,77 @@ export class Pad extends ComponentBase
     selected: ~
         # TODO: Create a more beautiful selection shape
         (val) ->
+            @g.selected = false
             @cu.selected = val
         ->
             @cu.selected
 
-    /*
     get: (query) ->
         res = []
         if \pin of query
-            console.log "Checking pin #{query.pin} against ours: #{@pin}"
-            # if label exists, do not match with "pin"
-            if "#{query.pin}" is @pin
+            if "#{query.pin}" is @label
                 res.push this
         res
-        */
 
-    get: (query) ->
-        res = []
-        if \pin of query
-            pin = "#{query.pin}"
-            # if label exists, do not match with "pin"
-            if @get-data 'label'
-                #console.log "label found, checking given pin: '#{pin}' against my label: '#{that}'"
-                if pin is that
-                    res.push this
-            else if pin is "#{@get-data 'pin'}"
-                res.push this
-        res
+    label: ~
+        ->
+            label = @get-data 'label'
+            "#{label or @num}"
 
     pin: ~
-        # Get pin label or number
-        ->
-            if @get-data 'label'
-                that
-            else
-                @get-data 'pin'
+        # Get fully qualified pin label
+        -> "#{@owner.name}.#{@label}"
 
-    on-move: (disp, opts) ~>
-        me = "#{@owner.name}.#{@pin}"
-        if @schema.curr and empty (@guides or [])
-            @guides = @schema.curr.guide-for "#{me}"
-            #console.log "Created guides: ", @guides
-        @guides?.for-each (g) ~> g.segments.0.point.set @g-pos
+    num: ~
+        # Return pin number.
+        -> @get-data 'pin'
+
+    uname: ~
+        # Unique display name
+        -> "#{@pin}(#{@num})"
+
+    net: ~
+        (val) ->
+            # TODO: assign relevant net on schema.compile! time
+        ->
+            unless @_net
+                @_net = [] # return empty list by default
+                :search for net in @sm.curr.netlist
+                    for net when ..uname is @uname
+                        @_net = net
+                        break search
+            return @_net
+
+    connections: ~
+        ->
+            conn = []
+            for @net when ..uname isnt @uname
+                # skip to this component's same labels
+                if ..pin is @pin
+                    console.warn "Skipping connection for: ", ..pin, ..uname
+                    continue
+                conn.push [this, ..]
+            return conn
+
+    create-guides: ->
+        if @sm.active and empty (@_guides or [])
+            console.log "Creating guides for #{@uname}, net is: ", @net
+            @_guides = for conn in @connections
+                @sm.active.create-guide ...conn
+        @_guides
+
+    guides: ~
+        ->
+            unless @_guides
+                @_guides = []
+                @create-guides!
+            @_guides
+
+    on-move: (disp, opts) ->
+        for @guides
+            ..first-segment.point = @g-pos
+
+    on: (event, ...args) ->
+        switch event
+        | 'create-guides' =>
+            @create-guides!

@@ -1,7 +1,7 @@
 export do
     get-components: (opts={}) ->
         '''
-        Returns all aeCAD components in {item, type} form
+        Returns all aeCAD components in {item, type, name, version} form
         '''
         items = []
         for @project.layers
@@ -11,5 +11,6 @@ export do
                         if type in that
                             continue
                     name = item.data.aecad.name
-                    items.push {item, type, name}
+                    version = item.data.aecad.version
+                    items.push {item, type, name, version}
         items

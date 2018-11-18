@@ -1,13 +1,40 @@
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! '../../kernel': {PaperDraw}
 
+export class ComponentManager
+    @instance = null
+    ->
+        # Make this class Singleton
+        # ------------------------------
+        return @@instance if @@instance
+        @@instance = this
+        # ------------------------------
+        @cid = 1
+
+    register: (component) ->
+        # assign unique id only
+        component.cid = @cid++  # component-id
+
+
 # basic methods that every component should have
 export class ComponentBase
     ->
         @scope = new PaperDraw
         @ractive = @scope.ractive
-
+        @manager = new ComponentManager
+            ..register this
         @resuming = @init-with-data arguments.0
+        unless @resuming
+            <~ sleep 10ms # ensure to run after end of constructor
+            @set-version!
+        @_next_id = 1 # will be used for enumerating pads
+
+    set-version: ->
+        /* Gets version from @rev_ClassName property of leaf class */
+        version = @@@["rev_#{@@@name}"]
+        if version
+            console.log "Creating a new #{@@@name}, registering version: #{version}"
+            @set-data 'version', version
 
     set-data: (keypath, value) ->
         set-keypath @g.data.aecad, keypath, value
@@ -84,3 +111,27 @@ export class ComponentBase
                 else
                     break
             return _owner
+
+    nextid: ->
+        @_next_id++
+
+    pedigree: ~
+        ->
+            res = []
+            l = @__proto__
+            for to 100
+                l = l.__proto__
+                if l@@name is \Object
+                    break
+                res.push l
+            {names: res.map (.@@name)}
+
+    trigger: !->
+        # trigger an event for children
+        for @pads
+            ..on ...arguments
+
+    on: !->
+        # propagate the event to the children by default
+        for @pads
+            ..on ...arguments

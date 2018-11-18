@@ -88,6 +88,12 @@ export class PaperDraw implements canvas-control, aecad-methods
 
         move = {}
         pan-style = \speed-drag
+        speed-drag =
+            inactive: 1.5 # inactive radius
+
+        normalized = (point) ~>
+            point.multiply @_scope.view.zoom
+
         @_scope.view
             ..onFrame = (event) ~>
                 if move.speed and move.pan
@@ -107,19 +113,23 @@ export class PaperDraw implements canvas-control, aecad-methods
                     | \speed-drag =>
                         # speed based panning
                         unless move.grab-point?
+                            #console.log "global grab point is: ", event.point, move.grab-point
                             move.grab-point = event.point
 
                         move.speed = event.point.subtract move.grab-point .divide(20)
 
                         # set pan speed to zero if it's too slow
-                        if @_scope.view.zoom * move.speed.length < 0.5
+                        nspeed = normalized move.speed
+                        if nspeed.length < speed-drag.inactive
+                            #console.log "Normalized: ", nspeed.length, move.speed.length
                             move.speed = null
                         #console.log "Move speed is: ", move.speed?.length
 
                 @ractive.set \pointer, event.point
 
             ..onKeyDown = (event) ~>
-                # Press Esc to cancel a move
+                #console.log "Pressed key: ", event.key, event.modifiers
+
                 switch event.key
                 | \delete =>
                     # delete an item with Delete key
@@ -129,7 +139,7 @@ export class PaperDraw implements canvas-control, aecad-methods
                     if event.modifiers.control
                         @history.back!
 
-                | \alt =>
+                | \meta =>
                     unless event.modifiers.control
                         #console.log "global pan mode enabled."
                         move.pan = yes
@@ -154,7 +164,7 @@ export class PaperDraw implements canvas-control, aecad-methods
 
             ..onKeyUp = (event) ~>
                 switch event.key
-                | \alt, \escape =>
+                | \meta, \escape =>
                     if (move.pan-lock - move.pan-lock0) > 300ms or (event.key is \escape)
                         if move.pan
                             #console.log "global pan mode disabled."
