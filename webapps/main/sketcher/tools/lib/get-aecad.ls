@@ -3,7 +3,7 @@ require! './get-class': {get-class, list-classes}
 export get-aecad = (item-part, parent-ae) ->
     # rehydrate an aeCAD object by its child or root graphic item
     unless item-part
-        return null 
+        return null
 
     if parent-ae
         item-is-root = yes
@@ -63,11 +63,11 @@ export get-aecad = (item-part, parent-ae) ->
 
         unless item-is-root
             # `self` was not the root ae-item, we should return related ae-obj
-            for ae-obj.pads when ..g.id is self.ae-item.id
-                ae-obj = ..
-                console.log "Returning ae-obj: ", ae-obj
-                break
-
+            child = ae-obj.get {item: self.ae-item.id} .0
+            unless child
+                throw new Error "We lost the child! (couldn't find item id: #{self.ae-item.id})"
+            else
+                ae-obj = child
     return ae-obj
 
 

@@ -148,6 +148,10 @@ export class Pad extends ComponentBase
         if \pin of query
             if "#{query.pin}" is @label
                 res.push this
+        if \item of query
+            # report matching items
+            if query.item in [@g, @cu, @ttip, @drill].map((?.id)).filter((Boolean))
+                res.push this
         res
 
     label: ~
