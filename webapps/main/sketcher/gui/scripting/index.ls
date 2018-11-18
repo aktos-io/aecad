@@ -99,6 +99,11 @@ export init = (pcb) ->
                 func = new Function ...(keys modules), js.code
                 func.call pcb, ...(values modules)
                 #pcb._scope.execute js
+
+                PNotify.info do
+                    text: "Script run success."
+                    addClass: 'nonblock'
+
             catch
                 @set \output, "ERROR: \n\n" + (@get 'output') + "#{e}"
                 @get \vlog .error do
