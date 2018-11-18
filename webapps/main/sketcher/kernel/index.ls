@@ -16,6 +16,7 @@ export class PaperDraw implements canvas-control, aecad-methods
         return @@instance if @@instance
         @@instance = this
 
+        on-zoom-change = ->
         if opts.canvas
             @canvas = opts.canvas
             @_scope = paper.setup @canvas
@@ -45,7 +46,8 @@ export class PaperDraw implements canvas-control, aecad-methods
 
             # zooming
             $ @canvas .mousewheel (event) ~>
-                paperZoom @_scope, event
+                paperZoom @_scope, event, (offset) ~>
+                    on-zoom-change offset
                 @ractive.update \pcb.view.zoom
                 @update-zoom-subs!
 
@@ -91,23 +93,22 @@ export class PaperDraw implements canvas-control, aecad-methods
         speed-drag =
             inactive: 1.5 # inactive radius
 
+        on-zoom-change = (offset) ->
+            #console.log "Zoom changed, added offset: ", offset
+            if move.grab-point
+                move.grab-point = move.grab-point.add offset
+
         normalized = (point) ~>
             point.divide @_scope.view.zoom
 
         marker = new @Shape.Circle do
             point: @view.center
             radius: 5
-            stroke-width: 2
+            stroke-width: 0.01
             opacity: 0.5
             stroke-color: 'yellow'
             data: {+tmp}
-        marker2 = new @Shape.Circle do
-            point: @view.center
-            radius: 7
-            stroke-width: 2
-            opacity: 0.5
-            stroke-color: 'red'
-            data: {+tmp}
+            selected: true
 
         old-zoom = @view.zoom
         @_scope.view
@@ -141,11 +142,6 @@ export class PaperDraw implements canvas-control, aecad-methods
                             #console.log "global grab point is: ", event.point, move.grab-point
                             move.grab-point = event.point
 
-                        /*
-                        if @view.zoom isnt old-zoom
-                            move.grab-point = move.grab-point.multiply(@view.zoom / old-zoom)
-                            old-zoom = @view.zoom
-                        */
 
                         move.speed = (event.point.subtract move.grab-point).divide(@view.zoom)
 
