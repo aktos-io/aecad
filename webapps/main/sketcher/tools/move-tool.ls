@@ -137,8 +137,8 @@ export MoveTool = ->
 
             # highlight pad connections
             for selection.selected
-                o = get-aecad ..
-                o.trigger 'create-guides'            
+                get-aecad ..
+                    ..trigger 'create-guides'            
 
             hits = scope.hitTestAll event.point, {tolerance: 2, +selected}
             types = []
