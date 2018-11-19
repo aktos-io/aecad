@@ -16,7 +16,9 @@ export class PaperDraw implements canvas-control, aecad-methods
         return @@instance if @@instance
         @@instance = this
 
+        # ref
         on-zoom-change = ->
+
         if opts.canvas
             @canvas = opts.canvas
             @_scope = paper.setup @canvas
@@ -46,8 +48,8 @@ export class PaperDraw implements canvas-control, aecad-methods
 
             # zooming
             $ @canvas .mousewheel (event) ~>
-                paperZoom @_scope, event, (offset) ~>
-                    on-zoom-change offset
+                paperZoom @_scope, event, ~>
+                    on-zoom-change ...arguments
                 @ractive.update \pcb.view.zoom
                 @update-zoom-subs!
 
@@ -93,38 +95,38 @@ export class PaperDraw implements canvas-control, aecad-methods
         speed-drag =
             inactive: 1.5 # inactive radius
 
-        on-zoom-change = (offset) ->
-            #console.log "Zoom changed, added offset: ", offset
-            if move.grab-point
-                move.grab-point = move.grab-point.add offset
-
-        normalized = (point) ~>
-            point.divide @_scope.view.zoom
-
-        marker = new @Shape.Circle do
-            point: @view.center
+        /* Use this marker to debug speed-drag mode */
+        marker = new @Path.Circle do
+            center: @view.center
             radius: 5
-            stroke-width: 0.01
+            stroke-width: 1
             opacity: 0.5
             stroke-color: 'yellow'
             data: {+tmp}
             selected: true
 
-        old-zoom = @view.zoom
+        on-zoom-change = (offset, newZoom, viewPosition) ~>
+            if move.grab-point
+                gg = @view.projectToView that
+            @view.center = @view.center.add offset
+            @view.zoom = newZoom
+            if move.grab-point
+                move.grab-point = @view.viewToProject gg
+
         @_scope.view
             ..onFrame = (event) ~>
                 if event.count % 2 is 0
                     # skip half of frames
                     return
                 if move.speed and move.pan
-                    nspeed = normalized move.speed
                     dead-radius = (speed-drag.inactive / @view.zoom * 20)
-                    marker.radius = dead-radius
-                    if move.speed.length > (dead-radius / @view.zoom)
+                    marker?.radius = dead-radius
+                    if (move.speed.length * @view.zoom) > dead-radius
                         speed = move.speed.divide 20 .multiply @view.zoom
+                        #console.log "speed is: ", speed.length, "dead radius: ", (dead-radius * 20)
                         @view.center = @view.center.add speed
                         move.grab-point.set move.grab-point.add speed
-                    marker.position = move.grab-point
+                    marker?.position = move.grab-point
 
             ..onMouseMove = (event) ~>
                 if move.pan
@@ -141,12 +143,10 @@ export class PaperDraw implements canvas-control, aecad-methods
                         unless move.grab-point?
                             #console.log "global grab point is: ", event.point, move.grab-point
                             move.grab-point = event.point
-
-
                         move.speed = (event.point.subtract move.grab-point).divide(@view.zoom)
 
-
                 @ractive.set \pointer, event.point
+                console.log "event point is: ", event.point, "jq:", @ractive.get('pointer1')
 
             ..onKeyDown = (event) ~>
                 #console.log "Pressed key: ", event.key, event.modifiers
