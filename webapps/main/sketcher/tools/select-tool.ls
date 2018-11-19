@@ -2,6 +2,7 @@ require! 'prelude-ls': {empty, flatten, filter, map, compact}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/trace/lib': {get-tid}
+require! './lib/get-aecad': {get-aecad}
 
 export SelectTool = ->
     # http://paperjs.org/tutorials/project-items/transforming-items/
@@ -76,14 +77,16 @@ export SelectTool = ->
                 select-item = ->
                     selection.add scope.get-top-item hit.item
 
-                if get-tid hit.item
+                aeobj = get-aecad hit.item
+                if aeobj and aeobj.owner@@name is \Trace
                     # this is related to a trace, handle specially
+                    #PNotify.info text: "We hit a trace. This is: #{aeobj@@name}"
                     if event.modifiers.control
                         # select the whole trace
                         console.log "adding whole trace to selection because Ctrl is pressed."
                         select-item!
                     else
-                        if hit.item.data.aecad.type is \Pad
+                        if aeobj@@name is \Pad
                             via = hit.item.parent
                             selection.add via
                         else if hit.segment
