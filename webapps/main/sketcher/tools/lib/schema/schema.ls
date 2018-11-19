@@ -15,6 +15,31 @@ require! './netlist'
 require! './guide'
 require! './schema-manager': {SchemaManager}
 
+# Recursively walk through links
+get-net = (netlist, id, included=[], mark) ~>
+    #console.log "...getting net for #{id}"
+    reduced = []
+    included.push id
+    if find (.remove), netlist[id]
+        #console.warn "Netlist(#{id}) is marked to be removed (already merged?)"
+        return []
+    for netlist[id]
+        if ..link
+            # follow the link
+            unless ..target in included
+                linked = get-net netlist, ..target, included, {+remove}
+                for linked
+                    unless ..uname in reduced
+                        reduced.push ..
+                    else
+                        console.warn "Skipping duplicate pads from linked net"
+        else
+            reduced ++= ..pads
+    if mark
+        # do not include this net in further lookups
+        netlist[id].push mark
+    reduced
+
 
 export class Schema implements bom, footprints, netlist, guide
     (opts) ->
@@ -162,57 +187,35 @@ export class Schema implements bom, footprints, netlist, guide
 
         unless @parent
             #console.log "Flatten netlist:", @flatten-netlist
-            console.log "Netlist (raw): ", netlist
-            null
+            #console.log "Netlist (raw): ", netlist
 
-        # Recursively walk through links
-        get-net = (id, included=[], mark) ~>
-            #console.log "...getting net for #{id}"
-            reduced = []
-            included.push id
-            if find (.remove), netlist[id]
-                #console.warn "Netlist(#{id}) is marked to be removed (already merged?)"
-                return []
-            for netlist[id]
-                if ..link
-                    # follow the link
-                    unless ..target in included
-                        linked = get-net ..target, included, {+remove}
-                        for linked
-                            unless ..uname in reduced
-                                reduced.push ..
-                            else
-                                console.warn "Skipping duplicate pads from linked net"
-                else
-                    reduced ++= ..pads
-            if mark
-                # do not include this net in other lookups
-                netlist[id].push mark
-            reduced
+            # Reduce the netlist only for top level circuit
+            # --------------------------------------------
+            @reduce netlist
 
-        # Create compiled netlist only for the top level circuit
-        unless @parent
-            @netlist.length = 0
-            for id of netlist
-                net = get-net id
-                unless empty net
-                    @netlist.push net
+    reduce: (netlist) ->
+        # Create reduced netlist
+        @netlist.length = 0
+        for id of netlist
+            net = get-net netlist, id
+            unless empty net
+                @netlist.push net
 
-            for index, pads of @netlist
-                console.log "Netlist.#{index}:", (pads.map (.uname) .join ', ')
+        for index, pads of @netlist
+            console.log "Netlist.#{index}:", (pads.map (.uname) .join ', ')
 
-            # Error report (will stay for Alpha stage)
-            for index, pads of @netlist
-                # Check for duplicate pads in the same net
-                for _i1, p1 of pads
-                    for _i2, p2 of pads when _i2 > _i1
-                        if p1.uname and p2.uname and p1.uname is p2.uname
-                            console.error "Duplicate pads found: #{p1.cid} and #{p2.cid}: in #{_i1} and #{_i2} ", p1.uname, p1
+        # Error report (will stay for Alpha stage)
+        for index, pads of @netlist
+            # Check for duplicate pads in the same net
+            for _i1, p1 of pads
+                for _i2, p2 of pads when _i2 > _i1
+                    if p1.uname and p2.uname and p1.uname is p2.uname
+                        console.error "Duplicate pads found: #{p1.cid} and #{p2.cid}: in #{_i1} and #{_i2} ", p1.uname, p1
 
-                # Find unmerged nets
-                for _i, _pads of @netlist when _i > index
-                    for p1 in pads
-                        for p2 in _pads
-                            if p1.uname is p2.uname
-                                console.error "Unmerged nets found
-                                : Netlist(#{index}) and Netlist(#{_i}) both contains #{p1.uname}"
+            # Find unmerged nets
+            for _i, _pads of @netlist when _i > index
+                for p1 in pads
+                    for p2 in _pads
+                        if p1.uname is p2.uname
+                            console.error "Unmerged nets found
+                            : Netlist(#{index}) and Netlist(#{_i}) both contains #{p1.uname}"
