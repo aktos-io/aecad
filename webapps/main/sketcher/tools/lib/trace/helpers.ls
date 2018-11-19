@@ -1,6 +1,7 @@
 export helpers =
     set-helpers: (point) ->
         @remove-helpers!
+        hide-slashes = yes
 
         @helpers.x = new @scope.Path.Line helper-opts =
                 from: [-1000, point.y]
@@ -14,8 +15,10 @@ export helpers =
             ..rotate 90, point
         @helpers.s = @helpers.x.clone!
             ..rotate 45, point
+            ..opacity = 0 if hide-slashes
         @helpers.bs = @helpers.x.clone!
             ..rotate -45, point
+            ..opacity = 0 if hide-slashes
 
         # visualize intersections
         # FIXME: We use these for another reason, so we can't remove them. Find
