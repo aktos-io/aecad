@@ -127,8 +127,13 @@ export class Trace extends Container implements follow, helpers, end
                 @prev-hover.push ..item
 
     netid: ~
-        -> @get-data \netid
+        -> (@get-data \netid) or ''
         (val) -> @set-data \netid, val
+
+    net: ~
+        ->
+            # list of pads which this trace is related with
+            @schema?connection-list[@netid] or []
 
     add-segment: (point, flip-side=false) !->
         if @paused
@@ -142,6 +147,7 @@ export class Trace extends Container implements follow, helpers, end
         hits = @scope.hitTestAll point, {
             tolerance: 1,
             -aecad # in order to prevent scope.on-zoom subscription leak
+            exclude: @g
         }
         snap = point.clone! # use the event point as is
         actaul-hit = null
@@ -184,7 +190,7 @@ export class Trace extends Container implements follow, helpers, end
         if actual-hit
             console.log "Detected pad item: ", pad-item
             pad = get-aecad pad-item
-            unless @netid?
+            unless @netid
                 @netid = pad.netid
             if @netid isnt pad.netid
                 PNotify.notice do
@@ -197,8 +203,13 @@ export class Trace extends Container implements follow, helpers, end
                 text: """
                     Trace connected to #{pad.uname}
                     """
+            # Snap to this pad
             snap = pad.g-pos
-            @src-pad = pad
+
+            # Highlight possible target pads
+            for @net
+                ..selected = true
+
         else
             # we are placing a trace segment (vertex), no-hit is normal.
             # leave snap as is
