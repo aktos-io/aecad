@@ -201,11 +201,26 @@ export class Pad extends ComponentBase
 
     create-guides: ->
         if @schema and empty @_guides
-            console.log "Creating guides for #{@uname}, net is: ", @net
-            sorted = @targets |> sort-by ((p) ~> p.g-pos.subtract @g-pos .length)
+            sorted = @targets
             for i til sorted.length - 1
                 @_guides.push @schema.create-guide sorted[i], sorted[i+1], {-selected}
         @_guides
+
+    nearest-target: (point) ->
+        unless point
+            point = @gpos
+        npad = null
+        min-dist = 99999999999999999999
+        for @targets
+            dist = ..gpos.subtract point .length
+            if dist < min-dist
+                min-dist = dist
+                npad = ..
+        console.log "Nearest pad: ", npad.uname, "cid:", npad.cid
+        return npad
+
+    gpos: ~
+        -> @g-pos
 
     guides: ~
         ->

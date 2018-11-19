@@ -44,7 +44,9 @@ export follow =
                     @target-guides = @src-pad.create-guides!
 
                 # Follow the guides
+                nearest-pad = @src-pad.nearest-target @moving-point
                 for @target-guides
                     ..segments.0.point.set @moving-point
+                    ..segments.1.point.set nearest-pad.gpos
                     ..selected = true
                     break # move only first guide
