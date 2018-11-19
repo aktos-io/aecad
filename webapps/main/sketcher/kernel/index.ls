@@ -175,12 +175,7 @@ export class PaperDraw implements canvas-control, aecad-methods
                     unless event.modifiers.control
                         #console.log "global pan mode enabled."
                         move.pan = yes
-                        unless move.pan-locked
-                            move.prev-cursor = if pan-style is \drag-n-drop
-                                @cursor \grabbing
-                            else
-                                @cursor \all-scroll
-                        else
+                        if move.pan-locked
                             PNotify.info do
                                 text: "Joystick mode disabled"
                                 addClass: 'nonblock'
@@ -200,10 +195,9 @@ export class PaperDraw implements canvas-control, aecad-methods
                             move.pan = null
                             move.speed = null
                             move.pan-locked = null
-                            @cursor move.prev-cursor
                     else
                         move.pan-locked = true
-                        PNotify.notice do
+                        PNotify.info do
                             text: "Joystick mode enabled. \nPress meta to disable."
                             addClass: 'nonblock'
 
