@@ -120,11 +120,13 @@ export canvas-control =
         /*
             opts:
                 ...inherits Paper.js opts, overwrites are as follows:
-                tolerance: normalized tolerance (regarding to zoom)
-                normalize: [Bool, default: true] Use normalized tolerance
-                aecad: [Bool, default: true] Include aeCAD objects if possible
-                exclude-tmp: [Bool, default: true] Exclude items whose "data.tmp is true"
-                exclude: [Array of Items] Exclude list that hit result will ignore it and its children.
+                
+                tolerance   : normalized tolerance (regarding to zoom)
+                normalize   : [Bool, default: true] Use normalized tolerance
+                aecad       : [Bool, default: true] Include aeCAD objects if possible
+                exclude-tmp : [Bool, default: true] Exclude items whose "data.tmp is true"
+                exclude     : [Array of Items] Exclude list that hit result will ignore it and its children.
+                filter      : Filter function. Return `false` to exclude the `hit` from the results
 
             Returns:
                 Array of hits, where every hit includes:
@@ -153,6 +155,12 @@ export canvas-control =
                 for that when hit.item.isDescendant(..) or hit.item.id is ..id
                     continue outer
 
+            # Apply filter
+            if opts.filter
+                console.log "applying filter"
+                unless opts.filter(hit)
+                    continue
+
             # add aeCAD objects
             if opts.aecad
                 hit.aecad =
@@ -164,4 +172,4 @@ export canvas-control =
 
     hitTest: ->
         # TODO: is this true? is it equivalent to the first hit of @hitTestAll! ?
-        @hitTestAll ... .0
+        @hitTestAll ...arguments .0
