@@ -95,16 +95,16 @@ export class PaperDraw implements canvas-control, aecad-methods
         speed-drag =
             inactive: 1.5 # inactive radius
 
-        /* Use this marker to debug speed-drag mode * /
-        marker = new @Path.Circle do
-            center: @view.center
+        /* Use this marker to debug speed-drag mode */
+        marker-width = 1
+        marker = new @Shape.Circle do
+            point: @view.center
             radius: 5
-            stroke-width: 1
-            opacity: 0.5
+            stroke-width: marker-width
+            opacity: 0.8
             stroke-color: 'yellow'
             data: {+tmp}
-            selected: true
-        */
+        /* */
 
         on-zoom-change = (offset, newZoom, viewPosition) ~>
             if move.grab-point
@@ -120,11 +120,17 @@ export class PaperDraw implements canvas-control, aecad-methods
                     # skip half of frames
                     return
                 if move.speed and move.pan
-                    dead-radius = (speed-drag.inactive / @view.zoom * 20)
-                    marker?.radius = dead-radius
+                    coeff = @view.zoom / 20
+                    dead-radius = (speed-drag.inactive / coeff)
                     if (move.speed.length * @view.zoom) > dead-radius
-                        speed = move.speed.divide 20 .multiply @view.zoom
-                        #console.log "speed is: ", speed.length, "dead radius: ", (dead-radius * 20)
+                        ratio = dead-radius / move.speed.length / @view.zoom
+                        if ratio > 1
+                            ratio = 1
+                        dead-vect = move.speed.multiply (ratio)
+                        marker?radius = speed-drag.inactive * 20 / @view.zoom
+                        marker?.stroke-width = marker-width / @view.zoom
+                        speed = move.speed.subtract(dead-vect) .multiply coeff
+                        #console.log "speed len: ", speed.length, "dead radius: ", dead-radius, "move-speed:", move.speed.length
                         @view.center = @view.center.add speed
                         move.grab-point
                             ..set ..add speed
