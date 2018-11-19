@@ -154,21 +154,26 @@ export class Pad extends ComponentBase
         res
 
     label: ~
+        # Return pad label (eg. "Vin")
         ->
             label = @get-data 'label'
             "#{label or @num}"
 
-    pin: ~
-        # Get fully qualified pin label
-        -> "#{@owner.name}.#{@label}"
-
     num: ~
-        # Return pin number.
+        # Return pad number (eg. 5) regardless of existence of @label
         -> @get-data 'pin'
 
+    pin: ~
+        # Get fully qualified pin label (eg. "P.C1.gnd")
+        -> "#{@owner.name}.#{@label}"
+
     uname: ~
-        # Unique display name
+        # Unique display name in the project (eg. "P.C1.gnd(3)")
         -> "#{@pin}(#{@num})"
+
+    netid: ~
+        -> @get-data 'netid'
+        (val) -> @set-data 'netid', val 
 
     net: ~
         (val) ->

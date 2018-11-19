@@ -6,7 +6,7 @@ require! 'prelude-ls': {
 
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad}
-require! './lib': {parse-name}
+require! './lib': {parse-name, next-id}
 
 # Class parts
 require! './bom'
@@ -187,7 +187,7 @@ export class Schema implements bom, footprints, netlist, guide
 
         unless @parent
             #console.log "Flatten netlist:", @flatten-netlist
-            #console.log "Netlist (raw): ", netlist
+            #console.log "Netlist (raw) (includes links and cross-links): ", netlist
 
             # Reduce the netlist only for top level circuit
             # --------------------------------------------
@@ -201,9 +201,44 @@ export class Schema implements bom, footprints, netlist, guide
             unless empty net
                 @netlist.push net
 
+        # Re/Build the connection name table for the net
+        @connection-list = {}
+        for net in @netlist
+            # find the most possible common netname
+            netname = {}
+            netid = null  # Create or restore the netid
+            for pad in net when pad.netid
+                # pad has a netid, this should be used
+                if not netid?
+                    netid = pad.netid
+                else if "#{pad.netid}" is "#{netid}"
+                    # netid is set by a previous pad and this pad has the same netid
+                    # we can still use the netid
+                    continue
+                else
+                    # pad.netid exists and different from previously set netid
+                    throw new Error """We have a stray net component!
+
+                    (#{pad.uname}, expected netid: #{netid}, got: #{pad.netid})
+                    """
+            # we may be able to set netid till this point.
+            # use it or give the next available id
+            netid = netid or next-id @connection-list
+            @connection-list[netid] = net
+            # assign the netid's
+            for pad in net
+                pad.netid = netid
+
+        console.log "Built connection list:", @connection-list
+
+        # Check errors
+        @post-check!
+
+        # Output the generated report and check errors
         for index, pads of @netlist
             console.log "Netlist.#{index}:", (pads.map (.uname) .join ', ')
 
+    post-check: ->
         # Error report (will stay for Alpha stage)
         for index, pads of @netlist
             # Check for duplicate pads in the same net

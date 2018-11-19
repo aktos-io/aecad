@@ -1,3 +1,6 @@
+require! './next-id': {next-id}
+export next-id
+
 require! 'prelude-ls': {empty, difference}
 
 export combinations = (input, ffunc=(-> it)) ->
