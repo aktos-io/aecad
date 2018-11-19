@@ -103,8 +103,7 @@ export init = (pcb) ->
                 name = opts.name or @get \scriptName
                 PNotify.info do
                     text: """
-                        Script run success:
-                        #{name}
+                        Script: #{name}
                         """
                     addClass: 'nonblock'
 
