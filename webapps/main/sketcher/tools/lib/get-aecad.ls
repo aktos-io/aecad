@@ -38,16 +38,16 @@ export get-aecad = (item-part, parent-ae) ->
                     parent.ae-item = tmp
                     parent.type = type
 
+            unless tmp.parent
+                # no parent item available
+                break
+
             if tmp.parent.getClassName! is \Layer
                 # reached top level
                 break
 
-            unless tmp.parent
-                # no parent item available
-                break
-            else
-                # we have parent item available, continue searching
-                tmp = tmp.parent
+            # we have parent item available, continue searching
+            tmp = tmp.parent
 
         # Detect the parent item
         {ae-item: parent-item, type: parent-type} = if parent.ae-item => parent else self
