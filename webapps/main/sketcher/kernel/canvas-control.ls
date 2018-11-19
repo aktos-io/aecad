@@ -29,9 +29,21 @@ export canvas-control =
         return bounds
 
     cursor: (name) ->
-        prev = @canvas.style.cursor
-        @canvas.style.cursor = name
+        @prev-cursor = prev = @canvas.style.cursor
+        unless name is prev
+            console.log "Cursor is set from #{prev} to #{name}"
+            @canvas.style.cursor = name
         prev
+
+    default-cursor: (name) ->
+        @_dcursor = name
+        if @_dcursor0 isnt @_dcursor
+            @_dcursor0 = @_dcursor
+            # set a new cursor, immediately switch to it
+            @cursor(@_dcursor)
+
+    restore-cursor: ->
+        @cursor(@prev-cursor)
 
     clean-tmp: ->
         for @get-all! when ..data?tmp
@@ -120,7 +132,7 @@ export canvas-control =
         /*
             opts:
                 ...inherits Paper.js opts, overwrites are as follows:
-                
+
                 tolerance   : normalized tolerance (regarding to zoom)
                 normalize   : [Bool, default: true] Use normalized tolerance
                 aecad       : [Bool, default: true] Include aeCAD objects if possible

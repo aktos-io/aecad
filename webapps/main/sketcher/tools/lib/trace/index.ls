@@ -172,6 +172,8 @@ export class Trace extends Container implements follow, helpers, end
 
         unless @continues
             if not actual-hit
+                @scope.cursor \not-allowed
+                sleep 300ms, ~> @scope.restore-cursor!
                 console.warn "Not a pad, won't connect"
                 return
 

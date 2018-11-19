@@ -9,7 +9,7 @@ export TraceTool = (scope) ->
             # panning
             offset = event.downPoint .subtract event.point
             scope.view.center = scope.view.center .add offset
-            scope.cursor 'grabbing'
+            #scope.cursor 'grabbing'
             trace.pause!
 
         ..onMouseUp = (event) ~>
@@ -26,7 +26,7 @@ export TraceTool = (scope) ->
                     trace := null # TODO: is it enough to garbage collect current trace object?
                     trace := that
             trace.add-segment event.point
-            scope.cursor 'cell'
+            scope.default-cursor 'cell'
             trace.resume!
 
         ..onMouseMove = (event) ~>
