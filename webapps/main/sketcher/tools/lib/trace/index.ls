@@ -126,6 +126,10 @@ export class Trace extends Container implements follow, helpers, end
                 ..item.selected = yes
                 @prev-hover.push ..item
 
+    netid: ~
+        -> @get-data \netid
+        (val) -> @set-data \netid, val
+
     add-segment: (point, flip-side=false) !->
         if @paused
             console.log "not adding segment as tracing is paused"
@@ -180,9 +184,23 @@ export class Trace extends Container implements follow, helpers, end
         if actual-hit
             console.log "Detected pad item: ", pad-item
             pad = get-aecad pad-item
+            unless @netid?
+                @netid = pad.netid
+            if @netid isnt pad.netid
+                PNotify.notice do
+                    text: """
+                        We can't connect to a different netid:
+                        Expected: #{@netid}, got: #{pad.netid}
+                        """
+                return
+            PNotify.success do
+                text: """
+                    Trace connected to #{pad.uname}
+                    """
             snap = pad.g-pos
             @src-pad = pad
         else
+            # we are placing a trace segment (vertex), no-hit is normal.
             # leave snap as is
 
         new-trace = no
