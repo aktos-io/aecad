@@ -219,3 +219,5 @@ export class Pad extends ComponentBase
         switch event
         | 'create-guides' =>
             @create-guides!
+        | 'clear-guides' =>
+            @schema?clear-guides!

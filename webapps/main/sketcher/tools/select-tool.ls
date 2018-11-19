@@ -39,7 +39,12 @@ export SelectTool = ->
 
         ..onMouseDown = (event) ~>
             # TODO: there are many objects overlapped, use .hitTestAll() instead
-            hit = scope.hitTest event.point, {tolerance: 2}
+            hit = scope.hitTest event.point, do
+                tolerance: 2
+                filter: (hit) ->
+                    if hit.item.data.guide
+                        return false
+                    true
             console.log "Select Tool: Hit result is: ", hit
 
             # Ctrl modifier is used for multiple selection

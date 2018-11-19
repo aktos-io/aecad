@@ -75,9 +75,15 @@ export MoveTool = ->
                 move.dragging = true
 
                 # commit to history
+                movement-starting = no
                 if move.about-to-move
+                    # movement starting moment
                     move.about-to-move = no
+                    movement-starting = yes
+
+                if movement-starting
                     scope.history.commit!
+
                 down-point = if move.picked => move.down-point else event.downPoint
                 snap = snap-move downPoint, event.point, do
                     shift: event.modifiers.shift
@@ -92,6 +98,8 @@ export MoveTool = ->
                             move.aecad = get-aecad ..
 
                         if move.aecad
+                            if movement-starting
+                                move.aecad.schema?.clear-guides!
                             that.move snap.delta
                         else
                             .. `shift-item` snap.delta
@@ -138,7 +146,8 @@ export MoveTool = ->
             # highlight pad connections
             for selection.selected
                 get-aecad ..
-                    ..?trigger 'create-guides'            
+                    ..?trigger 'clear-guides'
+                    ..?trigger 'create-guides'
 
             hits = scope.hitTestAll event.point, {tolerance: 2, +selected}
             types = []
