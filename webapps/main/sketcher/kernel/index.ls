@@ -95,7 +95,7 @@ export class PaperDraw implements canvas-control, aecad-methods
         speed-drag =
             inactive: 1.5 # inactive radius
 
-        /* Use this marker to debug speed-drag mode */
+        /* Use this marker to debug speed-drag mode * /
         marker-width = 1
         marker = new @Shape.Circle do
             point: @view.center
@@ -120,17 +120,18 @@ export class PaperDraw implements canvas-control, aecad-methods
                     # skip half of frames
                     return
                 if move.speed and move.pan
-                    coeff = @view.zoom / 20
+                    speed-val = 30
+                    coeff = @view.zoom / speed-val
                     dead-radius = (speed-drag.inactive / coeff)
                     if (move.speed.length * @view.zoom) > dead-radius
                         ratio = dead-radius / move.speed.length / @view.zoom
                         if ratio > 1
                             ratio = 1
                         dead-vect = move.speed.multiply (ratio)
-                        marker?radius = speed-drag.inactive * 20 / @view.zoom
+                        marker?radius = speed-drag.inactive * speed-val / @view.zoom
                         marker?.stroke-width = marker-width / @view.zoom
                         speed = move.speed.subtract(dead-vect) .multiply coeff
-                        #console.log "speed len: ", speed.length, "dead radius: ", dead-radius, "move-speed:", move.speed.length
+                        console.log "speed len: ", speed.length, "dead radius: ", dead-radius, "move-speed:", move.speed.length
                         @view.center = @view.center.add speed
                         move.grab-point
                             ..set ..add speed
