@@ -83,7 +83,7 @@ export SelectTool = ->
                         console.log "adding whole trace to selection because Ctrl is pressed."
                         select-item!
                     else
-                        if hit.item.data.aecad.type is \via-part
+                        if hit.item.data.aecad.type is \Pad
                             via = hit.item.parent
                             selection.add via
                         else if hit.segment
