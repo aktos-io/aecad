@@ -100,8 +100,12 @@ export init = (pcb) ->
                 func.call pcb, ...(values modules)
                 #pcb._scope.execute js
 
+                name = opts.name or @get \scriptName
                 PNotify.info do
-                    text: "Script run success."
+                    text: """
+                        Script run success:
+                        #{name}
+                        """
                     addClass: 'nonblock'
 
             catch
@@ -113,7 +117,7 @@ export init = (pcb) ->
                 # See https://github.com/ceremcem/aecad/issues/8
 
     # Register all classes on app load
-    runScript '# placeholder content', {-clear}
+    runScript '# placeholder content', {-clear, name: 'Initialization run'}
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile
