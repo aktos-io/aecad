@@ -126,7 +126,11 @@ export class PaperDraw implements canvas-control, aecad-methods
                         speed = move.speed.divide 20 .multiply @view.zoom
                         #console.log "speed is: ", speed.length, "dead radius: ", (dead-radius * 20)
                         @view.center = @view.center.add speed
-                        move.grab-point.set move.grab-point.add speed
+                        move.grab-point
+                            ..set ..add speed
+                        @ractive.get 'pointer'
+                            ..set ..add speed
+                        @ractive.update 'pointer'
                     marker?.position = move.grab-point
 
             ..onMouseMove = (event) ~>
@@ -147,7 +151,6 @@ export class PaperDraw implements canvas-control, aecad-methods
                         move.speed = (event.point.subtract move.grab-point).divide(@view.zoom)
 
                 @ractive.set \pointer, event.point
-                console.log "event point is: ", event.point, "jq:", @ractive.get('pointer1')
 
             ..onKeyDown = (event) ~>
                 #console.log "Pressed key: ", event.key, event.modifiers
