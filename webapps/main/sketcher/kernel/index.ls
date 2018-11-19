@@ -95,7 +95,7 @@ export class PaperDraw implements canvas-control, aecad-methods
         speed-drag =
             inactive: 1.5 # inactive radius
 
-        /* Use this marker to debug speed-drag mode */
+        /* Use this marker to debug speed-drag mode * /
         marker = new @Path.Circle do
             center: @view.center
             radius: 5
@@ -104,6 +104,7 @@ export class PaperDraw implements canvas-control, aecad-methods
             stroke-color: 'yellow'
             data: {+tmp}
             selected: true
+        */
 
         on-zoom-change = (offset, newZoom, viewPosition) ~>
             if move.grab-point
