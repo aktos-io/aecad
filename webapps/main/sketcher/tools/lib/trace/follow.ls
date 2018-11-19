@@ -41,8 +41,9 @@ export follow =
             if @schema
                 # Create guides unless created before
                 unless @target-guides
-                    @target-guides = [@schema.create-guide(point, .., {-selected}) for @src-pad.targets]
+                    @target-guides = @src-pad.create-guides!
 
                 # Follow the guides
-                for @target-guides
+                @target-guides.0
                     ..segments.0.point.set @moving-point
+                    ..selected = true

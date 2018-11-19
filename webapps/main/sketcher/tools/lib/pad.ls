@@ -1,7 +1,7 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! 'aea/do-math': {mm2px}
-require! 'prelude-ls': {empty}
+require! 'prelude-ls': {empty, sort-by}
 
 export class Pad extends ComponentBase
     (opts) ->
@@ -82,6 +82,8 @@ export class Pad extends ComponentBase
         for <[ left right top bottom center ]>
             Object.defineProperty @, .., do
                 get: ~> @g.bounds[..]
+
+        @_guides = []
 
     color: ~
         (val) !->
@@ -198,16 +200,16 @@ export class Pad extends ComponentBase
         -> [[this, ..] for @targets]
 
     create-guides: ->
-        if @schema and empty (@_guides or [])
+        if @schema and empty @_guides
             console.log "Creating guides for #{@uname}, net is: ", @net
-            @_guides = for conn in @connections
-                @schema.create-guide ...conn
+            sorted = @targets |> sort-by ((p) ~> p.g-pos.subtract @g-pos .length)
+            for i til sorted.length - 1
+                @_guides.push @schema.create-guide sorted[i], sorted[i+1], {-selected}
         @_guides
 
     guides: ~
         ->
-            unless @_guides
-                @_guides = []
+            if empty @_guides
                 @create-guides!
             @_guides
 

@@ -30,7 +30,7 @@ export do
         return new @scope.Path.Line do
             from: pad1.g-pos
             to: pad2.g-pos
-            stroke-color: 'lime'
+            stroke-color: 'lightblue'
             stroke-width: 0.1
             selected: opts.selected
             data: {+guide}
