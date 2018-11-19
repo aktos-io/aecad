@@ -72,12 +72,12 @@ export class Schema implements bom, footprints, netlist, guide
         @prefix = opts.prefix or ''
         @parent = opts.parent
         @scope = new PaperDraw
-        @connections = []
         @manager = new SchemaManager
             ..register this
         @compiled = false
-        @sub-circuits = {}
-        @netlist = []
+        @connection-list = {}           # key: trace-id, value: array of related Pads
+        @sub-circuits = {}              # TODO: DOCUMENT THIS 
+        @netlist = []                   # array of "array of Pads which are on the same net"
 
     external-components: ~
         # Current schema's external components
