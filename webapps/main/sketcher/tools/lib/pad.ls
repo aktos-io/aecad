@@ -199,21 +199,22 @@ export class Pad extends ComponentBase
     connections: ~
         -> [[this, ..] for @targets]
 
-    create-guides: ->
+    create-guides: (count) ->
         if @schema and empty @_guides
             sorted = @targets
-            for i til sorted.length - 1
-                @_guides.push @schema.create-guide sorted[i], sorted[i+1], {-selected}
+            for i til sorted.length
+                break if count? and count is i
+                @_guides.push @schema.create-guide this, sorted[i], {-selected}
         @_guides
 
     nearest-target: (point) ->
         unless point
             point = @gpos
         npad = null
-        min-dist = 99999999999999999999
+        min-dist = -1
         for @targets
             dist = ..gpos.subtract point .length
-            if dist < min-dist
+            if min-dist < 0 or dist < min-dist
                 min-dist = dist
                 npad = ..
         console.log "Nearest pad: ", npad.uname, "cid:", npad.cid
@@ -223,12 +224,10 @@ export class Pad extends ComponentBase
         -> @g-pos
 
     guides: ~
-        ->
-            if empty @_guides
-                @create-guides!
-            @_guides
+        -> @_guides
 
     on-move: (disp, opts) ->
+        @create-guides!
         for @guides
             ..first-segment.point = @g-pos
 
