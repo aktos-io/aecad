@@ -164,7 +164,7 @@ export canvas-control =
 
             # exclude provided items
             if opts.exclude
-                for that when hit.item.isDescendant(..) or hit.item.id is ..id
+                for flatten [that] when hit.item.isDescendant(..) or hit.item.id is ..id
                     continue outer
 
             # Apply filter
