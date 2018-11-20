@@ -10,19 +10,16 @@ export TraceTool = (scope) ->
             offset = event.downPoint .subtract event.point
             scope.view.center = scope.view.center .add offset
             #scope.cursor 'grabbing'
-            trace.pause!
+            trace?.pause!
 
         ..onMouseUp = (event) ~>
             # Start a trace
             # ---------------------------------
-            if trace
-                unless trace.continues
-                    console.log "saved current state in the history"
-                    scope.history.commit!
-            else
+            unless trace
+                scope.use-layer \gui
+                scope.history.commit!
                 trace := new Trace
                     ..on-end = ~>
-                        PNotify.info text: "Removing the trace for netid: #{trace.netid}"
                         <~ sleep 10ms
                         trace := null
 
@@ -41,17 +38,16 @@ export TraceTool = (scope) ->
                 trace.follow event.point
 
         ..onKeyDown = (event) ~>
-            trace.set-modifiers event.modifiers
+            trace?.set-modifiers event.modifiers
             switch event.key
             | \escape =>
-                trace.end!
-                trace := null
+                trace?.end!
             | 'v' =>
-                trace.add-via!
+                trace?.add-via!
             | 'ü' =>
                 unless event.modifiers.shift
-                    trace.remove-last-point!
+                    trace?.remove-last-point!
                 else
-                    trace.remove-last-point \undo
+                    trace?.remove-last-point \undo
 
     return trace-tool
