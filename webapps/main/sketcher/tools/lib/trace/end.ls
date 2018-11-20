@@ -48,3 +48,5 @@ export do
         @vias.length = 0
 
         @clear-guides!
+
+        @ractive.fire \calcUnconnected
