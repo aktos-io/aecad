@@ -3,10 +3,11 @@ require! '../../tools/freehand': {Freehand}
 require! '../../tools/move-tool': {MoveTool}
 require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
-require! 'prelude-ls': {min, empty, abs}
+require! 'prelude-ls': {min, empty, abs, keys}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../../tools/lib': {getAecad}
 require! 'aea/do-math': {px2mm}
+require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
 export init = (pcb) ->
     # tools
@@ -20,8 +21,40 @@ export init = (pcb) ->
         @fire \changeTool, {}, tool
 
     selection = new Selection
+    schema-manager = new SchemaManager
 
     handlers =
+        calcUnconnected: (ctx) ->
+            if schema-manager.active
+                unconnected = 0
+                connected = 0
+                traces = {}
+                for trace in pcb.get-components {exclude: '*', include: <[ Trace ]>}
+                    netid = trace.item.data.aecad.netid
+                    unless netid
+                        trace.item.remove!
+                        continue
+                    traces[][netid].push trace.item
+                console.log "Found Traces:", traces
+
+                # Calculate connections
+                for netid, net of schema-manager.active.connection-list
+                    for pad in net
+                        unconnected++
+                        #if pad.is-connected-to traces[netid]}
+                        :search for traces[netid] or []
+                            for ..children or [] when ..getClassName! is \Path
+                                bounds = pad.gbounds
+                                for {point} in ..segments
+                                    # check all segments of the path
+                                    if point.is-inside bounds
+                                        connected++
+                                        break search
+                pcb.ractive.set 'unconnectedCount', unconnected
+                pcb.ractive.set 'connectedCount', connected
+            else
+                PNotify.notice text: "No schema present at the moment."
+
         fitAll: (ctx) !~>
             for layer in pcb.project.layers
                 selection.add layer, {+select}

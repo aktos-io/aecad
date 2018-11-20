@@ -90,6 +90,11 @@ ack-button.mini.icon(
         tooltip="Measure Distance"
         ): icon.ellipsis.vertical.green
 
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="calcUnconnected"
+        tooltip="Unconnected count"
+        ) {{connectedCount}}/{{unconnectedCount}}
     
 div
 canvas#draw

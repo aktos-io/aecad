@@ -173,7 +173,7 @@ export class Pad extends ComponentBase
 
     netid: ~
         -> @get-data 'netid'
-        (val) -> @set-data 'netid', val 
+        (val) -> @set-data 'netid', val
 
     net: ~
         (val) ->
@@ -224,9 +224,6 @@ export class Pad extends ComponentBase
                 npad = ..
         console.log "Nearest pad: ", npad.uname, "cid:", npad.cid
         return npad
-
-    gpos: ~
-        -> @g-pos
 
     guides: ~
         -> @_guides

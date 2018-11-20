@@ -115,11 +115,27 @@ export class ComponentBase
         -> @g.bounds
         (val) -> @g.bounds = val
 
+    grotation: ~
+        ->  (@owner.get-data('rotation') or 0) % 360
+
+    gbounds: ~
+        # Global bounds
+        ->
+            # Workaround for getting global bounds of @g
+            r = new @scope.Path.Rectangle @g.bounds
+                ..rotate @grotation
+                ..position = @gpos
+            return r.bounds
+
     selected: ~
         -> @g.selected
         (val) -> @g.selected = val
 
     g-pos: ~
+        ->  # TODO: add deprecation message here
+            @gpos
+
+    gpos: ~
         # Global position
         ->
             # TODO: I really don't know why ".parent" part is needed. Find out why.

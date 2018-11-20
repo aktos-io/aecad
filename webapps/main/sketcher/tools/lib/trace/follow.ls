@@ -37,17 +37,3 @@ export follow =
 
             @curr = event
                 ..point = @moving-point
-
-            if @schema
-                # Create guides unless created before
-                unless @target-guides
-                    @target-guides = @src-pad.create-guides 1
-                    console.log "created guides: ", @target-guides, @src-pad.targets
-
-                # Follow the guides
-                nearest-pad = @src-pad.nearest-target @moving-point
-                for @target-guides
-                    ..segments.0.point.set @src-pad.gpos
-                    ..segments.1.point.set nearest-pad.gpos
-                    ..selected = true
-                    break # move only first guide
