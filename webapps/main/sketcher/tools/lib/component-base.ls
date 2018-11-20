@@ -185,3 +185,13 @@ export class ComponentBase
 
     schema: ~
         -> @_schema_manager.active
+
+    tmp-marker: (point, opts={}) ->
+        # will be used for debugging purposes
+        new @scope.Path.Circle {
+            center: point
+            data: {+tmp}
+            radius: opts.r or opts.radius or 1
+            fill-color: opts.color or 'yellow'
+            opacity: 0.8
+        }
