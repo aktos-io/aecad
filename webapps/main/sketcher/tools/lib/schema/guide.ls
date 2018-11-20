@@ -33,7 +33,7 @@ export do
             stroke-color: 'lightblue'
             stroke-width: 0.1
             selected: opts.selected
-            data: {+guide}
+            data: {+guide, +tmp}
 
     clear-guides: ->
         for @scope.project.layers
