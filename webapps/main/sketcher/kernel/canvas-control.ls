@@ -123,7 +123,9 @@ export canvas-control =
     get-tool: (name) ->
         @tools[name]
 
-    _Line: (opts) ->
+    _Line: (opts, p2) ->
+        if p2
+            opts = {p1: opts, p2}
         new Line opts, @_scope
 
     hitTestAll: (point, opts={}) ->
