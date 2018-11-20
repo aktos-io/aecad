@@ -1,4 +1,4 @@
-btn.icon(
+btn.icon.mini(
     on-click="fitAll" 
     tooltip="Fit all"
     ): icon.world
@@ -6,7 +6,7 @@ btn.icon(
 
 radio-buttons#toolChanger(value="{{currTool}}") 
     //- (on-select="changeTool")
-    .ui.buttons
+    .ui.mini.buttons
         radio-button.icon(
             default
             tooltip="Select" 
@@ -29,22 +29,23 @@ radio-buttons#toolChanger(value="{{currTool}}")
             )
             icon.pencil.alternate
 
-
++space
 .ui.buttons.mini 
-    checkbox(
-        checked="{{selectGroup}}"
-        tooltip="Select the parent group"
-        ) Group
-
+    //-
+        checkbox(
+            checked="{{selectGroup}}"
+            tooltip="Select the parent group"
+            ) G
+    
     ack-button.icon(
         on-click="groupSelected" 
         tooltip="Group all selected items"
         ): icon.object.group.outline        
 
 +space
-.ui.buttons 
+.ui.mini.buttons 
     +each('layers as val')
-        ack-button.mini.icon(
+        ack-button.icon(
             on-click="sendTo"
             to="{{@key}}" 
             tooltip="Send selected component to {{@key}} Layer"
@@ -53,12 +54,12 @@ radio-buttons#toolChanger(value="{{currTool}}")
 +space
 radio-buttons(value="{{currLayer}}")
     .ui.mini.buttons
-        radio-button.icon.mini(
+        radio-button.icon(
             default value="F.Cu" 
             true-color="red"
             tooltip="Trace on F.Cu"
             ) #[.ui.circular.red.empty.label]
-        radio-button.mini.icon(
+        radio-button.icon(
             value="B.Cu" 
             true-color="green"
             tooltip="Trace on B.Cu"
@@ -84,12 +85,14 @@ ack-button.mini.icon(
         tooltip="Move to last saved coordinates"
         ): icon.magnet.blue
 
++space
 .ui.mini.buttons
     ack-button.icon(
         on-click="measureDistance" 
         tooltip="Measure Distance"
         ): icon.ellipsis.vertical.green
 
++space
 .ui.mini.buttons
     ack-button.icon(
         on-click="calcUnconnected"
