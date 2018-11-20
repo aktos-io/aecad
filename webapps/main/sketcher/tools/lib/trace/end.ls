@@ -19,6 +19,7 @@ export do
                         seg-index -= 1
                 to-be-removed.push seg-index
         for i, s of to-be-removed
+            console.log "Reducing the line segments."
             line.segments[s - i].remove!
 
     end: ->
@@ -50,3 +51,6 @@ export do
         @clear-guides!
 
         @ractive.fire \calcUnconnected
+        console.log "................Trace ended..................."
+        if typeof! @on-end is \Function
+            @on-end!

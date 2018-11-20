@@ -197,6 +197,7 @@ export class Trace extends Container implements follow, helpers, end
                 console.warn "Not a pad, won't connect"
                 return
 
+        reached-target = no
         if actual-hit
             console.log "Detected pad item: ", pad-item
             pad = get-aecad pad-item
@@ -208,13 +209,15 @@ export class Trace extends Container implements follow, helpers, end
                         We can't connect to a different netid:
                         Expected: #{@netid}, got: #{pad.netid}
                         """
+
+                # for visual inspection
+                @g.selected = true
+                @g.bounds.selected = true
                 return
-            PNotify.success do
-                text: """
-                    Trace connected to #{pad.uname}
-                    """
             # Snap to this pad
-            snap = pad.g-pos
+            snap = pad.gpos
+            if @continues
+                reached-target = yes
             @show-guides!
 
         else
@@ -243,6 +246,10 @@ export class Trace extends Container implements follow, helpers, end
                     side: curr.layer.name
                 ..parent = @g
 
+            unless @line.parent
+                debugger
+                @g.add-child @line
+
             @line.add snap.clone!
 
             if new-trace
@@ -269,6 +276,11 @@ export class Trace extends Container implements follow, helpers, end
             @line.add (@moving-point)
 
         @commit-corr-point!
+
+        if reached-target
+            console.log "Trace reached to a target: ", pad.uname, pad
+            @end!
+
 
     add-via: ->
         outer-dia = @ractive.get \currTrace.via.outer

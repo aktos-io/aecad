@@ -3,7 +3,7 @@ require! './lib/trace': {Trace}
 export TraceTool = (scope) ->
     ractive = this
 
-    trace = new Trace
+    trace = null
     trace-tool = new scope.Tool!
         ..onMouseDrag = (event) ~>
             # panning
@@ -15,9 +15,16 @@ export TraceTool = (scope) ->
         ..onMouseUp = (event) ~>
             # Start a trace
             # ---------------------------------
-            unless trace.continues
-                console.log "saved current state in the history"
-                scope.history.commit!
+            if trace
+                unless trace.continues
+                    console.log "saved current state in the history"
+                    scope.history.commit!
+            else
+                trace := new Trace
+                    ..on-end = ~>
+                        PNotify.info text: "Removing the trace for netid: #{trace.netid}"
+                        <~ sleep 10ms
+                        trace := null
 
             if hit=(scope.hitTest event.point, {tolerance: 1, -aecad, exclude: [trace.g]})
                 if trace.connect hit
@@ -30,18 +37,15 @@ export TraceTool = (scope) ->
             trace.resume!
 
         ..onMouseMove = (event) ~>
-            if trace.continues
+            if trace?.continues
                 trace.follow event.point
-            else
-                trace.highlight-target event.point
 
         ..onKeyDown = (event) ~>
             trace.set-modifiers event.modifiers
             switch event.key
             | \escape =>
-                if trace.continues
-                    trace.end!
-                    trace := new Trace
+                trace.end!
+                trace := null
             | 'v' =>
                 trace.add-via!
             | 'ü' =>
