@@ -76,7 +76,7 @@ export class Schema implements bom, footprints, netlist, guide
             ..register this
         @compiled = false
         @connection-list = {}           # key: trace-id, value: array of related Pads
-        @sub-circuits = {}              # TODO: DOCUMENT THIS 
+        @sub-circuits = {}              # TODO: DOCUMENT THIS
         @netlist = []                   # array of "array of Pads which are on the same net"
 
     external-components: ~
@@ -140,7 +140,7 @@ export class Schema implements bom, footprints, netlist, guide
         # compile netlist
         # -----------------
         netlist = {}
-        console.log "Compiling netlist for schema: #{@name}"
+        console.log "* Compiling schema: #{@name}"
         for id, conn-list of @flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
@@ -199,6 +199,9 @@ export class Schema implements bom, footprints, netlist, guide
         for id of netlist
             net = get-net netlist, id
             unless empty net
+                if net.length < 2
+                    console.warn "We are skipping this net as it has too few pads:", net
+                    continue
                 @netlist.push net
 
         # Re/Build the connection name table for the net
@@ -229,14 +232,12 @@ export class Schema implements bom, footprints, netlist, guide
             for pad in net
                 pad.netid = netid
 
-        console.log "Built connection list:", @connection-list
-
         # Check errors
         @post-check!
 
-        # Output the generated report and check errors
-        for index, pads of @netlist
-            console.log "Netlist.#{index}:", (pads.map (.uname) .join ', ')
+        # Output the generated report
+        console.log "... #{@name}: Connection list:", @connection-list
+        console.log "... #{@name}: Netlist", @netlist
 
     post-check: ->
         # Error report (will stay for Alpha stage)

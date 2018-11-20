@@ -24,6 +24,10 @@ export do
     guide-all: ->
         @guide-for!
 
+    guide-unconnected: ->
+        states = @get-connection-states!
+        console.log "States: ", states 
+
     create-guide: (pad1, pad2, _opts={}) ->
         opts = {+selected} <<< _opts
         #console.log "Created guide for #{pad1.uname} -> #{pad2.uname}"

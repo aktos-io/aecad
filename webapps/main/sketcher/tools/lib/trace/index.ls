@@ -135,13 +135,23 @@ export class Trace extends Container implements follow, helpers, end
             # list of pads which this trace is related with
             @schema?connection-list[@netid] or []
 
+    clear-guides: ->
+        # Clear highlighting targets
+        for @net
+            ..selected = false
+
+    show-guides: ->
+        # Highlight possible target pads
+        for @net
+            ..selected = true
+
     add-segment: (point, flip-side=false) !->
         if @paused
             console.log "not adding segment as tracing is paused"
             return
 
-        unless @target-guides
-            @schema?.clear-guides!
+        unless @continues
+            @scope.selection.clear!
 
         # Check if we should snap to the hit point
         hits = @scope.hitTestAll point, {
@@ -205,10 +215,7 @@ export class Trace extends Container implements follow, helpers, end
                     """
             # Snap to this pad
             snap = pad.g-pos
-
-            # Highlight possible target pads
-            for @net
-                ..selected = true
+            @show-guides!
 
         else
             # we are placing a trace segment (vertex), no-hit is normal.

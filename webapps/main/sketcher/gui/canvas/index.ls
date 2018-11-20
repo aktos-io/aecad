@@ -26,32 +26,14 @@ export init = (pcb) ->
     handlers =
         calcUnconnected: (ctx) ->
             if schema-manager.active
+                conn-states = that.get-connection-states!
                 unconnected = 0
-                connected = 0
-                traces = {}
-                for trace in pcb.get-components {exclude: '*', include: <[ Trace ]>}
-                    netid = trace.item.data.aecad.netid
-                    unless netid
-                        trace.item.remove!
-                        continue
-                    traces[][netid].push trace.item
-                console.log "Found Traces:", traces
-
-                # Calculate connections
-                for netid, net of schema-manager.active.connection-list
-                    for pad in net
-                        unconnected++
-                        #if pad.is-connected-to traces[netid]}
-                        :search for traces[netid] or []
-                            for ..children or [] when ..getClassName! is \Path
-                                bounds = pad.gbounds
-                                for {point} in ..segments
-                                    # check all segments of the path
-                                    if point.is-inside bounds
-                                        connected++
-                                        break search
+                total = 0
+                for netid, state of conn-states
+                    unconnected += state.unconnected
+                    total += state.total
+                pcb.ractive.set 'totalConnections', total
                 pcb.ractive.set 'unconnectedCount', unconnected
-                pcb.ractive.set 'connectedCount', connected
             else
                 PNotify.notice text: "No schema present at the moment."
 

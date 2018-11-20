@@ -134,6 +134,18 @@ export class Pad extends ComponentBase
         @ttip.scale ...scale-factor
         @ttip.rotate (180 - 2 * (rotation % 360)), @ttip.bounds.center
 
+    cu-bounds: ~
+        # Copper bounds
+        ->
+            # Workaround for getting global bounds of @g
+            r = new @scope.Path.Rectangle rectangle: @cu.bounds
+                ..rotate @grotation
+                ..position = @gpos
+            bounds = r.bounds.clone!
+            r.remove!
+            return bounds
+
+
     selected: ~
         # TODO: Create a more beautiful selection shape
         (val) ->

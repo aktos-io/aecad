@@ -47,5 +47,4 @@ export do
         @remove-helpers!
         @vias.length = 0
 
-        @schema?.clear-guides!
-        console.log "Trace ended."
+        @clear-guides!

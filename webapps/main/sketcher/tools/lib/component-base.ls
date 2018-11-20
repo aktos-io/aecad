@@ -122,10 +122,12 @@ export class ComponentBase
         # Global bounds
         ->
             # Workaround for getting global bounds of @g
-            r = new @scope.Path.Rectangle @g.bounds
+            r = new @scope.Path.Rectangle rectangle: @g.bounds
                 ..rotate @grotation
                 ..position = @gpos
-            return r.bounds
+            bounds = r.bounds.clone!
+            r.remove!
+            return bounds
 
     selected: ~
         -> @g.selected

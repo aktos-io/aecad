@@ -94,7 +94,8 @@ ack-button.mini.icon(
     ack-button.icon(
         on-click="calcUnconnected"
         tooltip="Unconnected count"
-        ) {{connectedCount}}/{{unconnectedCount}}
+        class="{{#if unconnectedCount}}red{{else}}green{{/if}}"
+        ) {{unconnectedCount}}/{{totalConnections}}
     
 div
 canvas#draw
