@@ -83,7 +83,7 @@ export do
                 for trace-item in traces
                     if trace-item `is-connected` bounds
                         state.tree[][trace-item.id].push pad
-                        console.log "...found a connection: ", trace-item
+                        #console.log "...found a connection: ", trace-item
 
             # reduce the connection tree
             ref = []
@@ -96,7 +96,7 @@ export do
                 for pad in pads
                     refs = ref.map (.cid)
                     if pad.cid in refs
-                        console.log "...they have mutual pads, merge this branch (#{index}) into ref: #{pad.cid}"
+                        #console.log "...they have mutual pads, merge this branch (#{index}) into ref: #{pad.cid}"
                         for pads when pad.cid not in refs
                             ref.push ..
                         delete state.tree[index]
@@ -105,7 +105,7 @@ export do
                 # at this point, we have multiple branches. (which means unconnected nets)
                 if empty state.unconnected-pads
                     # add first ref pad as unconnected
-                    console.log "...adding first pad of reference tree"
+                    #console.log "...adding first pad of reference tree"
                     state.unconnected-pads.push first ref
 
                 # take the inspected net's first pad as "unconnected pad"
@@ -137,7 +137,7 @@ export do
             else
                 state.unconnected-pads.length - 1
 
-        console.log ":::: Connection states: ", connection-states
+        #console.log ":::: Connection states: ", connection-states
         return connection-states
 
     get-traces: ->
@@ -145,6 +145,7 @@ export do
         for trace in @scope.get-components {exclude: '*', include: <[ Trace ]>}
             netid = trace.item.data.aecad.netid
             unless netid
+                console.warn "A trace with no netid found. How could this be possible?", trace.item
                 trace.item.remove!
                 continue
 
