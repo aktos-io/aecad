@@ -50,7 +50,8 @@ export helpers =
             p.remove!
         @helpers-subs?.remove!
 
-    update-helpers: (point, names=<[ x y s bs ]>) ->
+    update-helpers: (_point, names=<[ x y s bs ]>) ->
+        point = _point.clone!
         for name, h of @helpers when name in names
             switch name
             | 'x' =>

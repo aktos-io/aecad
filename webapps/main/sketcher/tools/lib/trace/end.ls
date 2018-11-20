@@ -1,3 +1,9 @@
+require! 'prelude-ls': {empty, abs}
+
+is-close = (v1, v2, tolerance=0.01) ->
+    abs(v1 - v2) < tolerance
+
+
 export do
     reduce: (line) !->
         to-be-removed = []
@@ -22,7 +28,7 @@ export do
             console.log "Reducing the line segments."
             line.segments[s - i].remove!
 
-    end: ->
+    end: (pad) ->
         if @line
             # remove moving point
             @line.removeSegment (@line.segments.length - 1)
@@ -36,8 +42,39 @@ export do
 
             @reduce @line
 
-        unless @g.hasChildren()
-            console.log "empty trace, removing"
+            if pad and @line
+                snap = pad.gpos
+                # properly snap to target
+
+                # remove redundant segments inside pad
+                while @line.segments.length >= 3
+                    if @line.segments[*-2].point.is-inside pad.gbounds
+                        @line.removeSegment (@line.segments.length - 1)
+                    else
+                        break
+
+                if @line.segments.length >= 3
+                    mp = @line.segments[*-3].point # mate point
+                    pp = @line.segments[*-2].point # previous point
+                    lp = @line.segments[*-1].point # last point
+
+                    lline = @scope._Line lp, pp
+                    pline = @scope._Line pp, mp
+
+                    #@tmp-marker mp, {color: \pink}
+                    #@tmp-marker pp, {color: \green}
+                    #@tmp-marker lp, {color: \blue}
+
+                    lline.through snap
+                    if lline.intersect pline
+                        #@tmp-marker that, {color: 'red'}
+                        pp.set that
+                        lp.set snap
+                    else
+                        debugger
+
+        if empty @g.children or not @netid
+            console.warn "empty/unused trace, removing"
             @g.remove!
         else
             #@g.bounds.selected = true

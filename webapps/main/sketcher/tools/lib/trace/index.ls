@@ -152,14 +152,16 @@ export class Trace extends Container implements follow, helpers, end
 
         unless @continues
             @scope.selection.clear!
+            snap = point.clone! # use the event point as is
+        else
+            snap = @moving-point
 
         # Check if we should snap to the hit point
-        hits = @scope.hitTestAll point, {
+        hits = @scope.hitTestAll snap, {
             tolerance: 1,
             -aecad # in order to prevent scope.on-zoom subscription leak
             exclude: @g
         }
-        snap = point.clone! # use the event point as is
         actaul-hit = null
         for hit in hits
             #console.log "trace hit to: ", hit
@@ -209,13 +211,10 @@ export class Trace extends Container implements follow, helpers, end
                         We can't connect to a different netid:
                         Expected: #{@netid}, got: #{pad.netid}
                         """
-
-                # for visual inspection
-                @g.selected = true
-                @g.bounds.selected = true
                 return
             # Snap to this pad
             snap = pad.gpos
+            PNotify.info text: "Snap: x:#{one-decimal snap.x} y:#{one-decimal snap.y}"
             if @continues
                 reached-target = yes
             @show-guides!
@@ -236,7 +235,7 @@ export class Trace extends Container implements follow, helpers, end
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
 
-            @line = new @scope.Path(snap.clone!)
+            @line = new @scope.Path(snap)
                 ..strokeColor = curr.layer.color
                 ..strokeWidth = curr.trace.width |> mm2px
                 ..strokeCap = 'round'
@@ -246,15 +245,11 @@ export class Trace extends Container implements follow, helpers, end
                     side: curr.layer.name
                 ..parent = @g
 
-            unless @line.parent
-                debugger
-                @g.add-child @line
-
-            @line.add snap.clone!
+            @line.add snap
 
             if new-trace
-                @set-helpers snap.clone!
-            @update-helpers snap.clone!
+                @set-helpers snap
+            @update-helpers snap
 
             /* for debugging purposes:
             new @scope.Shape.Circle do
@@ -264,22 +259,17 @@ export class Trace extends Container implements follow, helpers, end
                 data: {+tmp}
             */
 
-            # Paper.js bug: above @line doesn't start in
-            # `snap` point
-            sleep 300ms, ~>
-                @line?.firstSegment.point.set snap
-
         else
             console.log "about to update helpers"
-            @update-helpers (@moving-point)
+            @update-helpers snap
             console.log "helpers updated"
-            @line.add (@moving-point)
+            @line.add snap
 
         @commit-corr-point!
 
         if reached-target
             console.log "Trace reached to a target: ", pad.uname, pad
-            @end!
+            @end pad
 
 
     add-via: ->
