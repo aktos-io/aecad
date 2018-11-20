@@ -123,9 +123,10 @@ export do
                     if first ref
                         state.unconnected-pads.push that
 
-                # precaution
+                # prevent duplicate entries
                 if pad.cid in state.unconnected-pads.map (.cid)
-                    throw new Error "How come we attempted to insert duplicate Pads?"
+                    # we might insert this pad if ref had 1 pad in it
+                    continue
 
                 # add the pad into unconnected pad list
                 state.unconnected-pads.push pad
