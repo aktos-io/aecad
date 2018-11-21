@@ -188,6 +188,7 @@ export class ComponentBase
 
     tmp-marker: (point, opts={}) ->
         # will be used for debugging purposes
+        console.warn "Placing a tmp marker to:", point, "opts: ", opts
         new @scope.Path.Circle {
             center: point
             data: {+tmp}

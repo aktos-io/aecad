@@ -54,10 +54,11 @@ export do
         }
         */
         marker = (rect) ~>
+            console.warn "Placing a tmp marker:", rect
             new @scope.Path.Rectangle {
                 rectangle: rect
-                stroke-color: 'blue'
-                stroke-width: 0.1
+                stroke-color: 'white'
+                stroke-width: 0.2
                 opacity: 0.5
                 data: {+tmp}
                 selected: true
@@ -80,7 +81,7 @@ export do
             named-branches = {}
             for index, pad of state.pads
                 bounds = pad.cu-bounds
-                marker bounds               # REMOVEME: for visual inspection of the bounds
+                #marker bounds
                 for trace-item in traces
                     if trace-item `is-connected` bounds
                         named-branches[][trace-item.id].push pad
@@ -101,7 +102,7 @@ export do
                         merged = union merged, branch2
                         _mindex.push i2
                 mbranches.push merged
-            
+
             # There are 3 possibilities here:
             # 1. Reference net (and its pads)
             # 2. Stray nets (and their pads)
@@ -137,7 +138,7 @@ export do
             else
                 state.unconnected-pads.length - 1
 
-        console.log ":::: Connection states: ", connection-states
+        #console.log ":::: Connection states: ", connection-states
         return connection-states
 
     get-traces: ->
