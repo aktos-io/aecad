@@ -152,3 +152,16 @@ make-tests "net-merge", tests =
                 <[ a b c d e ]>
                 ...
             stray: []
+
+    'non-functional connection': ->
+        net = <[ a b c d e ]>
+        tree =
+            <[ a ]>
+            ...
+
+        expect net-merge tree, net
+        .to-equal do
+            merged:
+                <[ a ]>
+                ...
+            stray: <[ a b c d e ]>
