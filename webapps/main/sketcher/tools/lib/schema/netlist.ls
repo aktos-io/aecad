@@ -18,18 +18,14 @@ is-connected = (item, pad) ->
             console.warn "Removing 1 segment path:", ..
             ..remove!
             continue
-        dont-match = no
         trace-side = ..data?.aecad?.side
         unless pad.side-match trace-side
             #console.warn "Not on the same side, won't count as a connection: ", pad, item
-            dont-match = yes
+            continue
         for {point} in ..segments
             # check all segments of the path
             if point.is-inside pad-bounds
-                if dont-match
-                    console.warn "We shouldn't report match: trace side: #{trace-side}, pad-side: #{pad.side}"
                 return true
-        return false
     unless item.hasChildren()
         console.warn "Removing empty item", item
         item.remove!
@@ -89,27 +85,23 @@ export do
             state = connection-states.{}[netid]
                 ..traces = traces = _traces[netid] or []
                 ..total = unique [..uname for net] .length - 1    # Number of possible connections
-                ..log = []
+                ..unconnected-pads = []
 
-            # for debugging purposes
-            log = -> state.log.push arguments
-
-            log "Processing net: ", [.. for net]
             # create the connection tree
-            branches = []
-            for index, pad of net
-                branch = []
+            connected-pads = {}
+            for pad in net
                 for trace-item in traces
                     if trace-item `is-connected` pad
-                        branch.push pad
-                        log "...netid: #{netid}: found a connection with trace: #{trace-item.id}", trace-item, pad
+                        # many traces may be connected to the same pad
+                        connected-pads[][trace-item.id].push pad
+                        #console.log "...netid: #{netid}: found a connection with trace: #{trace-item.id}", trace-item, pad
 
             # merge connection tree
-            named-branches = [..map (.uname) for branches]
-            state.merged = net-merge branches, net
+            named-connections = [v.map (.uname) for k, v of connected-pads]
+            state.reduced = net-merge named-connections, [..uname for net]
 
             # generate Pad object list
-            state.unconnected-pads = [.. for net when ..uname in state.merged.stray]
+            state.unconnected-pads = [.. for net when ..uname in state.reduced.stray]
 
             # report the unconnected count
             state.unconnected = if empty state.unconnected-pads
