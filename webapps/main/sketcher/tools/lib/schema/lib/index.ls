@@ -1,5 +1,7 @@
 require! './next-id': {next-id}
+require! './net-merge': {net-merge}
 export next-id
+export net-merge
 
 require! 'prelude-ls': {empty, difference}
 

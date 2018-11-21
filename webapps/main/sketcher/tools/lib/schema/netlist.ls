@@ -6,11 +6,10 @@ require! 'prelude-ls': {
 
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad}
-require! './lib': {parse-name}
+require! './lib': {parse-name, net-merge}
 
 is-connected = (item, pad) ->
     pad-bounds = pad.cu-bounds
-    pad-side = pad.side
     # Check if item is **properly** connected to the rectangle
     for item.children or []
         unless ..getClassName! is \Path
@@ -19,13 +18,18 @@ is-connected = (item, pad) ->
             console.warn "Removing 1 segment path:", ..
             ..remove!
             continue
-        unless pad.side-match ..data?.aecad?.side
+        dont-match = no
+        trace-side = ..data?.aecad?.side
+        unless pad.side-match trace-side
             #console.warn "Not on the same side, won't count as a connection: ", pad, item
-            continue
+            dont-match = yes
         for {point} in ..segments
             # check all segments of the path
             if point.is-inside pad-bounds
+                if dont-match
+                    console.warn "We shouldn't report match: trace side: #{trace-side}, pad-side: #{pad.side}"
                 return true
+        return false
     unless item.hasChildren()
         console.warn "Removing empty item", item
         item.remove!
@@ -85,64 +89,27 @@ export do
             state = connection-states.{}[netid]
                 ..traces = traces = _traces[netid] or []
                 ..total = unique [..uname for net] .length - 1    # Number of possible connections
-                ..unconnected = null
-                ..pads = [.. for net]
-                ..tree = {}
-                ..unconnected-pads = []
                 ..log = []
 
-            # create the connection tree branches
-            named-branches = {}
-            for index, pad of state.pads
+            # for debugging purposes
+            log = -> state.log.push arguments
+
+            log "Processing net: ", [.. for net]
+            # create the connection tree
+            branches = []
+            for index, pad of net
+                branch = []
                 for trace-item in traces
                     if trace-item `is-connected` pad
-                        named-branches[][trace-item.id].push pad
-                        msg = ["...netid: #{netid}: found a connection: #{trace-item.id}", trace-item]
-                        state.log.push msg
+                        branch.push pad
+                        log "...netid: #{netid}: found a connection with trace: #{trace-item.id}", trace-item, pad
 
-            # build the tree regarding to branches
-            # - TODO: https://stackoverflow.com/q/21900713/1952991
-            # if mutual pads can be found between two branches, create a new branch with them
-            branches = [branch.map((.uname)) for tid, branch of named-branches]
-            mbranches = [] # merged branches (mark them in order not to include twice)
-            _mindex = [] # merged branch indexes
-            for i1, branch1 of branches when i1 not in _mindex
-                merged = branch1
-                for i2, branch2 of branches when i2 > i1 and i2 not in _mindex
-                    # combinations
-                    unless empty intersection branch1, branch2
-                        merged = union merged, branch2
-                        _mindex.push i2
-                mbranches.push merged
-
-            # There are 3 possibilities here:
-            # 1. Reference net (and its pads)
-            # 2. Stray nets (and their pads)
-            # 3. Stray pads
-            #
-            # Procedure:
-            # 1. If there are stray pads or stray net(s), sample a pad from ref.
-            #    and put into unconnected too
-
-            unconn = [] # unconnected pad names
-            stray-pads = (unique [..uname for net]) `difference` flatten mbranches
-            if not empty stray-pads or not mbranches.length > 1
-                # we have unconnected pads, use `first ref` as entry point
-                if first mbranches
-                    unconn.push first that
-
-            for stray-pads
-                unconn.push ..
-
-            # add stray nets' first pads as entry point
-            for tail mbranches or []
-                unconn.push first ..
+            # merge connection tree
+            named-branches = [..map (.uname) for branches]
+            state.merged = net-merge branches, net
 
             # generate Pad object list
-            state.unconnected-pads = [.. for net when ..uname in unconn]
-
-            state.unconn = unconn
-            state.mbranches = mbranches
+            state.unconnected-pads = [.. for net when ..uname in state.merged.stray]
 
             # report the unconnected count
             state.unconnected = if empty state.unconnected-pads
