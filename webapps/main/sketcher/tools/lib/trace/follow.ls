@@ -9,13 +9,11 @@ export follow =
             @corr-point = point.clone!
             @line.insert (@line.segments.length - 1), @corr-point
         else
-            console.log "Updating the correction point."
             @line.segments[* - 2].point.set point
 
     remove-corr-point: ->
         if @corr-point
             if @line.segments.length > 2
-                console.log "Removing the correction point."
                 @line.removeSegment (@line.segments.length - 2)
             @corr-point = null
 
