@@ -80,16 +80,16 @@ ack-button.mini.icon(
         tooltip="Save selection bounds coordinate"
         ): icon.map.marker.alternate.blue
 
-    ack-button.icon(
-        on-click="moveToCenter" 
-        tooltip="Move to last saved coordinates"
-        ): icon.magnet.blue
-
 +space
 .ui.mini.buttons
     ack-button.icon(
+        on-click="moveToCenter" 
+        tooltip="Move selected to last saved coordinates"
+        ): icon.magnet.green
+
+    ack-button.icon(
         on-click="measureDistance" 
-        tooltip="Measure Distance"
+        tooltip="Measure Distance from last saved coordinates"
         ): icon.ellipsis.vertical.green
 
 +space

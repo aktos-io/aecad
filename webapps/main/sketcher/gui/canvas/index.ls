@@ -122,17 +122,22 @@ export init = (pcb) ->
                 addClass: 'nonblock'
 
         moveToCenter: (ctx) ->
-            pcb.history.commit!
-            center = pcb.ractive.get \lastBounds .center
-            for selection.selected
-                ..position.set center
+            bounds = pcb.ractive.get \lastBounds
+            if bounds and not empty selection.selected
+                pcb.history.commit!
+                for selection.selected
+                    ..position.set bounds.center
+            else
+                PNotify.notice text: "Not possible."
 
         measureDistance: (ctx) ->
-            prev = pcb.ractive.get \distReference
-            curr = pcb.get-bounds selection.selected .center
-            selection.clear!
-            pcb.ractive.set \distReference, curr
-            if prev
+            bounds = pcb.ractive.get \lastBounds
+            unless bounds or empty selection.selected
+                PNotify.notice text: "Not possible."
+            else
+                prev = bounds.center
+                curr = pcb.get-bounds selection.selected .center
+
                 line = new pcb.Path.Line do
                     from: prev
                     to: curr
