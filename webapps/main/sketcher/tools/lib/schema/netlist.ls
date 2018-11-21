@@ -15,14 +15,20 @@ is-connected = (item, pad) ->
     for item.children or []
         unless ..getClassName! is \Path
             continue
-
+        if ..segments.length is 1
+            console.warn "Removing 1 segment path:", ..
+            ..remove!
+            continue
         unless pad.side-match ..data?.aecad?.side
-            console.warn "Not on the same side, won't count as a connection: ", pad
+            #console.warn "Not on the same side, won't count as a connection: ", pad, item
             continue
         for {point} in ..segments
             # check all segments of the path
             if point.is-inside pad-bounds
                 return true
+    unless item.hasChildren()
+        console.warn "Removing empty item", item
+        item.remove!
     return false
 
 
@@ -78,7 +84,7 @@ export do
         for netid, net of @connection-list
             state = connection-states.{}[netid]
                 ..traces = traces = _traces[netid] or []
-                ..total = net.length - 1    # Number of possible connections
+                ..total = unique [..uname for net] .length - 1    # Number of possible connections
                 ..unconnected = null
                 ..pads = [.. for net]
                 ..tree = {}
@@ -119,7 +125,7 @@ export do
             #    and put into unconnected too
 
             unconn = [] # unconnected pad names
-            stray-pads = [..uname for net] `difference` flatten mbranches
+            stray-pads = (unique [..uname for net]) `difference` flatten mbranches
             if not empty stray-pads or not mbranches.length > 1
                 # we have unconnected pads, use `first ref` as entry point
                 if first mbranches
@@ -132,7 +138,7 @@ export do
             for tail mbranches or []
                 unconn.push first ..
 
-            # generate pad list
+            # generate Pad object list
             state.unconnected-pads = [.. for net when ..uname in unconn]
 
             state.unconn = unconn
@@ -144,7 +150,7 @@ export do
             else
                 state.unconnected-pads.length - 1
 
-        #console.log ":::: Connection states: ", connection-states
+        console.log ":::: Connection states: ", connection-states
         return connection-states
 
     get-traces: ->
