@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, tail
+    first, tail, unique-by, intersection, union
 }
 
 # deps
@@ -69,67 +69,67 @@ export do
         for netid, net of @connection-list
             state = connection-states.{}[netid]
                 ..traces = traces = _traces[netid] or []
-                # Number of total connections (edges) we should have
-                ..total = net.length - 1
-                ..unconnected = -1
+                ..total = net.length - 1    # Number of possible connections
+                ..unconnected = null
                 ..pads = [.. for net]
                 ..tree = {}
                 ..unconnected-pads = []
+                ..log = []
 
-            # build connection tree
+            # create the connection tree branches
+            named-branches = {}
             for index, pad of state.pads
                 bounds = pad.cu-bounds
-                marker bounds # for visual inspection of the bounds
+                marker bounds               # REMOVEME: for visual inspection of the bounds
                 for trace-item in traces
                     if trace-item `is-connected` bounds
-                        state.tree[][trace-item.id].push pad
-                        #console.log "...found a connection: ", trace-item
+                        named-branches[][trace-item.id].push pad
+                        msg = ["...netid: #{netid}: found a connection: #{trace-item.id}", trace-item]
+                        state.log.push msg
 
-            # reduce the connection tree
-            ref = []
-            :reduce for index, pads of state.tree
-                # first net is the reference
-                if empty ref
-                    ref = pads
-                    continue
-                # try to merge rest of tree branches into first one (the ref branch)
-                for pad in pads
-                    refs = ref.map (.cid)
-                    if pad.cid in refs
-                        #console.log "...they have mutual pads, merge this branch (#{index}) into ref: #{pad.cid}"
-                        for pads when pad.cid not in refs
-                            ref.push ..
-                        delete state.tree[index]
-                        continue reduce
+            # build the tree regarding to branches
+            # - TODO: https://stackoverflow.com/q/21900713/1952991
+            # if mutual pads can be found between two branches, create a new branch with them
+            branches = [branch.map((.uname)) for tid, branch of named-branches]
+            mbranches = [] # merged branches (mark them in order not to include twice)
+            _mindex = [] # merged branch indexes
+            for i1, branch1 of branches when i1 not in _mindex
+                merged = branch1
+                for i2, branch2 of branches when i2 > i1 and i2 not in _mindex
+                    # combinations
+                    unless empty intersection branch1, branch2
+                        merged = union merged, branch2
+                        _mindex.push i2
+                mbranches.push merged
+            
+            # There are 3 possibilities here:
+            # 1. Reference net (and its pads)
+            # 2. Stray nets (and their pads)
+            # 3. Stray pads
+            #
+            # Procedure:
+            # 1. If there are stray pads or stray net(s), sample a pad from ref.
+            #    and put into unconnected too
 
-                # at this point, we have multiple branches. (which means unconnected nets)
-                if empty state.unconnected-pads
-                    # add first ref pad as unconnected
-                    #console.log "...adding first pad of reference tree"
-                    state.unconnected-pads.push first ref
+            unconn = [] # unconnected pad names
+            stray-pads = [..uname for net] `difference` flatten mbranches
+            if not empty stray-pads or not mbranches.length > 1
+                # we have unconnected pads, use `first ref` as entry point
+                if first mbranches
+                    unconn.push first that
 
-                # take the inspected net's first pad as "unconnected pad"
-                state.[]unconnected-pads.push first pads
+            for stray-pads
+                unconn.push ..
 
-            # we reduced the state.tree in state.unconnected-pads.
-            # add any stray pads that is not present in the tree into the unconnected-pads
-            if ref.length is 1
-                # we can't consider this as a reference "connection" (it's not a connection)
-                state.unconnected-pads.push ref.pop!
+            # add stray nets' first pads as entry point
+            for tail mbranches or []
+                unconn.push first ..
 
-            for pad in net when pad.cid not in ref.map (.cid)
-                if empty state.unconnected-pads
-                    # add first ref pad as unconnected
-                    if first ref
-                        state.unconnected-pads.push that
+            # generate pad list
+            state.unconnected-pads = [.. for net when ..uname in unconn]
 
-                # prevent duplicate entries
-                if pad.cid in state.unconnected-pads.map (.cid)
-                    # we might insert this pad if ref had 1 pad in it
-                    continue
-
-                # add the pad into unconnected pad list
-                state.unconnected-pads.push pad
+            state.unconn = unconn
+            state.mbranches = mbranches
 
             # report the unconnected count
             state.unconnected = if empty state.unconnected-pads
@@ -137,7 +137,7 @@ export do
             else
                 state.unconnected-pads.length - 1
 
-        #console.log ":::: Connection states: ", connection-states
+        console.log ":::: Connection states: ", connection-states
         return connection-states
 
     get-traces: ->
