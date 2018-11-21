@@ -196,3 +196,7 @@ export class ComponentBase
             fill-color: opts.color or 'yellow'
             opacity: 0.8
         }
+
+    side: ~
+        # eg. F.Cu, B.Cu
+        -> @get-data \side

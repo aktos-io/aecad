@@ -7,9 +7,14 @@ require! 'prelude-ls': {empty, sort-by}
 
 Pad
     .side           : F.Cu/B.Cu
+    .match-side     : [side] check if the pad is present on the given side
     .position       : in px
     .gpos           : global position
     .gbounds        : global bounds
+    .pin            : fully qualified pin label (eg. "P.C1.gnd")
+    .uname          : uniqe pin name (eg. "P.C1.gnd(5)")
+    .label          : label seen on the pad (eg. "gnd")
+    .num            : exact pin number in the footprint (eg. "5")
 
 
 /* ------------------------------------------------- */
@@ -109,15 +114,11 @@ export class Pad extends ComponentBase
         new @constructor @parent, (opts <<<< opts)
     */
 
-    side: ~
-        # eg. F.Cu, B.Cu
-        -> @get-data \side
-
     side-match: (side) ->
-        our-side = @side or @owner.get-data 'side'
+        our-side = @owner.side or @side
         if side is our-side or @drill?
             return true
-        console.log "searching side doesn't match:", side
+        #console.log "searching side (#{side}) doesn't match with ours: #{our-side}"
         return false
 
     print-mode: (layers, our-side) ->
