@@ -6,6 +6,7 @@ require! 'aea': {create-download}
 require! 'aea/do-math': {mm2px}
 require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
+require! '../../tools/lib/schema/tests': {schema-tests}
 
 {text2arr} = tool-lib
 {keys, values, map, filter, find} = prelude-ls
@@ -101,11 +102,12 @@ export init = (pcb) ->
                 #pcb._scope.execute js
 
                 name = opts.name or @get \scriptName
-                PNotify.info do
-                    text: """
-                        Script: #{name}
-                        """
-                    addClass: 'nonblock'
+                unless opts.silent
+                    PNotify.info do
+                        text: """
+                            Script: #{name}
+                            """
+                        addClass: 'nonblock'
 
             catch
                 @set \output, "ERROR: \n\n" + (@get 'output') + "#{e}"
@@ -116,7 +118,18 @@ export init = (pcb) ->
                 # See https://github.com/ceremcem/aecad/issues/8
 
     # Register all classes on app load
-    runScript '# placeholder content', {-clear, name: 'Initialization run'}
+    runScript '# placeholder content', {-clear, name: 'Initialization run', +silent}
+
+    # perform tests
+    schema-tests (err) ->
+        unless err
+            PNotify.success text: "All schema tests are passed."
+        else
+            PNotify.error text: """
+                Failed Schema tests:
+
+                #{err.message or 'Check console'}
+                """
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile

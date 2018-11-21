@@ -122,17 +122,7 @@ export {
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
-  
-  add-class class NPN extends SOT23
-      @rev_NPN = 1
-      (data={}) -> 
-          defaults =
-              labels:
-                  1: 'b'
-                  2: 'e'
-                  3: 'c'
-          super defaults <<< data 
-  
+          
   
   power = 
       iface: 'vfs, vff, 5v, 3v3, gnd'
@@ -216,7 +206,7 @@ export {
       bom:
           led-driver: 'DR'
           C1206: 
-              "$color": "D1"  # Led aaaa
+              "$color": "D1"  # Led
   sgw =         
       netlist:
           1: 'rpi.gnd gnd'
@@ -240,18 +230,31 @@ export {
           'Conn_1pin_thd' : '_1, _2, _3, _4'
   
   sch = new Schema {name: 'sgw', data: sgw}
+      ..clear-guides!
       ..compile!
-      ..guide-all!
+      #..guide-all!
+      ..guide-unconnected!
+  
+  /*    
+  out = []
+  for k, v of sch.flatten-netlist
+      out.push "'#{k}': <[ #{v.join ' '} ]>"
+  console.log out.join('\\n')
+  */
+      
+  pcb.ractive.fire 'calcUnconnected'
   
   upgrades = sch.get-upgrades!
   unless empty upgrades
       pcb.vlog.info upgrades.map((.reason)).join('\\n\\n')
+  
 '''
 'lib-PinArray': '''
   add-class class PinArray extends Footprint
       (data) -> 
           super ...
-          delete data.parent
+          if data.parent
+              throw "how do we have parent?"
           unless @resuming
               #console.log "Creating from scratch PinArray"
               start = data.start or 1
@@ -604,6 +607,18 @@ export {
           super defaults <<< data 
   
   #new SOT23
+  
+  
+  add-class class NPN extends SOT23
+      @rev_NPN = 1
+      (data={}) -> 
+          defaults =
+              labels:
+                  1: 'b'
+                  2: 'e'
+                  3: 'c'
+          super defaults <<< data
+  
 '''
 'lib-LM1117': '''
   #! requires SOT223
@@ -617,59 +632,5 @@ export {
               4: 'vout'
           super ...
   
-'''
-'lib-SOT223 (update: 1542508841617)': '''
-  # Sot223
-  #! requires DoublePinArray
-  add-class class SOT223 extends DoublePinArray
-      (data={}) -> 
-          defaults =
-              name: 'c_'
-              distance: 6.3mm
-              left: 
-                  start: 4
-                  pad:
-                      width: 2.15mm
-                      height: 3.8mm
-                  cols:
-                      count: 1
-              right:
-                  dir: '-y'
-                  pad:
-                      width: 2mm
-                      height: 1.5mm
-                  rows:
-                      count: 3
-                      interval: 2.3mm
-  
-          super defaults <<< data 
-  
-  add-class class SOT23 extends DoublePinArray
-      (data={}) -> 
-          pad = 
-              width: 0.9mm
-              height: 0.7mm
-              
-          defaults =
-              name: 'c_'
-              distance: 2mm
-              left: 
-                  start: 3
-                  pad: pad 
-                  cols:
-                      count: 1
-              right:
-                  dir: '-y'
-                  pad: pad
-                  rows:
-                      count: 2
-                      interval: 1.9mm
-              border:
-                  width: 1.43mm
-                  height: 3mm
-  
-          super defaults <<< data 
-  
-  #new SOT23
 '''
 }
