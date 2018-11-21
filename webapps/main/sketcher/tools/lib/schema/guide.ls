@@ -3,9 +3,9 @@ require! './lib': {combinations}
 require! 'prelude-ls': {reverse}
 
 export do
-    guide-for: (ref) ->
+    guide-for: (ref, targets) ->
         guides = []
-        for pads in @netlist
+        for pads in targets or @netlist
             for index til pads.length - 1
                 line =
                     pads[index]
@@ -25,8 +25,8 @@ export do
         @guide-for!
 
     guide-unconnected: ->
-        states = @get-connection-states!
-        console.log "States: ", states 
+        unconnecteds = [o.unconnected-pads for i, o of @get-connection-states!]
+        @guide-for null, unconnecteds
 
     create-guide: (pad1, pad2, _opts={}) ->
         opts = {+selected} <<< _opts
