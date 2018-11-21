@@ -34,6 +34,9 @@ export class Line
     get-angle: ->
         @_line.vector.angle
 
+    angle: ~
+        -> @get-angle!
+
     rotate: (degree, opts={}) ->
         rotation = degree
         if opts.absolute

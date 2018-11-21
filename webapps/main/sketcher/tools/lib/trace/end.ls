@@ -40,14 +40,12 @@ export do
             if @line.segments.length is 1
                 @line.remove!
 
-            @reduce @line
-
             if pad and @line
                 snap = pad.gpos
                 # properly snap to target
 
                 # remove redundant segments inside pad
-                while @line.segments.length >= 3
+                while @line.segments.length >= 2
                     if @line.segments[*-2].point.is-inside pad.gbounds
                         @line.removeSegment (@line.segments.length - 1)
                     else
@@ -61,17 +59,15 @@ export do
                     lline = @scope._Line lp, pp
                     pline = @scope._Line pp, mp
 
-                    #@tmp-marker mp, {color: \pink}
-                    #@tmp-marker pp, {color: \green}
-                    #@tmp-marker lp, {color: \blue}
-
                     lline.through snap
                     if lline.intersect pline
-                        #@tmp-marker that, {color: 'red'}
                         pp.set that
                         lp.set snap
                     else
                         debugger
+
+            @reduce @line
+
 
         if empty @g.children or not @netid
             console.warn "empty/unused trace, removing"

@@ -156,6 +156,10 @@ export class Trace extends Container implements follow, helpers, end
         else
             snap = @moving-point
 
+        if @line?segments.length > 2 and snap.isClose @line.segments[*-2].point, 0.1
+            console.warn "Skipping: too close segments.", Date.now!
+            return
+
         # Check if we should snap to the hit point
         hits = @scope.hitTestAll snap, {
             tolerance: 1,
@@ -214,7 +218,6 @@ export class Trace extends Container implements follow, helpers, end
                 return
             # Snap to this pad
             snap = pad.gpos
-            PNotify.info text: "Snap: x:#{one-decimal snap.x} y:#{one-decimal snap.y}"
             if @continues
                 reached-target = yes
             @show-guides!
