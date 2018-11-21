@@ -199,4 +199,4 @@ export class ComponentBase
 
     side: ~
         # eg. F.Cu, B.Cu
-        -> @get-data \side
+        -> @owner.get-data 'side' or @get-data \side
