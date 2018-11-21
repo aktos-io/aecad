@@ -84,7 +84,7 @@ export do
         for netid, net of @connection-list
             state = connection-states.{}[netid]
                 ..traces = traces = _traces[netid] or []
-                ..total = unique [..uname for net] .length - 1    # Number of possible connections
+                ..total = unique [..pin for net] .length - 1    # Number of possible connections
                 ..unconnected-pads = []
 
             # create the connection tree
@@ -97,11 +97,11 @@ export do
                         #console.log "...netid: #{netid}: found a connection with trace: #{trace-item.id}", trace-item, pad
 
             # merge connection tree
-            named-connections = [v.map (.uname) for k, v of connected-pads]
-            state.reduced = net-merge named-connections, [..uname for net]
+            named-connections = [v.map (.pin) for k, v of connected-pads]
+            state.reduced = net-merge named-connections, [..pin for net]
 
             # generate Pad object list
-            state.unconnected-pads = [.. for net when ..uname in state.reduced.stray]
+            state.unconnected-pads = [.. for net when ..pin in state.reduced.stray]
 
             # report the unconnected count
             state.unconnected = if empty state.unconnected-pads
