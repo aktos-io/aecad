@@ -3,6 +3,17 @@ require! './component-base': {ComponentBase}
 require! 'aea/do-math': {mm2px}
 require! 'prelude-ls': {empty, sort-by}
 
+/* -------------------------------------------------
+
+Pad
+    .side           : F.Cu/B.Cu
+    .position       : in px
+    .gpos           : global position
+    .gbounds        : global bounds
+
+
+/* ------------------------------------------------- */
+
 export class Pad extends ComponentBase
     (opts) ->
         # opts:
@@ -98,10 +109,21 @@ export class Pad extends ComponentBase
         new @constructor @parent, (opts <<<< opts)
     */
 
+    side: ~
+        # eg. F.Cu, B.Cu
+        -> @get-data \side
+
+    side-match: (side) ->
+        our-side = @side or @owner.get-data 'side'
+        if side is our-side or @drill?
+            return true
+        console.log "searching side doesn't match:", side
+        return false
+
     print-mode: (layers, our-side) ->
         if layers
             # switch to print mode
-            if @get-data \side
+            if @side
                 our-side = that
             #console.log "side we are in: ", our-side
             if our-side in layers or @drill?

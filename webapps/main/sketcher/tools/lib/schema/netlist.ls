@@ -8,12 +8,20 @@ require! 'prelude-ls': {
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad}
 require! './lib': {parse-name}
 
-is-connected = (item, rectangle) ->
+is-connected = (item, pad) ->
+    pad-bounds = pad.cu-bounds
+    pad-side = pad.side
     # Check if item is **properly** connected to the rectangle
-    for item.children or [] when ..getClassName! is \Path
+    for item.children or []
+        unless ..getClassName! is \Path
+            continue
+
+        unless pad.side-match ..data?.aecad?.side
+            console.warn "Not on the same side, won't count as a connection: ", pad
+            continue
         for {point} in ..segments
             # check all segments of the path
-            if point.is-inside rectangle
+            if point.is-inside pad-bounds
                 return true
     return false
 
@@ -80,10 +88,8 @@ export do
             # create the connection tree branches
             named-branches = {}
             for index, pad of state.pads
-                bounds = pad.cu-bounds
-                #marker bounds
                 for trace-item in traces
-                    if trace-item `is-connected` bounds
+                    if trace-item `is-connected` pad
                         named-branches[][trace-item.id].push pad
                         msg = ["...netid: #{netid}: found a connection: #{trace-item.id}", trace-item]
                         state.log.push msg
