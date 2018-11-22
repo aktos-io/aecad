@@ -130,6 +130,7 @@ export init = (pcb) ->
 
                 #{err.message or 'Check console'}
                 """
+            console.error err
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile
