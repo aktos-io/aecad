@@ -109,7 +109,7 @@ export do
             else
                 state.unconnected-pads.length - 1
 
-        console.log ":::: Connection states: ", connection-states
+        #console.log ":::: Connection states: ", connection-states
         return connection-states
 
     get-traces: ->

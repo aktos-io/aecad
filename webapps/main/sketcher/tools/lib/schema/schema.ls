@@ -236,8 +236,8 @@ export class Schema implements bom, footprints, netlist, guide
         @post-check!
 
         # Output the generated report
-        console.log "... #{@name}: Connection list:", @connection-list
-        console.log "... #{@name}: Netlist", @netlist
+        #console.log "... #{@name}: Connection list:", @connection-list
+        #console.log "... #{@name}: Netlist", @netlist
 
     post-check: ->
         # Error report (will stay for Alpha stage)
