@@ -62,29 +62,6 @@ export {
   #x.print-mode = yes 
   
 '''
-'canvas-helper': '''
-  cross = new class CanvasHelper extends Container 
-      -> 
-          super!
-          new Path.Line do
-              from: [-50, 0]
-              to: [50, 0]
-              stroke-color: \\white
-              parent: @g
-              
-          new Path.Line do
-              from: [0, -50]
-              to: [0, 50]
-              stroke-color: \\white
-              parent: @g
-              
-          @g.opacity = 0.5
-          @g.data.canvas-helper = true 
-          
-      print-mode: (val) -> 
-          @g.remove!
-  
-'''
 'pin-array-test': '''
   a = new PinArray do
       name: 'mypins1'
@@ -212,7 +189,7 @@ export {
           1: 'rpi.gnd gnd'
           gnd: "P.gnd cn.1 Pow- led1.gnd led2.gnd"
           vff: 'P.vff, cn.2, Pow+'
-          '3v3': 'P.3v3 rpi.3v3'
+          #'3v3': 'P.3v3 rpi.3v3'
           '5v': 'P.5v rpi.5v led1.vcc led2.vcc'
           2: 'led2.in rpi.3'
           
@@ -241,6 +218,8 @@ export {
       out.push "'#{k}': <[ #{v.join ' '} ]>"
   console.log out.join('\\n')
   */
+  
+  new RefCross
       
   pcb.ractive.fire 'calcUnconnected'
   
@@ -632,5 +611,30 @@ export {
               4: 'vout'
           super ...
   
+'''
+'lib-canvas-helpers': '''
+  add-class class RefCross extends Container 
+      -> 
+          super ...
+          unless @resumed 
+              new Path.Line do
+                  from: [-50, 0]
+                  to: [50, 0]
+                  stroke-color: \\white
+                  parent: @g
+                  
+              new Path.Line do
+                  from: [0, -50]
+                  to: [0, 50]
+                  stroke-color: \\white
+                  parent: @g
+      
+              @set-data 'helper', yes             
+  
+      print-mode: (val) -> 
+          @g.stroke-color = 'black'
+          
+          
+  new RefCross
 '''
 }
