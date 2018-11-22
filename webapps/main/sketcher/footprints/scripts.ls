@@ -138,8 +138,9 @@ export {
               "0 ohm": "R1, R2"
           'C1206': 
               "100uF": 'C13'
-              "1000uF": "C10"
               "10uF": "C11"
+          "CAP_thd":
+              "1000uF": "C10"
           'Inductor': 
               "100..360uH": 'L1'
           'DO214AC':
@@ -186,13 +187,11 @@ export {
               "$color": "D1"  # Led
   sgw =         
       netlist:
-          1: 'rpi.gnd gnd'
           gnd: "P.gnd cn.1 Pow- led1.gnd led2.gnd"
           vff: 'P.vff, cn.2, Pow+'
-          #'3v3': 'P.3v3 rpi.3v3'
           '5v': 'P.5v rpi.5v led1.vcc led2.vcc'
-          2: 'led2.in rpi.3'
-          
+          2: 'led2.in rpi.7'
+          3: 'led1.in rpi.0'
       schemas: {power, signal-led}
       iface: "Pow+, Pow-"
       bom:
@@ -479,6 +478,7 @@ export {
           data = defaults <<< data 
           super data
   
+  
   #new Conn_2pin_thd
   #new Conn_1pin_thd
   
@@ -598,6 +598,16 @@ export {
                   3: 'c'
           super defaults <<< data
   
+  add-class class PNP extends NPN
+      (data={}) -> 
+          defaults =
+              # same as NPN, duplicated for safety
+              labels: 
+                  1: 'b'
+                  2: 'e'
+                  3: 'c'
+          super defaults <<< data
+  
 '''
 'lib-LM1117': '''
   #! requires SOT223
@@ -635,6 +645,30 @@ export {
           @g.stroke-color = 'black'
           
           
-  new RefCross
+  #new RefCross
+'''
+'lib-cap-thd': '''
+  #! requires PinArray
+  add-class class CAP_thd extends PinArray
+      (data={}) -> 
+          defaults =
+              name: 'c_'
+              pad:
+                  dia: 1.5mm
+                  drill: 0.5mm
+              cols:
+                  count: 2
+                  interval: 4mm
+              rows:
+                  count: 1
+              labels:
+                  1: 'c'
+                  2: 'a'
+              border: 
+                  dia: 8mm
+  
+          super defaults <<< data 
+  
+  #new CAP_thd
 '''
 }
