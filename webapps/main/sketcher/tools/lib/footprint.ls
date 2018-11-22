@@ -2,14 +2,6 @@ require! './container': {Container}
 require! 'aea/do-math': {mm2px}
 
 export class Footprint extends Container
-    (data) ->
-        # data:
-        #   name: required
-        #   position: optional
-        #   rotation: optional
-        #   init: current drawing
-        super ...
-
     move: (displacement, opts={}) ->
         # Moves the component with a provided amount of displacement. Default: Relative
         # opts:
@@ -38,4 +30,7 @@ export class Footprint extends Container
     _loader: (item) ->
         console.warn "We have a stray item, selecting it: ", item
         item.selected = yes
-    
+
+    print-mode: ->
+        @border?.remove!
+        super ...
