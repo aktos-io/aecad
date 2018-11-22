@@ -1,6 +1,3 @@
-require! 'dcs/lib/test-utils': {make-tests}
-require! './schema': {Schema}
-
 power =
     iface: 'vfs, vff, 5v, 3v3, gnd'
     netlist:
@@ -106,56 +103,49 @@ sgw =
         # Virtual components
         'Conn_1pin_thd' : '_1, _2, _3, _4'
 
-tests = ->
-    make-tests "schema", tests =
-        1: ->
-            sch = new Schema {name: 'sgw', data: sgw}
-                ..compile!
+require! '../schema': {Schema}
 
-            flatten-netlist =
-                '1': <[ rpi.gnd gnd ]>
-                '2': <[ led2.in rpi.3 ]>
-                'gnd': <[ P.gnd cn.1 Pow- led1.gnd led2.gnd ]>
-                'vff': <[ P.vff cn.2 Pow+ ]>
-                '3v3': <[ P.3v3 rpi.3v3 ]>
-                '5v': <[ P.5v rpi.5v led1.vcc led2.vcc ]>
-                'Pow+': <[  ]>
-                'Pow-': <[  ]>
-                'P.1': <[ P.C1.vin P.vfs P.C13.a ]>
-                'P.2': <[ P.C1.out P.L1.1 P.D15.c ]>
-                'P.gnd': <[ P.C13.c P.C1.gnd P.C1.onoff P.D15.a P.C10.c P.C2.gnd P.D14.a P.C11.c ]>
-                'P._5v': <[ P.L1.2 P.C1.fb P.C10.a P.R1.1 P.C2.vin ]>
-                'P._3v3': <[ P.C11.a P.R2.1 P.C2.vout ]>
-                'P.5v': <[ P.R1.2 ]>
-                'P.3v3': <[ P.R2.2 ]>
-                'P.vff': <[ P.D13.a ]>
-                'P.vfs': <[ P.D13.c P.D14.c ]>
-                'led1.2': <[ led1.D1.c led1.DR.out ]>
-                'led1.vcc': <[ led1.D1.a led1.DR.Vcc ]>
-                'led1.in': <[ led1.DR.in ]>
-                'led1.gnd': <[ led1.DR.gnd ]>
-                'led1.DR.1': <[ led1.DR.Q1.b led1.DR.R1.1 ]>
-                'led1.DR.in': <[ led1.DR.R1.2 ]>
-                'led1.DR.gnd': <[ led1.DR.Q1.e ]>
-                'led1.DR.out': <[ led1.DR.Q1.c ]>
-                'led1.DR.Vcc': <[  ]>
-                'led2.2': <[ led2.D1.c led2.DR.out ]>
-                'led2.vcc': <[ led2.D1.a led2.DR.Vcc ]>
-                'led2.in': <[ led2.DR.in ]>
-                'led2.gnd': <[ led2.DR.gnd ]>
-                'led2.DR.1': <[ led2.DR.Q1.b led2.DR.R1.1 ]>
-                'led2.DR.in': <[ led2.DR.R1.2 ]>
-                'led2.DR.gnd': <[ led2.DR.Q1.e ]>
-                'led2.DR.out': <[ led2.DR.Q1.c ]>
-                'led2.DR.Vcc': <[  ]>
+export do
+    1: ->
+        sch = new Schema {name: 'sgw', data: sgw}
+            ..compile!
 
-            expect sch.flatten-netlist
-            .to-equal flatten-netlist
+        flatten-netlist =
+            '1': <[ rpi.gnd gnd ]>
+            '2': <[ led2.in rpi.3 ]>
+            'gnd': <[ P.gnd cn.1 Pow- led1.gnd led2.gnd ]>
+            'vff': <[ P.vff cn.2 Pow+ ]>
+            '3v3': <[ P.3v3 rpi.3v3 ]>
+            '5v': <[ P.5v rpi.5v led1.vcc led2.vcc ]>
+            'Pow+': <[  ]>
+            'Pow-': <[  ]>
+            'P.1': <[ P.C1.vin P.vfs P.C13.a ]>
+            'P.2': <[ P.C1.out P.L1.1 P.D15.c ]>
+            'P.gnd': <[ P.C13.c P.C1.gnd P.C1.onoff P.D15.a P.C10.c P.C2.gnd P.D14.a P.C11.c ]>
+            'P._5v': <[ P.L1.2 P.C1.fb P.C10.a P.R1.1 P.C2.vin ]>
+            'P._3v3': <[ P.C11.a P.R2.1 P.C2.vout ]>
+            'P.5v': <[ P.R1.2 ]>
+            'P.3v3': <[ P.R2.2 ]>
+            'P.vff': <[ P.D13.a ]>
+            'P.vfs': <[ P.D13.c P.D14.c ]>
+            'led1.2': <[ led1.D1.c led1.DR.out ]>
+            'led1.vcc': <[ led1.D1.a led1.DR.Vcc ]>
+            'led1.in': <[ led1.DR.in ]>
+            'led1.gnd': <[ led1.DR.gnd ]>
+            'led1.DR.1': <[ led1.DR.Q1.b led1.DR.R1.1 ]>
+            'led1.DR.in': <[ led1.DR.R1.2 ]>
+            'led1.DR.gnd': <[ led1.DR.Q1.e ]>
+            'led1.DR.out': <[ led1.DR.Q1.c ]>
+            'led1.DR.Vcc': <[  ]>
+            'led2.2': <[ led2.D1.c led2.DR.out ]>
+            'led2.vcc': <[ led2.D1.a led2.DR.Vcc ]>
+            'led2.in': <[ led2.DR.in ]>
+            'led2.gnd': <[ led2.DR.gnd ]>
+            'led2.DR.1': <[ led2.DR.Q1.b led2.DR.R1.1 ]>
+            'led2.DR.in': <[ led2.DR.R1.2 ]>
+            'led2.DR.gnd': <[ led2.DR.Q1.e ]>
+            'led2.DR.out': <[ led2.DR.Q1.c ]>
+            'led2.DR.Vcc': <[  ]>
 
-
-export schema-tests = (handler) ->
-    try
-        tests!
-        handler!
-    catch
-        handler e
+        expect sch.flatten-netlist
+        .to-equal flatten-netlist
