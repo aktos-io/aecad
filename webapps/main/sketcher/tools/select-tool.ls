@@ -53,7 +53,6 @@ export SelectTool = ->
                 selection.clear!
                 sel.box?.remove!
                 sel.box = null
-                console.log "Selection should be cleared by now: ", selection.selected
 
             unless hit
                 # Create the selection box
@@ -72,7 +71,6 @@ export SelectTool = ->
                 if hit.item.data?tmp
                     console.log "...selected a temporary item, doing nothing"
                     return
-                scope.project.activeLayer.bringToFront!
 
                 select-item = ->
                     selection.add scope.get-top-item hit.item
