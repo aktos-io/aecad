@@ -175,6 +175,5 @@ importDXF2 = (ctx, file, next) ~>
     parsed = dxf.parseString file.raw
     svg = dxf.toSVG(parsed)
     create-download "import-dxf2.svg", svg
-    #paper.project.clear!
     pcb.project.importSVG svg
     next!

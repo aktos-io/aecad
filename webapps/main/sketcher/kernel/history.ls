@@ -4,6 +4,7 @@ require! 'prelude-ls': {values, difference, keys}
 
 export class History
     (opts) ->
+        @parent = opts.parent
         @project = opts.project
         @ractive = opts.ractive
         @selection = opts.selection
@@ -36,7 +37,7 @@ export class History
     load-project: (data) ->
         # data: stringified JSON
         if data
-            @project.clear!
+            @parent.clear-canvas! # use (<= this) instead of (this =>) @project.clear!
             @selection.clear!
             @project.importJSON data
 

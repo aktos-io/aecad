@@ -98,9 +98,9 @@ export init = (pcb) ->
 
         clear: (ctx) ->
             pcb.history.commit!
-            pcb.project.clear!
+            pcb.clear-canvas!
             PNotify.info do
-                text: "Cleared."
+                text: "Project cleared."
                 addClass: 'nonblock'
 
         showHelp: (ctx) ->

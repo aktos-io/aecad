@@ -76,7 +76,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
         @vlog = new VLogger @ractive
 
         @history = new History {
-            @project, @selection, @ractive, name: "sketcher", @vlog
+            @project, @selection, @ractive, name: "sketcher", @vlog, parent: this
         }
         # try to load if a project exists
         @history.load!

@@ -100,16 +100,22 @@ export canvas-control =
         @use-layer name
 
     use-layer: (name) ->
-        layer = null
-        if @ractive.get "project.layers.#{Ractive.escapeKey name}"
-            layer = that
-                ..activate!
+        layer = @ractive.get "project.layers.#{Ractive.escapeKey name}"
+        if layer
+            that.activate!
         else
             layer = new @Layer!
                 ..name = name
             @ractive.set "project.layers.#{Ractive.escapeKey name}", layer
         @ractive.set \activeLayer, name
         layer
+
+    clear-canvas: ->
+        # clears all layers by properly removing @ractive references
+        for name, layer of @project.layers
+            layer.remove!
+        for name of @ractive.get "project.layers"
+            @ractive.delete 'project.layers', name
 
     send-to-layer: (item, name) ->
         #set-keypath item, 'data.aecad.side', name # DO NOT DO THAT, LEAVE THIS TO COMPONENT
