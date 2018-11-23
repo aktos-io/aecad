@@ -174,13 +174,24 @@ export class Trace extends Container implements follow, helpers, end
                 return
 
         if target
+            unless target.netid
+                @scope.vlog.error """
+                    We can't connect to an object that has
+                    no "netid" property.
+
+                    1. Did you compile your schema?
+
+                    2. Does this pad seem to connectable?
+                    """
+                return
+
             unless @netid
                 @netid = target.netid
             if @netid isnt target.netid
                 PNotify.notice do
                     text: """
                         We can't connect to a different netid:
-                        Expected: #{@netid}, got: #{pad.netid}
+                        Expected: #{@netid}, got: #{target.netid}
                         """
                 return
 
