@@ -17,6 +17,7 @@ export class ComponentBase
             ..register this
         @_schema_manager = new SchemaManager
         @pads = []
+        @_next_id = 1 # will be used for enumerating pads
         if data and (init=data.init)
             # initialize by provided item (data)
             @resuming = yes     # flag for sub-classers
@@ -48,7 +49,7 @@ export class ComponentBase
                 parent: @parent?g
 
             # Set type to implementor class' name
-            @set-data 'type', @@@name
+            @type = @@@name
 
             # Merge data with existing one
             if data
@@ -62,8 +63,19 @@ export class ComponentBase
                 console.log "Creating a new #{@@@name}, registering version: #{version}"
                 @set-data 'version', version
 
+            # perform the actual drawing
+            unless data?.silent
+                @create data
 
-        @_next_id = 1 # will be used for enumerating pads
+    create: (data) ->
+        # Footprint will be created at this step.
+
+    remove: ->
+        @g.remove!
+
+    type: ~
+        -> @get-data 'type'
+        (val) -> @set-data 'type', val
 
     _loader: (item) ->
         console.warn "How do we load the item in #{@@@name}: ", item
