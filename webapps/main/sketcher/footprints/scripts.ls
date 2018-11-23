@@ -211,13 +211,6 @@ export {
       #..guide-all!
       ..guide-unconnected!
   
-  /*    
-  out = []
-  for k, v of sch.flatten-netlist
-      out.push "'#{k}': <[ #{v.join ' '} ]>"
-  console.log out.join('\\n')
-  */
-  
   new RefCross
       
   pcb.ractive.fire 'calcUnconnected'
@@ -623,19 +616,19 @@ export {
   
 '''
 'lib-canvas-helpers': '''
-  add-class class RefCross extends Container 
+  add-class class RefCross extends Footprint 
       -> 
           super ...
-          unless @resumed 
-              new Path.Line do
-                  from: [-50, 0]
-                  to: [50, 0]
+          unless @resuming
+              @add-part 'v', new Path.Line do
+                  from: [-20, 0]
+                  to: [20, 0]
                   stroke-color: \\white
                   parent: @g
                   
-              new Path.Line do
-                  from: [0, -50]
-                  to: [0, 50]
+              @add-part 'h', new Path.Line do
+                  from: [0, -20]
+                  to: [0, 20]
                   stroke-color: \\white
                   parent: @g
       
