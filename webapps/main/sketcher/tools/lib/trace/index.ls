@@ -59,15 +59,6 @@ export class Trace extends Container implements follow, helpers, end
             a = if @corr-point? => 1 else 0
             @line?.segments[* - 2 - a].point
 
-    connect: (hit) ->
-        # connect to an already existing trace
-        {item, tid} = get-parent-aecad hit.item
-        tid = get-tid item
-        if tid and tid isnt @get-data \tid
-            console.log "we hit a trace: item: ", item
-            return get-aecad item
-        return false
-
     print-mode: (layers) ->
         super ...
         #console.log "trace is printing for: ", side, @pads
@@ -163,65 +154,59 @@ export class Trace extends Container implements follow, helpers, end
         # Check if we should snap to the hit point
         hits = @scope.hitTestAll snap, {
             tolerance: 1,
-            -aecad # in order to prevent scope.on-zoom subscription leak
             exclude: @g
         }
-        actaul-hit = null
+        reached-target = no
+        target = null
+        valid-hit = null
         for hit in hits
-            #console.log "trace hit to: ", hit
-            # hit only pads
-            _item = hit.item
-            is-pad = no
-            for to 100
-                if _item.data?aecad?type is \Pad
-                    is-pad = yes
-                    break
-                break unless _item.parent
-                break if _item.parent.getClassName! is \Layer
-                _item = _item.parent
-            continue unless is-pad
-            pad-item = _item
-            # end of pad hit
-            actual-hit = hit
-            if hit.segment
-                console.log "snapping to segment: ", hit.segment
-                snap = hit.segment.point.clone!
-            else if hit.location
-                # this is a curve, use nearest point on path
-                console.log "snapping to curve: ", hit.location
-                snap = that.path.getNearestPoint point.clone!
+            unless target
+                target = hit.aecad.ae-obj
+                valid-hit = hit # for trace to trace connections
             else
-                # this is an item (pad, etc.)
-                console.log "snapping to item: ", hit.item
-                snap = hit.item.bounds.center.clone!
-            break
+                PNotify.notice text: "Multiple hits? (See Trace)"
 
         unless @continues
-            if not actual-hit
+            unless target
                 @scope.cursor \not-allowed
                 sleep 300ms, ~> @scope.restore-cursor!
                 console.warn "Not a pad, won't connect"
                 return
 
-        reached-target = no
-        if actual-hit
-            console.log "Detected pad item: ", pad-item
-            pad = get-aecad pad-item
+        if target
             unless @netid
-                @netid = pad.netid
-            if @netid isnt pad.netid
+                @netid = target.netid
+            if @netid isnt target.netid
                 PNotify.notice do
                     text: """
                         We can't connect to a different netid:
                         Expected: #{@netid}, got: #{pad.netid}
                         """
                 return
-            # Snap to this pad
-            snap = pad.gpos
-            if @continues
-                reached-target = yes
-            @show-guides!
 
+            switch target.type
+            | 'Trace' =>
+                # No special action is needed
+                hit = valid-hit
+                if hit.segment
+                    console.log "snapping to segment: ", hit.segment
+                    snap = hit.segment.point.clone!
+                else if hit.location
+                    # this is a curve, use nearest point on path
+                    console.log "snapping to curve: ", hit.location
+                    snap = that.path.getNearestPoint point.clone!
+                else
+                    # this is an item (pad, etc.)
+                    console.log "snapping to item: ", hit.item
+                    snap = hit.item.bounds.center.clone!
+                debugger
+
+            | 'Pad' =>
+                # Snap to this pad
+                snap = target.gpos
+                if @continues
+                    reached-target = yes
+            @show-guides!
         else
             # we are placing a trace segment (vertex), no-hit is normal.
             # leave snap as is
@@ -247,6 +232,7 @@ export class Trace extends Container implements follow, helpers, end
                 ..data.aecad =
                     side: curr.layer.name
                 ..parent = @g
+                ..send-to-back! # send trace parts below to via's
 
             @line.add snap
 
@@ -254,25 +240,14 @@ export class Trace extends Container implements follow, helpers, end
                 @set-helpers snap
             @update-helpers snap
 
-            /* for debugging purposes:
-            new @scope.Shape.Circle do
-                fill-color: 'yellow'
-                radius: 0.1
-                center: snap.clone!
-                data: {+tmp}
-            */
-
         else
-            console.log "about to update helpers"
             @update-helpers snap
-            console.log "helpers updated"
             @line.add snap
 
         @commit-corr-point!
 
         if reached-target
-            console.log "Trace reached to a target: ", pad.uname, pad
-            @end pad
+            @end target
 
 
     add-via: ->
