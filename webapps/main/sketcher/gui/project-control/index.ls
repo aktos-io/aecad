@@ -28,6 +28,7 @@ export init = (pcb) ->
 
             # layers to print
             layers = ctx.component.get \side .split ',' .map (.trim!)
+            mirror = ctx.component.get \mirror
 
             for pcb.project.layers
                 for ..getItems({-recursive})
@@ -42,8 +43,8 @@ export init = (pcb) ->
                         ..stroke-width = max ..stroke-width, pcb.ractive.get('currTrace.signal')
                     else
                         ..remove!
-
-            create-download "#{layers.join('_')}.svg", pcb.export-svg!
+            err, svg <~ pcb.export-svg {mirror}
+            create-download "#{layers.join('_')}.svg", svg
             pcb.history.back!
 
         save: (ctx) ->

@@ -13,13 +13,14 @@ export class History
         @limit = 200
 
     commit: ->
+        console.warn "USE PaperDraw.export! by default"
         json = @project.exportJSON {as-string: no}
         try
             backup = clone json
             @commits.push backup
         catch
             @vlog.error "Huston, we have a problem: \n\n #{e.message}"
-            return 
+            return
         console.log "added to history"
         if @commits.length > @limit
             console.log "removing old history"

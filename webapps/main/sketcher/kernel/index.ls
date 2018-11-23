@@ -8,8 +8,9 @@ require! './zooming': {paperZoom}
 require! './history': {History}
 require! './canvas-control': {canvas-control}
 require! './aecad-methods'
+require! './import-export'
 
-export class PaperDraw implements canvas-control, aecad-methods
+export class PaperDraw implements canvas-control, aecad-methods, import-export
     @instance = null
     (opts={}) ->
         # Make this class Singleton
@@ -171,7 +172,7 @@ export class PaperDraw implements canvas-control, aecad-methods
                 | \z =>
                     if event.modifiers.control
                         @history.back!
-                        @ractive.fire \calcUnconnected  # TODO: Unite this action 
+                        @ractive.fire \calcUnconnected  # TODO: Unite this action
 
                 | \meta =>
                     unless event.modifiers.control
@@ -203,21 +204,7 @@ export class PaperDraw implements canvas-control, aecad-methods
                             text: "Joystick mode enabled. \nPress meta to disable."
                             addClass: 'nonblock'
 
-    export-svg: ->
-        old-zoom = @view.zoom
-        @view.zoom = 1
-        svg = @project.exportSVG do
-            asString: true
-            bounds: 'content'
-        @view.zoom = old-zoom # for above workaround
-        return svg
 
-    export-json: ->
-        old-zoom = @view.zoom
-        @view.zoom = 1
-        json = @project.exportJSON!
-        @view.zoom = old-zoom # for above workaround
-        return json
 
     on-zoom: (handler) ->
         # normalize the source values according to zoom value and pass them
