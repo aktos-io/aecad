@@ -187,7 +187,7 @@ export {
               "$color": "D1"  # Led
   sgw =         
       netlist:
-          gnd: "P.gnd cn.1 Pow- led1.gnd led2.gnd"
+          gnd: "P.gnd cn.1 Pow- led1.gnd led2.gnd rpi.gnd"
           vff: 'P.vff, cn.2, Pow+'
           '5v': 'P.5v rpi.5v led1.vcc led2.vcc'
           2: 'led2.in rpi.7'
