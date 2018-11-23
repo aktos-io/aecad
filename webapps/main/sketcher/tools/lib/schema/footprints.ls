@@ -91,7 +91,7 @@ export do
             # Place left of current bounds by fitting in a height of
             # current bounds height
             current = @scope.get-bounds!
-            allowed-height = current.height
+            allowed-height = current?.height or 300
             placement = []
             voffset = 10
             for {component, existing} in @components when not existing
