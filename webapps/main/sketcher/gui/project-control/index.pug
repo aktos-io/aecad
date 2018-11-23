@@ -30,8 +30,8 @@
     .item 
         .ui.input.right.labeled
             input(value="{{project.name}}")
-            btn.icon.green.label(on-click="['export', project.name + '.cson']")
-                icon.download Export CSON
+            btn.icon.green.label(on-click="['export', project.name + '.json']")
+                icon.download Export Project
     .item
         ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
 
