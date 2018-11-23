@@ -37,6 +37,11 @@ export do
     get-upgrades: ->
         [.. for @components when ..upgrade-needed]
 
+    remove-footprints: ->
+        console.log "Removing created components by this schema (#{@name})"
+        for @components or []
+            ..component.remove!
+
     add-footprints: (opts) !->
         missing = @get-netlist-components! `difference` @get-bom-components!
         unless empty missing

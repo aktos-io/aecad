@@ -28,7 +28,7 @@ push-pull =
 
 export do
     1: ->
-        sch = new Schema {name: 'test', data: open-collector}
+        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
             ..compile!
 
         flatten-netlist =
@@ -42,8 +42,11 @@ export do
         expect sch.flatten-netlist
         .to-equal flatten-netlist
 
+        # cleanup canvas
+        sch.remove-footprints!
+
     'sub-circuit': ->
-        sch = new Schema {name: 'test', data: push-pull}
+        sch = new Schema {name: 'test', data: push-pull, prefix: 'test.'}
             ..compile!
 
         flatten-netlist =
@@ -66,3 +69,6 @@ export do
 
         expect sch.flatten-netlist
         .to-equal flatten-netlist
+
+        # cleanup canvas
+        sch.remove-footprints!

@@ -107,7 +107,7 @@ require! '../schema': {Schema}
 
 export do
     1: ->
-        sch = new Schema {name: 'sgw', data: sgw}
+        sch = new Schema {name: 'test', data: sgw, prefix: 'test.'}
             ..compile!
 
         flatten-netlist =
@@ -149,3 +149,6 @@ export do
 
         expect sch.flatten-netlist
         .to-equal flatten-netlist
+
+        # cleanup canvas
+        sch.remove-footprints!

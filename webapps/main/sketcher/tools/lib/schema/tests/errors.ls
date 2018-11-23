@@ -26,11 +26,17 @@ circuit2 =
 
 export do
     "missing component in bom": ->
-        sch = new Schema {name: 'test', data: circuit1}
+        sch = new Schema {name: 'test', data: circuit1, prefix: 'test.'}
         expect (-> sch.compile!)
         .to-throw "Netlist components missing in BOM: Q1"
 
+        # cleanup canvas
+        sch.remove-footprints!
+
     "component not found": ->
-        sch = new Schema {name: 'test', data: circuit2}
+        sch = new Schema {name: 'test', data: circuit2, prefix: 'test.'}
         expect (-> sch.compile!)
         .to-throw "Can not find type: FOO"
+
+        # cleanup canvas
+        sch.remove-footprints!
