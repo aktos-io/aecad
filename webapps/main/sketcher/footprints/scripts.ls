@@ -5,62 +5,62 @@ export {
   # --------------------------------------------------
   c1 = find-comp "c1"
   c1-pins = c1?.get {pin: 1}
-  
+
   c3 = find-comp "c3"
   c3-pins = c3?.get {pin: 33}
-  
-  
+
+
 '''
 'class-approach-test': '''
-  # Example imaginary footprint 
+  # Example imaginary footprint
   # ---------------------------
-  fp = new Footprint do 
+  fp = new Footprint do
       name: 'foo'
       symmetry-axis: 'x'
-  
+
   pad1 = new Pad fp, do
       pin: 1
       width: 5
       height: 15
-  
+
   c = new Container fp
-  
+
   for index in [1 to 5]
-      pad = new Pad c, do 
+      pad = new Pad c, do
           pin: index
           width: 1mm
           height: 2mm
-  
+
       pad.position.y -= 16 * index
-      
+
   c.position = pad1.position
   c.position.x += 23
-  
+
   c2 = new Container fp
-  
+
   for index in [1 to 5]
-      pad = new Pad c2, do 
+      pad = new Pad c2, do
           pin: "#{index}c"
           dia: 3mm
           drill: 1mm
-  
+
       pad.position.y -= 16 * index
-  
+
   c2.position = c.position
   c2.position.x += 10
-  
-      
+
+
   #fp.color = 'red'
   #fp.rotate 45
-  
-  ## Now find the component by its name 
+
+  ## Now find the component by its name
   ## ----------------------------------
   x = find-comp 'foo'
   #<~ sleep 500ms
   #x.rotate -45
   x.mirror!
-  #x.print-mode = yes 
-  
+  #x.print-mode = yes
+
 '''
 'pin-array-test': '''
   a = new PinArray do
@@ -75,18 +75,18 @@ export {
           count: 4
           interval: 2.54mm
       dir: '-y' # numbering direction, 'x' or 'y', default 'x'
-  
-  
+
+
 '''
 'rpi-header-test': '''
-  
+
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
   new RpiHeader do
       name: 'rpi2'
-  
-  
+
+
   /*
   x = find-comp 'rpi2'
   <~ sleep 500ms
@@ -99,32 +99,32 @@ export {
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
-          
-  
-  power = 
+
+
+  power =
       iface: 'vfs, vff, 5v, 3v3, gnd'
-      netlist: 
+      netlist:
           # Trace_id: "list, of, connected, pads"
-          # Power layer 
+          # Power layer
           1: "C1.vin, vfs, C13.a"
-          gnd: """ 
-              C13.c C1.gnd C1.onoff 
+          gnd: """
+              C13.c C1.gnd C1.onoff
               D15.a C10.c C2.gnd D14.a C11.c
               """
           2: 'C1.out, L1.1, D15.c'
-          _5v: """ 
+          _5v: """
               L1.2 C1.fb C10.a
               R1.1
-              C2.vin 
+              C2.vin
               """
           _3v3: 'C11.a R2.1 C2.vout'
           '5v': 'R1.2'
           '3v3': 'R2.2'
           vff: 'D13.a'
           vfs: 'D13.c, D14.c'
-      notes: 
+      notes:
           'L1': """
-              This part is an EMC source, keep it 
+              This part is an EMC source, keep it
               close to LM2576
               """
           'R1, R2': """
@@ -134,31 +134,31 @@ export {
       bom:
           'LM2576': 'C1'
           'LM1117': 'C2'
-          'SMD1206': 
+          'SMD1206':
               "0 ohm": "R1, R2"
-          'C1206': 
+          'C1206':
               "100uF": 'C13'
               "10uF": "C11"
           "CAP_thd":
               "1000uF": "C10"
-          'Inductor': 
+          'Inductor':
               "100..360uH": 'L1'
           'DO214AC':
               '1N5822': 'D14, D13, D15'
-  
-  led-driver = 
+
+  led-driver =
       iface: "out, in, Vcc, gnd"
       doc:
           """
-          Current sink led driver 
+          Current sink led driver
           --------------------
           Q1: Driver transistor
           R1: Base resistor
-          R2: Current limit resistor 
-          
+          R2: Current limit resistor
+
           out: Current sink output
           """
-      netlist: 
+      netlist:
           1: "Q1.b R1.1"
           in: "R1.2"
           gnd: "Q1.e"
@@ -169,23 +169,23 @@ export {
               "2N2222": "Q1"
           SMD1206:
               "300 ohm": "R1"
-      
-  signal-led = 
+
+  signal-led =
       iface: "gnd, in, vcc"
       netlist:
           vcc: "D1.a DR.Vcc"
           2: "D1.c DR.out"
           in: "DR.in"
           gnd: "DR.gnd"
-      params: 
+      params:
           regex: /[a-z]+/
           map: 'color'
       schemas: {led-driver}
       bom:
           led-driver: 'DR'
-          C1206: 
+          C1206:
               "$color": "D1"  # Led
-  sgw =         
+  sgw =
       netlist:
           gnd: "P.gnd cn.1 Pow- led1.gnd led2.gnd rpi.gnd"
           vff: 'P.vff, cn.2, Pow+'
@@ -201,28 +201,26 @@ export {
               'green': 'led2'
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
-  
+
           # Virtual components
           'Conn_1pin_thd' : '_1, _2, _3, _4'
-  
+
   sch = new Schema {name: 'sgw', data: sgw}
       ..clear-guides!
       ..compile!
       #..guide-all!
       ..guide-unconnected!
-  
-  new RefCross
-      
+
   pcb.ractive.fire 'calcUnconnected'
-  
+
   upgrades = sch.get-upgrades!
   unless empty upgrades
       pcb.vlog.info upgrades.map((.reason)).join('\\n\\n')
-  
+
 '''
 'lib-PinArray': '''
   add-class class PinArray extends Footprint
-      (data) -> 
+      (data) ->
           super ...
           if data.parent
               throw "how do we have parent?"
@@ -236,32 +234,32 @@ export {
               for cindex to data.cols.count - 1
                   for rindex to data.rows.count - 1
                       pin-num = start + switch (data.dir or 'x')
-                      | 'x' => 
+                      | 'x' =>
                           cindex + rindex * data.cols.count
-                      | '-x' => 
+                      | '-x' =>
                           data.cols.count - 1 - cindex + rindex * data.cols.count
                       | 'y' =>
                           rindex + cindex * data.rows.count
                       | '-y' =>
                           data.rows.count - 1 - rindex + cindex * data.rows.count
-  
+
                       pin-label = data.labels?[pin-num]
-                      
+
                       p = new Pad data.pad <<< do
                           pin: pin-num
-                          label: if data.labels? => (pin-label or '?') 
+                          label: if data.labels? => (pin-label or '?')
                           parent: this
-                          
-                      p.position.y += (data.rows.interval or 0 |> mm2px) * rindex 
-                      p.position.x += (data.cols.interval or 0 |> mm2px) * cindex 
-              
-              
+
+                      p.position.y += (data.rows.interval or 0 |> mm2px) * rindex
+                      p.position.x += (data.cols.interval or 0 |> mm2px) * cindex
+
+
               if data.mirror
-                  # useful for female headers 
+                  # useful for female headers
                   @mirror!
-                  
+
               @make-border!
-                  
+
 '''
 'lib-RpiHeader': '''
   #! requires PinArray
@@ -298,9 +296,9 @@ export {
   | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
   +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
   """
-  
+
   add-class class RpiHeader extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'rpi_'
               pad:
@@ -315,23 +313,23 @@ export {
               dir: 'x'
               labels: table
               mirror: yes
-              
-          data = defaults <<< data 
+
+          data = defaults <<< data
           super data
-  
+
 '''
 'lib-SMD1206': '''
-  #! requires PinArray 
+  #! requires PinArray
   # From http://www.resistorguide.com/resistor-sizes-and-packages/
   smd1206 =
       a: 1.6mm
       b: 0.9mm
       c: 2mm
-  
+
   {a, b, c} = smd1206
-  
+
   add-class class SMD1206 extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'r_'
               pad:
@@ -343,28 +341,28 @@ export {
               border:
                   width: c
                   height: a
-  
-          super defaults <<< data 
-  
+
+          super defaults <<< data
+
   #new SMD1206
-  
+
   add-class class SMD1206_pol extends SMD1206
       # Polarized version of SMD1206
-      (data={}) -> 
-          overrides = 
+      (data={}) ->
+          overrides =
               name: 'c_'
               labels:
                   1: 'c'
                   2: 'a'
               mark: yes
-          
-          super overrides <<< data 
-  
+
+          super overrides <<< data
+
   add-class class LED1206 extends SMD1206_pol
   add-class class C1206 extends SMD1206_pol
-  
+
   add-class class DO214AC extends SMD1206_pol
-      (data={}) -> 
+      (data={}) ->
           overrides =
               name: 'd_'
               pad:
@@ -373,49 +371,49 @@ export {
               cols:
                   count: 2
                   interval: 2.70mm
-  
-          super overrides <<< data 
-  
+
+          super overrides <<< data
+
 '''
 'lib-LM2576': '''
   #! requires TO263
   add-class class LM2576 extends TO263
-      (data={}) -> 
-          defaults = 
-              labels: 
+      (data={}) ->
+          defaults =
+              labels:
                   # Pin_id: Label
-                  1: \\vin 
+                  1: \\vin
                   6: \\vin
                   2: \\out
                   3: \\gnd
-                  4: \\fb 
+                  4: \\fb
                   5: \\onoff
           super data <<< defaults
-  
+
   #a = new LM2576
   #a.get {pin: 'vin'}
 '''
 'lib-TO263': '''
-  # TO263 footprint 
+  # TO263 footprint
   #
   #! requires DoublePinArray
   # ---------------------------
-  
-  dimensions = 
+
+  dimensions =
       # See http://www.ti.com/lit/ds/symlink/lm2576.pdf
       to263:
           H   : 14.17mm
           die : x:8mm     y:10.8mm
           pads: x:2.16mm  y:1.07mm
           pd  : 1.702
-  
+
   add-class class TO263 extends DoublePinArray
-      (data={}) -> 
+      (data={}) ->
           {H, die, pads, pd} = dimensions.to263
           defaults =
               name: 'c_'
               distance: H - die.x/2
-              left: 
+              left:
                   start: 6
                   pad:
                       width: die.x
@@ -430,16 +428,16 @@ export {
                   rows:
                       count: 5
                       interval: pd
-  
-          super defaults <<< data 
-  
+
+          super defaults <<< data
+
   #new TO263
-  
+
 '''
 'lib-Conn': '''
   #! requires PinArray
   add-class class Conn_2pin_thd extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'conn_'
               pad:
@@ -451,12 +449,12 @@ export {
               rows:
                   count: 1
               dir: 'x'
-  
-          data = defaults <<< data 
+
+          data = defaults <<< data
           super data
-  
+
   add-class class Conn_1pin_thd extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'conn_'
               pad:
@@ -467,14 +465,14 @@ export {
               rows:
                   count: 1
               dir: 'x'
-  
-          data = defaults <<< data 
+
+          data = defaults <<< data
           super data
-  
-  
+
+
   #new Conn_2pin_thd
   #new Conn_1pin_thd
-  
+
 '''
 'lib-Inductor': '''
   # --------------------------------------------------
@@ -482,10 +480,10 @@ export {
   #
   # This script will also be treated as a library file.
   # --------------------------------------------------
-  
+
   #! requires PinArray
   add-class class Inductor extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'L_'
               pad:
@@ -497,21 +495,21 @@ export {
               border:
                   width: 10.7mm
                   height: 10.2mm
-  
-          data = defaults <<< data 
+
+          data = defaults <<< data
           super data
-  
+
   #new Inductor
 '''
 'lib-DoublePinArray': '''
   add-class class DoublePinArray extends Footprint
-      (data) -> 
+      (data) ->
           super ...
           unless @resuming
-              overwrites = 
+              overwrites =
                   parent: @
                   labels: data.labels
-  
+
               left = new PinArray data.left <<< overwrites
               right = new PinArray data.right <<< overwrites
               right.position = left.position.add [data.distance |> mm2px, 0]
@@ -520,18 +518,18 @@ export {
 'double-pin-array-test': '''
   a = new SOT223 do
       name: 'hello'
-  
+
   console.log a.get {pin: 1}
 '''
 'lib-SOT223': '''
   # Sot223
   #! requires DoublePinArray
   add-class class SOT223 extends DoublePinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'c_'
               distance: 6.3mm
-              left: 
+              left:
                   start: 4
                   pad:
                       width: 2.15mm
@@ -549,21 +547,21 @@ export {
               border:
                   width: 3.5mm
                   height: 6.5mm
-                  
-          super defaults <<< data 
-  
+
+          super defaults <<< data
+
   add-class class SOT23 extends DoublePinArray
-      (data={}) -> 
-          pad = 
+      (data={}) ->
+          pad =
               width: 0.9mm
               height: 0.7mm
-              
+
           defaults =
               name: 'c_'
               distance: 2mm
-              left: 
+              left:
                   start: 3
-                  pad: pad 
+                  pad: pad
                   cols:
                       count: 1
               right:
@@ -575,49 +573,49 @@ export {
               border:
                   width: 1.43mm
                   height: 3mm
-  
-          super defaults <<< data 
-  
+
+          super defaults <<< data
+
   #new SOT23
-  
-  
+
+
   add-class class NPN extends SOT23
       @rev_NPN = 1
-      (data={}) -> 
+      (data={}) ->
           defaults =
               labels:
                   1: 'b'
                   2: 'e'
                   3: 'c'
           super defaults <<< data
-  
+
   add-class class PNP extends NPN
-      (data={}) -> 
+      (data={}) ->
           defaults =
               # same as NPN, duplicated for safety
-              labels: 
+              labels:
                   1: 'b'
                   2: 'e'
                   3: 'c'
           super defaults <<< data
-  
+
 '''
 'lib-LM1117': '''
   #! requires SOT223
   add-class class LM1117 extends SOT223
-      (data) -> 
-          data.labels = 
+      (data) ->
+          data.labels =
               # Pin_id: Label
               1: 'gnd'
               2: 'vout'
               3: 'vin'
               4: 'vout'
           super ...
-  
+
 '''
 'lib-canvas-helpers': '''
-  add-class class RefCross extends Footprint 
-      -> 
+  add-class class RefCross extends Footprint
+      ->
           super ...
           unless @resuming
               @add-part 'v', new Path.Line do
@@ -625,25 +623,25 @@ export {
                   to: [20, 0]
                   stroke-color: \\white
                   parent: @g
-                  
+
               @add-part 'h', new Path.Line do
                   from: [0, -20]
                   to: [0, 20]
                   stroke-color: \\white
                   parent: @g
-      
-              @set-data 'helper', yes             
-  
-      print-mode: (val) -> 
+
+              @set-data 'helper', yes
+
+      print-mode: (val) ->
           @g.stroke-color = 'black'
-          
-          
+
+
   #new RefCross
 '''
 'lib-cap-thd': '''
   #! requires PinArray
   add-class class CAP_thd extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'c_'
               pad:
@@ -657,11 +655,11 @@ export {
               labels:
                   1: 'c'
                   2: 'a'
-              border: 
+              border:
                   dia: 8mm
-  
-          super defaults <<< data 
-  
+
+          super defaults <<< data
+
   #new CAP_thd
 '''
 }

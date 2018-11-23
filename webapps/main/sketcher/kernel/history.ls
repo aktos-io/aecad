@@ -4,6 +4,7 @@ require! 'prelude-ls': {values, difference, keys}
 
 export class History
     (opts) ->
+        @parent = opts.parent
         @project = opts.project
         @ractive = opts.ractive
         @selection = opts.selection
@@ -19,7 +20,7 @@ export class History
             @commits.push backup
         catch
             @vlog.error "Huston, we have a problem: \n\n #{e.message}"
-            return 
+            return
         console.log "added to history"
         if @commits.length > @limit
             console.log "removing old history"
@@ -36,7 +37,7 @@ export class History
     load-project: (data) ->
         # data: stringified JSON
         if data
-            @project.clear!
+            @parent.clear-canvas! # use (<= this) instead of (this =>) @project.clear!
             @selection.clear!
             @project.importJSON data
 

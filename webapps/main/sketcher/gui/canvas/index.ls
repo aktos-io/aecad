@@ -137,14 +137,16 @@ export init = (pcb) ->
             else
                 prev = bounds.center
                 curr = pcb.get-bounds selection.selected .center
+                selection.clear!
 
                 line = new pcb.Path.Line do
                     from: prev
                     to: curr
                     stroke-color: 'yellow'
-                    stroke-width: 1
+                    stroke-width: 3
                     selected: yes
                     data: {+tmp, +guide}
+                    opacity: 0.5
 
                 format = (x) ->
                     "#{oneDecimal (x |> px2mm), 2} mm"
@@ -161,10 +163,13 @@ export init = (pcb) ->
                         dy  : #{dy}
                         """
                     fill-color: 'white'
-                    font-size: 4
+                    font-size: 8
                     position: line.bounds.center
                     justification: 'center'
                     data: {+tmp}
+                    shadowColor: 'black'
+                    shadowOffset: [0.5,0.5]
+                    shadowBlur: 1
 
 
 

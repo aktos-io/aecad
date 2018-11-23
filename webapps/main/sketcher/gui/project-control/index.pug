@@ -5,7 +5,7 @@
             file-button.icon(on-read="import" type="text"): icon.upload Import
             btn.icon(on-click="export"): icon.download Export
     .item
-        a.icon(href="sgw-example.cson" newtab tooltip="Download the example project")
+        a.icon(href="sgw-example.json" newtab tooltip="Download the example project")
             icon.download.pink
 
     .item 
@@ -13,7 +13,7 @@
             ack-button.icon(on-click="prototypePrint" side="F.Cu, Edge" tooltip="Export F.Cu only")
                 icon.print.red
 
-            ack-button.icon(on-click="prototypePrint" side="B.Cu, Edge" tooltip="Export B.Cu only")
+            ack-button.icon(on-click="prototypePrint" side="B.Cu, Edge" mirror="true" tooltip="Export B.Cu only")
                 icon.print.green
 
     //-file-button(on-read="importDXF2" type="text") DXF (2)
@@ -30,8 +30,8 @@
     .item 
         .ui.input.right.labeled
             input(value="{{project.name}}")
-            btn.icon.green.label(on-click="['export', project.name + '.cson']")
-                icon.download Export CSON
+            btn.icon.green.label(on-click="['export', project.name + '.json']")
+                icon.download Export Project
     .item
         ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
 

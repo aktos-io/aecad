@@ -1,14 +1,55 @@
-require! 'aea': {create-download}
-require! '../../tools/lib/trace/lib': {is-on-layer}
 require! '../../tools/lib': {get-aecad, get-parent-aecad}
 require! 'prelude-ls': {max}
-
+require! 'aea': {create-download, ext}
+require! 'dcs/browser': {SignalBranch}
 
 export init = (pcb) ->
-
     handlers =
-        import: require './import' .import_
-        export: require './export' .export_
+        export: (ctx, _filename) ->
+            b = new SignalBranch
+            filename = null
+            if _filename
+                filename = _filename
+            else
+                s = b.add!
+                action, data <~ pcb.vlog .yesno do
+                    title: 'Filename'
+                    icon: ''
+                    closable: yes
+                    template: RACTIVE_PREPARSE('./export-dialog.pug')
+                    buttons:
+                        save:
+                            text: 'Save'
+                            color: \green
+                        cancel:
+                            text: \Cancel
+                            color: \gray
+                            icon: \remove
+
+                if action in [\hidden, \cancel]
+                    console.log "Cancelled."
+                    b.cancel!
+                    return
+                filename := data.filename
+                s.go!
+            <~ b.joined
+            format = filename |> ext
+            err, res <~ pcb.export {format}
+            unless err
+                create-download filename, res
+            else
+                PNotify.error text: err
+
+        import: (ctx, file, next) ->
+            # Create a layer with file name and send the contents into this layer
+            <~ @fire \activateLayer, ctx, file.basename
+            for pcb.project.layers
+                switch ..name
+                | file.basename, null => ..clear!
+            err <~ pcb.import file.raw, do
+                format: file.ext.to-lower-case!
+                name: file.basename
+            next err
 
         clearActiveLayer: (ctx) ~>
             @get \project.layers .[@get 'activeLayer'] .clear!
@@ -28,6 +69,7 @@ export init = (pcb) ->
 
             # layers to print
             layers = ctx.component.get \side .split ',' .map (.trim!)
+            mirror = ctx.component.get \mirror
 
             for pcb.project.layers
                 for ..getItems({-recursive})
@@ -42,8 +84,8 @@ export init = (pcb) ->
                         ..stroke-width = max ..stroke-width, pcb.ractive.get('currTrace.signal')
                     else
                         ..remove!
-
-            create-download "#{layers.join('_')}.svg", pcb.export-svg!
+            err, svg <~ pcb.export-svg {mirror}
+            create-download "#{layers.join('_')}.svg", svg
             pcb.history.back!
 
         save: (ctx) ->
@@ -56,9 +98,9 @@ export init = (pcb) ->
 
         clear: (ctx) ->
             pcb.history.commit!
-            pcb.project.clear!
+            pcb.clear-canvas!
             PNotify.info do
-                text: "Cleared."
+                text: "Project cleared."
                 addClass: 'nonblock'
 
         showHelp: (ctx) ->
