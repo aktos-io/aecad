@@ -14,21 +14,20 @@ is-connected = (item, pad) ->
     for item.children or []
         unless ..getClassName! is \Path
             continue
-        if ..segments.length is 1
-            console.warn "Removing 1 segment path:", ..
-            ..remove!
-            continue
         trace-side = ..data?.aecad?.side
+        dont-match = no
         unless pad.side-match trace-side
             #console.warn "Not on the same side, won't count as a connection: ", pad, item
-            continue
+            dont-match = "not on the same side"
         for {point} in ..segments
             # check all segments of the path
             if point.is-inside pad-bounds
-                return true
-    unless item.hasChildren()
-        console.warn "Removing empty item", item
-        item.remove!
+                if dont-match
+                    console.warn "Won't match as not on the same side:", pad, item
+                    item.selected = true
+                    pad.selected = true
+                else
+                    return true
     return false
 
 
@@ -95,6 +94,8 @@ export do
                         # many traces may be connected to the same pad
                         connected-pads[][trace-item.id].push pad
                         #console.log "...netid: #{netid}: found a connection with trace: #{trace-item.id}", trace-item, pad
+                    else
+                        null # for breakpoint
 
             # merge connection tree
             named-connections = [v.map (.pin) for k, v of connected-pads]
@@ -109,7 +110,7 @@ export do
             else
                 state.unconnected-pads.length - 1
 
-        #console.log ":::: Connection states: ", connection-states
+        console.log ":::: Connection states: ", connection-states
         return connection-states
 
     get-traces: ->
