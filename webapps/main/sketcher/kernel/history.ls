@@ -13,7 +13,6 @@ export class History
         @limit = 200
 
     commit: ->
-        console.warn "USE PaperDraw.export! by default"
         json = @project.exportJSON {as-string: no}
         try
             backup = clone json
