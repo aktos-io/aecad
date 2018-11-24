@@ -7,6 +7,7 @@ require! 'aea/do-math': {mm2px}
 require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
 require! '../../tools/lib/schema/tests': {schema-tests}
+require! 'diff': jsDiff
 
 {text2arr} = tool-lib
 {keys, values, map, filter, find} = prelude-ls
@@ -289,5 +290,17 @@ export init = (pcb) ->
             pcb.history.reset-script-diffing!
             @get \vlog .info "Done, reload your window."
 
+        showDiff: (ctx, name) ->
+            try
+                {remote, current} = (@get "drawingLsUpdates")[name]
+            catch
+                PNotify.error text: "No such diff (#{name}) found."
+                return
+
+            sdiff_ = jsDiff.structuredPatch(name, "#{name} (server)", current, remote, "local", "server", {+ignoreWhitespace})
+            @get \vlog .info do
+                template: RACTIVE_PREPARSE('./diff.pug')
+                data:
+                    diff: sdiff_
 
     return handlers

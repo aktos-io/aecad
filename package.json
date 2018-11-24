@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ceremcem/aeda#readme",
   "dependencies": {
+    "diff": "^3.5.0",
     "dxf": "^3.3.1",
     "dxf-writer": "^1.2.0",
     "json-stringify-pretty-compact": "^1.2.0",

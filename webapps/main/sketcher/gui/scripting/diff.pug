@@ -1,0 +1,11 @@
+h2 Diff 
+.ui.p ================================================
+.ui.p(style="color: red"): code --- {{diff.oldFilename}}  {{diff.oldHeader}}
+.ui.p(style="color: green"): code +++ {{diff.newFilename}}  {{diff.newHeader}}
+pre 
+    +each('diff.hunks as hunk')
+        div
+        div(style="color: teal"): code @@ -{{hunk.oldStart}},{{hunk.oldLines}} +{{hunk.newStart}},{{hunk.newLines}} @@
+        div
+        +each('hunk.lines as line')
+            div(style="color: {{#if line[0] === '+'}}green{{elseif line[0] === '-'}}red{{/if}}"): code {{line}}

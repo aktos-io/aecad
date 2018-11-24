@@ -92,13 +92,10 @@ export class History
             if h in values(saved-h)
                 console.log "We already have this, skipping: ", name
                 continue
-            console.log "Adding updated script: ", name
-            new-name = if name in keys saved
-                "#{name} (update: #{Date.now!})"
-            else
-                name
-            saved[new-name] = orig[name]
 
+            @ractive.set "drawingLsUpdates.#{Ractive.escapeKey name}", do
+                remote: orig[name]
+                current: saved[name]
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 
@@ -112,7 +109,7 @@ export class History
         # save scripts
         scripts = @ractive.get \drawingLs
         @db.set \scripts, scripts
-        @db.set \scriptHashes, @ractive.get \scriptHashes
+        #@db.set \scriptHashes, @ractive.get \scriptHashes
 
         # Save settings
         # TODO: provide a proper way for this, it's too messy now
