@@ -96,6 +96,7 @@ export class History
             @ractive.set "drawingLsUpdates.#{Ractive.escapeKey name}", do
                 remote: orig[name]
                 current: saved[name]
+            PNotify.notice text: "Script update: #{name}", hide: false
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 
