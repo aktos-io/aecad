@@ -95,16 +95,15 @@ export {
           'DO214AC':
               '1N5822': 'D14, D13, D15'
 
-  led-driver =
-      iface: "out, in, Vcc, gnd"
+  oc-output =
+      # Open Collector Output
+      iface: "out, in, gnd"
       doc:
           """
           Current sink led driver
           --------------------
           Q1: Driver transistor
           R1: Base resistor
-          R2: Current limit resistor
-
           out: Current sink output
           """
       netlist:
@@ -112,7 +111,6 @@ export {
           in: "R1.2"
           gnd: "Q1.e"
           out: "Q1.c"
-          Vcc: null
       bom:
           NPN:
               "2N2222": "Q1"
@@ -122,16 +120,16 @@ export {
   signal-led =
       iface: "gnd, in, vcc"
       netlist:
-          vcc: "D1.a DR.Vcc"
+          vcc: "D1.a"
           2: "D1.c DR.out"
           in: "DR.in"
           gnd: "DR.gnd"
       params:
           regex: /[a-z]+/
           map: 'color'
-      schemas: {led-driver}
+      schemas: {oc-output}
       bom:
-          led-driver: 'DR'
+          oc-output: 'DR'
           C1206:
               "$color": "D1"  # Led
   sgw =
@@ -141,15 +139,20 @@ export {
           '5v': 'P.5v rpi.5v led1.vcc led2.vcc'
           2: 'led2.in rpi.7'
           3: 'led1.in rpi.0'
-      schemas: {power, signal-led}
+          4: 'rpi.11 beep.in'
+          5: 'beep.out buzzer.c'
+          6: 'buzzer.a 5v'
+      schemas: {power, signal-led, oc-output}
       iface: "Pow+, Pow-"
       bom:
           power: 'P'
           signal-led:
               'red': 'led1'
               'green': 'led2'
+          oc-output: 'beep'
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
+          CAP_thd: 'buzzer'
 
           # Virtual components
           'Conn_1pin_thd' : '_1, _2, _3, _4'
