@@ -126,7 +126,7 @@ export init = (pcb) ->
         unless err
             PNotify.success text: "All schema tests are passed."
         else
-            PNotify.error text: """
+            PNotify.error hide: no, text: """
                 Failed Schema tests:
 
                 #{err.message or 'Check console'}
@@ -288,7 +288,7 @@ export init = (pcb) ->
                 return
 
             pcb.history.reset-script-diffing!
-            @get \vlog .info "Done, reload your window."
+            @get \vlog .info "Done, reload your window. \n\n (TODO: reload shouldn't be needed)"
 
         showDiff: (ctx, name) ->
             try

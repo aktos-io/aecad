@@ -153,6 +153,7 @@ export class Schema implements bom, footprints, netlist, guide
         # -----------------
         netlist = {}
         console.log "* Compiling schema: #{@name}"
+        required-pads = @get-required-pads!
         for id, conn-list of @flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
@@ -192,18 +193,34 @@ export class Schema implements bom, footprints, netlist, guide
                     if (unique-by (.uname), pads).length isnt pads.length
                         console.error "FOUND DUPLICATE PADS in ", name
 
+                    # pad found, remove from required pads
+                    for pads
+                        delete required-pads[..pin] if ..pin of required-pads
+
                     net.push {name, pads}
             unless id of netlist
                 netlist[id] = []
             netlist[id] ++= net  # it might be already created by cross-link
 
+        for text2arr @data.no-connect
+            delete required-pads[..] if .. of required-pads 
+
+        unless empty unterminated=(keys required-pads)
+            throw new Error "Unterminated pads: #{unterminated.join ','}"
+
         unless @parent
             #console.log "Flatten netlist:", @flatten-netlist
             #console.log "Netlist (raw) (includes links and cross-links): ", netlist
-
-            # Reduce the netlist only for top level circuit
-            # --------------------------------------------
             @reduce netlist
+
+    get-required-pads: ->
+        all-pads = {}
+        for @components
+            # request all connectable pads from components
+            for ..component.get {+connectable}
+                all-pads[..pin] = null
+        return all-pads
+
 
     build-connection-list: !->
         # Re/Build the connection name table for the net
