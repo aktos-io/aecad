@@ -297,7 +297,8 @@ export init = (pcb) ->
                 PNotify.error text: "No such diff (#{name}) found."
                 return
 
-            sdiff_ = jsDiff.structuredPatch(name, "#{name} (server)", current, remote, "local", "server", {+ignoreWhitespace})
+            sdiff_ = jsDiff.structuredPatch(name, "#{name} (server)", current, remote, "local", "server")
+            console.log "scripting: diff: ", sdiff_
             @get \vlog .info do
                 template: RACTIVE_PREPARSE('./diff.pug')
                 data:
