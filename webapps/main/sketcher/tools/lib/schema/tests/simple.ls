@@ -22,7 +22,7 @@ push-pull =
     netlist:
         gnd: 'C1.gnd'
         1: "C1.Input R1.1 R2.2 Input"
-        2: "R1.2 Vcc"
+        2: "R1.2 Vcc Q1.c"
         3: "Q1.e Output C1.Output"
         4: "Q1.b R2.1"
 
@@ -52,7 +52,7 @@ export do
         flatten-netlist =
             gnd: <[ C1.gnd ]>
             1: <[ C1.Input R1.1 R2.2 Input ]>
-            2: <[ R1.2 Vcc ]>
+            2: <[ R1.2 Vcc Q1.c ]>
             3: <[ Q1.e Output C1.Output ]>
             4: <[ Q1.b R2.1 ]>
             Input: []
