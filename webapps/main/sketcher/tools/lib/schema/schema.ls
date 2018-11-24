@@ -40,6 +40,18 @@ get-net = (netlist, id, included=[], mark) ~>
         netlist[id].push mark
     reduced
 
+the-one-in = (arr) ->
+    # expect only one truthy value in the array
+    # and return it
+    the-value = null
+    for arr when ..?
+        unless the-value
+            the-value = ..
+        else if "#{the-value}" isnt "#{..}"
+            console.error "the-one-in: ", arr
+            throw new Error "We have multiple values in this array"
+    the-value
+
 
 export class Schema implements bom, footprints, netlist, guide
     (opts) ->
@@ -193,6 +205,45 @@ export class Schema implements bom, footprints, netlist, guide
             # --------------------------------------------
             @reduce netlist
 
+    build-connection-list: !->
+        # Re/Build the connection name table for the net
+        # ------------------------------------------------
+        # * use the existing netid that supplied by any of net's pads
+        # * assign the rest of nets' netid's sequentially
+        @connection-list = {}
+        # Collect already assigned netid's
+        newly-created = []
+        for net in @netlist
+            try
+                netid = '' + the-one-in [..netid for net]
+            catch
+                # just in case
+                throw new Error "Multiple netid's assigned to the pads in the same net"
+
+            # use existing netid extracted from one of the pads
+            if netid?.match /[0-9]+/
+                if netid of @connection-list
+                    existing = @connection-list[netid].map (.uname) .join ', '
+                    curr = net.map (.uname) .join ', '
+                    throw new Error "Duplicate netid found: #{netid} (#{curr} already occupied by #{existing}"
+                @connection-list[netid] = net
+                # Propagate netid's to all pads in the same net
+                for pad in net
+                    pad.netid = netid
+            else
+                # this net is newly created, take your note to assign next possible
+                # netid
+                newly-created.push net
+
+        # Assign newly created net's netid's
+        for til newly-created.length
+            net = newly-created.pop!
+            # generate the next netid
+            netid = next-id @connection-list
+            @connection-list[netid] = net
+            for pad in net
+                pad.netid = netid
+
     reduce: (netlist) ->
         # Create reduced netlist
         @netlist.length = 0
@@ -204,33 +255,8 @@ export class Schema implements bom, footprints, netlist, guide
                     continue
                 @netlist.push net
 
-        # Re/Build the connection name table for the net
-        @connection-list = {}
-        for net in @netlist
-            # find the most possible common netname
-            netname = {}
-            netid = null  # Create or restore the netid
-            for pad in net when pad.netid
-                # pad has a netid, this should be used
-                if not netid?
-                    netid = pad.netid
-                else if "#{pad.netid}" is "#{netid}"
-                    # netid is set by a previous pad and this pad has the same netid
-                    # we can still use the netid
-                    continue
-                else
-                    # pad.netid exists and different from previously set netid
-                    throw new Error """We have a stray net component!
-
-                    (#{pad.uname}, expected netid: #{netid}, got: #{pad.netid})
-                    """
-            # we may be able to set netid till this point.
-            # use it or give the next available id
-            netid = netid or next-id @connection-list
-            @connection-list[netid] = net
-            # assign the netid's
-            for pad in net
-                pad.netid = netid
+        # build the @connection-list
+        @build-connection-list!
 
         # Check errors
         @post-check!
