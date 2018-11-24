@@ -11,57 +11,6 @@ export {
 
 
 '''
-'class-approach-test': '''
-  # Example imaginary footprint
-  # ---------------------------
-  fp = new Footprint do
-      name: 'foo'
-      symmetry-axis: 'x'
-
-  pad1 = new Pad fp, do
-      pin: 1
-      width: 5
-      height: 15
-
-  c = new Container fp
-
-  for index in [1 to 5]
-      pad = new Pad c, do
-          pin: index
-          width: 1mm
-          height: 2mm
-
-      pad.position.y -= 16 * index
-
-  c.position = pad1.position
-  c.position.x += 23
-
-  c2 = new Container fp
-
-  for index in [1 to 5]
-      pad = new Pad c2, do
-          pin: "#{index}c"
-          dia: 3mm
-          drill: 1mm
-
-      pad.position.y -= 16 * index
-
-  c2.position = c.position
-  c2.position.x += 10
-
-
-  #fp.color = 'red'
-  #fp.rotate 45
-
-  ## Now find the component by its name
-  ## ----------------------------------
-  x = find-comp 'foo'
-  #<~ sleep 500ms
-  #x.rotate -45
-  x.mirror!
-  #x.print-mode = yes
-
-'''
 'pin-array-test': '''
   a = new PinArray do
       name: 'mypins1'
@@ -204,6 +153,7 @@ export {
 
           # Virtual components
           'Conn_1pin_thd' : '_1, _2, _3, _4'
+          'RefCross': '_a _b _c _d'
 
   sch = new Schema {name: 'sgw', data: sgw}
       ..clear-guides!
@@ -212,6 +162,7 @@ export {
       ..guide-unconnected!
 
   pcb.ractive.fire 'calcUnconnected'
+
 
   upgrades = sch.get-upgrades!
   unless empty upgrades
