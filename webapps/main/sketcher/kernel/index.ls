@@ -132,7 +132,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                         marker?radius = speed-drag.inactive * speed-val / @view.zoom
                         marker?.stroke-width = marker-width / @view.zoom
                         speed = move.speed.subtract(dead-vect) .multiply coeff
-                        console.log "speed len: ", speed.length, "dead radius: ", dead-radius, "move-speed:", move.speed.length
+                        #console.log "speed len: ", speed.length, "dead radius: ", dead-radius, "move-speed:", move.speed.length
                         @view.center = @view.center.add speed
                         move.grab-point
                             ..set ..add speed
