@@ -52,7 +52,7 @@ export do
         # detect unused pads of footprints in BOM:
         required-pads = {}
         for instance, args of bom
-            console.log "Found #{args.type} instance: #{instance}"
+            #console.log "Found #{args.type} instance: #{instance}"
             if instance.starts-with '_'
                 continue
             pads = if args.data
@@ -62,17 +62,16 @@ export do
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
                 sample = new Component ((args.params or {}) <<< {+silent})
-                i = values sample.iface
+                iface = values sample.iface
                 sample.remove!
-                i 
+                iface
 
             for pad in pads or []
                 required-pads["#{instance}.#{pad}"] = null
-        console.log "Required pads333:", JSON.stringify required-pads
         # find used iface pins
         for id, net of @data.netlist
             for text2arr net
-                console.log "...pad #{..} is used."
+                #console.log "...pad #{..} is used."
                 if .. of required-pads
                     delete required-pads[..]
 
