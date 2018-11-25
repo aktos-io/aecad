@@ -157,6 +157,12 @@ export {
           # Virtual components
           'Conn_1pin_thd' : '_1, _2, _3, _4'
           'RefCross': '_a _b _c _d'
+      no-connect: """rpi.1 rpi.2 rpi.16 rpi.3v3
+          rpi.3 rpi.4 rpi.17 rpi.27 rpi.22 rpi.10
+          rpi.9 rpi.5 rpi.6 rpi.13 rpi.19 rpi.26
+          rpi.14 rpi.15 rpi.18 rpi.23 rpi.24 rpi.25
+          rpi.8 rpi.12 rpi.20 rpi.21
+          """
 
   sch = new Schema {name: 'sgw', data: sgw}
       ..clear-guides!
@@ -176,8 +182,6 @@ export {
   add-class class PinArray extends Footprint
       (data) ->
           super ...
-          if data.parent
-              throw "how do we have parent?"
           unless @resuming
               #console.log "Creating from scratch PinArray"
               start = data.start or 1
@@ -185,28 +189,37 @@ export {
                   data.cols = {count: 1}
               unless data.rows
                   data.rows = {count: 1}
+
+              iface = {}
               for cindex to data.cols.count - 1
                   for rindex to data.rows.count - 1
                       pin-num = start + switch (data.dir or 'x')
-                      | 'x' =>
-                          cindex + rindex * data.cols.count
-                      | '-x' =>
-                          data.cols.count - 1 - cindex + rindex * data.cols.count
-                      | 'y' =>
-                          rindex + cindex * data.rows.count
-                      | '-y' =>
-                          data.rows.count - 1 - rindex + cindex * data.rows.count
+                          | 'x' =>
+                              cindex + rindex * data.cols.count
+                          | '-x' =>
+                              data.cols.count - 1 - cindex + rindex * data.cols.count
+                          | 'y' =>
+                              rindex + cindex * data.rows.count
+                          | '-y' =>
+                              data.rows.count - 1 - rindex + cindex * data.rows.count
 
-                      pin-label = data.labels?[pin-num]
+                      iface[pin-num] = if data.labels
+                          if pin-num of data.labels
+                              data.labels[pin-num]
+                          else
+                              throw new Error "Undeclared label for iface: #{pin-num}"
+                      else
+                          pin-num
 
                       p = new Pad data.pad <<< do
                           pin: pin-num
-                          label: if data.labels? => (pin-label or '?')
+                          label: iface[pin-num]
                           parent: this
 
                       p.position.y += (data.rows.interval or 0 |> mm2px) * rindex
                       p.position.x += (data.cols.interval or 0 |> mm2px) * cindex
 
+              @iface = iface
 
               if data.mirror
                   # useful for female headers
@@ -466,6 +479,14 @@ export {
 
               left = new PinArray data.left <<< overwrites
               right = new PinArray data.right <<< overwrites
+
+              iface = {}
+              for num, label of left.iface
+                  iface[num] = label
+              for num, label of right.iface
+                  iface[num] = label
+              @iface = iface
+
               right.position = left.position.add [data.distance |> mm2px, 0]
               @make-border!
 '''

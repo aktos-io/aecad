@@ -2,6 +2,10 @@ require! './container': {Container}
 require! 'aea/do-math': {mm2px}
 
 export class Footprint extends Container
+    iface: ~
+        -> @get-data('labels')
+        (val) -> @set-data 'labels', val
+
     move: (displacement, opts={}) ->
         # Moves the component with a provided amount of displacement. Default: Relative
         # opts:

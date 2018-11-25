@@ -186,10 +186,6 @@ export class Pad extends ComponentBase
             # report matching items
             if query.item in [@g, @cu, @ttip, @drill].map((?.id)).filter((Boolean))
                 res.push this
-        if \connectable of query
-            # report if this pad is connectable or not
-            unless @pin.starts-with '_'
-                res.push this
         res
 
     label: ~

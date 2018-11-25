@@ -45,7 +45,7 @@ export do
     add-footprints: (opts) !->
         missing = @get-netlist-components! `difference` @get-bom-components!
         unless empty missing
-            throw new Error "Netlist components missing in BOM: #{missing.join(',')}"
+            throw new Error "Components missing in BOM: #{missing.join(',')}"
 
         @components = []
         # add sub-circuit components

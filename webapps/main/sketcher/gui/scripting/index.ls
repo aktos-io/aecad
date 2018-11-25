@@ -127,7 +127,7 @@ export init = (pcb) ->
             PNotify.success text: "All schema tests are passed."
         else
             PNotify.error hide: no, text: """
-                Failed Schema tests:
+                Failed Schema test: #{err.test-name}
 
                 #{err.message or 'Check console'}
                 """
