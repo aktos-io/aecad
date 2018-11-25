@@ -118,8 +118,8 @@ export class Trace extends Container implements follow, helpers, end
                 @prev-hover.push ..item
 
     netid: ~
-        -> (@get-data \netid) or ''
-        (val) -> @set-data \netid, val
+        -> "#{(@get-data \netid) or ''}"
+        (val) -> @set-data \netid, "#{val}"
 
     net: ~
         ->
@@ -210,7 +210,6 @@ export class Trace extends Container implements follow, helpers, end
                     # this is an item (pad, etc.)
                     console.log "snapping to item: ", hit.item
                     snap = hit.item.bounds.center.clone!
-                debugger
 
             | 'Pad' =>
                 # Snap to this pad
