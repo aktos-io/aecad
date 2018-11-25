@@ -17,7 +17,7 @@ export do
         sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
 
         expect (-> sch.compile!)
-        .to-throw "Unterminated pads: test.R1.2"
+        .to-throw "Unused pads: test.R1.2"
 
         # cleanup canvas
         sch.remove-footprints!
@@ -46,7 +46,7 @@ export do
         sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
 
         expect (-> sch.compile!)
-        .to-throw "Unterminated pads: test.A.Input,test.A.Output,test.A.gnd"
+        .to-throw "Unused pads: test.A.Input,test.A.Output,test.A.gnd"
 
         # cleanup canvas
         sch.remove-footprints!

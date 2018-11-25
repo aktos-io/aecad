@@ -83,4 +83,4 @@ export do
         # throw the exception if there are unused pads
         unused = keys required-pads
         unless empty unused
-            throw new Error "Unterminated pads: #{unused.map (~> "#{@prefix}#{it}") .join ','}"
+            throw new Error "Unused pads: #{unused.map (~> "#{@prefix}#{it}") .join ','}"
