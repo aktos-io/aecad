@@ -259,7 +259,7 @@ export init = (pcb) ->
             # directly require by:
             # require! './path/to/scripts'
             # console.log scripts
-            content = "export {\n#{content}\n}".split '\n' .map (.replace /[\s\t]+$/g, '') .join '\n'
+            content = "export {\n#{content}\n}"
             create-download 'scripts.ls', content
 
         restart-diff: (ctx) ->

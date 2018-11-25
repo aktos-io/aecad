@@ -53,6 +53,8 @@ export do
         required-pads = {}
         for instance, args of bom
             console.log "Found #{args.type} instance: #{instance}"
+            if instance.starts-with '_'
+                continue
             pads = if args.data
                 # this is a sub-circuit, use its `iface` as `pad`s
                 that.iface |> text2arr
@@ -60,7 +62,9 @@ export do
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
                 sample = new Component ((args.params or {}) <<< {+silent})
-                values sample.iface
+                i = values sample.iface
+                sample.remove!
+                i 
 
             for pad in pads or []
                 required-pads["#{instance}.#{pad}"] = null
@@ -72,7 +76,10 @@ export do
                 if .. of required-pads
                     delete required-pads[..]
 
-        console.log "Required pads2:", required-pads
+        for @no-connect
+            if .. of required-pads
+                delete required-pads[..]
+
         # throw the exception if there are unused pads
         unused = keys required-pads
         unless empty unused
