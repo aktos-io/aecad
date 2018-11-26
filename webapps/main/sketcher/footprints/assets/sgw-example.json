@@ -9338,7 +9338,7 @@
                     [191.30161, 174.22004],
                     [206.41416, 174.22004],
                     [222.96106, 190.76694],
-                    [222.96106, 197.54296]
+                    [222.96106, 195.5895]
                   ],
                   "strokeColor": [0, 0.50196, 0],
                   "strokeWidth": 0.75591,
@@ -9351,5 +9351,9 @@
         ]
       ]
     }
-  ]
+  ],
+  ["Layer", {"name": "scripting", "applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}]
 ]

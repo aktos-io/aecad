@@ -132,6 +132,21 @@ export {
           oc-output: 'DR'
           C1206:
               "$color": "D1"  # Led
+  
+  buzzer =
+      iface: "gnd, in, vcc"
+      schemas: {oc-output}
+      bom:
+          oc-output: 'D'
+          SMD1206:
+              "1K": "R1"
+          Buzzer: 'b'
+      netlist:
+          gnd: 'D.gnd'
+          in: 'D.in'
+          1: 'D.out b.c R1.2'
+          vcc: 'b.a R1.1'
+  
   sgw =
       netlist:
           gnd: """ P.gnd cn.1 Pow- led1.gnd
@@ -142,19 +157,17 @@ export {
           2: 'led2.in rpi.7'
           3: 'led1.in rpi.0'
           4: 'rpi.11 beep.in'
-          5: 'beep.out buzzer.c'
-          6: 'buzzer.a 5v'
-      schemas: {power, signal-led, oc-output}
+          6: 'beep.vcc 5v'
+      schemas: {power, signal-led, buzzer}
       iface: "Pow+, Pow-"
       bom:
           power: 'P'
           signal-led:
               'red': 'led1'
               'green': 'led2'
-          oc-output: 'beep'
+          buzzer: 'beep'
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
-          CAP_thd: 'buzzer'
   
           # Virtual components
           'Conn_1pin_thd' : '_1, _2, _3, _4'
@@ -632,8 +645,22 @@ export {
               border:
                   dia: 8mm
   
-          super defaults <<< data
+          super defaults `aea.merge` data
+  
+  add-class class Buzzer extends CAP_thd
+      (data={}) ->
+          defaults =
+              pad:
+                  drill: 0.7mm
+              cols:
+                  interval: 7.70mm
+              border:
+                  dia: 12mm
+          super defaults `aea.merge` data
   
   #new CAP_thd
+  #new Buzzer
+  
+  
 '''
 }
