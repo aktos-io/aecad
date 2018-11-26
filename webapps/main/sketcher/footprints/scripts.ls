@@ -170,14 +170,11 @@ export {
   sch = new Schema {name: 'sgw', data: sgw}
       ..clear-guides!
       ..compile!
-      #..guide-all!
       ..guide-unconnected!
   
   pcb.ractive.fire 'calcUnconnected'
   
-  
-  upgrades = sch.get-upgrades!
-  unless empty upgrades
+  unless empty upgrades=(sch.get-upgrades!)
       pcb.vlog.info upgrades.map((.reason)).join('\\n\\n')
   
 '''
