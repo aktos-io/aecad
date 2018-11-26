@@ -227,6 +227,7 @@ export class Schema implements bom, footprints, netlist, guide
                 netid = '' + the-one-in [..netid for net]
             catch
                 # just in case
+                console.error "#{net.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
                 throw new Error "Multiple netid's assigned to the pads in the same net"
 
             # use existing netid extracted from one of the pads
