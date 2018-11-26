@@ -3,10 +3,12 @@
 dig-for-aecad = (item) ->
 
 export do
-    get-components: (opts={}) ->
+    get-components: (opts) ->
         '''
         Returns all aeCAD components in {item, type, name, version} form
         '''
+        unless opts
+            opts = {}
         items = []
         for @project.layers
             for item in ..getItems {-recursive}

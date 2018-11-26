@@ -1,11 +1,11 @@
 require! 'dcs/lib/test-utils': {make-tests}
 require! './simple'
 require! './errors'
-require! './unterminated'
+require! './unused'
 
 tests = ->
     make-tests "schema", {
-        simple, errors, unterminated
+        simple, errors, unused
     }
 
 export schema-tests = (handler) ->

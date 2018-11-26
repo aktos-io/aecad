@@ -177,7 +177,6 @@ export canvas-control =
 
             # Apply filter
             if opts.filter
-                console.log "applying filter"
                 unless opts.filter(hit)
                     continue
 

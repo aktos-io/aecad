@@ -1419,7 +1419,6 @@
       ]
     }
   ],
-  ["Layer", {"name": "scripting", "applyMatrix": true}],
   [
     "Layer",
     {
@@ -1655,7 +1654,7 @@
                       "pin": 2,
                       "label": "a",
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -1700,7 +1699,7 @@
                       "pin": 1,
                       "label": "c",
                       "rotation": 90,
-                      "netid": 6
+                      "netid": "6"
                     }
                   },
                   "children": [
@@ -1778,7 +1777,7 @@
                       "height": 2.1,
                       "pin": 2,
                       "label": "a",
-                      "netid": 3
+                      "netid": "3"
                     }
                   },
                   "children": [
@@ -1823,7 +1822,7 @@
                       "pin": 1,
                       "label": "c",
                       "connected": "RJfj2u0zi",
-                      "netid": 6
+                      "netid": "6"
                     }
                   },
                   "children": [
@@ -2403,7 +2402,7 @@
                       "height": 2.1,
                       "pin": 1,
                       "label": "c",
-                      "netid": 7
+                      "netid": "7"
                     }
                   },
                   "children": [
@@ -2447,7 +2446,7 @@
                       "height": 2.1,
                       "pin": 2,
                       "label": "a",
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -3435,7 +3434,7 @@
                       "pin": 1,
                       "rotation": 90,
                       "connected": "jk-WJN1r2",
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -3495,7 +3494,7 @@
                       "pin": 2,
                       "rotation": 90,
                       "connected": "7GNnPsf_Q",
-                      "netid": 3
+                      "netid": "3"
                     }
                   },
                   "children": [
@@ -3954,7 +3953,7 @@
                       "label": "gnd",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -4000,7 +3999,7 @@
                       "label": "0",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 11
+                      "netid": "11"
                     }
                   },
                   "children": [
@@ -4046,7 +4045,7 @@
                       "label": "gnd",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -4319,7 +4318,7 @@
                       "label": "gnd",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -4635,7 +4634,8 @@
                       "pin": 23,
                       "label": "11",
                       "mirrored": false,
-                      "rotation": 90
+                      "rotation": 90,
+                      "netid": "17"
                     }
                   },
                   "children": [
@@ -4681,7 +4681,7 @@
                       "label": "gnd",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -4953,7 +4953,7 @@
                       "mirrored": false,
                       "rotation": 90,
                       "connected": "EwDnhNtJM",
-                      "netid": 5
+                      "netid": "5"
                     }
                   },
                   "children": [
@@ -5000,7 +5000,7 @@
                       "mirrored": false,
                       "rotation": 90,
                       "connected": "LnL1NhnrH",
-                      "netid": 5
+                      "netid": "5"
                     }
                   },
                   "children": [
@@ -5047,7 +5047,7 @@
                       "mirrored": false,
                       "rotation": 90,
                       "connected": "F156G5ioG",
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -5229,7 +5229,7 @@
                       "label": "gnd",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -5365,7 +5365,7 @@
                       "label": "gnd",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -5501,7 +5501,7 @@
                       "label": "7",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 2
+                      "netid": "2"
                     }
                   },
                   "children": [
@@ -5592,7 +5592,7 @@
                       "label": "gnd",
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -5748,7 +5748,7 @@
                       "mirrored": false,
                       "rotation": 90,
                       "connected": "e30uRz4eZ",
-                      "netid": 7
+                      "netid": "7"
                     }
                   },
                   "children": [
@@ -5793,7 +5793,7 @@
                       "pin": 2,
                       "mirrored": false,
                       "rotation": 90,
-                      "netid": 8
+                      "netid": "8"
                     }
                   },
                   "children": [
@@ -5937,7 +5937,7 @@
                             "label": "vin",
                             "rotation": 90,
                             "connected": "S6x2IOc2Y",
-                            "netid": 6
+                            "netid": "6"
                           }
                         },
                         "children": [
@@ -6013,7 +6013,7 @@
                             "label": "onoff",
                             "rotation": 90,
                             "connected": "tndsXVdBX",
-                            "netid": 1
+                            "netid": "1"
                           }
                         },
                         "children": [
@@ -6058,7 +6058,7 @@
                             "pin": 4,
                             "label": "fb",
                             "rotation": 90,
-                            "netid": 8
+                            "netid": "8"
                           }
                         },
                         "children": [
@@ -6103,7 +6103,7 @@
                             "pin": 3,
                             "label": "gnd",
                             "rotation": 90,
-                            "netid": 1
+                            "netid": "1"
                           }
                         },
                         "children": [
@@ -6148,7 +6148,7 @@
                             "pin": 2,
                             "label": "out",
                             "rotation": 90,
-                            "netid": 7
+                            "netid": "7"
                           }
                         },
                         "children": [
@@ -6193,7 +6193,7 @@
                             "pin": 1,
                             "label": "vin",
                             "rotation": 90,
-                            "netid": 6
+                            "netid": "6"
                           }
                         },
                         "children": [
@@ -6306,7 +6306,7 @@
                             "label": "vout",
                             "rotation": 90,
                             "connected": "oTBDa008x",
-                            "netid": 9
+                            "netid": "9"
                           }
                         },
                         "children": [
@@ -6380,7 +6380,7 @@
                             "label": "vin",
                             "rotation": 90,
                             "connected": "aIeBkoLyl",
-                            "netid": 8
+                            "netid": "8"
                           }
                         },
                         "children": [
@@ -6426,7 +6426,7 @@
                             "label": "vout",
                             "rotation": 90,
                             "connected": "yxMOA6bta",
-                            "netid": 9
+                            "netid": "9"
                           }
                         },
                         "children": [
@@ -6471,7 +6471,7 @@
                             "pin": 1,
                             "label": "gnd",
                             "rotation": 90,
-                            "netid": 1
+                            "netid": "1"
                           }
                         },
                         "children": [
@@ -6550,7 +6550,7 @@
                       "width": 0.9,
                       "height": 1.6,
                       "pin": 1,
-                      "netid": 8,
+                      "netid": "8",
                       "rotation": 90
                     }
                   },
@@ -6594,7 +6594,7 @@
                       "width": 0.9,
                       "height": 1.6,
                       "pin": 2,
-                      "netid": 5,
+                      "netid": "5",
                       "rotation": 90
                     }
                   },
@@ -6672,7 +6672,7 @@
                       "height": 1.6,
                       "pin": 1,
                       "rotation": 90,
-                      "netid": 9
+                      "netid": "9"
                     }
                   },
                   "children": [
@@ -6716,7 +6716,7 @@
                       "height": 1.6,
                       "pin": 2,
                       "rotation": 90,
-                      "netid": 4
+                      "netid": "4"
                     }
                   },
                   "children": [
@@ -6795,7 +6795,7 @@
                       "height": 1.6,
                       "pin": 1,
                       "label": "c",
-                      "netid": 1,
+                      "netid": "1",
                       "rotation": 90
                     }
                   },
@@ -6841,7 +6841,7 @@
                       "pin": 2,
                       "label": "a",
                       "connected": "ioFcaEyez",
-                      "netid": 6,
+                      "netid": "6",
                       "rotation": 90
                     }
                   },
@@ -6923,7 +6923,7 @@
                       "label": "c",
                       "connected": "nxKhk8U_c",
                       "rotation": 90,
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -6968,7 +6968,7 @@
                       "pin": 2,
                       "label": "a",
                       "rotation": 90,
-                      "netid": 9
+                      "netid": "9"
                     }
                   },
                   "children": [
@@ -7044,7 +7044,7 @@
                       "width": 0.9,
                       "height": 1.6,
                       "pin": 1,
-                      "netid": 12,
+                      "netid": "12",
                       "rotation": 90
                     }
                   },
@@ -7089,7 +7089,7 @@
                       "height": 1.6,
                       "pin": 2,
                       "connected": "YLtt8ZftD",
-                      "netid": 11,
+                      "netid": "11",
                       "rotation": 90
                     }
                   },
@@ -7168,7 +7168,7 @@
                       "height": 1.6,
                       "pin": 1,
                       "label": "c",
-                      "netid": 10
+                      "netid": "10"
                     }
                   },
                   "children": [
@@ -7213,7 +7213,7 @@
                       "pin": 2,
                       "label": "a",
                       "connected": "rR7YN7rWD",
-                      "netid": 5
+                      "netid": "5"
                     }
                   },
                   "children": [
@@ -7291,7 +7291,7 @@
                       "height": 1.6,
                       "pin": 1,
                       "label": "c",
-                      "netid": 13
+                      "netid": "13"
                     }
                   },
                   "children": [
@@ -7336,7 +7336,7 @@
                       "pin": 2,
                       "label": "a",
                       "connected": "nZ50UqQus",
-                      "netid": 5
+                      "netid": "5"
                     }
                   },
                   "children": [
@@ -7447,7 +7447,7 @@
                             "height": 0.7,
                             "pin": 3,
                             "label": "c",
-                            "netid": 10,
+                            "netid": "10",
                             "rotation": 90
                           }
                         },
@@ -7515,7 +7515,7 @@
                             "height": 0.7,
                             "pin": 1,
                             "label": "b",
-                            "netid": 12,
+                            "netid": "12",
                             "rotation": 90
                           }
                         },
@@ -7561,7 +7561,7 @@
                             "pin": 2,
                             "label": "e",
                             "connected": "8Dqoj6Fai",
-                            "netid": 1,
+                            "netid": "1",
                             "rotation": 90
                           }
                         },
@@ -7677,7 +7677,7 @@
                             "pin": 3,
                             "label": "c",
                             "connected": "NauyAj-te",
-                            "netid": 13,
+                            "netid": "13",
                             "rotation": 90
                           }
                         },
@@ -7746,7 +7746,7 @@
                             "pin": 2,
                             "label": "e",
                             "connected": "Pz9EQGxZi",
-                            "netid": 1,
+                            "netid": "1",
                             "rotation": 90
                           }
                         },
@@ -7791,7 +7791,7 @@
                             "height": 0.7,
                             "pin": 1,
                             "label": "b",
-                            "netid": 14,
+                            "netid": "14",
                             "rotation": 90
                           }
                         },
@@ -7871,7 +7871,7 @@
                       "width": 0.9,
                       "height": 1.6,
                       "pin": 1,
-                      "netid": 14,
+                      "netid": "14",
                       "rotation": 90
                     }
                   },
@@ -7915,7 +7915,7 @@
                       "width": 0.9,
                       "height": 1.6,
                       "pin": 2,
-                      "netid": 2,
+                      "netid": "2",
                       "rotation": 90
                     }
                   },
@@ -7994,7 +7994,7 @@
                       "drill": 0.5,
                       "pin": 1,
                       "label": "c",
-                      "netid": 1
+                      "netid": "1"
                     }
                   },
                   "children": [
@@ -8053,7 +8053,7 @@
                       "drill": 0.5,
                       "pin": 2,
                       "label": "a",
-                      "netid": 8
+                      "netid": "8"
                     }
                   },
                   "children": [
@@ -8284,8 +8284,826 @@
               ]
             ]
           }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [1, 0, 0, 1, 203.86014, 202.84869],
+            "data": {
+              "aecad": {
+                "type": "CAP_thd",
+                "name": "buzzer",
+                "pad": {"dia": 1.5, "drill": 0.5, "pin": 2, "label": "a"},
+                "cols": {"count": 2, "interval": 4},
+                "rows": {"count": 1},
+                "labels": {"1": "c", "2": "a"},
+                "border": {"dia": 8},
+                "side": "F.Cu"
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "dia": 1.5,
+                      "drill": 0.5,
+                      "pin": 1,
+                      "label": "c",
+                      "netid": "19"
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "circle",
+                        "size": [5.6693, 5.6693],
+                        "radius": 2.83465,
+                        "fillColor": [1, 0.64706, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "Path",
+                      {
+                        "applyMatrix": true,
+                        "data": {"aecad": {"part": "drill"}},
+                        "segments": [
+                          [[-0.94488, 0], [0, 0.52184], [0, -0.52184]],
+                          [[0, -0.94488], [-0.52184, 0], [0.52184, 0]],
+                          [[0.94488, 0], [0, -0.52184], [0, 0.52184]],
+                          [[0, 0.94488], [0.52184, 0], [-0.52184, 0]]
+                        ],
+                        "closed": true,
+                        "fillColor": [0.1451, 0.1451, 0.1451],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 0, 0.9],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "c",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "dia": 1.5,
+                      "drill": 0.5,
+                      "pin": 2,
+                      "label": "a",
+                      "netid": "5"
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 15.11811, 0],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "circle",
+                        "size": [5.6693, 5.6693],
+                        "radius": 2.83465,
+                        "fillColor": [1, 0.64706, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "Path",
+                      {
+                        "applyMatrix": true,
+                        "data": {"aecad": {"part": "drill"}},
+                        "segments": [
+                          [[14.17323, 0], [0, 0.52184], [0, -0.52184]],
+                          [[15.11811, -0.94488], [-0.52184, 0], [0.52184, 0]],
+                          [[16.06299, 0], [0, -0.52184], [0, 0.52184]],
+                          [[15.11811, 0.94488], [0.52184, 0], [-0.52184, 0]]
+                        ],
+                        "closed": true,
+                        "fillColor": [0.1451, 0.1451, 0.1451],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 15.11811, 0.9],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "a",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Shape",
+                {
+                  "applyMatrix": false,
+                  "matrix": [1, 0, 0, 1, 7.55906, 0],
+                  "data": {"aecad": {"part": "border"}},
+                  "type": "circle",
+                  "size": [30.23622, 30.23622],
+                  "radius": 15.11811,
+                  "strokeColor": [0.12549, 0.69804, 0.66667],
+                  "strokeWidth": 0.2
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [-1, 0, 0, 1, 175.16967, 184.16999],
+            "data": {
+              "aecad": {
+                "type": "NPN",
+                "name": "beep.Q1",
+                "distance": 2,
+                "left": {
+                  "start": 3,
+                  "pad": {"width": 0.9, "height": 0.7, "pin": 1, "label": "b"},
+                  "cols": {"count": 1},
+                  "labels": {"1": "b", "2": "e", "3": "c"},
+                  "rows": {"count": 1}
+                },
+                "right": {
+                  "dir": "-y",
+                  "pad": {"width": 0.9, "height": 0.7, "pin": 1, "label": "b"},
+                  "rows": {"count": 2, "interval": 1.9},
+                  "labels": {"1": "b", "2": "e", "3": "c"},
+                  "cols": {"count": 1}
+                },
+                "border": {"width": 1.43, "height": 3},
+                "labels": {"1": "b", "2": "e", "3": "c"},
+                "version": 1,
+                "side": "B.Cu",
+                "rotation": 360
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": false,
+                  "data": {
+                    "aecad": {
+                      "type": "PinArray",
+                      "start": 3,
+                      "pad": {
+                        "width": 0.9,
+                        "height": 0.7,
+                        "pin": 1,
+                        "label": "b"
+                      },
+                      "cols": {"count": 1},
+                      "labels": {"3": "c"}
+                    }
+                  },
+                  "children": [
+                    [
+                      "Group",
+                      {
+                        "applyMatrix": true,
+                        "data": {
+                          "aecad": {
+                            "type": "Pad",
+                            "width": 0.9,
+                            "height": 0.7,
+                            "pin": 3,
+                            "label": "c",
+                            "netid": "19",
+                            "rotation": 90,
+                            "mirrored": true
+                          }
+                        },
+                        "children": [
+                          [
+                            "Shape",
+                            {
+                              "applyMatrix": false,
+                              "matrix": [1, 0, 0, 1, 1.70079, 1.32283],
+                              "data": {"aecad": {"part": "cu"}},
+                              "type": "rectangle",
+                              "size": [3.40157, 2.64567],
+                              "radius": [0, 0],
+                              "fillColor": [0, 0.50196, 0],
+                              "strokeWidth": 0
+                            }
+                          ],
+                          [
+                            "PointText",
+                            {
+                              "applyMatrix": false,
+                              "matrix": [-1, 0, 0, 1, 1.70079, 2.22283],
+                              "data": {"aecad": {"part": "ttip"}},
+                              "content": "c",
+                              "fillColor": [1, 1, 1],
+                              "fontSize": 3,
+                              "leading": 3.6,
+                              "justification": "center"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Group",
+                {
+                  "applyMatrix": false,
+                  "matrix": [1, 0, 0, 1, 7.55906, -3.59055],
+                  "data": {
+                    "aecad": {
+                      "type": "PinArray",
+                      "dir": "-y",
+                      "pad": {
+                        "width": 0.9,
+                        "height": 0.7,
+                        "pin": 1,
+                        "label": "b"
+                      },
+                      "rows": {"count": 2, "interval": 1.9},
+                      "labels": {"1": "b", "2": "e"}
+                    }
+                  },
+                  "children": [
+                    [
+                      "Group",
+                      {
+                        "applyMatrix": true,
+                        "data": {
+                          "aecad": {
+                            "type": "Pad",
+                            "width": 0.9,
+                            "height": 0.7,
+                            "pin": 2,
+                            "label": "e",
+                            "netid": "1",
+                            "rotation": 90,
+                            "mirrored": true
+                          }
+                        },
+                        "children": [
+                          [
+                            "Shape",
+                            {
+                              "applyMatrix": false,
+                              "matrix": [1, 0, 0, 1, 1.70079, 1.32283],
+                              "data": {"aecad": {"part": "cu"}},
+                              "type": "rectangle",
+                              "size": [3.40157, 2.64567],
+                              "radius": [0, 0],
+                              "fillColor": [0, 0.50196, 0],
+                              "strokeWidth": 0
+                            }
+                          ],
+                          [
+                            "PointText",
+                            {
+                              "applyMatrix": false,
+                              "matrix": [-1, 0, 0, 1, 1.70079, 2.22283],
+                              "data": {"aecad": {"part": "ttip"}},
+                              "content": "e",
+                              "fillColor": [1, 1, 1],
+                              "fontSize": 3,
+                              "leading": 3.6,
+                              "justification": "center"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    [
+                      "Group",
+                      {
+                        "applyMatrix": true,
+                        "data": {
+                          "aecad": {
+                            "type": "Pad",
+                            "width": 0.9,
+                            "height": 0.7,
+                            "pin": 1,
+                            "label": "b",
+                            "netid": "18",
+                            "rotation": 90,
+                            "mirrored": true
+                          }
+                        },
+                        "children": [
+                          [
+                            "Shape",
+                            {
+                              "applyMatrix": false,
+                              "matrix": [1, 0, 0, 1, 1.70079, 8.50394],
+                              "data": {"aecad": {"part": "cu"}},
+                              "type": "rectangle",
+                              "size": [3.40157, 2.64567],
+                              "radius": [0, 0],
+                              "fillColor": [0, 0.50196, 0],
+                              "strokeWidth": 0
+                            }
+                          ],
+                          [
+                            "PointText",
+                            {
+                              "applyMatrix": false,
+                              "matrix": [-1, 0, 0, 1, 1.70079, 9.40394],
+                              "data": {"aecad": {"part": "ttip"}},
+                              "content": "b",
+                              "fillColor": [1, 1, 1],
+                              "fontSize": 3,
+                              "leading": 3.6,
+                              "justification": "center"
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Shape",
+                {
+                  "applyMatrix": false,
+                  "matrix": [1, 0, 0, 1, 5.48031, 1.32283],
+                  "data": {"aecad": {"part": "border"}},
+                  "type": "rectangle",
+                  "size": [5.40472, 11.33858],
+                  "radius": [0.3, 0.3],
+                  "strokeColor": [0.12549, 0.69804, 0.66667],
+                  "strokeWidth": 0.2
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [-1, 0, 0, 1, 157.36626, 185.93694],
+            "data": {
+              "aecad": {
+                "type": "SMD1206",
+                "name": "beep.R1",
+                "pad": {"width": 0.9, "height": 1.6, "pin": 2, "label": 2},
+                "cols": {"count": 2, "interval": 2.9},
+                "border": {"width": 2, "height": 1.6},
+                "labels": {"1": 1, "2": 2},
+                "side": "B.Cu"
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "width": 0.9,
+                      "height": 1.6,
+                      "pin": 1,
+                      "label": 1,
+                      "netid": "18",
+                      "mirrored": true
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 1.70079, 3.02362],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "rectangle",
+                        "size": [3.40157, 6.04724],
+                        "radius": [0, 0],
+                        "fillColor": [0, 0.50196, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [-1, 0, 0, 1, 1.70079, 3.92362],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "1",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "width": 0.9,
+                      "height": 1.6,
+                      "pin": 2,
+                      "label": 2,
+                      "netid": "17",
+                      "mirrored": true
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 12.66142, 3.02362],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "rectangle",
+                        "size": [3.40157, 6.04724],
+                        "radius": [0, 0],
+                        "fillColor": [0, 0.50196, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [-1, 0, 0, 1, 12.66142, 3.92362],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "2",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Shape",
+                {
+                  "applyMatrix": false,
+                  "matrix": [1, 0, 0, 1, 7.1811, 3.02362],
+                  "data": {"aecad": {"part": "border"}},
+                  "type": "rectangle",
+                  "size": [7.55906, 6.04724],
+                  "radius": [0.3, 0.3],
+                  "strokeColor": [0.12549, 0.69804, 0.66667],
+                  "strokeWidth": 0.2
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "DvtBdjcQT", "netid": "17"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [144.70484, 188.96056],
+                    [144.70484, 166.79776],
+                    [138.29124, 160.38416],
+                    [138.29124, 146.05823]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "cq1cIebsM", "netid": "18"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [155.66547, 188.96056],
+                    [162.89701, 189.08338],
+                    [165.90982, 189.08338]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "jlszaTxrg", "netid": "1"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [[165.90982, 181.90227]],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "7SzIUazRw", "netid": "1"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [165.90982, 181.90227],
+                    [165.90982, 177.95184],
+                    [147.89124, 159.93326],
+                    [147.89124, 146.05823]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "xPFeAH9_V", "netid": "19"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [173.46888, 185.49282],
+                    [194.6375, 185.49282],
+                    [203.86014, 194.71546],
+                    [203.86014, 202.84869]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "kJBSQh5SG", "netid": 5}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "F.Cu"}},
+                  "segments": [[195.36446, 154.31212]],
+                  "strokeColor": [1, 0, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "JFrwoMiIG", "netid": "5"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [[218.97825, 202.84869]],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "Z9_XbvkV_", "netid": "5"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [[218.97825, 202.84869], [218.97825, 202.84869]],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "KeOnRnQu8", "netid": "5"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "F.Cu"}},
+                  "segments": [
+                    [186.89343, 165.70902],
+                    [186.89343, 148.96938],
+                    [183.01196, 145.0879],
+                    [183.00445, 114.74829],
+                    [192.16661, 105.58613],
+                    [228.23211, 105.56178]
+                  ],
+                  "strokeColor": [1, 0, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ],
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [218.97825, 202.84869],
+                    [218.97825, 197.79384],
+                    [186.89343, 165.70902]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ],
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "dia": 1.5,
+                      "drill": 0.5,
+                      "color": "orange"
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 186.89343, 165.70902],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "circle",
+                        "size": [5.66929, 5.66929],
+                        "radius": 2.83465,
+                        "fillColor": [1, 0.64706, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "Path",
+                      {
+                        "applyMatrix": true,
+                        "data": {"aecad": {"part": "drill"}},
+                        "segments": [
+                          [[185.94855, 165.70902], [0, 0.52184], [0, -0.52184]],
+                          [[186.89343, 164.76414], [-0.52184, 0], [0.52184, 0]],
+                          [[187.83832, 165.70902], [0, -0.52184], [0, 0.52184]],
+                          [[186.89343, 166.6539], [0.52184, 0], [-0.52184, 0]]
+                        ],
+                        "closed": true,
+                        "fillColor": [0.1451, 0.1451, 0.1451],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 186.89343, 165.70902],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
         ]
       ]
     }
-  ]
+  ],
+  ["Layer", {"name": "scripting", "applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}]
 ]

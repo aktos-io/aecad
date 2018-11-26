@@ -28,7 +28,7 @@ export do
     "missing component in bom": ->
         sch = new Schema {name: 'test', data: circuit1, prefix: 'test.'}
         expect (-> sch.compile!)
-        .to-throw "Netlist components missing in BOM: Q1"
+        .to-throw "Components missing in BOM: Q1"
 
         # cleanup canvas
         sch.remove-footprints!
@@ -40,3 +40,19 @@ export do
 
         # cleanup canvas
         sch.remove-footprints!
+
+    'duplicate instance': ->
+        circuit2 =
+            # open collector output
+            iface: "Input, Output, gnd"
+            bom:
+                FOO: 'Q1'
+                "SMD1206": "R1 Q1"
+
+        sch = new Schema {name: 'test', data: circuit2, prefix: 'test.'}
+        expect (-> sch.compile!)
+        .to-throw "Duplicate instance: Q1"
+
+    "incomplete label declaration": ->
+        # TODO: extend a component with some missing labels
+        false

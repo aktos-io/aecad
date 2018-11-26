@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, unique-by
+    first, unique-by, compact
 }
 
 # deps
@@ -137,6 +137,9 @@ export class Schema implements bom, footprints, netlist, guide
     iface: ~
         -> text2arr @data.iface
 
+    no-connect: ~
+        -> text2arr @data.no-connect
+
     compile: !->
         @compiled = true
 
@@ -153,7 +156,6 @@ export class Schema implements bom, footprints, netlist, guide
         # -----------------
         netlist = {}
         console.log "* Compiling schema: #{@name}"
-        required-pads = @get-required-pads!
         for id, conn-list of @flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
@@ -187,26 +189,17 @@ export class Schema implements bom, footprints, netlist, guide
 
                     pads = (comp.get {pin}) or []
                     if empty pads
+                        console.error "Current iface:", comp.iface
                         throw new Error "No such pin found: '#{pin}' of '#{name}'"
 
                     # find duplicate pads (shouldn't be)
                     if (unique-by (.uname), pads).length isnt pads.length
                         console.error "FOUND DUPLICATE PADS in ", name
 
-                    # pad found, remove from required pads
-                    for pads
-                        delete required-pads[..pin] if ..pin of required-pads
-
                     net.push {name, pads}
             unless id of netlist
                 netlist[id] = []
             netlist[id] ++= net  # it might be already created by cross-link
-
-        for text2arr @data.no-connect
-            delete required-pads[..] if .. of required-pads 
-
-        unless empty unterminated=(keys required-pads)
-            throw new Error "Unterminated pads: #{unterminated.join ','}"
 
         unless @parent
             #console.log "Flatten netlist:", @flatten-netlist
@@ -220,7 +213,6 @@ export class Schema implements bom, footprints, netlist, guide
             for ..component.get {+connectable}
                 all-pads[..pin] = null
         return all-pads
-
 
     build-connection-list: !->
         # Re/Build the connection name table for the net
@@ -267,9 +259,6 @@ export class Schema implements bom, footprints, netlist, guide
         for id of netlist
             net = get-net netlist, id
             unless empty net
-                if net.length < 2
-                    console.warn "We are skipping this net as it has too few pads:", net
-                    continue
                 @netlist.push net
 
         # build the @connection-list

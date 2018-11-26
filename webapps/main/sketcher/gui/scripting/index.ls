@@ -127,7 +127,7 @@ export init = (pcb) ->
             PNotify.success text: "All schema tests are passed."
         else
             PNotify.error hide: no, text: """
-                Failed Schema tests:
+                Failed Schema test: #{err.test-name}
 
                 #{err.message or 'Check console'}
                 """
@@ -259,7 +259,7 @@ export init = (pcb) ->
             # directly require by:
             # require! './path/to/scripts'
             # console.log scripts
-            content = "export {\n#{content}\n}".split '\n' .map (.replace /[\s\t]+$/g, '') .join '\n'
+            content = "export {\n#{content}\n}"
             create-download 'scripts.ls', content
 
         restart-diff: (ctx) ->
