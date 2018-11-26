@@ -104,6 +104,9 @@ export init = (pcb) ->
             i = 0
             for pcb.search!
                 if ..item.getClassName?! in <[ Group Layer ]>
+                    for ..item.children or []
+                        if ..getClassName! is \Path and ..segments.length < 2
+                            ..remove!
                     if empty ..item.[]children
                         console.log "#{..keypath.join('.')} should be deleted. (\##{++i})"
                         ..item.remove!
