@@ -24,6 +24,12 @@ export init = (pcb) ->
     schema-manager = new SchemaManager
 
     handlers =
+        switchLayer: (ctx, layer, proceed) ->
+            @set \currLayer, layer
+            for pcb.get-components!
+                get-aecad ..item .trigger \focus, layer
+            proceed!
+
         calcUnconnected: (ctx) ->
             if schema-manager.active
                 conn-states = that.get-connection-states!

@@ -59,6 +59,18 @@ export class Trace extends Container implements follow, helpers, end
             a = if @corr-point? => 1 else 0
             @line?.segments[* - 2 - a].point
 
+    trigger: ->
+        @on ...
+
+    on: (event, ...args) ->
+        switch event
+        | 'focus' =>
+            for @paths
+                if ..data.aecad.side is args.0
+                    ..opacity = 1
+                else
+                    ..opacity = 0.4
+
     print-mode: (layers) ->
         super ...
         #console.log "trace is printing for: ", side, @pads
@@ -67,6 +79,7 @@ export class Trace extends Container implements follow, helpers, end
                 ..remove!
             else
                 ..stroke-color = 'black'
+                ..opacity = 1
 
         # TODO: find a proper way to bring drill holes front
         for @pads
@@ -152,9 +165,18 @@ export class Trace extends Container implements follow, helpers, end
             return
 
         # Check if we should snap to the hit point
+        curr-layer = @ractive.get('currLayer')
         hits = @scope.hitTestAll snap, {
             tolerance: 1,
             exclude: @g
+            filter: (hit) ~>
+                if hit.item.data?aecad?side is curr-layer
+                    return true
+                aeobj=(get-aecad hit.item)
+                if aeobj
+                    return aeobj.side-match?(curr-layer)
+                console.log "won't hit to item on different layer: ", hit, aeobj
+                return false
         }
         reached-target = no
         target = null
@@ -194,6 +216,7 @@ export class Trace extends Container implements follow, helpers, end
                         Expected: #{@netid}, got: #{target.netid}
                         """
                 return
+            console.log "Connected to netid: #{@netid}"
 
             switch target.type
             | 'Trace' =>
@@ -274,9 +297,9 @@ export class Trace extends Container implements follow, helpers, end
 
         # Toggle the layers
         # TODO: make this cleaner
-        @ractive.set \currLayer, switch @ractive.get \currLayer
-        | 'F.Cu' => 'B.Cu'
-        | 'B.Cu' => 'F.Cu'
+        <~ @ractive.fire \switchLayer, {}, switch @ractive.get \currLayer
+            | 'F.Cu' => 'B.Cu'
+            | 'B.Cu' => 'F.Cu'
         @add-segment @moving-point, flip-side=true
 
     set-modifiers: (modifiers) ->

@@ -131,6 +131,7 @@ export class Pad extends ComponentBase
                 # will be printed
                 @drill?.fillColor = \white
                 @cu.fillColor = \black
+                @g.opacity = 1
             else
                 # won't be printed
                 @drill?.visible = no
@@ -207,8 +208,8 @@ export class Pad extends ComponentBase
         -> "#{@pin}(#{@num})"
 
     netid: ~
-        -> @get-data 'netid'
-        (val) -> @set-data 'netid', val
+        -> "#{@get-data 'netid'}"
+        (val) -> @set-data 'netid', "#{val}"
 
     net: ~
         (val) ->
@@ -274,3 +275,10 @@ export class Pad extends ComponentBase
             @create-guides!
         | 'clear-guides' =>
             @schema?clear-guides!
+        | 'focus' =>
+            side = args.0
+            if @side-match args.0
+                # our side is focused
+                @g.opacity = 1
+            else
+                @g.opacity = 0.4

@@ -52,19 +52,19 @@ radio-buttons#toolChanger(value="{{currTool}}")
             ): icon.paper.plane(class="{{val.color}}")
 
 +space
-radio-buttons(value="{{currLayer}}")
+radio-buttons(on-select="switchLayer")
     .ui.mini.buttons
         radio-button.icon(
             default value="F.Cu" 
             true-color="red"
             tooltip="Trace on F.Cu"
-            ) #[.ui.circular.red.empty.label]
+            ) #[.ui.circular.red.mini.empty.label]
         radio-button.icon(
             value="B.Cu" 
             true-color="green"
             tooltip="Trace on B.Cu"
-            ) #[.ui.circular.green.empty.label]
-
+            ) #[.ui.circular.green.mini.empty.label]
++space
 ack-button.mini.icon(
     on-click="cleanupDrawing" 
     tooltip="Cleanup drawing"): icon.erase
