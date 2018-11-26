@@ -10,10 +10,10 @@
 
     .item 
         .ui.buttons 
-            ack-button.icon(on-click="prototypePrint" side="F.Cu, Edge" tooltip="Export F.Cu only")
+            ack-button.icon(on-click="prototypePrint" side="F.Cu, Edge" mirror="true" tooltip="Fabrication output of F.Cu")
                 icon.print.red
 
-            ack-button.icon(on-click="prototypePrint" side="B.Cu, Edge" mirror="true" tooltip="Export B.Cu only")
+            ack-button.icon(on-click="prototypePrint" side="B.Cu, Edge" tooltip="Fabrication output of B.Cu")
                 icon.print.green
 
     //-file-button(on-read="importDXF2" type="text") DXF (2)
