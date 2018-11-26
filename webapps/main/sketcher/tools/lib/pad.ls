@@ -129,7 +129,10 @@ export class Pad extends ComponentBase
             #console.log "side we are in: ", our-side
             if our-side in layers or @drill?
                 # will be printed
-                @drill?.fillColor = \white
+                @drill
+                    ..?fillColor = \white
+                    ..?bounds.size = 0.5 |> mm2px
+                    ..?bounds.center = @cu.bounds.center
                 @cu.fillColor = \black
                 @g.opacity = 1
             else
@@ -208,7 +211,7 @@ export class Pad extends ComponentBase
         -> "#{@pin}(#{@num})"
 
     netid: ~
-        -> "#{@get-data 'netid'}"
+        -> if @get-data \netid => "#{that}" else that
         (val) -> @set-data 'netid', "#{val}"
 
     net: ~
