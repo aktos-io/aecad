@@ -2,6 +2,20 @@ require! './container': {Container}
 require! 'aea/do-math': {mm2px}
 
 export class Footprint extends Container
+    (data) ->
+        super ...
+        unless @resuming
+            # Set rotation, if any
+            <~ sleep 20ms
+            if @data.rotation
+                @rotate that, {+absolute}
+
+            # set side if present
+            if @data.side
+                @set-data \side, ''
+                @set-side that
+                @send-to-layer \gui
+
     iface: ~
         -> @get-data('labels')
         (val) -> @set-data 'labels', val

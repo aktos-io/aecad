@@ -109,11 +109,6 @@ export class Pad extends ComponentBase
             else
                 'orange' # TODO: get "Edge" color for this
 
-    /*
-    clone: (opts={}) ->
-        new @constructor @parent, (opts <<<< opts)
-    */
-
     side-match: (side) ->
         our-side = @owner.side or @side
         if side is our-side or @drill?
@@ -156,7 +151,6 @@ export class Pad extends ComponentBase
         @ttip.bounds.center = @cu.bounds.center
 
     mirrored: (scale-factor, rotation) !->
-        console.warn "TODO: set text rotation correctly"
         @toggle-data 'mirrored'
         @ttip.scale ...scale-factor
         @ttip.rotate (180 - 2 * (rotation % 360)), @ttip.bounds.center

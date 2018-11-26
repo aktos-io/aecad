@@ -99,6 +99,12 @@ ack-button.mini.icon(
         tooltip="Unconnected count"
         class="{{#if unconnectedCount}}red{{else}}green{{/if}}"
         ) {{unconnectedCount}}/{{totalConnections}}
+        
++space
+ack-button.mini.icon(
+    on-click="upgradeComponents"
+    tooltip="Upgrade selected components"
+    ): icon.angle.double.up
     
 div
 canvas#draw

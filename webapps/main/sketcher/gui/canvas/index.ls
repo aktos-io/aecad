@@ -24,6 +24,16 @@ export init = (pcb) ->
     schema-manager = new SchemaManager
 
     handlers =
+        upgradeComponents: (ctx) ->
+            for selection.selected
+                console.log ..
+                ..clone!
+                ..remove!
+            count = selection.selected.length
+            selection.clear!
+            PNotify.info text: "Upgraded #{count} component(s)."
+
+
         switchLayer: (ctx, layer, proceed) ->
             @set \currLayer, layer
             for pcb.get-components!
@@ -83,15 +93,10 @@ export init = (pcb) ->
             pcb.history.commit!
             layer = ctx.component.get \to
             for pcb.selection.selected
-                obj = getAecad ..
+                obj = get-aecad ..
                 if obj
                     obj.set-side layer
                     obj.send-to-layer 'gui' # TODO: find a more beautiful name
-
-                /*
-                unless get-keypath .., "data.aecad.name"
-                    set-keypath .., 'data.aecad.name', "c_"
-                */
 
         groupSelected: (ctx) ->
             pcb.history.commit!

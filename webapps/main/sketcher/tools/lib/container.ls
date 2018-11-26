@@ -24,9 +24,12 @@ export class Container extends ComponentBase
         else
             @pads.push item
 
-    rotate: (angle) ->
+    rotate: (angle, opts={}) ->
         # rotate this item and inform children
-        @add-data \rotation, angle
+        unless opts.absolute
+            @add-data \rotation, angle, (% 360)
+        else
+            console.warn "FIXME: Absolute rotation is quite incomplete!"
         @g.rotate angle
         for @pads
             ..rotated? angle

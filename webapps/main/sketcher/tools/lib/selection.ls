@@ -76,9 +76,10 @@ export class Selection extends EventEmitter
                     # This is a custom object: normally in {name, item} format.
                     # name is the group name, item is the value
                     @selected.push ..
-                    if ..item
-                        if opts.select
-                            ..item.selected = yes
+                    if opts.select
+                        ..item?.selected = yes
+                        if \selected of ..
+                            ..selected = yes
                     continue
                 else
                     console.warn ".........unrecognized selection: ", ..

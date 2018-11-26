@@ -1,7 +1,8 @@
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! '../../kernel': {PaperDraw}
 require! './get-aecad': {get-aecad}
-require! 'aea': {merge}
+require! './get-class': {get-class}
+require! 'aea': {merge, clone}
 require! './lib': {prefix-keypath}
 require! './component-manager': {ComponentManager}
 require! './schema': {SchemaManager}
@@ -91,9 +92,12 @@ export class ComponentBase
     toggle-data: (keypath) ->
         @set-data keypath, not @get-data keypath
 
-    add-data: (keypath, value) ->
+    add-data: (keypath, value, fn) ->
         curr = (@get-data keypath) or 0 |> parse-int
-        @set-data keypath, curr + value
+        new-val = curr + value
+        if typeof! fn is \Function
+            new-val = fn(new-val)
+        @set-data keypath, new-val
 
     merge-data: (keypath, value) ->
         curr = @get-data(keypath) or {}
@@ -212,3 +216,22 @@ export class ComponentBase
     side: ~
         # eg. F.Cu, B.Cu
         -> @owner.get-data 'side' or @get-data \side
+
+    data: ~
+        -> @get-data '.'
+
+    clone: (opts={}) ->
+        #console.log "curr data: ", @data
+        data = clone @data
+        for k of data
+            # only below properties are dynamically set, others
+            # are from class definition. < FIXME: data shouldn't contain
+            # properties from class definition, it should only contain instance
+            # specific data 
+            if k in <[ name rotation side ]>
+                continue
+            delete data[k]
+        comp = new @constructor data
+        comp.g.position = @g.position
+        return comp
+        #new @constructor @parent, (opts `merge` opts)

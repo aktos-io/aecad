@@ -188,7 +188,12 @@ export {
   pcb.ractive.fire 'calcUnconnected'
   
   unless empty upgrades=(sch.get-upgrades!)
-      pcb.vlog.info upgrades.map((.reason)).join('\\n\\n')
+      msg = ''
+      for upgrades
+          msg += ..reason + '\\n\\n'
+          pcb.selection.add ..component
+      # display a visual message
+      pcb.vlog.info msg
   
 '''
 'lib-PinArray': '''
@@ -298,7 +303,7 @@ export {
   
 '''
 'lib-SMD1206': '''
-  #! requires PinArray 
+  #! requires PinArray
   # From http://www.resistorguide.com/resistor-sizes-and-packages/
   smd1206 =
       a: 1.6mm
@@ -308,7 +313,7 @@ export {
   {a, b, c} = smd1206
   
   add-class class SMD1206 extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'r_'
               pad:
@@ -321,38 +326,41 @@ export {
                   width: c
                   height: a
   
-          super defaults <<< data 
+          super defaults <<< data
   
   #new SMD1206
   
   add-class class SMD1206_pol extends SMD1206
       # Polarized version of SMD1206
-      (data={}) -> 
-          overrides = 
+      (data={}) ->
+          overrides =
               name: 'c_'
               labels:
                   1: 'c'
                   2: 'a'
               mark: yes
-          
-          super overrides <<< data 
+  
+          super overrides <<< data
   
   add-class class LED1206 extends SMD1206_pol
   add-class class C1206 extends SMD1206_pol
   
   add-class class DO214AC extends SMD1206_pol
-      (data={}) -> 
+      # https://www.vishay.com/docs/88746/ss12.pdf
+      @rev_DO214AC = 2
+      (data={}) ->
           overrides =
               name: 'd_'
               pad:
-                  width: 1.27mm
-                  height: 2.10mm
+                  width: 1.52mm
+                  height: 1.68mm
               cols:
                   count: 2
-                  interval: 2.70mm
+                  interval: 5.28mm - 1.52mm
   
-          super overrides <<< data 
+          super overrides `aea.merge` data
   
+  #new DO214AC
 '''
 'lib-LM2576': '''
   #! requires TO263
