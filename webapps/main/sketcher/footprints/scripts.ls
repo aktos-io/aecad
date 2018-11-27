@@ -284,6 +284,7 @@ export {
   """
   
   add-class class RpiHeader extends PinArray
+      @rev_RpiHeader = 4
       (data={}) ->
           defaults =
               name: 'rpi_'
@@ -292,7 +293,7 @@ export {
                   height: 1.5mm
               cols:
                   count: 2
-                  interval: 5.3mm
+                  interval: 5.5mm
               rows:
                   count: 20
                   interval: 2.54mm
@@ -367,15 +368,16 @@ export {
 'lib-LM2576': '''
   #! requires TO263
   add-class class LM2576 extends TO263
-      (data={}) -> 
-          defaults = 
-              labels: 
+      @rev_LM2576 = 1
+      (data={}) ->
+          defaults =
+              labels:
                   # Pin_id: Label
-                  1: \\vin 
+                  1: \\vin
                   6: \\vin
                   2: \\out
                   3: \\gnd
-                  4: \\fb 
+                  4: \\fb
                   5: \\onoff
           super data <<< defaults
   
