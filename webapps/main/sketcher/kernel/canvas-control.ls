@@ -182,10 +182,8 @@ export canvas-control =
 
             # add aeCAD objects
             if opts.aecad
-                hit.aecad =
-                    parent: try get-parent-aecad hit.item
-                    ae-obj: try get-aecad hit.item
-
+                hit.aeobj = get-aecad hit.item
+                
             hits.push hit
         hits
 

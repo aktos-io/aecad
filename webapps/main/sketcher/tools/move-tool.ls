@@ -93,14 +93,10 @@ export MoveTool = ->
                 unless move.mode is \trace
                     # move an item regularly
                     for selection.selected
-                        if not move.aecad
-                            console.log "..........creating aeCAD object...."
-                            move.aecad = get-aecad ..
-
-                        if move.aecad
+                        if ..aeobj
                             if movement-starting
-                                move.aecad.schema?.clear-guides!
-                            that.move snap.delta
+                                ..aeobj.schema?.clear-guides!
+                            that.owner.move snap.delta
                         else
                             .. `shift-item` snap.delta
                 else
@@ -144,10 +140,9 @@ export MoveTool = ->
                 scope.get-tool \select .onMouseDown event
 
             # highlight pad connections
-            for selection.selected
-                get-aecad ..
-                    ..?trigger 'clear-guides'
-                    ..?trigger 'create-guides'
+            for selection.selected when ..aeobj
+                ..aeobj.trigger 'clear-guides'
+                ..aeobj.trigger 'create-guides'
 
             hits = scope.hitTestAll event.point, {tolerance: 2, +selected}
             types = []

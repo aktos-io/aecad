@@ -1,7 +1,6 @@
 require! 'prelude-ls': {empty, flatten, filter, map, compact}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
-require! './lib/trace/lib': {get-tid}
 require! './lib/get-aecad': {get-aecad}
 
 export SelectTool = ->
@@ -68,142 +67,134 @@ export SelectTool = ->
 
             else
                 # Select the clicked item
-                if hit.item.data?tmp
-                    console.log "...selected a temporary item, doing nothing"
-                    return
-
-                select-item = ->
-                    selection.add scope.get-top-item hit.item
-
-                aeobj = get-aecad hit.item
-                if aeobj and aeobj.owner@@name is \Trace
-                    # this is related to a trace, handle specially
-                    #PNotify.info text: "We hit a trace. This is: #{aeobj@@name}"
-                    if event.modifiers.control
-                        # select the whole trace
-                        console.log "adding whole trace to selection because Ctrl is pressed."
-                        select-item!
-                    else
-                        if aeobj@@name is \Pad
-                            via = hit.item.parent
-                            selection.add via
-                        else if hit.segment
-                            # Segment of a trace
-                            segment = hit.segment
-                            #console.log "...selecting the segment of trace: ", hit
-                            selection.add {
-                                name: \left,
-                                strength: \strong,
-                                role: \single-segment
-                                item: segment.point}
-
-                        else if hit.location
-                            # Curve of a trace
-                            curve = hit.location.curve
-                            #console.log "...selecting the curve of trace:", hit
-
-                            selection.add {name: \tmp, role: \handle, item: curve} # for visualization
-
-                            handle =
-                                left: curve.point1
-                                right: curve.point2
-
-                            other-side = (side) -> [.. for Object.keys handle when .. isnt side].0
-                            #console.log "Handle is: ", handle
-
-                            # silently select all parts which are touching to the ends
-                            __tolerance__ = 0.1
-                            for part in hit.item.parent.children
-                                #console.log "examining trace part: ", part
-                                if part.data?.aecad?.type in <[ Pad ]>
-                                    #console.log "...found via: ", part
-                                    for name, point of handle
-                                        if point.isClose part.bounds.center, __tolerance__
-                                            strength = \weak
-                                            #console.log "adding via to #{name} (#{strength})", part
-                                            selection.add {
-                                                name,
-                                                strength,
-                                                role: \via
-                                                item: part}
-                                                , {-select}
-                                else
-                                    # find mate segments
-                                    for mate-seg in part.getSegments!
-                                        #console.log "Examining Path: #{mate-seg.getPath().id}, segment: #{mate-seg.index}"
-                                        for name, hpoint of handle when mate-seg.point.isClose hpoint, __tolerance__
-                                            strength = \weak
-                                            #console.log "...adding #{name} mate close point:", mate-seg.point
-                                            selection.add {
-                                                name,
-                                                strength,
-                                                role: \mate-mpoint
-                                                item: mate-seg.point}
-                                                , {-select}
-
-                                            # add the solver
-                                            # -----------------------------------
-                                            mate-fp = null # mate far point
-                                            for compact [mate-seg.next, mate-seg.previous]
-                                                unless handle[other-side name].equals ..point
-                                                    #console.warn "#{name} mate far point:", ..point, "is not equal to handle[#{other-side name}]: ", handle[other-side name]
-                                                    mate-fp = ..point
-
-                                            unless mate-fp
-                                                # this is handler tip
-                                                #console.log "..................this is handler tip: ", mate-seg.point
-                                                continue
-
-                                            #console.log "found #{name} mate far point: (id: #{mate-fp._owner.getPath().id}) ", mate-fp, "will add a solver."
-                                            marker = (center, color, tooltip) ->
-                                                radius = 4
-                                                new scope.Path.Circle({
-                                                    center, radius
-                                                    fill-color: color
-                                                    data: {+tmp}
-                                                    opacity: 0.3
-                                                    stroke-color: color
-                                                    })
-
-                                            get-solver = (m1, m2, h1, h2) ->
-                                                hline = scope._Line {p1: h1, p2: h2}
-                                                    ..rotate 0, {+inplace, +round}
-
-                                                mline = scope._Line {p1: m1, p2: m2}
-                                                    ..rotate 0, {+inplace, +round}
-                                                #console.log "Adding solver for #{name} mate: ", mline.getAngle(), m1, m2
-                                                #marker m1, \red
-                                                #marker m2, \blue
-                                                return solver = (delta) ->
-                                                    #console.log "solving #{name} side for delta: ", delta
-                                                    hline.move delta
-                                                    isec = hline.intersect mline
-                                                    isec.subtract m1
-
-                                            selection.add {
-                                                name,
-                                                role: \solver,
-                                                solver: get-solver(mate-seg.point, mate-fp, handle.left, handle.right)
-                                                }
-                                                , {-select}
-
-                            #console.log "selected everything needed: ", selection.selected
-                            for side in <[ left right ]>
-                                _sel = selection.filter (.name is side)
-                                #console.log "...#{side}: ", _sel
-                                if [.. for _sel when ..solver?].length > 1
-                                    scope.vlog.error "#{side} shouldn't have more than one solver!"
-
+                if aeobj=hit.aeobj
+                    if aeobj.owner@@name is \Trace
+                        # this is related to a trace, handle specially
+                        #PNotify.info text: "We hit a trace. This is: #{aeobj@@name}"
+                        if event.modifiers.control
+                            # select the whole trace
+                            console.log "adding whole trace to selection because Ctrl is pressed."
+                            select-item!
                         else
-                            scope.vlog.error "What did you select of trace id #{get-tid hit.item}"
+                            if aeobj@@name is \Pad
+                                via = hit.item.parent
+                                selection.add via
+                            else if hit.segment
+                                # Segment of a trace
+                                segment = hit.segment
+                                #console.log "...selecting the segment of trace: ", hit
+                                selection.add {
+                                    name: \left,
+                                    strength: \strong,
+                                    role: \single-segment
+                                    item: segment.point}
 
+                            else if hit.location
+                                # Curve of a trace
+                                curve = hit.location.curve
+                                #console.log "...selecting the curve of trace:", hit
 
+                                selection.add {name: \tmp, role: \handle, item: curve} # for visualization
+
+                                handle =
+                                    left: curve.point1
+                                    right: curve.point2
+
+                                other-side = (side) -> [.. for Object.keys handle when .. isnt side].0
+                                #console.log "Handle is: ", handle
+
+                                # silently select all parts which are touching to the ends
+                                __tolerance__ = 0.1
+                                for part in hit.item.parent.children
+                                    #console.log "examining trace part: ", part
+                                    if part.data?.aecad?.type in <[ Pad ]>
+                                        #console.log "...found via: ", part
+                                        for name, point of handle
+                                            if point.isClose part.bounds.center, __tolerance__
+                                                strength = \weak
+                                                #console.log "adding via to #{name} (#{strength})", part
+                                                selection.add {
+                                                    name,
+                                                    strength,
+                                                    role: \via
+                                                    item: part}
+                                                    , {-select}
+                                    else
+                                        # find mate segments
+                                        for mate-seg in part.getSegments!
+                                            #console.log "Examining Path: #{mate-seg.getPath().id}, segment: #{mate-seg.index}"
+                                            for name, hpoint of handle when mate-seg.point.isClose hpoint, __tolerance__
+                                                strength = \weak
+                                                #console.log "...adding #{name} mate close point:", mate-seg.point
+                                                selection.add {
+                                                    name,
+                                                    strength,
+                                                    role: \mate-mpoint
+                                                    item: mate-seg.point}
+                                                    , {-select}
+
+                                                # add the solver
+                                                # -----------------------------------
+                                                mate-fp = null # mate far point
+                                                for compact [mate-seg.next, mate-seg.previous]
+                                                    unless handle[other-side name].equals ..point
+                                                        #console.warn "#{name} mate far point:", ..point, "is not equal to handle[#{other-side name}]: ", handle[other-side name]
+                                                        mate-fp = ..point
+
+                                                unless mate-fp
+                                                    # this is handler tip
+                                                    #console.log "..................this is handler tip: ", mate-seg.point
+                                                    continue
+
+                                                #console.log "found #{name} mate far point: (id: #{mate-fp._owner.getPath().id}) ", mate-fp, "will add a solver."
+                                                marker = (center, color, tooltip) ->
+                                                    radius = 4
+                                                    new scope.Path.Circle({
+                                                        center, radius
+                                                        fill-color: color
+                                                        data: {+tmp}
+                                                        opacity: 0.3
+                                                        stroke-color: color
+                                                        })
+
+                                                get-solver = (m1, m2, h1, h2) ->
+                                                    hline = scope._Line {p1: h1, p2: h2}
+                                                        ..rotate 0, {+inplace, +round}
+
+                                                    mline = scope._Line {p1: m1, p2: m2}
+                                                        ..rotate 0, {+inplace, +round}
+                                                    #console.log "Adding solver for #{name} mate: ", mline.getAngle(), m1, m2
+                                                    #marker m1, \red
+                                                    #marker m2, \blue
+                                                    return solver = (delta) ->
+                                                        #console.log "solving #{name} side for delta: ", delta
+                                                        hline.move delta
+                                                        isec = hline.intersect mline
+                                                        isec.subtract m1
+
+                                                selection.add {
+                                                    name,
+                                                    role: \solver,
+                                                    solver: get-solver(mate-seg.point, mate-fp, handle.left, handle.right)
+                                                    }
+                                                    , {-select}
+
+                                #console.log "selected everything needed: ", selection.selected
+                                for side in <[ left right ]>
+                                    _sel = selection.filter (.name is side)
+                                    #console.log "...#{side}: ", _sel
+                                    if [.. for _sel when ..solver?].length > 1
+                                        scope.vlog.error "#{side} shouldn't have more than one solver!"
+                            else
+                                throw new Error "Unrecognized trace part."
+                    else
+                        # non-trace aecad object
+                        console.log "Non-trace aeCAD object:", get-aecad hit.item
+                        selection.add {item: hit.item, aeobj}
                 else if hit.item
-                    # select normally
-                    select-item!
-                else
-                    console.error "What did we hit?", hit
-                    debugger
+                    # any regular item
+                    console.log "Standard Paper.js object:", hit.item
+                    selection.add scope.get-top-item hit.item
 
         ..onKeyDown = (event) ~>
             switch event.key
