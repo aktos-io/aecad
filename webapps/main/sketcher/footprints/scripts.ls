@@ -170,8 +170,8 @@ export {
           'Conn_2pin_thd' : 'cn'
   
           # Virtual components
-          'Conn_1pin_thd' : '_1, _2, _3, _4'
-          'RefCross': '_a _b _c _d'
+          Bolt : '_1, _2, _3, _4'
+          RefCross: '_a _b _c _d'
       no-connect: """rpi.1 rpi.2 rpi.16 rpi.3v3
           rpi.3 rpi.4 rpi.17 rpi.27 rpi.22 rpi.10
           rpi.9 rpi.5 rpi.6 rpi.13 rpi.19 rpi.26
@@ -191,7 +191,9 @@ export {
       msg = ''
       for upgrades
           msg += ..reason + '\\n\\n'
-          pcb.selection.add ..component
+          pcb.selection.add do
+              item: ..component
+              type: ..type
       # display a visual message
       pcb.vlog.info msg
   
@@ -424,7 +426,7 @@ export {
 'lib-Conn': '''
   #! requires PinArray
   add-class class Conn_2pin_thd extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'conn_'
               pad:
@@ -437,11 +439,11 @@ export {
                   count: 1
               dir: 'x'
   
-          data = defaults <<< data 
+          data = defaults <<< data
           super data
   
   add-class class Conn_1pin_thd extends PinArray
-      (data={}) -> 
+      (data={}) ->
           defaults =
               name: 'conn_'
               pad:
@@ -453,9 +455,16 @@ export {
                   count: 1
               dir: 'x'
   
-          data = defaults <<< data 
-          super data
+          super defaults <<< data
   
+  add-class class Bolt extends PinArray
+      (data={}) ->
+          defaults =
+              name: 'conn_'
+              pad:
+                  dia: 6.2mm
+                  drill: 3mm
+          super defaults `aea.merge` data
   
   #new Conn_2pin_thd
   #new Conn_1pin_thd

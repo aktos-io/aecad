@@ -67,11 +67,13 @@ export do
                     component: get-aecad existing.item
                     existing: yes
                     upgrade-needed: ''
+                    type: existing.type
 
                 reason = ''
                 if type isnt existing.type
                     comp.upgrade-needed = yes
                     reason += "Type changed from #{existing.type} to #{type}"
+                    comp.type = type
 
                 curr-ver = get-rev _Component
                 if curr-ver isnt (existing.version or 0)

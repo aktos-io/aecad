@@ -227,11 +227,12 @@ export class ComponentBase
             # only below properties are dynamically set, others
             # are from class definition. < FIXME: data shouldn't contain
             # properties from class definition, it should only contain instance
-            # specific data 
-            if k in <[ name rotation side ]>
+            # specific data
+            if k in <[ name rotation side type ]>
                 continue
             delete data[k]
-        comp = new @constructor data
+        data `merge` opts
+        comp = new (get-class data.type) data
         comp.g.position = @g.position
         return comp
         #new @constructor @parent, (opts `merge` opts)

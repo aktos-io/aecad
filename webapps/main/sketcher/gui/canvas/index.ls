@@ -27,8 +27,8 @@ export init = (pcb) ->
         upgradeComponents: (ctx) ->
             for selection.selected
                 console.log ..
-                ..clone!
-                ..remove!
+                ..item.clone {type: ..type}
+                ..item.remove!
             count = selection.selected.length
             selection.clear!
             PNotify.info text: "Upgraded #{count} component(s)."
