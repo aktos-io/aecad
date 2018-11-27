@@ -1536,7 +1536,7 @@
                 {
                   "applyMatrix": true,
                   "data": {"aecad": {"side": "F.Cu"}},
-                  "segments": [[267.6809, 104.05196], [267.6809, 88.1283]],
+                  "segments": [[265.86293, 105.02746], [265.86293, 89.1038]],
                   "strokeColor": [1, 0, 0],
                   "strokeWidth": 1.51181,
                   "strokeCap": "round",
@@ -1668,8 +1668,8 @@
                   "applyMatrix": true,
                   "data": {"aecad": {"side": "F.Cu"}},
                   "segments": [
-                    [279.62681, 90.18707],
-                    [272.7756, 90.30666],
+                    [278.90149, 90.18707],
+                    [272.7756, 90.294],
                     [272.7756, 109.10987],
                     [271.2172, 110.66826],
                     [255.61892, 110.66826],
@@ -2054,22 +2054,10 @@
                     [168.38618, 31.93269],
                     [185.09667, 31.93269],
                     [190.05577, 36.89179],
-                    [190.05577, 88.43962],
-                    [194.42156, 92.80541],
-                    [200.18642, 92.80541]
+                    [190.05577, 88.83835],
+                    [194.02283, 92.80541],
+                    [199.79324, 92.80541]
                   ],
-                  "strokeColor": [1, 0, 0],
-                  "strokeWidth": 1.51181,
-                  "strokeCap": "round",
-                  "strokeJoin": "round"
-                }
-              ],
-              [
-                "Path",
-                {
-                  "applyMatrix": true,
-                  "data": {"aecad": {"side": "F.Cu"}},
-                  "segments": [[199.99284, 92.80541]],
                   "strokeColor": [1, 0, 0],
                   "strokeWidth": 1.51181,
                   "strokeCap": "round",
@@ -2093,28 +2081,6 @@
                   "applyMatrix": true,
                   "data": {"aecad": {"side": "F.Cu"}},
                   "segments": [[214.26275, 92.80541], [214.26275, 82.2699]],
-                  "strokeColor": [1, 0, 0],
-                  "strokeWidth": 1.51181,
-                  "strokeCap": "round",
-                  "strokeJoin": "round"
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
-            "data": {
-              "aecad": {"type": "Trace", "tid": "gNxlsv_oM", "netid": 7}
-            },
-            "children": [
-              [
-                "Path",
-                {
-                  "applyMatrix": true,
-                  "data": {"aecad": {"side": "F.Cu"}},
                   "strokeColor": [1, 0, 0],
                   "strokeWidth": 1.51181,
                   "strokeCap": "round",
@@ -2777,9 +2743,9 @@
                     [323.43858, 110.27325],
                     [323.43858, 116.74515],
                     [321.32448, 118.85926],
-                    [238.30004, 118.85926],
-                    [222.31594, 134.84336],
-                    [222.31594, 145.39481],
+                    [229.29083, 118.85926],
+                    [219.30909, 128.84101],
+                    [219.30909, 148.40166],
                     [213.39862, 154.31212],
                     [192.19374, 154.31212],
                     [183.00445, 145.12284],
@@ -2906,10 +2872,10 @@
                     [312.47795, 110.27325],
                     [309.5315, 110.27325],
                     [303.67032, 116.13443],
-                    [234.65396, 116.13443],
-                    [218.60769, 132.1807],
-                    [218.60769, 134.49564],
-                    [215.15714, 137.94618],
+                    [227.14629, 116.13443],
+                    [216.956, 126.32472],
+                    [216.956, 133.66809],
+                    [212.67791, 137.94618],
                     [210.08127, 137.94618]
                   ],
                   "strokeColor": [1, 0, 0],
@@ -2992,10 +2958,10 @@
                   "data": {"aecad": {"side": "F.Cu"}},
                   "segments": [
                     [220.7407, 79.40754],
-                    [220.7407, 96.32975],
-                    [217.53214, 99.53831],
-                    [194.86825, 99.53831],
-                    [185.67273, 90.34279],
+                    [220.7407, 95.45982],
+                    [216.66221, 99.53831],
+                    [196.26531, 99.53831],
+                    [185.67273, 88.94573],
                     [185.67273, 66.85103],
                     [176.25078, 57.42907],
                     [176.25078, 45.73638]
@@ -8453,294 +8419,6 @@
           "Group",
           {
             "applyMatrix": false,
-            "matrix": [1, 0, 0, 1, 14.28494, 136.16301],
-            "data": {
-              "aecad": {
-                "type": "Conn_1pin_thd",
-                "name": "_1",
-                "pad": {"dia": 3.1, "drill": 1, "pin": 1},
-                "cols": {"count": 1},
-                "rows": {"count": 1},
-                "dir": "x",
-                "side": "F.Cu"
-              }
-            },
-            "children": [
-              [
-                "Group",
-                {
-                  "applyMatrix": true,
-                  "data": {
-                    "aecad": {"type": "Pad", "dia": 3.1, "drill": 1, "pin": 1}
-                  },
-                  "children": [
-                    [
-                      "Shape",
-                      {
-                        "applyMatrix": false,
-                        "data": {"aecad": {"part": "cu"}},
-                        "type": "circle",
-                        "size": [11.71654, 11.71654],
-                        "radius": 5.85827,
-                        "fillColor": [1, 0.64706, 0],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "Path",
-                      {
-                        "applyMatrix": true,
-                        "data": {"aecad": {"part": "drill"}},
-                        "segments": [
-                          [[-1.88976, 0], [0, 1.04369], [0, -1.04369]],
-                          [[0, -1.88976], [-1.04369, 0], [1.04369, 0]],
-                          [[1.88976, 0], [0, -1.04369], [0, 1.04369]],
-                          [[0, 1.88976], [1.04369, 0], [-1.04369, 0]]
-                        ],
-                        "closed": true,
-                        "fillColor": [0.1451, 0.1451, 0.1451],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "PointText",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 0, 0.9],
-                        "data": {"aecad": {"part": "ttip"}},
-                        "content": "1",
-                        "fillColor": [1, 1, 1],
-                        "fontSize": 3,
-                        "leading": 3.6,
-                        "justification": "center"
-                      }
-                    ]
-                  ]
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
-            "matrix": [1, 0, 0, 1, 233.49754, 136.16301],
-            "data": {
-              "aecad": {
-                "type": "Conn_1pin_thd",
-                "name": "_2",
-                "pad": {"dia": 3.1, "drill": 1, "pin": 1},
-                "cols": {"count": 1},
-                "rows": {"count": 1},
-                "dir": "x",
-                "side": "F.Cu"
-              }
-            },
-            "children": [
-              [
-                "Group",
-                {
-                  "applyMatrix": true,
-                  "data": {
-                    "aecad": {"type": "Pad", "dia": 3.1, "drill": 1, "pin": 1}
-                  },
-                  "children": [
-                    [
-                      "Shape",
-                      {
-                        "applyMatrix": false,
-                        "data": {"aecad": {"part": "cu"}},
-                        "type": "circle",
-                        "size": [11.71654, 11.71654],
-                        "radius": 5.85827,
-                        "fillColor": [1, 0.64706, 0],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "Path",
-                      {
-                        "applyMatrix": true,
-                        "data": {"aecad": {"part": "drill"}},
-                        "segments": [
-                          [[-1.88976, 0], [0, 1.04369], [0, -1.04369]],
-                          [[0, -1.88976], [-1.04369, 0], [1.04369, 0]],
-                          [[1.88976, 0], [0, -1.04369], [0, 1.04369]],
-                          [[0, 1.88976], [1.04369, 0], [-1.04369, 0]]
-                        ],
-                        "closed": true,
-                        "fillColor": [0.1451, 0.1451, 0.1451],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "PointText",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 0, 0.9],
-                        "data": {"aecad": {"part": "ttip"}},
-                        "content": "1",
-                        "fillColor": [1, 1, 1],
-                        "fontSize": 3,
-                        "leading": 3.6,
-                        "justification": "center"
-                      }
-                    ]
-                  ]
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
-            "matrix": [1, 0, 0, 1, 14.28494, 321.35987],
-            "data": {
-              "aecad": {
-                "type": "Conn_1pin_thd",
-                "name": "_3",
-                "pad": {"dia": 3.1, "drill": 1, "pin": 1},
-                "cols": {"count": 1},
-                "rows": {"count": 1},
-                "dir": "x",
-                "side": "F.Cu"
-              }
-            },
-            "children": [
-              [
-                "Group",
-                {
-                  "applyMatrix": true,
-                  "data": {
-                    "aecad": {"type": "Pad", "dia": 3.1, "drill": 1, "pin": 1}
-                  },
-                  "children": [
-                    [
-                      "Shape",
-                      {
-                        "applyMatrix": false,
-                        "data": {"aecad": {"part": "cu"}},
-                        "type": "circle",
-                        "size": [11.71654, 11.71654],
-                        "radius": 5.85827,
-                        "fillColor": [1, 0.64706, 0],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "Path",
-                      {
-                        "applyMatrix": true,
-                        "data": {"aecad": {"part": "drill"}},
-                        "segments": [
-                          [[-1.88976, 0], [0, 1.04369], [0, -1.04369]],
-                          [[0, -1.88976], [-1.04369, 0], [1.04369, 0]],
-                          [[1.88976, 0], [0, -1.04369], [0, 1.04369]],
-                          [[0, 1.88976], [1.04369, 0], [-1.04369, 0]]
-                        ],
-                        "closed": true,
-                        "fillColor": [0.1451, 0.1451, 0.1451],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "PointText",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 0, 0.9],
-                        "data": {"aecad": {"part": "ttip"}},
-                        "content": "1",
-                        "fillColor": [1, 1, 1],
-                        "fontSize": 3,
-                        "leading": 3.6,
-                        "justification": "center"
-                      }
-                    ]
-                  ]
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
-            "matrix": [1, 0, 0, 1, 233.49754, 321.35987],
-            "data": {
-              "aecad": {
-                "type": "Conn_1pin_thd",
-                "name": "_4",
-                "pad": {"dia": 3.1, "drill": 1, "pin": 1},
-                "cols": {"count": 1},
-                "rows": {"count": 1},
-                "dir": "x",
-                "side": "F.Cu"
-              }
-            },
-            "children": [
-              [
-                "Group",
-                {
-                  "applyMatrix": true,
-                  "data": {
-                    "aecad": {"type": "Pad", "dia": 3.1, "drill": 1, "pin": 1}
-                  },
-                  "children": [
-                    [
-                      "Shape",
-                      {
-                        "applyMatrix": false,
-                        "data": {"aecad": {"part": "cu"}},
-                        "type": "circle",
-                        "size": [11.71654, 11.71654],
-                        "radius": 5.85827,
-                        "fillColor": [1, 0.64706, 0],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "Path",
-                      {
-                        "applyMatrix": true,
-                        "data": {"aecad": {"part": "drill"}},
-                        "segments": [
-                          [[-1.88976, 0], [0, 1.04369], [0, -1.04369]],
-                          [[0, -1.88976], [-1.04369, 0], [1.04369, 0]],
-                          [[1.88976, 0], [0, -1.04369], [0, 1.04369]],
-                          [[0, 1.88976], [1.04369, 0], [-1.04369, 0]]
-                        ],
-                        "closed": true,
-                        "fillColor": [0.1451, 0.1451, 0.1451],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "PointText",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 0, 0.9],
-                        "data": {"aecad": {"part": "ttip"}},
-                        "content": "1",
-                        "fillColor": [1, 1, 1],
-                        "fontSize": 3,
-                        "leading": 3.6,
-                        "justification": "center"
-                      }
-                    ]
-                  ]
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
             "matrix": [-1, 0, 0, 1, -44.85262, -18.522],
             "data": {
               "aecad": {
@@ -9130,7 +8808,7 @@
           "Group",
           {
             "applyMatrix": false,
-            "matrix": [1, 0, 0, 1, 197.34342, 89.63061],
+            "matrix": [1, 0, 0, 1, 197.12351, 89.63061],
             "data": {
               "aecad": {
                 "type": "DO214AC",
@@ -9254,7 +8932,7 @@
           {
             "applyMatrix": false,
             "data": {
-              "aecad": {"type": "Trace", "tid": "BY-z_qYZh", "netid": "7"}
+              "aecad": {"type": "Trace", "tid": "q1LkkpuD3", "netid": "7"}
             },
             "children": [
               [
@@ -9263,11 +8941,11 @@
                   "applyMatrix": true,
                   "data": {"aecad": {"side": "F.Cu"}},
                   "segments": [
-                    [200.21586, 92.80541],
-                    [204.97955, 92.80541],
-                    [206.60391, 91.18105],
-                    [206.60391, 87.66938],
-                    [207.87519, 86.3981],
+                    [199.99595, 92.80541],
+                    [203.68625, 92.80541],
+                    [205.48966, 91.002],
+                    [205.48966, 87.53098],
+                    [207.87519, 85.14546],
                     [207.87519, 79.40754]
                   ],
                   "strokeColor": [1, 0, 0],
@@ -9278,9 +8956,316 @@
               ]
             ]
           }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [1, 0, 0, 1, 14.28494, 136.16301],
+            "data": {
+              "aecad": {
+                "type": "Bolt",
+                "name": "_1",
+                "pad": {"dia": 6.2, "drill": 3, "pin": 1, "label": 1},
+                "side": "F.Cu",
+                "labels": {"1": 1}
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "dia": 6.2,
+                      "drill": 3,
+                      "pin": 1,
+                      "label": 1
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "circle",
+                        "size": [23.43307, 23.43307],
+                        "radius": 11.71654,
+                        "fillColor": [1, 0.64706, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "Path",
+                      {
+                        "applyMatrix": true,
+                        "data": {"aecad": {"part": "drill"}},
+                        "segments": [
+                          [[-5.66929, 0], [0, 3.13106], [0, -3.13106]],
+                          [[0, -5.66929], [-3.13106, 0], [3.13106, 0]],
+                          [[5.66929, 0], [0, -3.13106], [0, 3.13106]],
+                          [[0, 5.66929], [3.13106, 0], [-3.13106, 0]]
+                        ],
+                        "closed": true,
+                        "fillColor": [0.1451, 0.1451, 0.1451],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 0, 0.9],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "1",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [1, 0, 0, 1, 233.49754, 136.16301],
+            "data": {
+              "aecad": {
+                "type": "Bolt",
+                "name": "_2",
+                "pad": {"dia": 6.2, "drill": 3, "pin": 1, "label": 1},
+                "side": "F.Cu",
+                "labels": {"1": 1}
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "dia": 6.2,
+                      "drill": 3,
+                      "pin": 1,
+                      "label": 1
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "circle",
+                        "size": [23.43307, 23.43307],
+                        "radius": 11.71654,
+                        "fillColor": [1, 0.64706, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "Path",
+                      {
+                        "applyMatrix": true,
+                        "data": {"aecad": {"part": "drill"}},
+                        "segments": [
+                          [[-5.66929, 0], [0, 3.13106], [0, -3.13106]],
+                          [[0, -5.66929], [-3.13106, 0], [3.13106, 0]],
+                          [[5.66929, 0], [0, -3.13106], [0, 3.13106]],
+                          [[0, 5.66929], [3.13106, 0], [-3.13106, 0]]
+                        ],
+                        "closed": true,
+                        "fillColor": [0.1451, 0.1451, 0.1451],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 0, 0.9],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "1",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [1, 0, 0, 1, 14.28494, 321.35987],
+            "data": {
+              "aecad": {
+                "type": "Bolt",
+                "name": "_3",
+                "pad": {"dia": 6.2, "drill": 3, "pin": 1, "label": 1},
+                "side": "F.Cu",
+                "labels": {"1": 1}
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "dia": 6.2,
+                      "drill": 3,
+                      "pin": 1,
+                      "label": 1
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "circle",
+                        "size": [23.43307, 23.43307],
+                        "radius": 11.71654,
+                        "fillColor": [1, 0.64706, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "Path",
+                      {
+                        "applyMatrix": true,
+                        "data": {"aecad": {"part": "drill"}},
+                        "segments": [
+                          [[-5.66929, 0], [0, 3.13106], [0, -3.13106]],
+                          [[0, -5.66929], [-3.13106, 0], [3.13106, 0]],
+                          [[5.66929, 0], [0, -3.13106], [0, 3.13106]],
+                          [[0, 5.66929], [3.13106, 0], [-3.13106, 0]]
+                        ],
+                        "closed": true,
+                        "fillColor": [0.1451, 0.1451, 0.1451],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 0, 0.9],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "1",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [1, 0, 0, 1, 233.49754, 321.35987],
+            "data": {
+              "aecad": {
+                "type": "Bolt",
+                "name": "_4",
+                "pad": {"dia": 6.2, "drill": 3, "pin": 1, "label": 1},
+                "side": "F.Cu",
+                "labels": {"1": 1}
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "dia": 6.2,
+                      "drill": 3,
+                      "pin": 1,
+                      "label": 1
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "circle",
+                        "size": [23.43307, 23.43307],
+                        "radius": 11.71654,
+                        "fillColor": [1, 0.64706, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "Path",
+                      {
+                        "applyMatrix": true,
+                        "data": {"aecad": {"part": "drill"}},
+                        "segments": [
+                          [[-5.66929, 0], [0, 3.13106], [0, -3.13106]],
+                          [[0, -5.66929], [-3.13106, 0], [3.13106, 0]],
+                          [[5.66929, 0], [0, -3.13106], [0, 3.13106]],
+                          [[0, 5.66929], [3.13106, 0], [-3.13106, 0]]
+                        ],
+                        "closed": true,
+                        "fillColor": [0.1451, 0.1451, 0.1451],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 0, 0.9],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "1",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
         ]
       ]
     }
   ],
-  ["Layer", {"name": "scripting", "applyMatrix": true}]
+  ["Layer", {"name": "scripting", "applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}],
+  ["Layer", {"applyMatrix": true}]
 ]
