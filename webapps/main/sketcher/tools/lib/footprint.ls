@@ -7,14 +7,16 @@ export class Footprint extends Container
         unless @resuming
             # Set rotation, if any
             <~ sleep 20ms
-            if @data.rotation
-                @rotate that, {+absolute}
-
             # set side if present
             if @data.side
                 @set-data \side, ''
                 @set-side that
                 @send-to-layer \gui
+
+            # FIXME: rotation must be after set-side at the moment
+            if @data.rotation
+                @set-data \rotation, 0
+                @rotate that
 
     iface: ~
         -> @get-data('labels')
