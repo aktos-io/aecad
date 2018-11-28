@@ -3,19 +3,21 @@ require! 'aea/do-math': {mm2px}
 require! 'aea/merge': {based-on}
 
 export class Footprint extends Container
-    create: (data) ->
-        # Set rotation, if any
-        <~ sleep 20ms
-        # set side if present
-        if data.side
-            @set-data \side, ''
-            @set-side that
-            @send-to-layer \gui
+    ->
+        super ...
+        unless @resuming
+            <~ sleep 20ms
+            data = @data
+            # set side if present
+            if data.side
+                @set-data \side, ''
+                @set-side that
+                @send-to-layer \gui
 
-        # FIXME: rotation must be after set-side at the moment
-        if data.rotation
-            @set-data \rotation, 0
-            @rotate that
+            # FIXME: rotation must be after set-side at the moment
+            if data.rotation
+                @set-data \rotation, 0
+                @rotate that
 
     iface: ~
         # Interface settings should actually be static (they are declared

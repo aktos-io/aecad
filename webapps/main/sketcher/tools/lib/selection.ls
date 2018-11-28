@@ -73,11 +73,11 @@ export class Selection extends EventEmitter
             | \Point => \ok
             |_ =>
                 if typeof! .. is \Object
-                    # This is a custom object: normally in {name, item} format.
-                    # name is the group name, item is the value
+                    # This is a custom object: normally in {name, item?, aeobj?} format.
                     @selected.push ..
                     if opts.select
                         ..item?.selected = yes
+                        ..aeobj?.selected = yes
                         if \selected of ..
                             ..selected = yes
                     continue
@@ -141,3 +141,13 @@ export class Selection extends EventEmitter
 
     get-top-item: ->
         @selected.0
+
+    bounds: ->
+        # get selection bounds
+        selected-items = for @selected
+            if ..aeobj
+                that.gbounds
+            else
+                ..item
+
+        @scope.get-bounds selected-items

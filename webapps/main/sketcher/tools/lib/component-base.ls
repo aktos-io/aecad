@@ -3,7 +3,7 @@ require! '../../kernel': {PaperDraw}
 require! './get-aecad': {get-aecad}
 require! './get-class': {get-class}
 require! 'aea': {merge, clone}
-require! './lib': {prefix-keypath}
+require! './lib': {prefix-keypath, get-rev}
 require! './component-manager': {ComponentManager}
 require! './schema': {SchemaManager}
 
@@ -65,7 +65,7 @@ export class ComponentBase
             @parent?.add this
 
             # Save creator class' rev information
-            if rev = @@@["rev_#{@@@name}"]
+            if rev = get-rev @@@
                 #console.log "Creating a new #{@@@name}, registering rev: #{rev}"
                 @set-data 'rev', rev
 
@@ -230,8 +230,11 @@ export class ComponentBase
     data: ~
         -> @get-data('.') or {}
 
-    clone: (opts={}) ->
+    upgrade: (opts={}) ->
         #console.log "curr data: ", @data
+        /*
+            data = clone(@data) `merge` opts
+        */
         data = clone @data
         for k of data
             # only below properties are dynamically set, others
@@ -244,5 +247,7 @@ export class ComponentBase
         data `merge` opts
         comp = new (get-class data.type) data
         comp.g.position = @g.position
+        @remove!
+        @schema.compile!
         return comp
         #new @constructor @parent, (opts `merge` opts)

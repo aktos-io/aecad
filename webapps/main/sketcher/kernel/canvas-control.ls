@@ -23,7 +23,11 @@ export canvas-control =
         if empty items
             items = flatten [..getItems! for @project.layers]
         bounds = items.reduce ((bbox, item) ->
-            unless bbox => item.bounds else bbox.unite item.bounds
+            _bounds = if item.getClassName! is \Rectangle => item else item.bounds
+            unless bbox
+                _bounds
+            else
+                bbox.unite _bounds
             ), null
         #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
         return bounds
@@ -183,7 +187,7 @@ export canvas-control =
             # add aeCAD objects
             if opts.aecad
                 hit.aeobj = get-aecad hit.item
-                
+
             hits.push hit
         hits
 

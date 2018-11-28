@@ -40,3 +40,8 @@ export class SchemaManager
         @using = name
         unless @curr.compiled
             @curr.compile!
+
+    clear: ->
+        # clear all schemas
+        for k of @schemas
+            delete @schemas[k]
