@@ -197,10 +197,14 @@ export {
       for upgrades
           msg += ..reason + '\\n\\n'
           pcb.selection.add do
-              item: ..component
-              type: ..type
+              aeobj: ..component
       # display a visual message
       pcb.vlog.info msg
+  
+  PNotify.notice hide: no, text: """
+      TODO: Component cn should be shifted
+      (FreeCAD-asm3 work)
+      """
   
 '''
 'lib-PinArray': '''
@@ -287,7 +291,6 @@ export {
   """
   
   add-class class RpiHeader extends PinArray
-      @rev_RpiHeader = 4
       (data) ->
           super data, defaults =
               name: 'rpi_'
@@ -316,6 +319,7 @@ export {
   {a, b, c} = smd1206
   
   add-class class SMD1206 extends PinArray
+      @rev_SMD1206 = 1
       (data, overrides) ->
           super data, overrides `based-on` do
               name: 'r_'
@@ -421,6 +425,7 @@ export {
 'lib-Conn': '''
   #! requires PinArray
   add-class class Conn_2pin_thd extends PinArray
+      @rev_Conn_2pin_thd = 1
       (data, overrides) ->
           super data, overrides `based-on` do
               name: 'conn_'
@@ -620,6 +625,7 @@ export {
 'lib-cap-thd': '''
   #! requires PinArray
   add-class class CAP_thd extends PinArray
+      @rev_CAP_thd = 1
       (data, overrides) ->
           super data, overrides `based-on` do
               name: 'c_'
