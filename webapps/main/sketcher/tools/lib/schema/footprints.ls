@@ -75,10 +75,10 @@ export do
                     reason += "Type changed from #{existing.type} to #{type}"
                     comp.type = type
 
-                curr-ver = get-rev _Component
-                if curr-ver isnt (existing.version or 0)
+                curr-rev = get-rev _Component
+                if curr-rev isnt (existing.rev or 0)
                     comp.upgrade-needed = yes
-                    reason += "Version changed from #{existing.version} to #{curr-ver}"
+                    reason += "Revision changed from #{existing.rev} to #{curr-rev}"
 
                 if comp.upgrade-needed
                     reason = "Component #{pfx-name} needs upgrade: " + reason

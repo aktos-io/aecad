@@ -64,10 +64,10 @@ export class ComponentBase
             # Auto register to parent if provided
             @parent?.add this
 
-            # Save creator class' version information
-            if version = @@@["rev_#{@@@name}"]
-                #console.log "Creating a new #{@@@name}, registering version: #{version}"
-                @set-data 'version', version
+            # Save creator class' rev information
+            if rev = @@@["rev_#{@@@name}"]
+                #console.log "Creating a new #{@@@name}, registering rev: #{rev}"
+                @set-data 'rev', rev
 
             # perform the actual drawing
             unless data?.silent
