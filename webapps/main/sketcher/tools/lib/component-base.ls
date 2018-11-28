@@ -11,7 +11,7 @@ require! './schema': {SchemaManager}
 # Basic methods that every component should have
 # -----------------------------------------------
 export class ComponentBase
-    (data) ->
+    (data, overrides) ->
         @scope = new PaperDraw
         @ractive = @scope.ractive
         @manager = new ComponentManager
@@ -19,7 +19,13 @@ export class ComponentBase
         @_schema_manager = new SchemaManager
         @pads = []
         @_next_id = 1 # will be used for enumerating pads
-        if data and (init=data.init)
+        # declare Pad.left, Pad.top, ...
+        for <[ left right top bottom center ]>
+            Object.defineProperty @, .., do
+                get: ~> @g.bounds[..]
+
+        @overrides = overrides or {}
+        if init=data?init
             # initialize by provided item (data)
             @resuming = yes     # flag for sub-classers
             if init.parent      # must be an aeCAD obect
@@ -53,20 +59,19 @@ export class ComponentBase
             @type = @@@name
 
             # Merge data with existing one
-            if data
-                @merge-data '.', that
+            @merge-data '.', data
 
             # Auto register to parent if provided
             @parent?.add this
 
             # Save creator class' version information
             if version = @@@["rev_#{@@@name}"]
-                console.log "Creating a new #{@@@name}, registering version: #{version}"
+                #console.log "Creating a new #{@@@name}, registering version: #{version}"
                 @set-data 'version', version
 
             # perform the actual drawing
             unless data?.silent
-                @create data
+                @create(@_data)
 
     create: (data) ->
         # Footprint will be created at this step.
@@ -100,9 +105,10 @@ export class ComponentBase
         @set-data keypath, new-val
 
     merge-data: (keypath, value) ->
-        curr = @get-data(keypath) or {}
-        curr `merge` value
-        @set-data keypath, curr
+        if value and typeof! value is \Object
+            curr = @get-data(keypath) or {}
+            curr `merge` value
+            @set-data keypath, curr
 
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
@@ -217,8 +223,12 @@ export class ComponentBase
         # eg. F.Cu, B.Cu
         -> @owner.get-data 'side' or @get-data \side
 
+    _data: ~
+        # merged data of both instance data and pedigree classes' overwrites
+        -> clone(@data) `merge` @overrides
+
     data: ~
-        -> @get-data '.'
+        -> @get-data('.') or {}
 
     clone: (opts={}) ->
         #console.log "curr data: ", @data

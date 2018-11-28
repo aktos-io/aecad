@@ -187,6 +187,11 @@ export {
   
   pcb.ractive.fire 'calcUnconnected'
   
+  conn-list-txt = []
+  for id, net of sch.connection-list
+      conn-list-txt.push "#{id}: #{net.map (.uname) .join(',')}"
+  #pcb.vlog.info conn-list-txt.join '\\n\\n'
+  
   unless empty upgrades=(sch.get-upgrades!)
       msg = ''
       for upgrades
@@ -200,52 +205,50 @@ export {
 '''
 'lib-PinArray': '''
   add-class class PinArray extends Footprint
-      (data) ->
-          super ...
-          unless @resuming
-              #console.log "Creating from scratch PinArray"
-              start = data.start or 1
-              unless data.cols
-                  data.cols = {count: 1}
-              unless data.rows
-                  data.rows = {count: 1}
+      create: (data) ->
+          #console.log "Creating from scratch PinArray"
+          start = data.start or 1
+          unless data.cols
+              data.cols = {count: 1}
+          unless data.rows
+              data.rows = {count: 1}
   
-              iface = {}
-              for cindex to data.cols.count - 1
-                  for rindex to data.rows.count - 1
-                      pin-num = start + switch (data.dir or 'x')
-                          | 'x' =>
-                              cindex + rindex * data.cols.count
-                          | '-x' =>
-                              data.cols.count - 1 - cindex + rindex * data.cols.count
-                          | 'y' =>
-                              rindex + cindex * data.rows.count
-                          | '-y' =>
-                              data.rows.count - 1 - rindex + cindex * data.rows.count
+          iface = {}
+          for cindex to data.cols.count - 1
+              for rindex to data.rows.count - 1
+                  pin-num = start + switch (data.dir or 'x')
+                      | 'x' =>
+                          cindex + rindex * data.cols.count
+                      | '-x' =>
+                          data.cols.count - 1 - cindex + rindex * data.cols.count
+                      | 'y' =>
+                          rindex + cindex * data.rows.count
+                      | '-y' =>
+                          data.rows.count - 1 - rindex + cindex * data.rows.count
   
-                      iface[pin-num] = if data.labels
-                          if pin-num of data.labels
-                              data.labels[pin-num]
-                          else
-                              throw new Error "Undeclared label for iface: #{pin-num}"
+                  iface[pin-num] = if data.labels
+                      if pin-num of data.labels
+                          data.labels[pin-num]
                       else
-                          pin-num
+                          throw new Error "Undeclared label for iface: #{pin-num}"
+                  else
+                      pin-num
   
-                      p = new Pad data.pad <<< do
-                          pin: pin-num
-                          label: iface[pin-num]
-                          parent: this
+                  p = new Pad data.pad <<< do
+                      pin: pin-num
+                      label: iface[pin-num]
+                      parent: this
   
-                      p.position.y += (data.rows.interval or 0 |> mm2px) * rindex
-                      p.position.x += (data.cols.interval or 0 |> mm2px) * cindex
+                  p.position.y += (data.rows.interval or 0 |> mm2px) * rindex
+                  p.position.x += (data.cols.interval or 0 |> mm2px) * cindex
   
-              @iface = iface
+          @iface = iface
   
-              if data.mirror
-                  # useful for female headers
-                  @mirror!
+          if data.mirror
+              # useful for female headers
+              @mirror!
   
-              @make-border!
+          @make-border data
 '''
 'lib-RpiHeader': '''
   #! requires PinArray
@@ -285,8 +288,8 @@ export {
   
   add-class class RpiHeader extends PinArray
       @rev_RpiHeader = 4
-      (data={}) ->
-          defaults =
+      (data) ->
+          super data, defaults =
               name: 'rpi_'
               pad:
                   width: 3.1mm
@@ -301,9 +304,6 @@ export {
               labels: table
               mirror: yes
   
-          data = defaults <<< data
-          super data
-  
 '''
 'lib-SMD1206': '''
   #! requires PinArray
@@ -316,8 +316,8 @@ export {
   {a, b, c} = smd1206
   
   add-class class SMD1206 extends PinArray
-      (data={}) ->
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'r_'
               pad:
                   width: b
@@ -329,30 +329,27 @@ export {
                   width: c
                   height: a
   
-          super defaults <<< data
-  
   #new SMD1206
   
   add-class class SMD1206_pol extends SMD1206
       # Polarized version of SMD1206
-      (data={}) ->
-          overrides =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'c_'
               labels:
                   1: 'c'
                   2: 'a'
               mark: yes
   
-          super overrides <<< data
-  
   add-class class LED1206 extends SMD1206_pol
+  
   add-class class C1206 extends SMD1206_pol
   
   add-class class DO214AC extends SMD1206_pol
       # https://www.vishay.com/docs/88746/ss12.pdf
       @rev_DO214AC = 2
-      (data={}) ->
-          overrides =
+      (data, overrides) ->
+          super data, overrides `based-on` defaults =
               name: 'd_'
               pad:
                   width: 1.52mm
@@ -361,36 +358,34 @@ export {
                   count: 2
                   interval: 5.28mm - 1.52mm
   
-          super overrides `aea.merge` data
-  
   #new DO214AC
 '''
 'lib-LM2576': '''
   #! requires TO263
   add-class class LM2576 extends TO263
-      @rev_LM2576 = 1
-      (data={}) ->
-          defaults =
+      # http://www.ti.com/lit/ds/symlink/lm2576.pdf
+      @rev_LM2576 = 2
+      (data, overrides) ->
+          super data, overrides `based-on` do
               labels:
                   # Pin_id: Label
                   1: \\vin
-                  6: \\vin
                   2: \\out
                   3: \\gnd
                   4: \\fb
                   5: \\onoff
-          super data <<< defaults
+                  6: \\gnd
   
   #a = new LM2576
   #a.get {pin: 'vin'}
 '''
 'lib-TO263': '''
-  # TO263 footprint 
+  # TO263 footprint
   #
   #! requires DoublePinArray
   # ---------------------------
   
-  dimensions = 
+  dimensions =
       # See http://www.ti.com/lit/ds/symlink/lm2576.pdf
       to263:
           H   : 14.17mm
@@ -399,12 +394,12 @@ export {
           pd  : 1.702
   
   add-class class TO263 extends DoublePinArray
-      (data={}) -> 
+      (data, overrides) ->
           {H, die, pads, pd} = dimensions.to263
-          defaults =
+          super data, overrides `based-on` do
               name: 'c_'
               distance: H - die.x/2
-              left: 
+              left:
                   start: 6
                   pad:
                       width: die.x
@@ -420,16 +415,14 @@ export {
                       count: 5
                       interval: pd
   
-          super defaults <<< data 
-  
   #new TO263
   
 '''
 'lib-Conn': '''
   #! requires PinArray
   add-class class Conn_2pin_thd extends PinArray
-      (data={}) ->
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'conn_'
               pad:
                   dia: 3.1mm
@@ -441,12 +434,10 @@ export {
                   count: 1
               dir: 'x'
   
-          data = defaults <<< data
-          super data
   
   add-class class Conn_1pin_thd extends PinArray
-      (data={}) ->
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'conn_'
               pad:
                   dia: 3.1mm
@@ -457,16 +448,14 @@ export {
                   count: 1
               dir: 'x'
   
-          super defaults <<< data
   
   add-class class Bolt extends PinArray
-      (data={}) ->
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'conn_'
               pad:
                   dia: 6.2mm
                   drill: 3mm
-          super defaults `aea.merge` data
   
   #new Conn_2pin_thd
   #new Conn_1pin_thd
@@ -481,8 +470,8 @@ export {
   
   #! requires PinArray
   add-class class Inductor extends PinArray
-      (data={}) -> 
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'L_'
               pad:
                   width: 4mm
@@ -494,32 +483,27 @@ export {
                   width: 10.7mm
                   height: 10.2mm
   
-          data = defaults <<< data 
-          super data
-  
   #new Inductor
 '''
 'lib-DoublePinArray': '''
   add-class class DoublePinArray extends Footprint
-      (data) ->
-          super ...
-          unless @resuming
-              overwrites =
-                  parent: @
-                  labels: data.labels
+      create: (data) ->
+          overwrites =
+              parent: this
+              labels: data.labels
   
-              left = new PinArray data.left <<< overwrites
-              right = new PinArray data.right <<< overwrites
+          left = new PinArray data.left <<< overwrites
+          right = new PinArray data.right <<< overwrites
   
-              iface = {}
-              for num, label of left.iface
-                  iface[num] = label
-              for num, label of right.iface
-                  iface[num] = label
-              @iface = iface
+          iface = {}
+          for num, label of left.iface
+              iface[num] = label
+          for num, label of right.iface
+              iface[num] = label
+          @iface = iface
   
-              right.position = left.position.add [data.distance |> mm2px, 0]
-              @make-border!
+          right.position = left.position.add [data.distance |> mm2px, 0]
+          @make-border data
 '''
 'double-pin-array-test': '''
   a = new SOT223 do
@@ -531,11 +515,11 @@ export {
   # Sot223
   #! requires DoublePinArray
   add-class class SOT223 extends DoublePinArray
-      (data={}) -> 
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'c_'
               distance: 6.3mm
-              left: 
+              left:
                   start: 4
                   pad:
                       width: 2.15mm
@@ -553,21 +537,20 @@ export {
               border:
                   width: 3.5mm
                   height: 6.5mm
-                  
-          super defaults <<< data 
+  
   
   add-class class SOT23 extends DoublePinArray
-      (data={}) -> 
-          pad = 
+      (data, overrides) ->
+          pad =
               width: 0.9mm
               height: 0.7mm
-              
-          defaults =
+  
+          super data, overrides `based-on` do
               name: 'c_'
               distance: 2mm
-              left: 
+              left:
                   start: 3
-                  pad: pad 
+                  pad: pad
                   cols:
                       count: 1
               right:
@@ -580,63 +563,53 @@ export {
                   width: 1.43mm
                   height: 3mm
   
-          super defaults <<< data 
-  
   #new SOT23
   
   
   add-class class NPN extends SOT23
       @rev_NPN = 1
-      (data={}) -> 
+      (data, overrides) ->
           defaults =
               labels:
                   1: 'b'
                   2: 'e'
                   3: 'c'
-          super defaults <<< data
+          super data, (defaults `aea.merge` overrides)
+  
+  #new NPN
   
   add-class class PNP extends NPN
-      (data={}) -> 
-          defaults =
-              # same as NPN, duplicated for safety
-              labels: 
-                  1: 'b'
-                  2: 'e'
-                  3: 'c'
-          super defaults <<< data
   
 '''
 'lib-LM1117': '''
   #! requires SOT223
   add-class class LM1117 extends SOT223
-      (data) ->
-          data.labels =
-              # Pin_id: Label
-              1: 'gnd'
-              2: 'vout'
-              3: 'vin'
-              4: 'vout'
-          super ...
+      (data, overrides) ->
+          super data, overrides `based-on` do
+              labels:
+                  # Pin_id: Label
+                  1: 'gnd'
+                  2: 'vout'
+                  3: 'vin'
+                  4: 'vout'
   
 '''
 'lib-canvas-helpers': '''
   add-class class RefCross extends Footprint
-      ->
-          super ...
-          unless @resuming
-              @add-part 'v', new Path.Line do
-                  from: [-20, 0]
-                  to: [20, 0]
-                  stroke-color: \\white
-                  parent: @g
+      create: (data) ->
+          @add-part 'v', new Path.Line do
+              from: [-20, 0]
+              to: [20, 0]
+              stroke-color: \\white
+              parent: @g
   
-              @add-part 'h', new Path.Line do
-                  from: [0, -20]
-                  to: [0, 20]
-                  stroke-color: \\white
-                  parent: @g
+          @add-part 'h', new Path.Line do
+              from: [0, -20]
+              to: [0, 20]
+              stroke-color: \\white
+              parent: @g
   
-              @set-data 'helper', yes
+          @set-data 'helper', yes
   
       print-mode: (val) ->
           @g.stroke-color = 'black'
@@ -647,8 +620,8 @@ export {
 'lib-cap-thd': '''
   #! requires PinArray
   add-class class CAP_thd extends PinArray
-      (data={}) ->
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               name: 'c_'
               pad:
                   dia: 1.5mm
@@ -664,18 +637,16 @@ export {
               border:
                   dia: 8mm
   
-          super defaults `aea.merge` data
   
   add-class class Buzzer extends CAP_thd
-      (data={}) ->
-          defaults =
+      (data, overrides) ->
+          super data, overrides `based-on` do
               pad:
                   drill: 0.7mm
               cols:
                   interval: 7.70mm
               border:
                   dia: 12mm
-          super defaults `aea.merge` data
   
   #new CAP_thd
   #new Buzzer

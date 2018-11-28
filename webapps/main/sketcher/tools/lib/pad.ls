@@ -20,7 +20,11 @@ Pad
 /* ------------------------------------------------- */
 
 export class Pad extends ComponentBase
-    (opts) ->
+    ->
+        @_guides = []
+        super ...
+        
+    create: (opts) ->
         # opts:
         #     # Required
         #     pin
@@ -28,78 +32,63 @@ export class Pad extends ComponentBase
         #     height
         #
         {Path, Rectangle, PointText, Shape, canvas} = new PaperDraw
-        super ...
-        unless @resuming
-            # create object from scratch
-            if opts.width and opts.height
-                geometry = \Rectangle
-                dimensions =
-                    x: opts.width |> mm2px
-                    y: opts.height |> mm2px
+        # create object from scratch
+        if opts.width and opts.height
+            geometry = \Rectangle
+            dimensions =
+                x: opts.width |> mm2px
+                y: opts.height |> mm2px
 
-                rect = new Rectangle do
-                    from: [0, 0]
-                    to: dimensions
+            rect = new Rectangle do
+                from: [0, 0]
+                to: dimensions
 
-                geo-params = {rectangle: dimensions}
+            geo-params = {rectangle: dimensions}
 
-            else if opts.dia
-                geometry = \Circle
-                x = opts.dia |> mm2px
-                dimensions =
-                    radius: x / 2
-                    x: x
-                    y: x
+        else if opts.dia
+            geometry = \Circle
+            x = opts.dia |> mm2px
+            dimensions =
+                radius: x / 2
+                x: x
+                y: x
 
-                rect = new Rectangle do
-                    from: [0, 0]
-                    to: [x, x]
+            rect = new Rectangle do
+                from: [0, 0]
+                to: [x, x]
 
-                geo-params = {radius: dimensions.radius}
+            geo-params = {radius: dimensions.radius}
 
-            # TODO: Are those necessary?
-            @g.position = rect.center
-            @g.applyMatrix = true
+        # TODO: Are those necessary?
+        @g.position = rect.center
+        @g.applyMatrix = true
 
-            @cu = new Shape[geometry] geo-params <<< do
-                rectangle: rect
-                fillColor: 'purple'
+        @cu = new Shape[geometry] geo-params <<< do
+            rectangle: rect
+            fillColor: 'purple'
+            parent: @g
+            stroke-width: 0
+            data: aecad: part: \cu
+
+        if opts.drill
+            @drill = new Path.Circle do
+                radius: (opts.drill / 2) |> mm2px
+                fillColor: canvas.style.background
                 parent: @g
+                position: @cu.position
                 stroke-width: 0
-                data: aecad: part: \cu
+                data: aecad: part: \drill
 
-            if opts.drill
-                @drill = new Path.Circle do
-                    radius: (opts.drill / 2) |> mm2px
-                    fillColor: canvas.style.background
-                    parent: @g
-                    position: @cu.position
-                    stroke-width: 0
-                    data: aecad: part: \drill
-
-            @ttip = new PointText do
-                point: @cu.bounds.center
-                content: opts.label or opts.pin
-                fill-color: 'white'
-                parent: @g
-                font-size: 3
-                position: @cu.bounds.center
-                justification: 'center'
-                data: aecad: part: \ttip
-
-            @ttip.bounds.center = @cu.bounds.center
-
-        # common operations
-        # -----------------------------
-        if @g.data.aecad.color
-            @color = that
-
-        # declare Pad.left, Pad.top, ...
-        for <[ left right top bottom center ]>
-            Object.defineProperty @, .., do
-                get: ~> @g.bounds[..]
-
-        @_guides = []
+        @ttip = new PointText do
+            point: @cu.bounds.center
+            content: opts.label or opts.pin
+            fill-color: 'white'
+            parent: @g
+            font-size: 3
+            position: @cu.bounds.center
+            justification: 'center'
+            data: aecad: part: \ttip
+        @ttip.bounds.center = @cu.bounds.center
 
     color: ~
         (val) !->

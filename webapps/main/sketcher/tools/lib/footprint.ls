@@ -1,26 +1,29 @@
 require! './container': {Container}
 require! 'aea/do-math': {mm2px}
+require! 'aea/merge': {based-on}
 
 export class Footprint extends Container
-    (data) ->
-        super ...
-        unless @resuming
-            # Set rotation, if any
-            <~ sleep 20ms
-            # set side if present
-            if @data.side
-                @set-data \side, ''
-                @set-side that
-                @send-to-layer \gui
+    create: (data) ->
+        # Set rotation, if any
+        <~ sleep 20ms
+        # set side if present
+        if data.side
+            @set-data \side, ''
+            @set-side that
+            @send-to-layer \gui
 
-            # FIXME: rotation must be after set-side at the moment
-            if @data.rotation
-                @set-data \rotation, 0
-                @rotate that
+        # FIXME: rotation must be after set-side at the moment
+        if data.rotation
+            @set-data \rotation, 0
+            @rotate that
 
     iface: ~
-        -> @get-data('labels')
-        (val) -> @set-data 'labels', val
+        # Interface settings should actually be static (they are declared
+        # as the first thing in a component/circuit. However, as this information
+        # might be generated dynamically on creation time, it is useful to
+        # provide a caching mechanism)
+        -> @get-data('_iface')
+        (val) -> @set-data '_iface', val
 
     move: (displacement, opts={}) ->
         # Moves the component with a provided amount of displacement. Default: Relative
@@ -35,8 +38,8 @@ export class Footprint extends Container
             # DO NOT USE yadayada here!
             ..on-move ...arguments
 
-    make-border: ->
-        if opts=(@get-data \border)
+    make-border: (data) ->
+        if opts=data?.border
             if opts.dia
                 type = 'Circle'
                 dimensions =
