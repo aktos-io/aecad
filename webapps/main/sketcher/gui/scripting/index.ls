@@ -14,7 +14,7 @@ require! 'diff': jsDiff
 
 export init = (pcb) ->
     # Modules to be included into dynamic scripts
-    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb}
+    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
