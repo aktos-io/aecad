@@ -100,7 +100,11 @@ export class History
 
             _names.push name
         unless empty _names
-            PNotify.notice text: "Script update: \n#{_names.join '\n'}", hide: false
+            PNotify.notice hide: no, text: """
+                Script update:
+                -----------------------
+                #{_names.map (-> "* #{it}\n")}
+                """
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 
