@@ -49,7 +49,13 @@ export init = (pcb) ->
 
         calcUnconnected: (ctx) ->
             if schema-manager.active
-                conn-states = that.get-connection-states!
+                try
+                    conn-states = that.get-connection-states!
+                catch
+                    PNotify.error hide: no, text: e.message
+                    pcb.ractive.set 'totalConnections', "--"
+                    pcb.ractive.set 'unconnectedCount', "--"
+                    return
                 unconnected = 0
                 total = 0
                 for netid, state of conn-states
