@@ -37,7 +37,10 @@ export init = (pcb) ->
         switchLayer: (ctx, layer, proceed) ->
             @set \currLayer, layer
             for pcb.get-components!
-                get-aecad ..item .trigger \focus, layer
+                try
+                    get-aecad ..item .trigger \focus, layer
+                catch
+                    console.error "Something went wrong here."
             proceed!
 
         calcUnconnected: (ctx) ->
