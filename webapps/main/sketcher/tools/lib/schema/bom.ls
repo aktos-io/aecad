@@ -61,7 +61,7 @@ export do
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
-                sample = new Component ((args.params or {}) <<< {+silent})
+                sample = new Component (args.params or {})
                 iface = values sample.iface
                 sample.remove!
                 iface

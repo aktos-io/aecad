@@ -9,6 +9,7 @@ require! './history': {History}
 require! './canvas-control': {canvas-control}
 require! './aecad-methods'
 require! './import-export'
+require! '../tools/lib/get-aecad': {get-aecad}
 
 export class PaperDraw implements canvas-control, aecad-methods, import-export
     @instance = null
@@ -65,12 +66,21 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 selected = items.0
                 return unless selected
                 #console.log "Displaying properties of ", selected
-                if selected.item?getPath?!
-                    selected = that
-                @ractive.set \aecadData, (selected.data?aecad or {})
+                if aeobj=(selected.aeobj)
+                    console.log "selected item's data: ", aeobj.data
+                    console.log "selected item's owner's data: ", aeobj.owner.data
+                    @ractive.set \aecadData, aeobj.data
+                    if aeobj.parent
+                        @ractive.set \aecadOwnerData, aeobj.owner.data
+                else
+                    console.warn "FIXME: What is that block for? "
+                    if selected.item?getPath?!
+                        selected = that
+                    @ractive.set \aecadData, (selected.data?aecad or {})
 
             ..on \cleared, ~>
                 @ractive.set \aecadData, {}
+                @ractive.set \aecadOwnerData, {}
 
         # visual logger
         @vlog = new VLogger @ractive

@@ -4,9 +4,6 @@ require! './get-aecad': {get-aecad}
 require! 'prelude-ls': {find}
 
 export class Container extends ComponentBase
-    (data) ->
-        super ...
-
     color: ~
         (val) ->
             for @pads

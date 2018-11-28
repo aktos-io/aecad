@@ -1,6 +1,6 @@
 require! 'actors': {BrowserStorage}
 require! 'aea': {hash, clone}
-require! 'prelude-ls': {values, difference, keys}
+require! 'prelude-ls': {values, difference, keys, empty}
 
 export class History
     (opts) ->
@@ -87,6 +87,7 @@ export class History
             for name, h of curr-orig-h
                 return name if h is x
 
+        _names = []
         for h in updated-scripts
             name = name-of-hash h
             if h in values(saved-h)
@@ -96,7 +97,14 @@ export class History
             @ractive.set "drawingLsUpdates.#{Ractive.escapeKey name}", do
                 remote: orig[name]
                 current: saved[name]
-            PNotify.notice text: "Script update: #{name}", hide: false
+
+            _names.push name
+        unless empty _names
+            PNotify.notice hide: no, text: """
+                Script update:
+                -----------------------
+                #{_names.map (-> "* #{it}\n")}
+                """
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 

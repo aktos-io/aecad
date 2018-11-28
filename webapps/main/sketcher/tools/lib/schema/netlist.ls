@@ -89,9 +89,17 @@ export do
             # create the connection tree
             connected-pads = {}
             for pad in net
-                for trace-item in traces
+                for trace-item in flatten values _traces
                     if trace-item `is-connected` pad
+                        #debugger if trace-item.data.aecad.tid is "VyLoTZiQc"
+
                         # many traces may be connected to the same pad
+                        unless trace-netid = trace-item.data.aecad.netid
+                            throw new Error "There shouldn't be a trace with no netid"
+                        if "#{trace-netid}" isnt pad.netid
+                            trace-item.selected = true
+                            pad.selected = true
+                            throw new Error "Short circuit: #{pad.uname} (trace: #{trace-netid}, pad: #{pad.netid})"
                         connected-pads[][trace-item.id].push pad
                         #console.log "...netid: #{netid}: found a connection with trace: #{trace-item.id}", trace-item, pad
                     else

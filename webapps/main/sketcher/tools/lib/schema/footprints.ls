@@ -5,33 +5,8 @@ require! 'prelude-ls': {
 
 # deps
 require! './deps': {
-    find-comp, PaperDraw, text2arr, get-class, get-aecad
+    find-comp, PaperDraw, text2arr, get-class, get-aecad, get-rev
 }
-
-get-rev = (cls) ->
-    rev = 0
-    for to 100
-        if cls["rev_#{cls.name}"]
-            rev += +that
-        if cls.superclass
-            cls = that
-        else
-            break
-    rev
-
-# Usage of `get-rev`
-class C
-    @rev_C = "4"
-
-class B extends C
-    #@rev_B = "3"
-
-class A extends B
-    @rev_A = "2"
-
-unless get-rev(A) is 6
-    throw new Error "get-rev doesn't work correctly"
-
 
 export do
     get-upgrades: ->
@@ -75,10 +50,10 @@ export do
                     reason += "Type changed from #{existing.type} to #{type}"
                     comp.type = type
 
-                curr-ver = get-rev _Component
-                if curr-ver isnt (existing.version or 0)
+                curr-rev = get-rev _Component
+                if curr-rev isnt (existing.rev or 0)
                     comp.upgrade-needed = yes
-                    reason += "Version changed from #{existing.version} to #{curr-ver}"
+                    reason += "Revision changed from #{existing.rev} to #{curr-rev}"
 
                 if comp.upgrade-needed
                     reason = "Component #{pfx-name} needs upgrade: " + reason

@@ -183,7 +183,7 @@ export class Trace extends Container implements follow, helpers, end
         valid-hit = null
         for hit in hits
             unless target
-                target = hit.aecad.ae-obj
+                target = hit.aeobj
                 valid-hit = hit # for trace to trace connections
             else
                 PNotify.notice text: "Multiple hits? (See Trace)"

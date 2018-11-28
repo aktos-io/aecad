@@ -25,24 +25,37 @@ export init = (pcb) ->
 
     handlers =
         upgradeComponents: (ctx) ->
-            for selection.selected
-                console.log ..
-                ..item.clone {type: ..type}
-                ..item.remove!
-            count = selection.selected.length
+            upgrade-count = 0
+            unless sch=(schema-manager.active)
+                PNotify.notice text: "No active schema found, can not upgrade."
+                return
+            unless empty upgrades=(sch.get-upgrades!)
+                for upg in upgrades
+                    for sel in selection.selected when upg.component.name is sel.aeobj.owner.name
+                        upgrade-count++
+                        upg.component.upgrade {type: upg.type}
             selection.clear!
-            PNotify.info text: "Upgraded #{count} component(s)."
+            PNotify.info text: "Upgraded #{upgrade-count} component(s)."
 
 
         switchLayer: (ctx, layer, proceed) ->
             @set \currLayer, layer
             for pcb.get-components!
-                get-aecad ..item .trigger \focus, layer
+                try
+                    get-aecad ..item .trigger \focus, layer
+                catch
+                    console.error "Something went wrong here."
             proceed!
 
         calcUnconnected: (ctx) ->
             if schema-manager.active
-                conn-states = that.get-connection-states!
+                try
+                    conn-states = that.get-connection-states!
+                catch
+                    PNotify.error hide: no, text: e.message
+                    pcb.ractive.set 'totalConnections', "--"
+                    pcb.ractive.set 'unconnectedCount', "--"
+                    return
                 unconnected = 0
                 total = 0
                 for netid, state of conn-states
@@ -127,7 +140,8 @@ export init = (pcb) ->
                     text: "No selection found (last saved coordinates are intact)."
                     addClass: 'nonblock'
                 return
-            bounds = pcb.get-bounds selection.selected
+
+            bounds = selection.bounds!
             pcb.ractive.set \lastBounds, bounds
             #console.log "last bounds: ", bounds
             selection.clear!
@@ -150,7 +164,7 @@ export init = (pcb) ->
                 PNotify.notice text: "Not possible."
             else
                 prev = bounds.center
-                curr = pcb.get-bounds selection.selected .center
+                curr = selection.bounds!.center
                 selection.clear!
 
                 line = new pcb.Path.Line do

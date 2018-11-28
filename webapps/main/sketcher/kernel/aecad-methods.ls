@@ -5,7 +5,7 @@ dig-for-aecad = (item) ->
 export do
     get-components: (opts) ->
         '''
-        Returns all aeCAD components in {item, type, name, version} form
+        Returns all aeCAD components in {item, type, name, rev} form
         '''
         unless opts
             opts = {}
@@ -21,6 +21,6 @@ export do
                         if that is '*' or type in that
                             continue
                     name = item.data.aecad.name
-                    version = item.data.aecad.version
-                    items.push {item, type, name, version}
+                    rev = item.data.aecad.rev
+                    items.push {item, type, name, rev}
         items
