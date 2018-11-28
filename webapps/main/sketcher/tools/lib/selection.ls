@@ -119,16 +119,19 @@ export class Selection extends EventEmitter
 
 
     delete: !->
-        for i, item of @selected
-            #console.log "item is: ", item
-            if item.item? or item.solver?
+        for elem in @selected
+            console.log "Selected element is: ", elem
+            if elem.aeobj
+                that.owner.remove!
+            else if elem.item? or elem.solver?
                 # custom object
-                continue if item.solver?
+                continue if elem.solver?
                 try
-                    item.item.remove!
+                    elem.item.remove!
                 catch
-                    item.item._owner.remove!
+                    elem.item._owner.remove!
             else
+                item = elem
                 try
                     item.remove!
                 catch

@@ -188,7 +188,9 @@ export MoveTool = ->
             | \ı, \r, \I, \R, \i =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
-                (selection.getTopItem! |> getAecad)?.rotate angle
+                for selection.selected
+                    if ..aeobj
+                        that.owner.rotate angle 
 
             | \a =>
                 unless move.picked

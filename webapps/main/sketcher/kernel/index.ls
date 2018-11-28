@@ -69,13 +69,18 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 if aeobj=(selected.aeobj)
                     console.log "selected item's data: ", aeobj.data
                     console.log "selected item's owner's data: ", aeobj.owner.data
-
-                if selected.item?getPath?!
-                    selected = that
-                @ractive.set \aecadData, (selected.data?aecad or {})
+                    @ractive.set \aecadData, aeobj.data
+                    if aeobj.parent
+                        @ractive.set \aecadOwnerData, aeobj.owner.data
+                else
+                    console.warn "FIXME: What is that block for? "
+                    if selected.item?getPath?!
+                        selected = that
+                    @ractive.set \aecadData, (selected.data?aecad or {})
 
             ..on \cleared, ~>
                 @ractive.set \aecadData, {}
+                @ractive.set \aecadOwnerData, {}
 
         # visual logger
         @vlog = new VLogger @ractive

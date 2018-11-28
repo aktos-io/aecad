@@ -74,7 +74,7 @@ export SelectTool = ->
                         if event.modifiers.control
                             # select the whole trace
                             console.log "adding whole trace to selection because Ctrl is pressed."
-                            select-item!
+                            selection.add {item: hit.item, aeobj}
                         else
                             if aeobj@@name is \Pad
                                 via = hit.item.parent
