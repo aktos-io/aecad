@@ -1424,7 +1424,6 @@
     {
       "name": "gui",
       "applyMatrix": true,
-      "selected": true,
       "children": [
         [
           "Group",
@@ -9360,7 +9359,6 @@
           {
             "applyMatrix": false,
             "matrix": [0, 1, -1, 0, 299.37433, 89.82601],
-            "selected": true,
             "data": {
               "aecad": {
                 "type": "Conn_2pin_thd",
@@ -9376,7 +9374,6 @@
                 "Group",
                 {
                   "applyMatrix": true,
-                  "selected": true,
                   "data": {
                     "aecad": {
                       "type": "Pad",
@@ -9392,7 +9389,6 @@
                       "Shape",
                       {
                         "applyMatrix": false,
-                        "selected": true,
                         "data": {"aecad": {"part": "cu"}},
                         "type": "circle",
                         "size": [11.71654, 11.71654],
@@ -9498,9 +9494,5 @@
         ]
       ]
     }
-  ],
-  ["Layer", {"name": "scripting", "applyMatrix": true}],
-  ["Layer", {"applyMatrix": true}],
-  ["Layer", {"applyMatrix": true}],
-  ["Layer", {"applyMatrix": true}]
+  ]
 ]
