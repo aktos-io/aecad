@@ -68,9 +68,14 @@ export do
 
             for pad in pads or []
                 required-pads["#{instance}.#{pad}"] = null
+
+        # iface pins are required to be used
+        for @iface
+            required-pads["#{..}"] = "iface"
+
         # find used iface pins
         for id, net of @data.netlist
-            for text2arr net
+            for (text2arr net) ++ [id]
                 #console.log "...pad #{..} is used."
                 if .. of required-pads
                     delete required-pads[..]
@@ -82,4 +87,8 @@ export do
         # throw the exception if there are unused pads
         unused = keys required-pads
         unless empty unused
-            throw new Error "Unused pads: #{unused.map (~> "#{@prefix}#{it}") .join ','}"
+            msg = if required-pads[unused.0] is \iface
+                "Unconnected iface:"
+            else
+                "Unused pads:"
+            throw new Error "#{msg} #{unused.map (~> "#{@prefix}#{it}") .join ','}"

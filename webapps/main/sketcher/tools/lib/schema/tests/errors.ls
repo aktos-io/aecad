@@ -56,3 +56,18 @@ export do
     "incomplete label declaration": ->
         # TODO: extend a component with some missing labels
         false
+
+    "unconnected iface": ->
+        parasitic =
+            iface: 'a, c'
+            netlist:
+                1: "C1.a C2.a"
+                c: "C1.c C2.c"
+            bom:
+                C1206:
+                    "100nF": "C1"
+                    "1uF": "C2"
+
+        sch = new Schema {name: 'test', data: parasitic, prefix: 'test.'}
+        expect (-> sch.compile!)
+        .to-throw "Unconnected iface: test.a"
