@@ -122,15 +122,13 @@ export do
                 item.remove!
                 continue
 
-            netid = item.data.aecad.netid
-            unless netid
+            unless item.data.aecad.netid
                 console.error "Trace item:", item
                 throw new Error "A trace with no netid found"
-
-            console.warn "FIXME: filter out open circuit traces"
             item.phy-netid = null
             traces[item.id] = item
 
+        # detect physically connected traces
         # assign a physical netid: same id for physically connected traces
         trace-ids = keys traces
         count = trace-ids.length
@@ -147,11 +145,11 @@ export do
                             # they are physically on the same side
                             isec = c.getIntersections o
                             if isec.length > 0
-                                console.warn "We found an intersection:", curr.data.aecad.tid, other.data.aecad.tid, isec
+                                #console.warn "We found an intersection:", curr.data.aecad.tid, other.data.aecad.tid, isec
                                 conn-traces.push ["#{curr.id}", "#{other.id}"]
                                 continue search
         reduced = net-merge(conn-traces, trace-ids.map((.to-string!)))
-        console.log "Connected traces:", conn-traces, reduced
+        #console.log "Connected traces:", conn-traces, reduced
         id = 1
         for reduced.stray
             traces[..].phy-netid = id++
