@@ -48,6 +48,7 @@ export init = (pcb) ->
             proceed!
 
         calcUnconnected: (ctx) ->
+            console.log "------------ Performing DRC ------------"
             if schema-manager.active
                 try
                     conn-states = that.get-connection-states!
@@ -65,6 +66,7 @@ export init = (pcb) ->
                 pcb.ractive.set 'unconnectedCount', unconnected
             else
                 PNotify.notice text: "No schema present at the moment."
+            console.log "------------ End of DRC ------------"
 
         fitAll: (ctx) !~>
             for layer in pcb.project.layers

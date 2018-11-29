@@ -67,13 +67,13 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 return unless selected
                 #console.log "Displaying properties of ", selected
                 if aeobj=(selected.aeobj)
-                    console.log "selected item's data: ", aeobj.data
-                    console.log "selected item's owner's data: ", aeobj.owner.data
+                    #console.log "selected item's data: ", aeobj.data
+                    #console.log "selected item's owner's data: ", aeobj.owner.data
                     @ractive.set \aecadData, aeobj.data
                     if aeobj.parent
                         @ractive.set \aecadOwnerData, aeobj.owner.data
                 else
-                    console.warn "FIXME: What is that block for? "
+                    # hit is *probably* a trace part (a Curve of a Path)
                     if selected.item?getPath?!
                         selected = that
                     @ractive.set \aecadData, (selected.data?aecad or {})
