@@ -10,23 +10,25 @@ require! './lib': {parse-name, net-merge}
 
 is-connected = (item, pad) ->
     pad-bounds = pad.cu-bounds
+    trace-netid = item.data.aecad.netid
     # Check if item is **properly** connected to the rectangle
     for item.children or []
         unless ..getClassName! is \Path
             continue
         trace-side = ..data?.aecad?.side
-        dont-match = no
         unless pad.side-match trace-side
             #console.warn "Not on the same side, won't count as a connection: ", pad, item
-            dont-match = "not on the same side"
+            continue
         for {point} in ..segments
             # check all segments of the path
             if point.is-inside pad-bounds
-                if dont-match
-                    console.warn "Won't match as not on the same side:", pad, item
+                # Detect short circuits
+                if "#{trace-netid}" isnt pad.netid
                     item.selected = true
                     pad.selected = true
+                    throw new Error "Short circuit: #{pad.uname} (n:#{pad.netid}) with #{item.data.aecad.tid} (n:#{trace-netid})"
                 else
+                    console.log "Pad #{pad.uname} seems to be connected with Trace tid: #{item.data.aecad.tid}"
                     return true
     return false
 
@@ -91,15 +93,6 @@ export do
             for pad in net
                 for trace-item in flatten values _traces
                     if trace-item `is-connected` pad
-                        #debugger if trace-item.data.aecad.tid is "VyLoTZiQc"
-
-                        # many traces may be connected to the same pad
-                        unless trace-netid = trace-item.data.aecad.netid
-                            throw new Error "There shouldn't be a trace with no netid"
-                        if "#{trace-netid}" isnt pad.netid
-                            trace-item.selected = true
-                            pad.selected = true
-                            throw new Error "Short circuit: #{pad.uname} (trace: #{trace-netid}, pad: #{pad.netid})"
                         connected-pads[][trace-item.id].push pad
                         #console.log "...netid: #{netid}: found a connection with trace: #{trace-item.id}", trace-item, pad
                     else
@@ -126,14 +119,13 @@ export do
         for trace in @scope.get-components {exclude: '*', include: <[ Trace ]>}
             netid = trace.item.data.aecad.netid
             unless netid
-                console.warn "A trace with no netid found. How could this be possible?", trace.item
-                trace.item.remove!
-                continue
+                console.error "Trace item:", trace.item
+                throw new Error "A trace with no netid found"
 
             # TODO: cleanup non-functional traces:
             # * no children
             # * paths with 1 segment
-
+            console.warn "FIXME: filter out open circuit traces"
             traces[][netid].push trace.item
         #console.log "Found Traces:", traces
         return traces
