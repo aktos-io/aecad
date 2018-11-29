@@ -186,7 +186,8 @@ export class Trace extends Container implements follow, helpers, end
                 target = hit.aeobj
                 valid-hit = hit # for trace to trace connections
             else
-                PNotify.notice text: "Multiple hits? (See Trace)"
+                PNotify.notice text: "Multiple hits? (See console)"
+                console.warn "Multiple hits on trace start:", hit
 
         unless @continues
             unless target
@@ -233,12 +234,12 @@ export class Trace extends Container implements follow, helpers, end
                     # this is an item (pad, etc.)
                     console.log "snapping to item: ", hit.item
                     snap = hit.item.bounds.center.clone!
-
             | 'Pad' =>
                 # Snap to this pad
                 snap = target.gpos
-                if @continues
-                    reached-target = yes
+            # auto-end the trace when we reached to a target
+            if @continues
+                reached-target = yes
             @show-guides!
         else
             # we are placing a trace segment (vertex), no-hit is normal.
