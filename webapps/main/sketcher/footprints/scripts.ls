@@ -49,6 +49,15 @@ export {
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
   
+  parasitic =
+      iface: 'a, c'
+      netlist:
+          a: "C1.a C2.a"
+          c: "C1.c C2.c"
+      bom:
+          C1206:
+              "100nF": "C1"
+              "1uF": "C2"
   
   power =
       iface: 'vfs, vff, 5v, 3v3, gnd'
@@ -59,27 +68,21 @@ export {
           gnd: """
               C13.c C1.gnd C1.onoff
               D15.a C10.c C2.gnd D14.a C11.c
+              C3.c
               """
           2: 'C1.out, L1.1, D15.c'
           _5v: """
               L1.2 C1.fb C10.a
               R1.1
               C2.vin
+              C3.a
               """
           _3v3: 'C11.a R2.1 C2.vout'
           '5v': 'R1.2'
           '3v3': 'R2.2'
           vff: 'D13.a'
           vfs: 'D13.c, D14.c'
-      notes:
-          'L1': """
-              This part is an EMC source, keep it
-              close to LM2576
-              """
-          'R1, R2': """
-              These parts are used in testing step
-              """
-          'D15': "Should be VERY CLOSE to LM2576"
+      schemas: {parasitic}
       bom:
           'LM2576': 'C1'
           'LM1117': 'C2'
@@ -91,9 +94,28 @@ export {
           "CAP_thd":
               "1000uF": "C10"
           'Inductor':
-              "100..360uH": 'L1'
+              "100..360uH,2A": 'L1'
           'DO214AC':
               '1N5822': 'D14, D13, D15'
+          parasitic: "C3"
+      notes:
+          'L1': """
+              This part is an EMC source, keep it
+              close to LM2576
+              """
+          'R1, R2': """
+              These parts are used in testing step
+              """
+          'D15': "Should be VERY CLOSE to LM2576"
+          "C3": "Should be close to _5v output"
+  
+      tests:
+          "full load":
+              do: "Connect a load that draws high current"
+              expect:
+                  * "No noise"
+                  * "No overheat"
+                  * "No high jitter"
   
   oc-output =
       # Open Collector Output
@@ -201,9 +223,10 @@ export {
       # display a visual message
       pcb.vlog.info msg
   
-  PNotify.notice hide: no, text: """
-      TODO: Component cn should be shifted
-      (FreeCAD-asm3 work)
+  PNotify.notice hide: yes, text: """
+      TODO:
+      * Component cn should be shifted
+      * Lights should be turned on upon sgw energized.
       """
   
 '''
