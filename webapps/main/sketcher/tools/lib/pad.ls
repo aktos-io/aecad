@@ -23,7 +23,7 @@ export class Pad extends ComponentBase
     ->
         @_guides = []
         super ...
-        
+
     create: (opts) ->
         # opts:
         #     # Required
@@ -89,6 +89,9 @@ export class Pad extends ComponentBase
             justification: 'center'
             data: aecad: part: \ttip
         @ttip.bounds.center = @cu.bounds.center
+
+        if opts.color
+            @color = that
 
     color: ~
         (val) !->

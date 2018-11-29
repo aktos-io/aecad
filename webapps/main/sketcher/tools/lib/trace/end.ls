@@ -7,7 +7,9 @@ is-close = (v1, v2, tolerance=0.01) ->
 export do
     reduce: (line) !->
         to-be-removed = []
-        last-index = line.segments.length - 1
+        if last-index=(line.segments.length - 1) is 0
+            line.remove!
+            return
         for i in [til last-index]
             if line.segments[i].point.isClose line.segments[i + 1].point, 1
                 seg-index = i
@@ -28,7 +30,7 @@ export do
             console.log "Reducing the line segments."
             line.segments[s - i].remove!
 
-    end: (pad) ->
+    end: (target) ->
         if @line
             # remove moving point
             @line.removeSegment (@line.segments.length - 1)
@@ -37,34 +39,36 @@ export do
                 @corr-point = null
             @line.selected = no
 
-            if @line.segments.length is 1
-                @line.remove!
+            switch target?.type
+            | 'Pad' =>
+                pad = target
+                if pad and @line
+                    snap = pad.gpos
+                    # properly snap to target
 
-            if pad and @line
-                snap = pad.gpos
-                # properly snap to target
+                    # remove redundant segments inside pad
+                    while @line.segments.length >= 2
+                        if @line.segments[*-2].point.is-inside pad.gbounds
+                            @line.removeSegment (@line.segments.length - 1)
+                        else
+                            break
 
-                # remove redundant segments inside pad
-                while @line.segments.length >= 2
-                    if @line.segments[*-2].point.is-inside pad.gbounds
-                        @line.removeSegment (@line.segments.length - 1)
-                    else
-                        break
+                    if @line.segments.length >= 3
+                        mp = @line.segments[*-3].point # mate point
+                        pp = @line.segments[*-2].point # previous point
+                        lp = @line.segments[*-1].point # last point
 
-                if @line.segments.length >= 3
-                    mp = @line.segments[*-3].point # mate point
-                    pp = @line.segments[*-2].point # previous point
-                    lp = @line.segments[*-1].point # last point
+                        lline = @scope._Line lp, pp
+                        pline = @scope._Line pp, mp
 
-                    lline = @scope._Line lp, pp
-                    pline = @scope._Line pp, mp
-
-                    lline.through snap
-                    if lline.intersect pline
-                        pp.set that
-                        lp.set snap
-                    else
-                        debugger
+                        lline.through snap
+                        if lline.intersect pline
+                            pp.set that
+                            lp.set snap
+                        else
+                            debugger
+            | 'Trace' =>
+                # No special action is needed for Trace targets at the moment.
 
             @reduce @line
 
