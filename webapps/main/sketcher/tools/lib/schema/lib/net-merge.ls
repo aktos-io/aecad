@@ -67,21 +67,24 @@ export net-merge = (conn-tree, net) ->
     # 1. If there are stray pads or stray net(s), sample a pad from ref.
     #    and put into unconnected too
 
-    unconn = [] # unconnected pad names
-    stray-pads = net `difference` flatten merged-tree
-    has-stray-nets = merged-tree.length > 1
-    if not empty stray-pads or has-stray-nets
-        # we have unconnected pads, use `first ref` as entry point
-        if first merged-tree
-            unconn.push first that
+    unconn = null
+    # find out stray nodes 
+    if net
+        unconn = [] # unconnected pad names
+        stray-pads = net `difference` flatten merged-tree
+        has-stray-nets = merged-tree.length > 1
+        if not empty stray-pads or has-stray-nets
+            # we have unconnected pads, use `first ref` as entry point
+            if first merged-tree
+                unconn.push first that
 
-    for stray-pads
-        unconn.push ..
+        for stray-pads
+            unconn.push ..
 
-    # add stray nets' first pads as entry point
-    for tail merged-tree or []
-        if first ..
-            unconn.push that
+        # add stray nets' first pads as entry point
+        for tail merged-tree or []
+            if first ..
+                unconn.push that
 
     {merged: merged-tree, stray: unconn}
 
