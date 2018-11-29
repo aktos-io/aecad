@@ -108,10 +108,11 @@ export init = (pcb) ->
             pcb.history.commit!
             layer = ctx.component.get \to
             for pcb.selection.selected
-                obj = get-aecad ..
-                if obj
-                    obj.set-side layer
-                    obj.send-to-layer 'gui' # TODO: find a more beautiful name
+                console.log "sending selected: ", .., "to: ", layer
+                if ..aeobj
+                    that.owner
+                        ..set-side layer
+                        ..send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
             pcb.history.commit!
