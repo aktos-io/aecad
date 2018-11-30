@@ -8577,123 +8577,6 @@
           "Group",
           {
             "applyMatrix": false,
-            "matrix": [1, 0, 0, 1, 310.77716, 80.37719],
-            "data": {
-              "aecad": {
-                "type": "C1206",
-                "name": "led2.D1",
-                "side": "F.Cu",
-                "rev": 1,
-                "_iface": {"1": "c", "2": "a"}
-              }
-            },
-            "children": [
-              [
-                "Group",
-                {
-                  "applyMatrix": true,
-                  "data": {
-                    "aecad": {
-                      "type": "Pad",
-                      "width": 0.9,
-                      "height": 1.6,
-                      "pin": 1,
-                      "label": "c"
-                    }
-                  },
-                  "children": [
-                    [
-                      "Shape",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 1.70079, 3.02362],
-                        "data": {"aecad": {"part": "cu"}},
-                        "type": "rectangle",
-                        "size": [3.40157, 6.04724],
-                        "radius": [0, 0],
-                        "fillColor": [1, 0, 0],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "PointText",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 1.70079, 3.92362],
-                        "data": {"aecad": {"part": "ttip"}},
-                        "content": "c",
-                        "fillColor": [1, 1, 1],
-                        "fontSize": 3,
-                        "leading": 3.6,
-                        "justification": "center"
-                      }
-                    ]
-                  ]
-                }
-              ],
-              [
-                "Group",
-                {
-                  "applyMatrix": true,
-                  "data": {
-                    "aecad": {
-                      "type": "Pad",
-                      "width": 0.9,
-                      "height": 1.6,
-                      "pin": 2,
-                      "label": "a"
-                    }
-                  },
-                  "children": [
-                    [
-                      "Shape",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 12.66142, 3.02362],
-                        "data": {"aecad": {"part": "cu"}},
-                        "type": "rectangle",
-                        "size": [3.40157, 6.04724],
-                        "radius": [0, 0],
-                        "fillColor": [1, 0, 0],
-                        "strokeWidth": 0
-                      }
-                    ],
-                    [
-                      "PointText",
-                      {
-                        "applyMatrix": false,
-                        "matrix": [1, 0, 0, 1, 12.66142, 3.92362],
-                        "data": {"aecad": {"part": "ttip"}},
-                        "content": "a",
-                        "fillColor": [1, 1, 1],
-                        "fontSize": 3,
-                        "leading": 3.6,
-                        "justification": "center"
-                      }
-                    ]
-                  ]
-                }
-              ],
-              [
-                "Shape",
-                {
-                  "applyMatrix": false,
-                  "matrix": [1, 0, 0, 1, 7.1811, 3.02362],
-                  "data": {"aecad": {"part": "border"}},
-                  "type": "rectangle",
-                  "size": [7.55906, 6.04724],
-                  "radius": [0.3, 0.3],
-                  "strokeColor": [0.12549, 0.69804, 0.66667],
-                  "strokeWidth": 0.2
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
             "matrix": [-1, 0, 0, -1, 273.6137, 43.30142],
             "data": {
               "aecad": {
@@ -9928,5 +9811,6 @@
         ]
       ]
     }
-  ]
+  ],
+  ["Layer", {"name": "scripting", "applyMatrix": true}]
 ]
