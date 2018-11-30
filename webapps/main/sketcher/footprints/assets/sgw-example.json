@@ -9836,12 +9836,97 @@
               ]
             ]
           }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "qWZd3yYYg", "netid": "1"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "opacity": 0.4,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [90.29124, 125.64878],
+                    [90.29124, 117.72284],
+                    [92.14831, 115.86577],
+                    [117.47121, 115.86577],
+                    [119.09124, 117.48579],
+                    [119.09124, 125.64878]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "1nMWXYqvV", "netid": "1"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "opacity": 0.4,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [117.47121, 115.86577],
+                    [140.18761, 115.86577],
+                    [149.12146, 106.93191],
+                    [185.9832, 106.93191],
+                    [186.39442, 107.34313]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "_PKjlSwwS", "netid": "1"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "opacity": 0.4,
+                  "data": {"aecad": {"side": "B.Cu"}},
+                  "segments": [
+                    [167.09124, 125.64878],
+                    [167.09124, 106.93009],
+                    [167.02041, 106.85926]
+                  ],
+                  "strokeColor": [0, 0.50196, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
         ]
       ]
     }
-  ],
-  ["Layer", {"name": "scripting", "applyMatrix": true}],
-  ["Layer", {"applyMatrix": true}],
-  ["Layer", {"applyMatrix": true}],
-  ["Layer", {"applyMatrix": true}]
+  ]
 ]
