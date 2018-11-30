@@ -170,6 +170,7 @@ export {
           vcc: 'b.a R1.1'
   
   sgw =
+      iface: "Pow+, Pow-"
       netlist:
           gnd: """ P.gnd cn.1 Pow- led1.gnd
               led2.gnd rpi.gnd beep.gnd
@@ -181,7 +182,6 @@ export {
           4: 'rpi.11 beep.in'
           6: 'beep.vcc 5v'
       schemas: {power, signal-led, buzzer}
-      iface: "Pow+, Pow-"
       bom:
           power: 'P'
           signal-led:
@@ -191,7 +191,7 @@ export {
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
   
-          # Virtual components
+          # Virtual components start with an underscore
           Bolt : '_1, _2, _3, _4'
           RefCross: '_a _b _c _d'
       no-connect: """rpi.1 rpi.2 rpi.16 rpi.3v3
