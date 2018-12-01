@@ -2577,10 +2577,10 @@
                     [201.73297, 122.99726],
                     [201.73297, 121.22502],
                     [206.31664, 116.64135],
-                    [214.1555, 116.64135],
-                    [221.04085, 109.75601],
-                    [231.12695, 109.75601],
-                    [235.11448, 105.76848],
+                    [208.27304, 116.64135],
+                    [215.53403, 109.38036],
+                    [231.65854, 109.38036],
+                    [235.11448, 105.92442],
                     [235.11448, 90.1001],
                     [234.1824, 89.16802],
                     [229.93877, 89.16802],
@@ -2641,11 +2641,11 @@
                   "data": {"aecad": {"side": "F.Cu"}},
                   "segments": [
                     [323.43858, 110.27325],
-                    [323.43858, 116.74515],
-                    [321.32448, 118.85926],
-                    [229.29083, 118.85926],
-                    [219.30909, 128.84101],
-                    [219.30909, 148.40166],
+                    [323.43858, 114.74982],
+                    [317.92076, 120.26764],
+                    [227.88245, 120.26764],
+                    [218.30576, 129.84434],
+                    [218.30576, 149.40499],
                     [213.39862, 154.31212],
                     [192.19374, 154.31212],
                     [183.00445, 145.12284],
@@ -2716,68 +2716,6 @@
                   "applyMatrix": true,
                   "data": {"aecad": {"side": "F.Cu"}},
                   "segments": [[323.43858, 83.40081], [323.43858, 83.40081]],
-                  "strokeColor": [1, 0, 0],
-                  "strokeWidth": 1.51181,
-                  "strokeCap": "round",
-                  "strokeJoin": "round"
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
-            "data": {
-              "aecad": {"type": "Trace", "tid": "P02Z1YiIH", "netid": 13}
-            },
-            "children": [
-              [
-                "Path",
-                {
-                  "applyMatrix": true,
-                  "data": {"aecad": {"side": "F.Cu"}},
-                  "segments": [
-                    [312.47795, 83.40081],
-                    [312.47795, 102.72256],
-                    [301.75845, 113.44206],
-                    [221.88955, 113.44206],
-                    [215.9249, 119.40671],
-                    [209.29203, 119.40671]
-                  ],
-                  "strokeColor": [1, 0, 0],
-                  "strokeWidth": 1.51181,
-                  "strokeCap": "round",
-                  "strokeJoin": "round"
-                }
-              ]
-            ]
-          }
-        ],
-        [
-          "Group",
-          {
-            "applyMatrix": false,
-            "data": {
-              "aecad": {"type": "Trace", "tid": "Jbmr0VJit", "netid": 10}
-            },
-            "children": [
-              [
-                "Path",
-                {
-                  "applyMatrix": true,
-                  "data": {"aecad": {"side": "F.Cu"}},
-                  "segments": [
-                    [312.47795, 110.27325],
-                    [309.5315, 110.27325],
-                    [303.67032, 116.13443],
-                    [227.14629, 116.13443],
-                    [216.956, 126.32472],
-                    [216.956, 133.66809],
-                    [212.67791, 137.94618],
-                    [210.08127, 137.94618]
-                  ],
                   "strokeColor": [1, 0, 0],
                   "strokeWidth": 1.51181,
                   "strokeCap": "round",
@@ -8361,7 +8299,7 @@
                       "height": 1.6,
                       "pin": 1,
                       "label": "c",
-                      "netid": "10"
+                      "netid": "22"
                     }
                   },
                   "children": [
@@ -8480,7 +8418,7 @@
                       "height": 1.6,
                       "pin": 1,
                       "label": "c",
-                      "netid": "13"
+                      "netid": "21"
                     }
                   },
                   "children": [
@@ -9808,9 +9746,381 @@
               ]
             ]
           }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [-1, 0, 0, -1, 230.63495, 117.29985],
+            "data": {
+              "aecad": {
+                "type": "SMD1206",
+                "name": "led2.R1",
+                "rev": 1,
+                "_iface": {"1": 1, "2": 2},
+                "side": "F.Cu",
+                "rotation": 180
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "width": 0.9,
+                      "height": 1.6,
+                      "pin": 1,
+                      "label": 1,
+                      "netid": "21",
+                      "rotation": 90
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 1.70079, 3.02362],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "rectangle",
+                        "size": [3.40157, 6.04724],
+                        "radius": [0, 0],
+                        "fillColor": [1, 0, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [-1, 0, 0, -1, 1.70079, 2.12362],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "1",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "width": 0.9,
+                      "height": 1.6,
+                      "pin": 2,
+                      "label": 2,
+                      "netid": "13",
+                      "rotation": 90
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 12.66142, 3.02362],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "rectangle",
+                        "size": [3.40157, 6.04724],
+                        "radius": [0, 0],
+                        "fillColor": [1, 0, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [-1, 0, 0, -1, 12.66142, 2.12362],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "2",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Shape",
+                {
+                  "applyMatrix": false,
+                  "matrix": [1, 0, 0, 1, 7.1811, 3.02362],
+                  "data": {"aecad": {"part": "border"}},
+                  "type": "rectangle",
+                  "size": [7.55906, 6.04724],
+                  "radius": [0.3, 0.3],
+                  "strokeColor": [0.12549, 0.69804, 0.66667],
+                  "strokeWidth": 0.2
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "matrix": [-1, 0, 0, -1, 250.09616, 117.05318],
+            "data": {
+              "aecad": {
+                "type": "SMD1206",
+                "name": "led1.R1",
+                "rev": 1,
+                "_iface": {"1": 1, "2": 2},
+                "side": "F.Cu",
+                "rotation": 180
+              }
+            },
+            "children": [
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "width": 0.9,
+                      "height": 1.6,
+                      "pin": 1,
+                      "label": 1,
+                      "netid": "22",
+                      "rotation": 90
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 1.70079, 3.02362],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "rectangle",
+                        "size": [3.40157, 6.04724],
+                        "radius": [0, 0],
+                        "fillColor": [1, 0, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [-1, 0, 0, -1, 1.70079, 2.12362],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "1",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Group",
+                {
+                  "applyMatrix": true,
+                  "data": {
+                    "aecad": {
+                      "type": "Pad",
+                      "width": 0.9,
+                      "height": 1.6,
+                      "pin": 2,
+                      "label": 2,
+                      "netid": "10",
+                      "rotation": 90
+                    }
+                  },
+                  "children": [
+                    [
+                      "Shape",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [1, 0, 0, 1, 12.66142, 3.02362],
+                        "data": {"aecad": {"part": "cu"}},
+                        "type": "rectangle",
+                        "size": [3.40157, 6.04724],
+                        "radius": [0, 0],
+                        "fillColor": [1, 0, 0],
+                        "strokeWidth": 0
+                      }
+                    ],
+                    [
+                      "PointText",
+                      {
+                        "applyMatrix": false,
+                        "matrix": [-1, 0, 0, -1, 12.66142, 2.12362],
+                        "data": {"aecad": {"part": "ttip"}},
+                        "content": "2",
+                        "fillColor": [1, 1, 1],
+                        "fontSize": 3,
+                        "leading": 3.6,
+                        "justification": "center"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              [
+                "Shape",
+                {
+                  "applyMatrix": false,
+                  "matrix": [1, 0, 0, 1, 7.1811, 3.02362],
+                  "data": {"aecad": {"part": "border"}},
+                  "type": "rectangle",
+                  "size": [7.55906, 6.04724],
+                  "radius": [0.3, 0.3],
+                  "strokeColor": [0.12549, 0.69804, 0.66667],
+                  "strokeWidth": 0.2
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "Rr-QhzpUO", "netid": "22"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "F.Cu"}},
+                  "segments": [
+                    [312.47795, 110.27325],
+                    [312.47795, 114.03216],
+                    [310.73863, 115.77148],
+                    [250.13729, 115.77148],
+                    [248.39538, 114.02956]
+                  ],
+                  "strokeColor": [1, 0, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "G0-7V14cD", "netid": "21"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "F.Cu"}},
+                  "segments": [
+                    [312.47795, 83.40081],
+                    [315.78563, 83.40081],
+                    [317.00467, 84.61984],
+                    [317.00467, 113.67029],
+                    [312.08542, 118.58954],
+                    [245.33503, 118.58954],
+                    [243.08303, 116.33754],
+                    [243.08303, 111.71785],
+                    [240.80053, 109.43535],
+                    [235.34757, 109.43535],
+                    [230.5067, 114.27623],
+                    [228.93416, 114.27623]
+                  ],
+                  "strokeColor": [1, 0, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "jUEK2l78d", "netid": "10"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "F.Cu"}},
+                  "segments": [
+                    [237.43475, 114.02956],
+                    [235.52222, 114.02956],
+                    [233.57239, 115.97939],
+                    [233.57239, 117.18594],
+                    [232.275, 118.48333],
+                    [226.42714, 118.48333],
+                    [215.44844, 129.46203],
+                    [215.44844, 136.58598],
+                    [214.08824, 137.94618],
+                    [210.08126, 137.94618]
+                  ],
+                  "strokeColor": [1, 0, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
+        ],
+        [
+          "Group",
+          {
+            "applyMatrix": false,
+            "data": {
+              "aecad": {"type": "Trace", "tid": "FJmPLPuC5", "netid": "13"}
+            },
+            "children": [
+              [
+                "Path",
+                {
+                  "applyMatrix": true,
+                  "data": {"aecad": {"side": "F.Cu"}},
+                  "segments": [
+                    [217.97353, 114.27623],
+                    [215.49729, 114.27623],
+                    [213.31641, 116.45711],
+                    [213.31641, 117.92072],
+                    [211.83042, 119.40671],
+                    [209.29202, 119.40671]
+                  ],
+                  "strokeColor": [1, 0, 0],
+                  "strokeWidth": 0.75591,
+                  "strokeCap": "round",
+                  "strokeJoin": "round"
+                }
+              ]
+            ]
+          }
         ]
       ]
     }
-  ],
-  ["Layer", {"name": "scripting", "applyMatrix": true}]
+  ]
 ]

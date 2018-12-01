@@ -143,7 +143,8 @@ export {
       iface: "gnd, in, vcc"
       netlist:
           vcc: "D1.a"
-          2: "D1.c DR.out"
+          1: "D1.c R1.1"
+          2: "R1.2 DR.out"
           in: "DR.in"
           gnd: "DR.gnd"
       params:
@@ -154,6 +155,8 @@ export {
           oc-output: 'DR'
           C1206:
               "$color": "D1"  # Led
+          SMD1206:
+              "330 ohm": "R1" # Current limiting resistor
   
   buzzer =
       iface: "gnd, in, vcc"
