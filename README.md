@@ -13,7 +13,7 @@ Basically a software to create real-world drawings from schematics:
 - See [What is wrong with Kicad](./problems-with-others.md#what-is-wrong-with-kicad)
 - See [What is wrong with EasyEDA](./problems-with-others.md#what-is-wrong-with-easyeda)
 
-## What features will AECAD have?
+# What features will AECAD have?
 
 - Web based collaboration
   - Realtime online collaboration for helping, task sharing, etc.
@@ -97,17 +97,8 @@ When we need a custom hardware, following actions must be taken in order:
 
 1. Design/choose or optimize the device housing.
 2. Get the connectors' 3D designs, place them onto the housing in 3D design workbench or software.
-    Getting the connectors' 3D design files:
-    1. A drawing might exist in a git repo, go fetch it.
-    2. Create a 3D component
-        1. Get/draw the 3D component:
-            1. Original drawing might be published by manufacturer, use the drawing (eg. the STEP file)
-            2. Draw the 3D from blueprints.
-            3. Reverse engineer from physical device or its image.
-        2. Create its footprint or match with an existing footprint
-        3. Create a git repo
-3. PCB edge cuts, connector placements on the PCB and mechanical keep out areas should be determined by now. Pass the limits to PCB design workbench.
-4. Place the electronic components on the PCB and draw the PCB routes.
+3. PCB edge cuts, connector placements on the PCB and mechanical keep out areas should be determined by 3D design phase. Export the pcb layout to the PCB design workbench (aecad/sketcher).
+4. Place the corresponding footprints on the PCB and draw the traces.
 5. If any optimization is required (because of component collision, insufficient PCB space, etc...), go to step 1.
 6. Produce a prototype PCB with toner transfer technique.
 7. Finalize the design and create fabrication files (Gerber files etc.)
@@ -118,7 +109,11 @@ Core of aeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). 
 
 # Status
 
-This is a project in design step. Feel free to open issues if you think
+![image](https://user-images.githubusercontent.com/6639874/49327385-0ee89300-f572-11e8-8bf0-a11a3f6bee69.png)
+
+Satus: Alpha: Work for me but not recommended for professional usage. Testers are welcome.
+
+Feel free to open issues if you think:
 
 * An important design consideration should be taken into account now
 * An important feature is missing in the above list
@@ -134,7 +129,7 @@ This is a project in design step. Feel free to open issues if you think
 
 # Roadmap
 
-1. Decide on-disk file format, like [this](https://gist.github.com/ceremcem/14b3c1105a12f434b6f829fa88e23109)
-2. Create a graphics editor, like [this](http://jsfiddle.net/ceremcem/oq44bmsy/)
-3. Create an online footprint editor, something like [this](https://jsfiddle.net/ceremcem/8geb3vc0/).
-4. Create a 3D viewer, like [this](http://jsfiddle.net/ceremcem/v0g7f3p1/)
+- [x] Decide on-disk file format, like [this](https://gist.github.com/ceremcem/14b3c1105a12f434b6f829fa88e23109)
+- [x] Create a graphics editor, like [this](http://jsfiddle.net/ceremcem/oq44bmsy/)
+- [x] Create an online footprint editor, something like [this](https://jsfiddle.net/ceremcem/8geb3vc0/).
+- [ ] Create a 3D viewer, like [this](http://jsfiddle.net/ceremcem/v0g7f3p1/)
