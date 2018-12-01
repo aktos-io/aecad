@@ -13,7 +13,7 @@ Basically a software to create real-world drawings from schematics:
 - See [What is wrong with Kicad](./problems-with-others.md#what-is-wrong-with-kicad)
 - See [What is wrong with EasyEDA](./problems-with-others.md#what-is-wrong-with-easyeda)
 
-# What features will AECAD have?
+# What features will aeCAD have?
 
 - Web based collaboration
   - Realtime online collaboration for helping, task sharing, etc.
@@ -111,7 +111,7 @@ Core of aeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). 
 
 ![image](https://user-images.githubusercontent.com/6639874/49327385-0ee89300-f572-11e8-8bf0-a11a3f6bee69.png)
 
-Satus: Alpha: Work for me but not recommended for professional usage. Testers are welcome.
+Satus: Alpha: *Works for me* but not recommended for professional usage. Testers are welcome.
 
 Feel free to open issues if you think:
 
