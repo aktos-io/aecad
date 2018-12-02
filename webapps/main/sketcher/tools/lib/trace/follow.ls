@@ -3,16 +3,18 @@ require! '../snap-move': {snap-move}
 
 export follow =
     update-corr-point: (point) ->
+        #console.warn "disabled update corr point"
         unless @corr-point
             # insert a new correction point
             @corr-point = point.clone!
-            @line.insert (@line.segments.length - 2), @corr-point
+            @line.insert (@line.segments.length - 1), @corr-point
         else
             @line.segments[* - 2].point.set point
 
     remove-corr-point: ->
         if @corr-point
-            @line.removeSegment (@line.segments.length - 2)
+            if @line.segments.length > 2
+                @line.removeSegment (@line.segments.length - 2)
             @corr-point = null
 
     commit-corr-point: ->

@@ -24,11 +24,18 @@ export class Line
         @p2.set @p2.add delta2
         @_line = new @paper.Line(@p1, @p2)
 
+    through: (point) ->
+        # make this line go through the point
+        @move point.subtract @p1
+
     intersect: (other-line) ->
         @_line.intersect other-line._line, true
 
     get-angle: ->
         @_line.vector.angle
+
+    angle: ~
+        -> @get-angle!
 
     rotate: (degree, opts={}) ->
         rotation = degree

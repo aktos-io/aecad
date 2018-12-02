@@ -73,12 +73,13 @@ export class Selection extends EventEmitter
             | \Point => \ok
             |_ =>
                 if typeof! .. is \Object
-                    # This is a custom object: normally in {name, item} format.
-                    # name is the group name, item is the value
+                    # This is a custom object: normally in {name, item?, aeobj?} format.
                     @selected.push ..
-                    if ..item
-                        if opts.select
-                            ..item.selected = yes
+                    if opts.select
+                        ..item?.selected = yes
+                        ..aeobj?.selected = yes
+                        if \selected of ..
+                            ..selected = yes
                     continue
                 else
                     console.warn ".........unrecognized selection: ", ..
@@ -118,16 +119,19 @@ export class Selection extends EventEmitter
 
 
     delete: !->
-        for i, item of @selected
-            #console.log "item is: ", item
-            if item.item? or item.solver?
+        for elem in @selected
+            console.log "Selected element is: ", elem
+            if elem.aeobj
+                that.owner.remove!
+            else if elem.item? or elem.solver?
                 # custom object
-                continue if item.solver?
+                continue if elem.solver?
                 try
-                    item.item.remove!
+                    elem.item.remove!
                 catch
-                    item.item._owner.remove!
+                    elem.item._owner.remove!
             else
+                item = elem
                 try
                     item.remove!
                 catch
@@ -137,3 +141,13 @@ export class Selection extends EventEmitter
 
     get-top-item: ->
         @selected.0
+
+    bounds: ->
+        # get selection bounds
+        selected-items = for @selected
+            if ..aeobj
+                that.gbounds
+            else
+                ..item
+
+        @scope.get-bounds selected-items

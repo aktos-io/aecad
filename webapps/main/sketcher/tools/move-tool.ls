@@ -3,7 +3,7 @@ require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/snap-move': {snap-move}
 require! './lib/trace/lib': {is-trace}
-require! './lib': {getAecad}
+require! './lib': {get-aecad}
 
 movement = (operand, left, right) -->
     if operand in <[ add subtract ]>
@@ -58,6 +58,7 @@ export MoveTool = ->
             ..mode = null
             ..about-to-move = no
             ..picked = no
+            ..aecad = null
 
         scope.cursor 'default'
 
@@ -74,9 +75,15 @@ export MoveTool = ->
                 move.dragging = true
 
                 # commit to history
+                movement-starting = no
                 if move.about-to-move
+                    # movement starting moment
                     move.about-to-move = no
+                    movement-starting = yes
+
+                if movement-starting
                     scope.history.commit!
+
                 down-point = if move.picked => move.down-point else event.downPoint
                 snap = snap-move downPoint, event.point, do
                     shift: event.modifiers.shift
@@ -86,7 +93,12 @@ export MoveTool = ->
                 unless move.mode is \trace
                     # move an item regularly
                     for selection.selected
-                        .. `shift-item` snap.delta
+                        if ..aeobj
+                            if movement-starting
+                                ..aeobj.schema?.clear-guides!
+                            that.owner.move snap.delta
+                        else
+                            .. `shift-item` snap.delta
                 else
                     # handle trace movement specially
                     # 1. preserve left and right curve slope
@@ -126,6 +138,12 @@ export MoveTool = ->
 
             if scope.selection.count is 0
                 scope.get-tool \select .onMouseDown event
+
+            # highlight pad connections
+            for selection.selected when ..aeobj
+                ..aeobj.trigger 'clear-guides'
+                ..aeobj.trigger 'create-guides'
+
             hits = scope.hitTestAll event.point, {tolerance: 2, +selected}
             types = []
             for hits
@@ -170,7 +188,9 @@ export MoveTool = ->
             | \ı, \r, \I, \R, \i =>
                 # rotate the top level group
                 angle = if event.modifiers.shift => 45 else 90
-                (selection.getTopItem! |> getAecad)?.rotate angle
+                for selection.selected
+                    if ..aeobj
+                        that.owner.rotate angle 
 
             | \a =>
                 unless move.picked

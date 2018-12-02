@@ -1,9 +1,10 @@
 require! 'actors': {BrowserStorage}
 require! 'aea': {hash, clone}
-require! 'prelude-ls': {values, difference, keys}
+require! 'prelude-ls': {values, difference, keys, empty}
 
 export class History
     (opts) ->
+        @parent = opts.parent
         @project = opts.project
         @ractive = opts.ractive
         @selection = opts.selection
@@ -19,7 +20,7 @@ export class History
             @commits.push backup
         catch
             @vlog.error "Huston, we have a problem: \n\n #{e.message}"
-            return 
+            return
         console.log "added to history"
         if @commits.length > @limit
             console.log "removing old history"
@@ -36,7 +37,7 @@ export class History
     load-project: (data) ->
         # data: stringified JSON
         if data
-            @project.clear!
+            @parent.clear-canvas! # use (<= this) instead of (this =>) @project.clear!
             @selection.clear!
             @project.importJSON data
 
@@ -86,18 +87,24 @@ export class History
             for name, h of curr-orig-h
                 return name if h is x
 
+        _names = []
         for h in updated-scripts
             name = name-of-hash h
             if h in values(saved-h)
                 console.log "We already have this, skipping: ", name
                 continue
-            console.log "Adding updated script: ", name
-            new-name = if name in keys saved
-                "#{name} (update: #{Date.now!})"
-            else
-                name
-            saved[new-name] = orig[name]
 
+            @ractive.set "drawingLsUpdates.#{Ractive.escapeKey name}", do
+                remote: orig[name]
+                current: saved[name]
+
+            _names.push name
+        unless empty _names
+            PNotify.notice hide: no, text: """
+                Script update:
+                -----------------------
+                #{_names.map (-> "* #{it}\n")}
+                """
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 
@@ -111,7 +118,7 @@ export class History
         # save scripts
         scripts = @ractive.get \drawingLs
         @db.set \scripts, scripts
-        @db.set \scriptHashes, @ractive.get \scriptHashes
+        #@db.set \scriptHashes, @ractive.get \scriptHashes
 
         # Save settings
         # TODO: provide a proper way for this, it's too messy now

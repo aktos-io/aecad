@@ -10,18 +10,25 @@ dropdown(
     object-data="{{drawingLs}}" 
     selected-key="{{scriptName}}" 
     on-select="scriptSelected")
-btn.icon.orange.mini(
-    on-click="@.set('scriptName', null)" 
-    tooltip="Clear selection"
-    )
+//- no need for this?
+    btn.mini(
+        on-click="@.set('scriptName', null)" 
+        tooltip="Clear selection"
+        ) ×
     
+
 +space 
 .ui.mini.buttons
+    ack-button.icon(
+        on-click="['showDiff', scriptName]"
+        tooltip="Show diff with remote version"
+        class="{{#if drawingLsUpdates[scriptName]}}orange{{else}}disabled{{/if}}"
+        ): icon.sticky.note.outline(add="top left corner asterisk")
     ack-button.icon(
         on-click="newScript" 
         tooltip="New script"
         ): icon.file.alternate(add="top left corner add")
-    ack-button.icon.red(
+    ack-button.icon(
         on-click="removeScript" 
         tooltip="Delete current script"
         enabled="{{scriptName}}"

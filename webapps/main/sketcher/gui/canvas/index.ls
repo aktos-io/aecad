@@ -3,10 +3,11 @@ require! '../../tools/freehand': {Freehand}
 require! '../../tools/move-tool': {MoveTool}
 require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
-require! 'prelude-ls': {min, empty, abs}
+require! 'prelude-ls': {min, empty, abs, keys}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../../tools/lib': {getAecad}
 require! 'aea/do-math': {px2mm}
+require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
 export init = (pcb) ->
     # tools
@@ -20,8 +21,53 @@ export init = (pcb) ->
         @fire \changeTool, {}, tool
 
     selection = new Selection
+    schema-manager = new SchemaManager
 
     handlers =
+        upgradeComponents: (ctx) ->
+            upgrade-count = 0
+            unless sch=(schema-manager.active)
+                PNotify.notice text: "No active schema found, can not upgrade."
+                return
+            unless empty upgrades=(sch.get-upgrades!)
+                for upg in upgrades
+                    for sel in selection.selected when upg.component.name is sel.aeobj.owner.name
+                        upgrade-count++
+                        upg.component.upgrade {type: upg.type}
+            selection.clear!
+            PNotify.info text: "Upgraded #{upgrade-count} component(s)."
+
+
+        switchLayer: (ctx, layer, proceed) ->
+            @set \currLayer, layer
+            for pcb.get-components!
+                try
+                    get-aecad ..item .trigger \focus, layer
+                catch
+                    console.error "Something went wrong here."
+            proceed!
+
+        calcUnconnected: (ctx) ->
+            console.log "------------ Performing DRC ------------"
+            if schema-manager.active
+                try
+                    conn-states = that.get-connection-states!
+                catch
+                    PNotify.error hide: no, text: e.message
+                    pcb.ractive.set 'totalConnections', "--"
+                    pcb.ractive.set 'unconnectedCount', "--"
+                    return
+                unconnected = 0
+                total = 0
+                for netid, state of conn-states
+                    unconnected += state.unconnected
+                    total += state.total
+                pcb.ractive.set 'totalConnections', total
+                pcb.ractive.set 'unconnectedCount', unconnected
+            else
+                PNotify.notice text: "No schema present at the moment."
+            console.log "------------ End of DRC ------------"
+
         fitAll: (ctx) !~>
             for layer in pcb.project.layers
                 selection.add layer, {+select}
@@ -62,15 +108,11 @@ export init = (pcb) ->
             pcb.history.commit!
             layer = ctx.component.get \to
             for pcb.selection.selected
-                obj = getAecad ..
-                if obj
-                    obj.set-side layer
-                    obj.send-to-layer 'gui' # TODO: find a more beautiful name
-
-                /*
-                unless get-keypath .., "data.aecad.name"
-                    set-keypath .., 'data.aecad.name', "c_"
-                */
+                console.log "sending selected: ", .., "to: ", layer
+                if ..aeobj
+                    that.owner
+                        ..set-side layer
+                        ..send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
             pcb.history.commit!
@@ -83,6 +125,9 @@ export init = (pcb) ->
             i = 0
             for pcb.search!
                 if ..item.getClassName?! in <[ Group Layer ]>
+                    for ..item.children or []
+                        if ..getClassName! is \Path and ..segments.length < 2
+                            ..remove!
                     if empty ..item.[]children
                         console.log "#{..keypath.join('.')} should be deleted. (\##{++i})"
                         ..item.remove!
@@ -98,7 +143,8 @@ export init = (pcb) ->
                     text: "No selection found (last saved coordinates are intact)."
                     addClass: 'nonblock'
                 return
-            bounds = pcb.get-bounds selection.selected
+
+            bounds = selection.bounds!
             pcb.ractive.set \lastBounds, bounds
             #console.log "last bounds: ", bounds
             selection.clear!
@@ -107,24 +153,31 @@ export init = (pcb) ->
                 addClass: 'nonblock'
 
         moveToCenter: (ctx) ->
-            pcb.history.commit!
-            center = pcb.ractive.get \lastBounds .center
-            for selection.selected
-                ..position.set center
+            bounds = pcb.ractive.get \lastBounds
+            if bounds and not empty selection.selected
+                pcb.history.commit!
+                for selection.selected
+                    ..position.set bounds.center
+            else
+                PNotify.notice text: "Not possible."
 
         measureDistance: (ctx) ->
-            prev = pcb.ractive.get \distReference
-            curr = pcb.get-bounds selection.selected .center
-            selection.clear!
-            pcb.ractive.set \distReference, curr
-            if prev
+            bounds = pcb.ractive.get \lastBounds
+            unless bounds or empty selection.selected
+                PNotify.notice text: "Not possible."
+            else
+                prev = bounds.center
+                curr = selection.bounds!.center
+                selection.clear!
+
                 line = new pcb.Path.Line do
                     from: prev
                     to: curr
                     stroke-color: 'yellow'
-                    stroke-width: 1
+                    stroke-width: 3
                     selected: yes
                     data: {+tmp, +guide}
+                    opacity: 0.5
 
                 format = (x) ->
                     "#{oneDecimal (x |> px2mm), 2} mm"
@@ -141,10 +194,13 @@ export init = (pcb) ->
                         dy  : #{dy}
                         """
                     fill-color: 'white'
-                    font-size: 4
+                    font-size: 8
                     position: line.bounds.center
                     justification: 'center'
                     data: {+tmp}
+                    shadowColor: 'black'
+                    shadowOffset: [0.5,0.5]
+                    shadowBlur: 1
 
 
 

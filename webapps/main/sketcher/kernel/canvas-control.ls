@@ -23,15 +23,31 @@ export canvas-control =
         if empty items
             items = flatten [..getItems! for @project.layers]
         bounds = items.reduce ((bbox, item) ->
-            unless bbox => item.bounds else bbox.unite item.bounds
+            _bounds = if item.getClassName! is \Rectangle => item else item.bounds
+            unless bbox
+                _bounds
+            else
+                bbox.unite _bounds
             ), null
         #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
         return bounds
 
     cursor: (name) ->
-        prev = @canvas.style.cursor
-        @canvas.style.cursor = name
+        @prev-cursor = prev = @canvas.style.cursor
+        unless name is prev
+            console.log "Cursor is set from #{prev} to #{name}"
+            @canvas.style.cursor = name
         prev
+
+    default-cursor: (name) ->
+        @_dcursor = name
+        if @_dcursor0 isnt @_dcursor
+            @_dcursor0 = @_dcursor
+            # set a new cursor, immediately switch to it
+            @cursor(@_dcursor)
+
+    restore-cursor: ->
+        @cursor(@prev-cursor)
 
     clean-tmp: ->
         for @get-all! when ..data?tmp
@@ -88,16 +104,22 @@ export canvas-control =
         @use-layer name
 
     use-layer: (name) ->
-        layer = null
-        if @ractive.get "project.layers.#{Ractive.escapeKey name}"
-            layer = that
-                ..activate!
+        layer = @ractive.get "project.layers.#{Ractive.escapeKey name}"
+        if layer
+            that.activate!
         else
             layer = new @Layer!
                 ..name = name
             @ractive.set "project.layers.#{Ractive.escapeKey name}", layer
         @ractive.set \activeLayer, name
         layer
+
+    clear-canvas: ->
+        # clears all layers by properly removing @ractive references
+        for name, layer of @project.layers
+            layer.remove!
+        for name of @ractive.get "project.layers"
+            @ractive.delete 'project.layers', name
 
     send-to-layer: (item, name) ->
         #set-keypath item, 'data.aecad.side', name # DO NOT DO THAT, LEAVE THIS TO COMPONENT
@@ -111,7 +133,9 @@ export canvas-control =
     get-tool: (name) ->
         @tools[name]
 
-    _Line: (opts) ->
+    _Line: (opts, p2) ->
+        if p2
+            opts = {p1: opts, p2}
         new Line opts, @_scope
 
     hitTestAll: (point, opts={}) ->
@@ -120,11 +144,13 @@ export canvas-control =
         /*
             opts:
                 ...inherits Paper.js opts, overwrites are as follows:
-                tolerance: normalized tolerance (regarding to zoom)
-                normalize: [Bool, default: true] Use normalized tolerance
-                aecad: [Bool, default: true] Include aeCAD objects if possible
-                exclude-tmp: [Bool, default: true] Exclude items whose "data.tmp is true"
-                exclude: [Array of Items] Exclude list that hit result will ignore it and its children.
+
+                tolerance   : normalized tolerance (regarding to zoom)
+                normalize   : [Bool, default: true] Use normalized tolerance
+                aecad       : [Bool, default: true] Include aeCAD objects if possible
+                exclude-tmp : [Bool, default: true] Exclude items whose "data.tmp is true"
+                exclude     : [Array of Items] Exclude list that hit result will ignore it and its children.
+                filter      : Filter function. Return `false` to exclude the `hit` from the results
 
             Returns:
                 Array of hits, where every hit includes:
@@ -150,18 +176,21 @@ export canvas-control =
 
             # exclude provided items
             if opts.exclude
-                for that when hit.item.isDescendant(..) or hit.item.id is ..id
+                for flatten [that] when hit.item.isDescendant(..) or hit.item.id is ..id
                     continue outer
+
+            # Apply filter
+            if opts.filter
+                unless opts.filter(hit)
+                    continue
 
             # add aeCAD objects
             if opts.aecad
-                hit.aecad =
-                    parent: try get-parent-aecad hit.item
-                    ae-obj: try get-aecad hit.item
+                hit.aeobj = get-aecad hit.item
 
             hits.push hit
         hits
 
     hitTest: ->
         # TODO: is this true? is it equivalent to the first hit of @hitTestAll! ?
-        @hitTestAll ... .0
+        @hitTestAll ...arguments .0

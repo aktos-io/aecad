@@ -8,13 +8,18 @@ require! './zooming': {paperZoom}
 require! './history': {History}
 require! './canvas-control': {canvas-control}
 require! './aecad-methods'
+require! './import-export'
+require! '../tools/lib/get-aecad': {get-aecad}
 
-export class PaperDraw implements canvas-control, aecad-methods
+export class PaperDraw implements canvas-control, aecad-methods, import-export
     @instance = null
     (opts={}) ->
         # Make this class Singleton
         return @@instance if @@instance
         @@instance = this
+
+        # ref
+        on-zoom-change = ->
 
         if opts.canvas
             @canvas = opts.canvas
@@ -45,7 +50,8 @@ export class PaperDraw implements canvas-control, aecad-methods
 
             # zooming
             $ @canvas .mousewheel (event) ~>
-                paperZoom @_scope, event
+                paperZoom @_scope, event, ~>
+                    on-zoom-change ...arguments
                 @ractive.update \pcb.view.zoom
                 @update-zoom-subs!
 
@@ -60,18 +66,27 @@ export class PaperDraw implements canvas-control, aecad-methods
                 selected = items.0
                 return unless selected
                 #console.log "Displaying properties of ", selected
-                if selected.item?getPath?!
-                    selected = that
-                @ractive.set \aecadData, (selected.data?aecad or {})
+                if aeobj=(selected.aeobj)
+                    #console.log "selected item's data: ", aeobj.data
+                    #console.log "selected item's owner's data: ", aeobj.owner.data
+                    @ractive.set \aecadData, aeobj.data
+                    if aeobj.parent
+                        @ractive.set \aecadOwnerData, aeobj.owner.data
+                else
+                    # hit is *probably* a trace part (a Curve of a Path)
+                    if selected.item?getPath?!
+                        selected = that
+                    @ractive.set \aecadData, (selected.data?aecad or {})
 
             ..on \cleared, ~>
                 @ractive.set \aecadData, {}
+                @ractive.set \aecadOwnerData, {}
 
         # visual logger
         @vlog = new VLogger @ractive
 
         @history = new History {
-            @project, @selection, @ractive, name: "sketcher", @vlog
+            @project, @selection, @ractive, name: "sketcher", @vlog, parent: this
         }
         # try to load if a project exists
         @history.load!
@@ -88,11 +103,53 @@ export class PaperDraw implements canvas-control, aecad-methods
 
         move = {}
         pan-style = \speed-drag
+        speed-drag =
+            inactive: 1.5 # inactive radius
+
+        /* Use this marker to debug speed-drag mode * /
+        marker-width = 1
+        marker = new @Shape.Circle do
+            point: @view.center
+            radius: 5
+            stroke-width: marker-width
+            opacity: 0.8
+            stroke-color: 'yellow'
+            data: {+tmp}
+        /* */
+
+        on-zoom-change = (offset, newZoom, viewPosition) ~>
+            if move.grab-point
+                gg = @view.projectToView that
+            @view.center = @view.center.add offset
+            @view.zoom = newZoom
+            if move.grab-point
+                move.grab-point = @view.viewToProject gg
+
         @_scope.view
             ..onFrame = (event) ~>
+                if event.count % 2 is 0
+                    # skip half of frames
+                    return
                 if move.speed and move.pan
-                    @_scope.view.center = @_scope.view.center.add move.speed
-                    move.grab-point.set move.grab-point.add move.speed
+                    speed-val = 30
+                    coeff = @view.zoom / speed-val
+                    dead-radius = (speed-drag.inactive / coeff)
+                    if (move.speed.length * @view.zoom) > dead-radius
+                        ratio = dead-radius / move.speed.length / @view.zoom
+                        if ratio > 1
+                            ratio = 1
+                        dead-vect = move.speed.multiply (ratio)
+                        marker?radius = speed-drag.inactive * speed-val / @view.zoom
+                        marker?.stroke-width = marker-width / @view.zoom
+                        speed = move.speed.subtract(dead-vect) .multiply coeff
+                        #console.log "speed len: ", speed.length, "dead radius: ", dead-radius, "move-speed:", move.speed.length
+                        @view.center = @view.center.add speed
+                        move.grab-point
+                            ..set ..add speed
+                        @ractive.get 'pointer'
+                            ..set ..add speed
+                        @ractive.update 'pointer'
+                    marker?.position = move.grab-point
 
             ..onMouseMove = (event) ~>
                 if move.pan
@@ -107,80 +164,57 @@ export class PaperDraw implements canvas-control, aecad-methods
                     | \speed-drag =>
                         # speed based panning
                         unless move.grab-point?
+                            #console.log "global grab point is: ", event.point, move.grab-point
                             move.grab-point = event.point
-
-                        move.speed = event.point.subtract move.grab-point .divide(20)
-
-                        # set pan speed to zero if it's too slow
-                        if @_scope.view.zoom * move.speed.length < 0.5
-                            move.speed = null
-                        #console.log "Move speed is: ", move.speed?.length
+                        move.speed = (event.point.subtract move.grab-point).divide(@view.zoom)
 
                 @ractive.set \pointer, event.point
 
             ..onKeyDown = (event) ~>
-                # Press Esc to cancel a move
+                #console.log "Pressed key: ", event.key, event.modifiers
+
                 switch event.key
                 | \delete =>
                     # delete an item with Delete key
                     @history.commit!
                     @selection.delete!
+                    @ractive.fire \calcUnconnected  # TODO: Unite this action
                 | \z =>
                     if event.modifiers.control
                         @history.back!
+                        @ractive.fire \calcUnconnected  # TODO: Unite this action
 
-                | \alt =>
+                | \meta =>
                     unless event.modifiers.control
                         #console.log "global pan mode enabled."
                         move.pan = yes
-                        unless move.pan-locked
-                            move.prev-cursor = if pan-style is \drag-n-drop
-                                @cursor \grabbing
-                            else
-                                @cursor \all-scroll
+                        if move.pan-locked
+                            PNotify.info do
+                                text: "Joystick mode disabled"
+                                addClass: 'nonblock'
+
                         move.direction = null
                         move.pan-lock0 = move.pan-lock or 0
                         move.pan-lock = Date.now!
                         #console.log "pan lock diff: ", (move.pan-lock - move.pan-lock0)
 
-            ..onMouseDown = (event) ~>
-                if move.pan
-                    #console.log "global pan mode disabled."
-                    move.grab-point = null
-                    move.pan = null
-                    move.speed = null
-                    move.pan-locked = null
-                    @cursor move.prev-cursor
-
             ..onKeyUp = (event) ~>
                 switch event.key
-                | \alt, \escape =>
-                    if (move.pan-lock - move.pan-lock0) > 300ms or (event.key is \escape)
+                | \meta =>
+                    if (move.pan-lock - move.pan-lock0) > 300ms
                         if move.pan
                             #console.log "global pan mode disabled."
                             move.grab-point = null
                             move.pan = null
                             move.speed = null
                             move.pan-locked = null
-                            @cursor move.prev-cursor
                     else
                         move.pan-locked = true
+                        PNotify.info do
+                            text: "Joystick mode enabled. \nPress meta to disable."
+                            addClass: 'nonblock'
 
-    export-svg: ->
-        old-zoom = @view.zoom
-        @view.zoom = 1
-        svg = @project.exportSVG do
-            asString: true
-            bounds: 'content'
-        @view.zoom = old-zoom # for above workaround
-        return svg
 
-    export-json: ->
-        old-zoom = @view.zoom
-        @view.zoom = 1
-        json = @project.exportJSON!
-        @view.zoom = old-zoom # for above workaround
-        return json
 
     on-zoom: (handler) ->
         # normalize the source values according to zoom value and pass them

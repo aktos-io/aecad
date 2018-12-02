@@ -6,13 +6,15 @@ require! 'aea': {create-download}
 require! 'aea/do-math': {mm2px}
 require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
+require! '../../tools/lib/schema/tests': {schema-tests}
+require! 'diff': jsDiff
 
 {text2arr} = tool-lib
 {keys, values, map, filter, find} = prelude-ls
 
 export init = (pcb) ->
     # Modules to be included into dynamic scripts
-    modules = {aea, lib, lsc, PaperDraw, mm2px}
+    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
@@ -68,8 +70,9 @@ export init = (pcb) ->
                 insert-dep ..
 
             # append actual code
-            unless (@get \scriptName).starts-with 'lib' # prevent duplicate inclusion
-                ordered.push {name: @get('scriptName'), src: code}
+            if @get \scriptName
+                unless that.starts-with 'lib' # prevent duplicate inclusion
+                    ordered.push {name: @get('scriptName'), src: code}
 
             output = []
             for ordered
@@ -79,7 +82,7 @@ export init = (pcb) ->
 
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
-            js = lsc.compile whole-src, {+bare, -header}
+            js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
             compiled = yes
         catch err
             @set \output, "Compile error: #{err.to-string!}"
@@ -95,19 +98,40 @@ export init = (pcb) ->
                     layer.clear!
 
                 #console.log "Added global modules: ", keys modules
-                func = new Function ...(keys modules), js
+                func = new Function ...(keys modules), js.code
                 func.call pcb, ...(values modules)
                 #pcb._scope.execute js
+
+                name = opts.name or @get \scriptName
+                unless opts.silent
+                    PNotify.info do
+                        text: """
+                            Script: #{name}
+                            """
+                        addClass: 'nonblock'
+
             catch
                 @set \output, "ERROR: \n\n" + (@get 'output') + "#{e}"
                 @get \vlog .error do
                     title: 'Runtime Error'
                     message: e
-                #throw e
-                console.error e
+                console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
+                # See https://github.com/ceremcem/aecad/issues/8
 
     # Register all classes on app load
-    runScript '# placeholder content', {-clear}
+    runScript '# placeholder content', {-clear, name: 'Initialization run', +silent}
+
+    # perform tests
+    schema-tests (err) ->
+        unless err
+            PNotify.success text: "All schema tests are passed."
+        else
+            PNotify.error hide: no, text: """
+                Failed Schema test: #{err.test-name}
+
+                #{err.message or 'Check console'}
+                """
+            console.error err
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile
@@ -264,7 +288,20 @@ export init = (pcb) ->
                 return
 
             pcb.history.reset-script-diffing!
-            @get \vlog .info "Done, reload your window."
+            @get \vlog .info "Done, reload your window. \n\n (TODO: reload shouldn't be needed)"
 
+        showDiff: (ctx, name) ->
+            try
+                {remote, current} = (@get "drawingLsUpdates")[name]
+            catch
+                PNotify.error text: "No such diff (#{name}) found."
+                return
+
+            sdiff_ = jsDiff.structuredPatch(name, "#{name} (server)", current, remote, "local", "server")
+            console.log "scripting: diff: ", sdiff_
+            @get \vlog .info do
+                template: RACTIVE_PREPARSE('./diff.pug')
+                data:
+                    diff: sdiff_
 
     return handlers

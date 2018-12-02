@@ -34,6 +34,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             handlers <<< part
 
         @on handlers
+        pcb.view.center = [0,0]
         @fire 'fitAll'
 
     computed:
@@ -48,6 +49,7 @@ Ractive.components['sketcher'] = Ractive.extend do
         selectAllLayer: no
         selectGroup: yes
         drawingLs: scripts
+        scriptName: 'schematic-test'
         scriptHashes: do ->
             s = {}
             for k, v of scripts

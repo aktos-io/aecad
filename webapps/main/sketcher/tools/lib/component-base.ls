@@ -1,42 +1,117 @@
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! '../../kernel': {PaperDraw}
+require! './get-aecad': {get-aecad}
+require! './get-class': {get-class}
+require! 'aea': {merge, clone}
+require! './lib': {prefix-keypath, get-rev}
+require! './component-manager': {ComponentManager}
+require! './schema': {SchemaManager}
 
-# basic methods that every component should have
+
+# Basic methods that every component should have
+# -----------------------------------------------
 export class ComponentBase
-    ->
+    (data, overrides) ->
         @scope = new PaperDraw
         @ractive = @scope.ractive
+        @manager = new ComponentManager
+            ..register this
+        @_schema_manager = new SchemaManager
+        @pads = []
+        @_next_id = 1 # will be used for enumerating pads
+        # declare Pad.left, Pad.top, ...
+        for <[ left right top bottom center ]>
+            Object.defineProperty @, .., do
+                get: ~> @g.bounds[..]
 
-        @resuming = @init-with-data arguments.0
+        @overrides = overrides or {}
+        if init=data?init
+            # initialize by provided item (data)
+            @resuming = yes     # flag for sub-classers
+            if init.parent      # must be an aeCAD obect
+                @parent = that
+                    ..add this  # Register to parent
+
+            @g = init.item
+
+            for @g.children
+                #console.log "has child"
+                if ..data?.aecad?.part
+                    # register as a regular drawing part
+                    @[that] = ..
+                else
+                    # try to convert to aeCAD object
+                    unless get-aecad .., this
+                        # if failed, try to load by provided loader
+                        @_loader ..
+        else
+            # create from scratch
+            {Group} = new PaperDraw
+            if data?parent
+                @parent = data?.parent
+                delete data.parent      # Prevent circular reference errors
+
+            @g = new Group do
+                applyMatrix: no         # Insert further items relatively positioned
+                parent: @parent?g
+
+            # Set type to implementor class' name
+            @type = @@@name
+
+            # Merge data with existing one
+            @merge-data '.', data
+
+            # Auto register to parent if provided
+            @parent?.add this
+
+            # Save creator class' rev information
+            if rev = get-rev @@@
+                #console.log "Creating a new #{@@@name}, registering rev: #{rev}"
+                @set-data 'rev', rev
+
+            # perform the actual drawing
+            unless data?.silent
+                @create(@_data)
+
+    create: (data) ->
+        # Footprint will be created at this step.
+
+    remove: ->
+        @g.remove!
+
+    type: ~
+        -> @get-data 'type'
+        (val) -> @set-data 'type', val
+
+    _loader: (item) ->
+        console.warn "How do we load the item in #{@@@name}: ", item
 
     set-data: (keypath, value) ->
-        set-keypath @g.data.aecad, keypath, value
+        _keypath = prefix-keypath 'aecad', keypath
+        set-keypath @g.data, _keypath, value
 
     get-data: (keypath) ->
-        get-keypath @g.data.aecad, keypath
+        _keypath = prefix-keypath 'aecad', keypath
+        get-keypath @g.data, _keypath
 
     toggle-data: (keypath) ->
         @set-data keypath, not @get-data keypath
 
-    add-data: (keypath, value) ->
+    add-data: (keypath, value, fn) ->
         curr = (@get-data keypath) or 0 |> parse-int
-        set-keypath @g.data.aecad, keypath, curr + value
+        new-val = curr + value
+        if typeof! fn is \Function
+            new-val = fn(new-val)
+        @set-data keypath, new-val
+
+    merge-data: (keypath, value) ->
+        if value and typeof! value is \Object
+            curr = @get-data(keypath) or {}
+            curr `merge` value
+            @set-data keypath, curr
 
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
-
-    init-with-data: (first-arg) ->
-        # detect if the component is initialized with
-        # initialization data or being created from scratch
-        #
-        # Format:
-        #   {
-        #     init:
-        #       item: Paper.js item
-        #       parent: parent Component (optional)
-        #   }
-        if first-arg and \init of first-arg
-            return first-arg.init
 
     print-mode: (layers, our-side) ->
         # layers: [Array] String array indicates which layers (sides)
@@ -48,11 +123,11 @@ export class ComponentBase
         console.warn "Print mode requested but no custom method is provided."
 
     _loader: (item) ->
-        # loader method for non-aecad objects
-        console.warn "Item is not aeCAD object, how do we load this:", item
+        # custom loader method for non-standard items
+        console.warn "#{@@@name} has a stray item: How do we rehydrate this?:", item
 
     get: (query) ->
-        console.warn "NOT IMPLEMENTED: Requested a query: ", query
+        console.error "NOT IMPLEMENTED: Requested a query: ", query
 
     position: ~
         -> @g.position
@@ -62,11 +137,29 @@ export class ComponentBase
         -> @g.bounds
         (val) -> @g.bounds = val
 
+    grotation: ~
+        ->  (@owner.get-data('rotation') or 0) % 360
+
+    gbounds: ~
+        # Global bounds
+        ->
+            # Workaround for getting global bounds of @g
+            r = new @scope.Path.Rectangle rectangle: @g.bounds
+                ..rotate @grotation
+                ..position = @gpos
+            bounds = r.bounds.clone!
+            r.remove!
+            return bounds
+
     selected: ~
         -> @g.selected
         (val) -> @g.selected = val
 
     g-pos: ~
+        ->  # TODO: add deprecation message here
+            @gpos
+
+    gpos: ~
         # Global position
         ->
             # TODO: I really don't know why ".parent" part is needed. Find out why.
@@ -74,3 +167,87 @@ export class ComponentBase
 
     name: ~
         -> @get-data \name
+
+    owner: ~
+        ->
+            _owner = this
+            for to 100
+                if _owner.parent
+                    _owner = _owner.parent
+                else
+                    break
+            return _owner
+
+    nextid: ->
+        @_next_id++
+
+    pedigree: ~
+        ->
+            res = []
+            l = @__proto__
+            for to 100
+                l = l.__proto__
+                if l@@name is \Object
+                    break
+                res.push l
+            {names: res.map (.@@name)}
+
+    trigger: !->
+        # trigger an event for children
+        for @pads
+            ..on ...arguments
+
+    on: !->
+        # propagate the event to the children by default
+        for @pads
+            ..on ...arguments
+
+    add-part: (part-name, item) ->
+        set-keypath item.data, "aecad.part", part-name
+
+    schema: ~
+        -> @_schema_manager.active
+
+    tmp-marker: (point, opts={}) ->
+        # will be used for debugging purposes
+        console.warn "Placing a tmp marker to:", point, "opts: ", opts
+        new @scope.Path.Circle {
+            center: point
+            data: {+tmp}
+            radius: opts.r or opts.radius or 1
+            fill-color: opts.color or 'yellow'
+            opacity: 0.8
+        }
+
+    side: ~
+        # eg. F.Cu, B.Cu
+        -> @owner.get-data 'side' or @get-data \side
+
+    _data: ~
+        # merged data of both instance data and pedigree classes' overwrites
+        -> clone(@data) `merge` @overrides
+
+    data: ~
+        -> @get-data('.') or {}
+
+    upgrade: (opts={}) ->
+        #console.log "curr data: ", @data
+        /*
+            data = clone(@data) `merge` opts
+        */
+        data = clone @data
+        for k of data
+            # only below properties are dynamically set, others
+            # are from class definition. < FIXME: data shouldn't contain
+            # properties from class definition, it should only contain instance
+            # specific data
+            if k in <[ name rotation side type ]>
+                continue
+            delete data[k]
+        data `merge` opts
+        comp = new (get-class data.type) data
+        comp.g.position = @g.position
+        @remove!
+        @schema.compile!
+        return comp
+        #new @constructor @parent, (opts `merge` opts)

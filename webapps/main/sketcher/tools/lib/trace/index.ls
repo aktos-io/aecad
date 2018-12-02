@@ -9,7 +9,7 @@ require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
 require! '../get-aecad': {get-parent-aecad, get-aecad}
-require! '../schema': {SchemaManager}
+require! './end'
 
 /* Trace structure:
     data:
@@ -25,24 +25,17 @@ require! '../schema': {SchemaManager}
 */
 
 
-export class Trace extends Container implements follow, helpers
+export class Trace extends Container implements follow, helpers, end
     (data) ->
         @paths = [] # used by @_loader
         super ...
 
-        if @init-with-data arguments.0
-            # initialize with provided data
-            null # no special action needed
-        else
+        unless @resuming
             # initialize from scratch
-            @data =
-                type: @constructor.name
-                tid: shortid.generate!
+            @set-data 'tid', shortid.generate!
+            @routes = [[]]
 
-            @data <<<< data
-            @g.data = aecad: @data
-
-        @schema = new SchemaManager!
+        # common actions
         @line = null
         @modifiers = {}
         @prev-hover = []
@@ -52,6 +45,9 @@ export class Trace extends Container implements follow, helpers
         @corr-point = null # correcting point
         @vias = []
         @tolerance = 10
+
+    tid: ~
+        -> @get-data \tid
 
     moving-point: ~
         # point that *tries* to follow the pointer (might be currently snapped)
@@ -63,14 +59,17 @@ export class Trace extends Container implements follow, helpers
             a = if @corr-point? => 1 else 0
             @line?.segments[* - 2 - a].point
 
-    connect: (hit) ->
-        # connect to an already existing trace
-        {item, tid} = get-parent-aecad hit.item
-        tid = get-tid item
-        if tid and tid isnt @get-data \tid
-            console.log "we hit a trace: item: ", item
-            return get-aecad item
-        return false
+    trigger: ->
+        @on ...
+
+    on: (event, ...args) ->
+        switch event
+        | 'focus' =>
+            for @paths
+                if ..data.aecad.side is args.0
+                    ..opacity = 1
+                else
+                    ..opacity = 0.4
 
     print-mode: (layers) ->
         super ...
@@ -80,6 +79,7 @@ export class Trace extends Container implements follow, helpers
                 ..remove!
             else
                 ..stroke-color = 'black'
+                ..opacity = 1
 
         # TODO: find a proper way to bring drill holes front
         for @pads
@@ -87,55 +87,6 @@ export class Trace extends Container implements follow, helpers
 
     _loader: (item) ->
         @paths.push item
-
-    reduce: (line) !->
-        to-be-removed = []
-        last-index = line.segments.length - 1
-        for i in [til last-index]
-            if line.segments[i].point.isClose line.segments[i + 1].point, 1
-                seg-index = i
-                if seg-index is 0
-                    console.log "we won't reduce first segment!"
-                    if seg-index + 1 is last-index
-                        console.log "...but we don't have a choice as segment index:", last-index
-                    else
-                        seg-index += 1
-                if seg-index is last-index
-                    console.log "we won't reduce last segment!"
-                    if seg-index <= 1
-                        console.log "...but we don't have a choice as segment index:", last-index
-                    else
-                        seg-index -= 1
-                to-be-removed.push seg-index
-        for i, s of to-be-removed
-            line.segments[s - i].remove!
-
-    end: ->
-        if @line
-            # remove moving point
-            @line.removeSegment (@line.segments.length - 1)
-            if @corr-point
-                @line.removeSegment (@line.segments.length - 1)
-                @corr-point = null
-            @line.selected = no
-
-            if @line.segments.length is 1
-                @line.remove!
-
-            @reduce @line
-            @schema.curr?.guide-all!
-
-        unless @g.hasChildren()
-            console.log "empty trace, removing"
-            @g.remove!
-        else
-            #@g.bounds.selected = true
-            void
-
-        @line = null
-        @removed-last-segment = null
-        @remove-helpers!
-        @vias.length = 0
 
     continues: ~
         -> @line?
@@ -179,65 +130,120 @@ export class Trace extends Container implements follow, helpers
                 ..item.selected = yes
                 @prev-hover.push ..item
 
+    netid: ~
+        -> "#{(@get-data \netid) or ''}"
+        (val) -> @set-data \netid, "#{val}"
+
+    net: ~
+        ->
+            # list of pads which this trace is related with
+            @schema?connection-list[@netid] or []
+
+    clear-guides: ->
+        # Clear highlighting targets
+        for @net
+            ..selected = false
+
+    show-guides: ->
+        # Highlight possible target pads
+        for @net
+            ..selected = true
+
     add-segment: (point, flip-side=false) !->
         if @paused
             console.log "not adding segment as tracing is paused"
             return
 
-        @schema.curr?.clear-guides!
-        # Check if we should snap to the hit point
-        hits = @scope.hitTestAll point, {
-            tolerance: 1,
-            -aecad # in order to prevent scope.on-zoom subscription leak
-        }
-        snap = point.clone! # use the event point as is
-        actaul-hit = null
-        for hit in hits
-            #console.log "trace hit to: ", hit
+        unless @continues
+            @scope.selection.clear!
+            snap = point.clone! # use the event point as is
+        else
+            snap = @moving-point
 
-            # hit only pads
-            _item = hit.item
-            is-pad = no
-            for to 100
-                if _item.data?aecad?type is \Pad
-                    is-pad = yes
-                    break
-                break unless _item.parent
-                break if _item.parent.getClassName! is \Layer
-                _item = _item.parent
-            continue unless is-pad
-            # end of pad hit
-
-            if hit.segment
-                console.log "snapping to segment: ", hit.segment
-                snap = hit.segment.point.clone!
-
-                # debug point
-                new @scope.Shape.Circle do
-                    fill-color: 'yellow'
-                    radius: 0.5
-                    opacity: 0.5
-                    center: snap
-                    data: {+tmp}
-                    selected: true
-
-            else if hit.location
-                # this is a curve, use nearest point on path
-                console.log "snapping to curve: ", hit.location
-                snap = that.path.getNearestPoint point.clone!
-            else
-                # this is an item (pad, etc.)
-                console.log "snapping to item: ", hit.item
-                snap = hit.item.bounds.center.clone!
-            actual-hit = hit
-            break
-
-        unless @continues or actual-hit
-            console.warn "Not a pad, won't connect"
+        if @line?segments.length > 2 and snap.isClose @line.segments[*-2].point, 0.1
+            console.warn "Skipping: too close segments.", Date.now!
             return
-        #console.log "Actual hit is: ", actual-hit
-        if actual-hit?item
-            snap = that.parent.localToGlobal(snap)
+
+        # Check if we should snap to the hit point
+        curr-layer = @ractive.get('currLayer')
+        hits = @scope.hitTestAll snap, {
+            tolerance: 1,
+            exclude: @g
+            filter: (hit) ~>
+                if hit.item.data?aecad?side is curr-layer
+                    return true
+                aeobj=(get-aecad hit.item)
+                if aeobj
+                    return aeobj.side-match?(curr-layer)
+                console.log "won't hit to item on different layer: ", hit, aeobj
+                return false
+        }
+        reached-target = no
+        target = null
+        valid-hit = null
+        for hit in hits
+            unless target
+                target = hit.aeobj
+                valid-hit = hit # for trace to trace connections
+            else
+                PNotify.notice text: "Multiple hits? (See console)"
+                console.warn "Multiple hits on trace start:", hit
+
+        unless @continues
+            unless target
+                @scope.cursor \not-allowed
+                sleep 300ms, ~> @scope.restore-cursor!
+                console.warn "Not a pad, won't connect"
+                return
+
+        if target
+            unless target.netid
+                @scope.vlog.error """
+                    We can't connect to an object that has
+                    no "netid" property.
+
+                    1. Did you compile your schema?
+
+                    2. Does this pad seem to connectable?
+                    """
+                return
+
+            unless @netid
+                @netid = target.netid
+            if @netid isnt target.netid
+                PNotify.notice do
+                    text: """
+                        We can't connect to a different netid:
+                        Expected: #{@netid}, got: #{target.netid}
+                        """
+                return
+            console.log "Connected to netid: #{@netid}"
+
+            switch target.type
+            | 'Trace' =>
+                # No special action is needed
+                hit = valid-hit
+                if hit.segment
+                    console.log "snapping to segment: ", hit.segment
+                    snap = hit.segment.point.clone!
+                else if hit.location
+                    # this is a curve, use nearest point on path
+                    console.log "snapping to curve: ", hit.location
+                    snap = that.path.getNearestPoint point.clone!
+                else
+                    # this is an item (pad, etc.)
+                    console.log "snapping to item: ", hit.item
+                    snap = hit.item.bounds.center.clone!
+            | 'Pad' =>
+                # Snap to this pad
+                snap = target.gpos
+            # auto-end the trace when we reached to a target
+            if @continues
+                reached-target = yes
+            @show-guides!
+        else
+            # we are placing a trace segment (vertex), no-hit is normal.
+            # leave snap as is
 
         new-trace = no
         if not @line or flip-side
@@ -251,7 +257,7 @@ export class Trace extends Container implements follow, helpers
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
 
-            @line = new @scope.Path(snap.clone!)
+            @line = new @scope.Path(snap)
                 ..strokeColor = curr.layer.color
                 ..strokeWidth = curr.trace.width |> mm2px
                 ..strokeCap = 'round'
@@ -260,50 +266,41 @@ export class Trace extends Container implements follow, helpers
                 ..data.aecad =
                     side: curr.layer.name
                 ..parent = @g
+                ..send-to-back! # send trace parts below to via's
 
-            @line.add snap.clone!
+            @line.add snap
 
             if new-trace
-                @set-helpers snap.clone!
-            @update-helpers snap.clone!
-
-            /* for debugging purposes:
-            new @scope.Shape.Circle do
-                fill-color: 'yellow'
-                radius: 0.1
-                center: snap.clone!
-                data: {+tmp}
-            */
-
-            # Paper.js bug: above @line doesn't start in
-            # `snap` point
-            sleep 300ms, ~>
-                @line?.firstSegment.point.set snap
+                @set-helpers snap
+            @update-helpers snap
 
         else
-            console.log "about to update helpers"
-            @update-helpers (@moving-point)
-            console.log "helpers updated"
-            @line.add (@moving-point)
+            @update-helpers snap
+            @line.add snap
 
         @commit-corr-point!
+
+        if reached-target
+            @end target
+
 
     add-via: ->
         outer-dia = @ractive.get \currTrace.via.outer
         inner-dia = @ractive.get \currTrace.via.inner
 
-        via = new Pad this, do
+        via = new Pad do
             dia: outer-dia
             drill: inner-dia
             color: \orange
+            parent: this
 
         via.g.position = @moving-point
 
         # Toggle the layers
         # TODO: make this cleaner
-        @ractive.set \currLayer, switch @ractive.get \currLayer
-        | 'F.Cu' => 'B.Cu'
-        | 'B.Cu' => 'F.Cu'
+        <~ @ractive.fire \switchLayer, {}, switch @ractive.get \currLayer
+            | 'F.Cu' => 'B.Cu'
+            | 'B.Cu' => 'F.Cu'
         @add-segment @moving-point, flip-side=true
 
     set-modifiers: (modifiers) ->

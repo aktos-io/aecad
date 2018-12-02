@@ -13,10 +13,12 @@ changeZoomPointer = (oldZoom, delta, c, p) ->
   a = p.subtract(pc.multiply(beta)).subtract c
   [newZoom, a]
 
-export paperZoom = (scope, jQEvent) ->
+export paperZoom = (scope, jQEvent, handler) ->
     mousePosition = new scope.Point jQEvent.offsetX, jQEvent.offsetY
     viewPosition = scope.view.viewToProject(mousePosition)
     [newZoom, offset] = changeZoomPointer scope.view.zoom, jQEvent.deltaY, scope.view.center, viewPosition
-    scope.view.zoom = newZoom
-    scope.view.center = scope.view.center.add offset
+    #scope.view.center = scope.view.center.add offset
+    #scope.view.zoom = newZoom
+    if handler
+        handler(offset, newZoom, viewPosition, mousePosition)
     jQEvent.preventDefault()

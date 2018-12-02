@@ -1,32 +1,9 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! './get-aecad': {get-aecad}
+require! 'prelude-ls': {find}
 
 export class Container extends ComponentBase
-    (data) ->
-        @pads = []
-        super ...
-        {Group} = new PaperDraw
-
-        if @init-with-data arguments.0
-            #console.log "Container init:", init
-            data = that
-            @g = data.item
-            data.parent?add this # register to parent if provided
-            for @g.children
-                #console.log "has child"
-                unless get-aecad .., this
-                    @_loader ..
-        else
-            # create main container
-            @g = new Group do
-                applyMatrix: no
-                parent: data?parent?g
-                data:
-                    aecad:
-                        type: @constructor.name
-            data?parent?add?(this)
-
     color: ~
         (val) ->
             for @pads
@@ -39,11 +16,14 @@ export class Container extends ComponentBase
             ..print-mode ...args
 
     add: (item) !->
-        @pads.push item
+        if find (.cid is item.cid), @pads
+            throw new Error "Tried to add duplicate child, check: #{item@@name} or #{item.pedigree.names.join ', '}."
+        else
+            @pads.push item
 
-    rotate: (angle) ->
+    rotate: (angle, opts={}) ->
         # rotate this item and inform children
-        @add-data \rotation, angle
+        @add-data \rotation, angle, (% 360)
         @g.rotate angle
         for @pads
             ..rotated? angle
@@ -88,12 +68,23 @@ export class Container extends ComponentBase
             #console.log "color of #{curr-side} is #{layer-color}"
             @color = layer-color
 
-
     get: (query) ->
         '''
-        Collects sub query results and returns them
+        Collect sub query results and return them
         '''
         res = []
         for pad in @pads
             res ++= pad.get query
+
+        # Precaution for alpha stage of aeCAD
+        for i1, r1 of res
+            for i2, r2 of res when i2 > i1
+                if r1.uname is r2.uname
+                    console.error "..........we are reporting duplicate pads!", (res.map (.uname) .join ', ')
+                    console.log r1, r2
+        # end of precaution
         res
+
+    on-move: ->
+        for @pads
+            ..on-move ...arguments
