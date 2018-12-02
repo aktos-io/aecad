@@ -1,0 +1,110 @@
+btn.icon.mini(
+    on-click="fitAll" 
+    tooltip="Fit all"
+    ): icon.world
+    
+
+radio-buttons#toolChanger(value="{{currTool}}") 
+    //- (on-select="changeTool")
+    .ui.mini.buttons
+        radio-button.icon(
+            default
+            tooltip="Select" 
+            value="sl"
+            )
+            icon.mouse.pointer
+        radio-button.icon(
+            tooltip="Trace route" 
+            value="tr"
+            )
+            icon.bars
+        radio-button.icon(
+            tooltip="Move" 
+            value="mv"
+            )
+            icon.arrows.alternate
+        radio-button.icon(
+            tooltip="Freehand tool" 
+            value="fh"
+            )
+            icon.pencil.alternate
+
++space
+.ui.buttons.mini 
+    //-
+        checkbox(
+            checked="{{selectGroup}}"
+            tooltip="Select the parent group"
+            ) G
+    
+    ack-button.icon(
+        on-click="groupSelected" 
+        tooltip="Group all selected items"
+        ): icon.object.group.outline        
+
++space
+.ui.mini.buttons 
+    +each('layers as val')
+        ack-button.icon(
+            on-click="sendTo"
+            to="{{@key}}" 
+            tooltip="Send selected component to {{@key}} Layer"
+            ): icon.paper.plane(class="{{val.color}}")
+
++space
+radio-buttons(on-select="switchLayer")
+    .ui.mini.buttons
+        radio-button.icon(
+            default value="F.Cu" 
+            true-color="red"
+            tooltip="Trace on F.Cu"
+            ) #[.ui.circular.red.mini.empty.label]
+        radio-button.icon(
+            value="B.Cu" 
+            true-color="green"
+            tooltip="Trace on B.Cu"
+            ) #[.ui.circular.green.mini.empty.label]
++space
+ack-button.mini.icon(
+    on-click="cleanupDrawing" 
+    tooltip="Cleanup drawing"): icon.erase
+
++space
+//-
+    ack-button.mini.icon(
+        on-click="explode" 
+        tooltip="Explode selected"): icon.bomb
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="saveBounds" 
+        tooltip="Save selection bounds coordinate"
+        ): icon.map.marker.alternate.blue
+
++space
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="moveToCenter" 
+        tooltip="Move selected to last saved coordinates"
+        ): icon.magnet.green
+
+    ack-button.icon(
+        on-click="measureDistance" 
+        tooltip="Measure Distance from last saved coordinates"
+        ): icon.ellipsis.vertical.green
+
++space
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="calcUnconnected"
+        tooltip="Unconnected count"
+        class="{{#if unconnectedCount}}red{{else}}green{{/if}}"
+        ) {{unconnectedCount}}/{{totalConnections}}
+        
++space
+ack-button.mini.icon(
+    on-click="upgradeComponents"
+    tooltip="Upgrade selected components"
+    ): icon.angle.double.up
+    
+div
+canvas#draw

@@ -1,14 +1,33 @@
+require! 'three': THREE
+require! 'aea': {create-download, VLogger}
+
 Ractive.components['webcad'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
-    on:
-        updateModel: (ctx) ->
-            btn = ctx.component
-            btn.state \doing
-            err, msg <~ ctx.actor.send-request \@occ-worker.updateModel, {script: @get \model}
-            if err
-                return btn.error err
-            console.log "Response: ", msg.data
-            btn.state \done...
+    onrender: ->
+        view = @find '#graphical_view'
+        vlog = new VLogger(this)
+        try
+            scene = new THREE.Scene()
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000 )
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize( 600, 600 )
+            view.appendChild( renderer.domElement )
+
+            loader = new THREE.JSONLoader();
+        catch
+            vlog.error e.message
+
+
+        @on do
+            updateModel: (ctx) ->
+                btn = ctx.component
+                btn.state \doing
+                err, msg <~ ctx.actor.send-request \@occ-worker.updateModel, {script: @get \model}
+                if err
+                    return btn.error err
+                console.log "FIXME: Response: ", msg.data
+                create-download "model.json", JSON.stringify msg.data.solids.0
+                btn.state \done...
 
     data:
         model: """

@@ -1,0 +1,44 @@
+            
+//- Global properties 
+table
+    tr
+        td x: {{pointer.x.toFixed(1)}}
+        td y: {{pointer.y.toFixed(1)}}
+    tr 
+        td Zoom 
+        td: input(value="{{pcb.view.zoom}}" style="max-width: 40px; overflow-x: hidden")
+    tr 
+        td Trace width
+        td: s-input(value="{{currTrace.width}}")            
+    tr 
+        td Signal T.
+        td: s-input(value="{{currTrace.signal}}" readonly)
+    tr 
+        td Power T.
+        td: s-input(value="{{currTrace.power}}" readonly)
+
+//- Property window 
+
+    Properties which starts with an underscore are hidden. 
+.ui.segments
+    h5.ui.top.attached.block.header Properties 
+    .ui.segment(style="padding: 2px")
+        table 
+            +each('aecadData as value')
+                +if('! @key.startsWith("_")') 
+                    tr
+                        td {{@key}}
+                        td: s-input(value="{{value}}")
+    +if('Object.keys(aecadOwnerData).length > 0')
+        .ui.segment(style="padding: 2px")
+            table 
+                +each('aecadOwnerData as value')
+                    +if('! @key.startsWith("_")')
+                        tr
+                            td {{@key}}
+                            td: s-input(value="{{value}}")
+                                               
+radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
+    .ui.buttons.vertical
+        +each('project.layers')
+            radio-button(value="{{@key}}") {{@key}}

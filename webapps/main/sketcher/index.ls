@@ -1,77 +1,83 @@
-require! paper
-require! 'aea': {create-download}
-require! './dxfToSvg': {dxfToSvg}
-require! 'svgson'
-require! 'dxf-writer'
-require! 'svg-path-parser': {parseSVG:parsePath, makeAbsolute}
-require! 'dxf'
+require! 'aea': {VLogger, hash}
+require! './kernel': {PaperDraw}
+require! './footprints/scripts'
 
 Ractive.components['sketcher'] = Ractive.extend do
     template: RACTIVE_PREPARSE('index.pug')
-    onrender: ->
+    onrender: (ctx) ->
+        # output container
         canvas = @find '#draw'
-        paper.setup canvas
-        path = new paper.Path();
-        path.strokeColor = 'black';
 
-        freehand = new paper.Tool!
-            ..onMouseDrag = (event) ~>
-                path.add(event.point);
+        # scope
+        pcb = new PaperDraw do
+            ractive: this
+            canvas: canvas
+            background: '#252525'
+            height: 400
 
-            ..onMouseDown = (event) ~>
-                path.add(event.point);
+        @set \pcb, pcb
 
-        @on do
-            exportSVG: (ctx) ~>
-                svg = paper.project.exportSVG {+asString}
-                create-download "myexport.svg", svg
+        # Visual Logger client
+        @set \vlog, new VLogger this
 
-            importSVG: (ctx, file, next) ~>
-                paper.project.clear!
-                <~ paper.project.importSVG file.raw
-                next!
+        # Initial layers
+        pcb.add-layer \scripting
+        pcb.use-layer \gui
 
-            importDXF: (ctx, file, next) ~>
-                # FIXME: Splines can not be recognized
-                svg = dxfToSvg file.raw
-                paper.project.clear!
-                paper.project.importSVG svg
-                next!
+        _handlers =
+            require './gui/scripting' .init.call this, pcb
+            require './gui/canvas' .init.call this, pcb
+            require './gui/project-control' .init.call this, pcb
 
-            importDXF2: (ctx, file, next) ~>
-                # FIXME: Implement conversion spline to arc
-                parsed = dxf.parseString file.raw
-                svg = dxf.toSVG(parsed)
-                paper.project.clear!
-                paper.project.importSVG svg
-                next!
+        handlers = {}
+        for part in _handlers
+            handlers <<< part
 
-            exportDXF: (ctx) ~>
-                svg = paper.project.exportSVG {+asString}
-                res <~ svgson svg, {}
-                json-to-dxf = (obj, drawer) ->
-                    switch obj.name
-                    | \path =>
-                        for attr, val of obj.attrs
-                            switch attr
-                            | \d =>
-                                walk = parsePath val |> makeAbsolute
-                                for step in walk
-                                    if step.command is \moveto
-                                        continue
-                                    else if step.code in <[ l L h H v V Z ]> =>
-                                        drawer.drawLine(step.x0, -step.y0, step.x, -step.y)
-                                    else
-                                        console.warn "what is that: ", step.command
+        @on handlers
+        pcb.view.center = [0,0]
+        @fire 'fitAll'
 
-                    if obj.childs?
-                        for child in obj.childs
-                            json-to-dxf child, drawer
+    computed:
+        currProps:
+            get: ->
+                layer = @get('currLayer')
+                layer-info = @get('layers')[layer]
+                layer-info.name = layer
+                layer-info
+    data: ->
+        autoCompile: no
+        selectAllLayer: no
+        selectGroup: yes
+        drawingLs: scripts
+        scriptName: 'schematic-test'
+        scriptHashes: do ->
+            s = {}
+            for k, v of scripts
+                s[k] = hash v
+            return s
+        layers:
+            'F.Cu':
+                color: 'red'
+            'B.Cu':
+                color: 'green'
+            'Edge':
+                # appears both sides
+                color: 'orange'
+        project:
+            # logical layers
+            layers: {}
+            name: 'Project'
 
-                drawing = new dxf-writer!
-                json-to-dxf res, drawing
-                dxf-out = drawing.toDxfString!
-                create-download "export.dxf", dxf-out
-
-            clear: (ctx) ~>
-                paper.project.clear!
+        activeLayer: 'gui'
+        currLayer: 'F.Cu'
+        currTrace:
+            width: 0.2mm # default width, temporary
+            clearance: 0.2mm
+            power: 0.4mm
+            signal: 0.2mm
+            via:
+                outer: 1.5mm
+                inner: 0.5mm
+        pointer: # mouse pointer coordinates
+            x: 0
+            y: 0

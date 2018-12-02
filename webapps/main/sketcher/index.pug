@@ -1,16 +1,14 @@
-.ui.grid
-    .row
-        .column
-            .ui.buttons 
-                file-button(on-read="importSVG" type="text") Import SVG
-                btn(on-click="exportSVG") Export SVG
-                
-            .ui.buttons
-                file-button(on-read="importDXF" type="text") Import DXF
-                file-button(on-read="importDXF2" type="text") Import DXF (2)
-                
-                btn(on-click="exportDXF") Export DXF
-                
-            btn.red(on-click="clear") Clear
-    .row
-        canvas#draw(resize)
+include ./gui/project-control/index.pug
+
+div(style="padding: 20px")
+    .ui.grid
+        .row
+            .two.wide.column 
+                include ./gui/tree-view/index.pug
+            .fourteen.wide.column
+                .ui.stackable.grid 
+                    .row 
+                        .nine.wide.column 
+                            include ./gui/canvas/index.pug
+                        .seven.wide.column 
+                            include ./gui/scripting/index.pug

@@ -1,0 +1,51 @@
+//-.ui.input: input(value="{{scriptName}}")
+
+.ui.mini.buttons 
+    btn.icon(on-click="clearScriptLayer" tooltip="Clear Output"): icon.eraser 
+    checkbox(checked="{{autoCompile}}" tooltip="Auto Compile")
+    btn.green.icon(on-click="compileScript" tooltip="Compile"): icon.play
+    
++space
+dropdown(
+    object-data="{{drawingLs}}" 
+    selected-key="{{scriptName}}" 
+    on-select="scriptSelected")
+//- no need for this?
+    btn.mini(
+        on-click="@.set('scriptName', null)" 
+        tooltip="Clear selection"
+        ) ×
+    
+
++space 
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="['showDiff', scriptName]"
+        tooltip="Show diff with remote version"
+        class="{{#if drawingLsUpdates[scriptName]}}orange{{else}}disabled{{/if}}"
+        ): icon.sticky.note.outline(add="top left corner asterisk")
+    ack-button.icon(
+        on-click="newScript" 
+        tooltip="New script"
+        ): icon.file.alternate(add="top left corner add")
+    ack-button.icon(
+        on-click="removeScript" 
+        tooltip="Delete current script"
+        enabled="{{scriptName}}"
+        ): icon.trash 
+    ack-button.icon(
+        on-click="downloadScripts" 
+        tooltip="Download all scripts"
+        ): icon.download 
+    ack-button.icon(
+        on-click="restartDiff" 
+        tooltip="Restart scripts diff tracking (safe action)"
+        ): icon.undo
+    
+//-
+    div
+        ol
+            +each('Object.keys(drawingLs)')
+                li {{.}}
+ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%")
+pre {{output}}

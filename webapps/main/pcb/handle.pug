@@ -1,0 +1,12 @@
+//-text(x="0" y="15" fill="red") pos: {{position.left}} {{position.top}}
+circle(
+    as-trace="'position'"
+    cx="{{x}}mm" 
+    cy="{{y}}mm" 
+	r="1mm" 
+    fill="blue")
+    
+path(
+    d="M{{x/0.26}} {{y/0.26}} L{{position.left}} {{position.top}}" 
+    stroke-width="3" 
+    stroke="green")

@@ -9,6 +9,8 @@ require('./positional-format');
  * @param {string} dxfString The DXF string to be converted.
  * @returns {string|null} The converted SVG string or null if the conversion was unsuccessful.
  */
+
+module.exports = {dxfToSvg}
 function dxfToSvg(dxfString)
 {
     "use strict";
@@ -124,7 +126,7 @@ function dxfToSvg(dxfString)
     }
 
     var strokeWidth = 0.2;
-    var pixelToMillimeterConversionRatio = 3.543299873306695;
+    var pixelToMillimeterConversionRatio = 96/25.4;
     var svgId = "svg" + Math.round(Math.random() * Math.pow(10, 17));
     svg = '<svg {0} version="1.1" xmlns="http://www.w3.org/2000/svg">\n' +
           '<g transform="scale({0},-{0})" '.format(pixelToMillimeterConversionRatio) +
@@ -133,7 +135,6 @@ function dxfToSvg(dxfString)
           svg +
           '</g>\n' +
           '</svg>\n';
-
     // The SVG has to be added to the DOM to be able to retrieve its bounding box.
     $(svg.format('id="'+svgId+'"')).appendTo('body');
     var boundingBox = $('svg')[0].getBBox();
@@ -143,5 +144,3 @@ function dxfToSvg(dxfString)
 
     return svg.format('viewBox="' + viewBoxValue + '"');
 }
-
-module.exports = {dxfToSvg}
