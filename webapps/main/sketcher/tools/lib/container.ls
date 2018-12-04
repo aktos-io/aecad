@@ -51,13 +51,17 @@ export class Container extends ComponentBase
         for @pads
             ..mirrored? ...arguments
 
+    side: ~
+        -> @get-data \side
+        (val) -> @set-data \side, val
+
     set-side: (curr-side) !->
-        # Side would be either 'Front' or 'Back'
-        prev-side = @get-data \side
+        # Side would be either 'F.*' for Front or 'B.*' for Back
+        prev-side = @side
         #console.log "prev: #{prev-side}, curr: #{curr-side}"
         if prev-side isnt curr-side
             # Side is changed
-            @set-data \side, curr-side
+            @side = curr-side
             # decide physical side for mirroring
             prev-phy = (try prev-side.split '.' .0) or 'F' # F or B (Front or Back)
             curr-phy = curr-side.split '.' .0 # F or B

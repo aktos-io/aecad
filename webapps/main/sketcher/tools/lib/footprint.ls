@@ -56,9 +56,17 @@ export class Footprint extends Container
 
             @add-part 'border', new @scope.Shape[type] dimensions <<< do
                 center: @g.bounds.center
-                stroke-color: 'LightSeaGreen'
+                stroke-color: 'DeepPink'
                 stroke-width: 0.2
                 parent: @g
+
+    mirror: ->
+        super ...
+        debugger
+        if @border
+            that.stroke-color = switch @side.0
+                | 'F' => 'DeepPink'
+                | 'B' => 'LightSeaGreen'
 
     _loader: (item) ->
         console.warn "We have a stray item, selecting it: ", item
