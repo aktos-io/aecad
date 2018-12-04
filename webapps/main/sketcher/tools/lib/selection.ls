@@ -147,7 +147,9 @@ export class Selection extends EventEmitter
         selected-items = for @selected
             if ..aeobj
                 that.gbounds
+            else if ..item
+                that
             else
-                ..item
+                ..
 
         @scope.get-bounds selected-items
