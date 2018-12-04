@@ -62,7 +62,6 @@ export class Footprint extends Container
 
     mirror: ->
         super ...
-        debugger
         if @border
             that.stroke-color = switch @side.0
                 | 'F' => 'DeepPink'
