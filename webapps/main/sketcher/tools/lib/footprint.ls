@@ -62,10 +62,9 @@ export class Footprint extends Container
 
     mirror: ->
         super ...
-        if @border
-            that.stroke-color = switch @side.0
-                | 'F' => 'DeepPink'
-                | 'B' => 'LightSeaGreen'
+        @border?.stroke-color = switch @side.0
+            | 'F' => 'DeepPink'
+            | 'B' => 'LightSeaGreen'
 
     _loader: (item) ->
         console.warn "We have a stray item, selecting it: ", item
