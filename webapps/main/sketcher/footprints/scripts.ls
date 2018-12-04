@@ -93,7 +93,7 @@ export {
               "10uF": "C11"
           "CAP_thd":
               "1000uF": "C10"
-          'Inductor':
+          'Inductor_thd':
               "100..360uH,2A": 'L1'
           'DO214AC':
               '1N5822': 'D14, D13, D15'
@@ -120,14 +120,6 @@ export {
   oc-output =
       # Open Collector Output
       iface: "out, in, gnd"
-      doc:
-          """
-          Current sink led driver
-          --------------------
-          Q1: Driver transistor
-          R1: Base resistor
-          out: Current sink output
-          """
       netlist:
           1: "Q1.b R1.1"
           in: "R1.2"
@@ -514,6 +506,13 @@ export {
                   width: 10.7mm
                   height: 10.2mm
   
+  add-class class Inductor_thd extends Inductor
+      (data, overrides) ->
+          super data, overrides `based-on` do
+              pad:
+                  drill: 0.7mm
+  
+  #new Inductor_thd
   #new Inductor
 '''
 'lib-DoublePinArray': '''
