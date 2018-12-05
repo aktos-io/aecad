@@ -157,7 +157,11 @@ export init = (pcb) ->
             if bounds and not empty selection.selected
                 pcb.history.commit!
                 for selection.selected
-                    ..position.set bounds.center
+                    # FIXME: Selection holds lots of formats, reduce this!
+                    if ..aeobj
+                        that.owner.position.set bounds.center
+                    else
+                        ..position.set bounds.center
             else
                 PNotify.notice text: "Not possible."
 
