@@ -37,10 +37,11 @@ dropdown(
         on-click="downloadScripts" 
         tooltip="Download all scripts"
         ): icon.download 
-    ack-button.icon(
-        on-click="restartDiff" 
-        tooltip="Restart scripts diff tracking (safe action)"
-        ): icon.undo
+    //-
+        ack-button.icon(
+            on-click="restartDiff" 
+            tooltip="Restart scripts diff tracking"
+            ): icon.undo
     
 //-
     div
