@@ -103,6 +103,9 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
 
         move = {}
         pan-style = \speed-drag
+        speed-drag-key =
+            key: 'alt-graph'
+            name: 'AltGr'
         speed-drag =
             inactive: 1.5 # inactive radius
 
@@ -171,7 +174,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 @ractive.set \pointer, event.point
 
             ..onKeyDown = (event) ~>
-                #console.log "Pressed key: ", event.key, event.modifiers
+                console.log "Pressed key: ", event.key, event.modifiers
 
                 switch event.key
                 | \delete =>
@@ -184,7 +187,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                         @history.back!
                         @ractive.fire \calcUnconnected  # TODO: Unite this action
 
-                | \meta =>
+                | speed-drag-key.key =>
                     unless event.modifiers.control
                         #console.log "global pan mode enabled."
                         move.pan = yes
@@ -200,7 +203,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
 
             ..onKeyUp = (event) ~>
                 switch event.key
-                | \meta =>
+                | speed-drag-key.key =>
                     if (move.pan-lock - move.pan-lock0) > 300ms
                         if move.pan
                             #console.log "global pan mode disabled."
@@ -211,7 +214,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     else
                         move.pan-locked = true
                         PNotify.info do
-                            text: "Joystick mode enabled. \nPress meta to disable."
+                            text: "Joystick mode enabled. \nPress #{speed-drag-key.name} to disable."
                             addClass: 'nonblock'
 
 
