@@ -220,7 +220,6 @@ export {
   
   PNotify.notice hide: yes, text: """
       TODO:
-      * Component cn should be shifted
       * Lights should be turned on upon sgw energized.
       """
   
