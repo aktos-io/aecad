@@ -115,6 +115,7 @@ export canvas-control =
         layer
 
     remove-layer: (name) ->
+        console.log "Removing layer: #{name}"
         @project.layers[name].remove!
         try @ractive.delete 'project.layers', name
 
@@ -123,9 +124,10 @@ export canvas-control =
         for name of @project.layers
             @remove-layer name
 
-        unless empty keys @ractive.get 'project.layers'
-            console.error @ractive.get 'project.layers'
-            throw new Error "ractive.project.layers still have some layers (see console)"
+        for name, layer of @ractive.get 'project.layers'
+            console.warn "How come these layer isn't deleted in above loop: #{name}"
+            layer.remove!
+            @ractive.delete 'project.layers', name
 
     send-to-layer: (item, name) ->
         #set-keypath item, 'data.aecad.side', name # DO NOT DO THAT, LEAVE THIS TO COMPONENT
