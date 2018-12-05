@@ -1,4 +1,4 @@
-require! 'prelude-ls': {flatten, sort-by, reverse, empty}
+require! 'prelude-ls': {flatten, sort-by, reverse, empty, keys}
 require! './line': {Line}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
@@ -114,12 +114,18 @@ export canvas-control =
         @ractive.set \activeLayer, name
         layer
 
+    remove-layer: (name) ->
+        @project.layers[name].remove!
+        try @ractive.delete 'project.layers', name
+
     clear-canvas: ->
         # clears all layers by properly removing @ractive references
-        for name, layer of @project.layers
-            layer.remove!
-        for name of @ractive.get "project.layers"
-            @ractive.delete 'project.layers', name
+        for name of @project.layers
+            @remove-layer name
+
+        unless empty keys @ractive.get 'project.layers'
+            console.error @ractive.get 'project.layers'
+            throw new Error "ractive.project.layers still have some layers (see console)"
 
     send-to-layer: (item, name) ->
         #set-keypath item, 'data.aecad.side', name # DO NOT DO THAT, LEAVE THIS TO COMPONENT

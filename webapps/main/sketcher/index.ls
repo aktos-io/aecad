@@ -28,6 +28,7 @@ Ractive.components['sketcher'] = Ractive.extend do
             require './gui/scripting' .init.call this, pcb
             require './gui/canvas' .init.call this, pcb
             require './gui/project-control' .init.call this, pcb
+            require './gui/tree-view' .init.call this, pcb
 
         handlers = {}
         for part in _handlers
