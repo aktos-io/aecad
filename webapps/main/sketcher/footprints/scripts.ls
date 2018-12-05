@@ -60,10 +60,11 @@ export {
               "1uF": "C2"
   
   power =
+      # Power Layer
+      # Input: 9-30V, Output: 5V and 3.3V
       iface: 'vfs, vff, 5v, 3v3, gnd'
       netlist:
           # Trace_id: "list, of, connected, pads"
-          # Power layer
           1: "C1.vin, vfs, C13.a"
           gnd: """
               C13.c C1.gnd C1.onoff
@@ -116,6 +117,12 @@ export {
                   * "No noise"
                   * "No overheat"
                   * "No high jitter"
+  
+          "Reverse voltage":
+              do: "Apply reverse polarity"
+              expect:
+                  * "Stay safe for 1 minute"
+                  * "No heat"
   
   oc-output =
       # Open Collector Output
@@ -649,13 +656,13 @@ export {
 'lib-cap-thd': '''
   #! requires PinArray
   add-class class CAP_thd extends PinArray
-      @rev_CAP_thd = 1
+      @rev_CAP_thd = 2
       (data, overrides) ->
           super data, overrides `based-on` do
               name: 'c_'
               pad:
                   dia: 1.5mm
-                  drill: 0.5mm
+                  drill: 0.6mm
               cols:
                   count: 2
                   interval: 4mm
