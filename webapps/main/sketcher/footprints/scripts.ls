@@ -449,13 +449,13 @@ export {
 'lib-Conn': '''
   #! requires PinArray
   add-class class Conn_2pin_thd extends PinArray
-      @rev_Conn_2pin_thd = 1
+      @rev_Conn_2pin_thd = 2
       (data, overrides) ->
           super data, overrides `based-on` do
               name: 'conn_'
               pad:
                   dia: 3.1mm
-                  drill: 1mm
+                  drill: 1.2mm
               cols:
                   count: 2
                   interval: 3.81mm
