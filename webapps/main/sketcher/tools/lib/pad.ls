@@ -125,8 +125,8 @@ export class Pad extends ComponentBase
             else
                 # won't be printed
                 @drill?.visible = no
-                @cu.visible = no
-            @ttip.visible = false
+                @cu.remove!
+            @ttip.remove!
         else
             # switch back to design mode
             @drill?.fillColor = canvas.style.background
