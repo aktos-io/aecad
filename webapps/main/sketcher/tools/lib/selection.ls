@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty, flatten, group-by, filter}
+require! 'prelude-ls': {empty, flatten, group-by, filter, find}
 require! 'dcs/lib/event-emitter': {EventEmitter}
 
 
