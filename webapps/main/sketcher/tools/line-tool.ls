@@ -1,11 +1,16 @@
 require! './lib/snap-move': {snap-move}
+require! 'prelude-ls': {empty}
 
 class Line
     (@scope, point) ->
-        @line = new @scope.Path!
+        @line = new @scope.Path do
+            stroke-cap: 'round'
+            stroke-end: 'round'
+            stroke-width: 2
+
         if point
             @line.add(point)
-        @tolerance = 10
+        @tolerance = 5
         @color = 'white'
 
     moving-point: ~
@@ -31,6 +36,12 @@ class Line
         @line?.segments[*-1].remove!
 
     end: ->
+        @undo!
+
+    snap: (point) ->
+        @moving-point.set point
+
+    undo: ->
         @remove-last-segment!
         if @line.segments.length < 2
             @line.remove!
@@ -47,6 +58,17 @@ export LineTool = (scope) ->
 
         ..onMouseMove = (event) ->
             line?.follow event.point
+            marker-put = no
+            for scope.hitTestAll event.point, {exclude: [line?line]}
+                console.log "hit: ", ..
+                spoint = ..segment?point or ..location?segment.point
+                if spoint
+                    console.log "spoint: #{spoint}"
+                    line?snap that
+                    scope.vertex-marker that
+                    marker-put = yes
+            unless marker-put
+                scope.marker-clear!
 
         ..onKeyDown = (event) ~>
             switch event.key
@@ -56,8 +78,10 @@ export LineTool = (scope) ->
                 line := null
             | \shift =>
                 line?lock = yes
+            | \ü, \g =>
+                line?undo!
 
         ..onKeyUp = (event) ->
             switch event.key
             | \shift =>
-                line?lock = no 
+                line?lock = no
