@@ -11,8 +11,8 @@ export snap-move = (start-point, curr, opts={}) ->
         start-point : [Point] Start point
         curr        : [Point] Current point
         opts        : [Object] Snap options
-            shift       : [Bool] lock axis
-            tolerance   : [Number] normalized tolerance
+            shift or lock   : [Bool] lock axis
+            tolerance       : [Number] normalized tolerance
 
     Returns: Object:
         point, snapped: [Point] Absolute value of the snapped point
@@ -25,6 +25,7 @@ export snap-move = (start-point, curr, opts={}) ->
         tolerance: 10
 
     opts = _defaults <<< opts
+    lock = opts.lock or opts.shift
 
     scope = new PaperDraw
     tolerance = opts.tolerance / scope.view.zoom
@@ -45,7 +46,7 @@ export snap-move = (start-point, curr, opts={}) ->
     snap-slash = false
     snap-backslash = false
 
-    if opts.shift and prev
+    if lock and prev
         # lock into current snap
         angle = prev.subtract start-point .angle
         console.log "angle is: ", angle
