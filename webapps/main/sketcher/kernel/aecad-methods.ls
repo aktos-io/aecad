@@ -24,3 +24,16 @@ export do
                     rev = item.data.aecad.rev
                     items.push {item, type, name, rev}
         items
+
+    vertex-marker: (point) ->
+        @_prev_vertex_marker?remove!
+        @_prev_vertex_marker = new @Shape.Circle do
+            center: point
+            radius: 5
+            stroke-width: 1
+            opacity: 0.8
+            stroke-color: 'yellow'
+            data: {+tmp}
+
+    marker-clear: ->
+        @_prev_vertex_marker?remove!

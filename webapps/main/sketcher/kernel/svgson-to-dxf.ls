@@ -19,7 +19,7 @@ svg-to-dxf = (obj, drawer) ->
                         drawer.drawLine(step.x0, -step.y0, step.x, -step.y)
                     else
                         console.error "what is that: ", step.command
-            |_ => console.error "What is that attribute?"
+            |_ => console.error "What is that attribute?", attr
     | \circle =>
         console.error "Unimplemented element: circle:", obj
     |_ =>

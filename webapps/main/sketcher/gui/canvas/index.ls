@@ -1,6 +1,7 @@
 require! '../../tools/trace-tool': {TraceTool}
 require! '../../tools/freehand': {Freehand}
 require! '../../tools/move-tool': {MoveTool}
+require! '../../tools/line-tool': {LineTool}
 require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
 require! 'prelude-ls': {min, empty, abs, keys}
@@ -11,9 +12,10 @@ require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
 export init = (pcb) ->
     # tools
-    trace-tool = TraceTool.call this, pcb, (new pcb.Layer)
-    freehand = Freehand.call this, pcb, (new pcb.Layer)
-    move-tool = MoveTool.call this, pcb, (new pcb.Layer)
+    trace-tool = TraceTool.call this, pcb
+    freehand = Freehand.call this, pcb
+    line-tool = LineTool.call this, pcb
+    move-tool = MoveTool.call(this)
     select-tool = SelectTool.call(this)
 
     # workaround for https://github.com/aktos-io/scada.js/issues/170
@@ -102,6 +104,9 @@ export init = (pcb) ->
             | \sl =>
                 select-tool.activate!
                 pcb.cursor \default
+            | \ln =>
+                line-tool.activate!
+                pcb.cursor \default
             proceed?!
 
         sendTo: (ctx) ->
@@ -157,7 +162,11 @@ export init = (pcb) ->
             if bounds and not empty selection.selected
                 pcb.history.commit!
                 for selection.selected
-                    ..position.set bounds.center
+                    # FIXME: Selection holds lots of formats, reduce this!
+                    if ..aeobj
+                        that.owner.position.set bounds.center
+                    else
+                        ..position.set bounds.center
             else
                 PNotify.notice text: "Not possible."
 

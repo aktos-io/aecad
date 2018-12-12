@@ -54,6 +54,28 @@ function dxfToSvg(dxfString)
                     svgSnippet += getLineSvg(vertice1.x, vertice1.y, vertice2.x, vertice2.y);
                 }
                 return svgSnippet;
+            case 'SPLINE':
+                var svgSnippet = '';
+                var controlPoints = dxfObject.vertices.map((value)=>{return [value.x, value.y]});
+                var numOfKnots = dxfObject.numOfKnots;
+                var knots = dxfObject.knots;
+                var degree = dxfObject.degree;
+                var vertices = [];
+                for(let t=0;t<=100;t=(t+1)|0){
+                  vertices.push(interpolate(t/100, degree, controlPoints, knots));
+                }
+                for (var i=0; i<vertices.length-1; i++) {
+                  var vertice1 = vertices[i];
+                  var vertice2 = vertices[i+1];
+                  svgSnippet += getLineSvg(vertice1[0], vertice1[1], vertice2[0], vertice2[1]);
+                }
+                return svgSnippet;
+            case 'ELLIPSE':
+                var ratio = dxfObject.r // see FIXME in groupCodes
+                var majorEndX = dxfObject.x1
+                var majorEndY = dxfObject.y1
+                var r = Math.sqrt(Math.pow(majorEndX, 2) + Math.pow(majorEndY, 2))
+                return '<circle cx="{0}" cy="{1}" r="{2}"/>\n'.format(dxfObject.x, dxfObject.y, r);
         }
     }
 
@@ -61,19 +83,29 @@ function dxfToSvg(dxfString)
         0: 'entityType',
         2: 'blockName',
         10: 'x',
-        11: 'x1',
+        11: 'x1',   // IN ELLIPSE: end point.x of major axis
         20: 'y',
-        21: 'y1',
-        40: 'r',
+        21: 'y1',   // IN ELLIPSE: end-point.y of major axis
+        40: 'r',    // FIXME: This is "ratio" for ELLIPSEs
+        41: 'ellipseStart',
+        42: 'ellipseEnd',
         50: 'a0',
-        51: 'a1'
+        51: 'a1',
+        71: 'degree',
+        72: 'numOfKnots',
+        73: 'numOfControlPoints',
+        74: 'numOfFitPoints',
+
     };
 
     var supportedEntities = [
         'LINE',
         'CIRCLE',
         'ARC',
-        'LWPOLYLINE'
+        'LWPOLYLINE',
+        'SPLINE',
+
+        'ELLIPSE'
     ];
 
     var counter = 0;
@@ -109,8 +141,13 @@ function dxfToSvg(dxfString)
                     }
                 } else if (object.type && typeof groupCode !== 'undefined') {  // Known entity property recognized.
                     object[groupCode] = parseFloat(value);
-
-                    if (object.type == 'LWPOLYLINE' && groupCode === 'y') {
+                    if ( object.type == 'SPLINE'  && groupCode === 'r') {
+                      if(!object.knots){
+                        object.knots =[]
+                      }
+                      object.knots.push(object.r);
+                    }
+                    if ((object.type == 'LWPOLYLINE' || object.type =='SPLINE') && groupCode === 'y') {
                         if (!object.vertices) {
                             object.vertices = [];
                         }
@@ -135,6 +172,7 @@ function dxfToSvg(dxfString)
           svg +
           '</g>\n' +
           '</svg>\n';
+
     // The SVG has to be added to the DOM to be able to retrieve its bounding box.
     $(svg.format('id="'+svgId+'"')).appendTo('body');
     var boundingBox = $('svg')[0].getBBox();
