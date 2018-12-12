@@ -1,4 +1,4 @@
-require! 'prelude-ls': {flatten, sort-by, reverse, empty, keys}
+require! 'prelude-ls': {flatten, sort-by, reverse, empty, keys, compact}
 require! './line': {Line}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
@@ -184,7 +184,7 @@ export canvas-control =
 
             # exclude provided items
             if opts.exclude
-                for flatten [that] when hit.item.isDescendant(..) or hit.item.id is ..id
+                for compact flatten [that] when hit.item.isDescendant(..) or hit.item.id is ..id
                     continue outer
 
             # Apply filter
