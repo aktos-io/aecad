@@ -25,6 +25,12 @@ export init = (pcb) ->
     selection = new Selection
     schema-manager = new SchemaManager
 
+    # double-tap to Esc switches to select tool
+    pcb.on-double-esc ~>
+        # TODO: send signal to the radio-button group only
+        <~ @fire \changeTool, {}, \sl
+        @set \currTool, \sl
+
     handlers =
         upgradeComponents: (ctx) ->
             upgrade-count = 0
