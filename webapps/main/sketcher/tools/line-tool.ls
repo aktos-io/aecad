@@ -38,9 +38,6 @@ class Line
     end: ->
         @undo!
 
-    snap: (point) ->
-        @moving-point.set point
-
     undo: ->
         @remove-last-segment!
         if @line.segments.length < 2
@@ -52,9 +49,10 @@ export LineTool = (scope) ->
     freehand = new scope.Tool!
         ..onMouseDown = (event) ~>
             scope.use-layer \gui
+            point = scope.marker-point! or event.point
             unless line
-                line := new Line scope, event.point
-            line.add-segment event.point
+                line := new Line scope, point
+            line.add-segment point
 
         ..onMouseMove = (event) ->
             line?.follow event.point
@@ -64,7 +62,7 @@ export LineTool = (scope) ->
                 spoint = ..segment?point or ..location?segment.point
                 if spoint
                     console.log "spoint: #{spoint}"
-                    line?snap that
+                    line?follow that
                     scope.vertex-marker that
                     marker-put = yes
             unless marker-put
