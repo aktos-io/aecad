@@ -37,6 +37,7 @@ export do
 
     marker-clear: ->
         @_prev_vertex_marker?remove!
+        @_prev_vertex_marker = null
 
     marker-point: ->
         @_prev_vertex_marker?.bounds.center
