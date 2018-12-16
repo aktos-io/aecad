@@ -55,7 +55,7 @@ export init = (pcb) ->
                     console.error "Something went wrong here."
             proceed!
 
-        calcUnconnected: (ctx) ->
+        calcUnconnected: (ctx, opts={}) ->
             console.log "------------ Performing DRC ------------"
             if schema-manager.active
                 try
@@ -72,7 +72,7 @@ export init = (pcb) ->
                     total += state.total
                 pcb.ractive.set 'totalConnections', total
                 pcb.ractive.set 'unconnectedCount', unconnected
-            else
+            else if not opts.silent
                 PNotify.notice text: "No schema present at the moment."
             console.log "------------ End of DRC ------------"
 
