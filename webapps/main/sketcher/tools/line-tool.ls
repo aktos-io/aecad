@@ -1,7 +1,7 @@
 require! './lib/snap-move': {snap-move}
 require! 'prelude-ls': {empty}
 
-class Line
+class PolyLine
     (@scope, point) ->
         @line = new @scope.Path do
             stroke-cap: 'round'
@@ -58,7 +58,8 @@ export LineTool = (scope) ->
             scope.use-layer \gui
             point = scope.marker-point! or event.point
             unless line
-                line := new Line scope, point
+                scope.history.commit!
+                line := new PolyLine scope, point
                     ..on-end = ->
                         line := null
 

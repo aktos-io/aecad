@@ -7,6 +7,7 @@ export Freehand = (scope) ->
 
         ..onMouseDown = (event) ~>
             scope.use-layer \gui
+            scope.history.commit!
             path := new scope.Path();
             path.strokeColor = 'white';
             path.add(event.point);
