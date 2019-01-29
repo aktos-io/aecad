@@ -65,9 +65,11 @@ export class Container extends ComponentBase
             # decide physical side for mirroring
             prev-phy = (try prev-side.split '.' .0) or 'F' # F or B (Front or Back)
             curr-phy = curr-side.split '.' .0 # F or B
-            if prev-phy isnt curr-phy
-                #console.log "back side, mirroring..."
-                @mirror!
+            if curr-phy in <[ F B ]>
+                # Only calculate mirror between Front and Back, do not touch Edge
+                if prev-phy isnt curr-phy
+                    #console.log "back side, mirroring..."
+                    @mirror!
             layer-color = @ractive.get "layers.#{Ractive.escapeKey curr-side}" .color
             #console.log "color of #{curr-side} is #{layer-color}"
             @color = layer-color

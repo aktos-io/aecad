@@ -6,7 +6,7 @@ require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
 require! 'prelude-ls': {min, empty, abs, keys}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
-require! '../../tools/lib': {getAecad}
+require! '../../tools/lib': {getAecad, Edge}
 require! 'aea/do-math': {px2mm}
 require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
@@ -118,12 +118,18 @@ export init = (pcb) ->
         sendTo: (ctx) ->
             pcb.history.commit!
             layer = ctx.component.get \to
-            for pcb.selection.selected
-                console.log "sending selected: ", .., "to: ", layer
-                if ..aeobj
-                    that.owner
-                        ..set-side layer
-                        ..send-to-layer 'gui' # TODO: find a more beautiful name
+            for selected in pcb.selection.selected
+                console.log "sending selected: ", selected, "to: ", layer
+                aeobj = if selected.aeobj
+                    that
+                else
+                    # convert the selected items into Edge aeobj
+                    new Edge
+                        ..import selected
+
+                aeobj.owner
+                    ..set-side layer
+                    ..send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
             pcb.history.commit!
