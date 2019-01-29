@@ -1,3 +1,15 @@
+# What is aeobj
+
+An `aeobj` is a JS object whose
+- "on-disk-data" is a plain Paper.js JSON with `data.aecad.type` is one of the known types[1].
+- itself is the "rehydrated" (resumed) or newly created instance of `data.aecad.type` class.
+
+See `get-aecad.ls/get-aecad` for the details.
+
+Properties of an aeCAD object (aeobj) will be displayed in the "Properties" window.
+
+[1]: Known types are the classes that are registered via `get-class/add-class` method.
+
 # aeCAD Data
 
 All component data should reside in its `Group.data`.
