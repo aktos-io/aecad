@@ -8,7 +8,7 @@ require! 'aea/do-math': {mm2px}
 require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
-require! '../get-aecad': {get-parent-aecad, get-aecad}
+require! '../get-aecad': {get-aecad}
 require! './end'
 
 /* Trace structure:
