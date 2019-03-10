@@ -5,7 +5,7 @@ export class Footprint extends Container
     ->
         super ...
         unless @resuming
-            <~ sleep 20ms
+            <~ sleep 2ms
             data = @data
             # set side if present
             if data.side

@@ -84,7 +84,7 @@ export class Pad extends ComponentBase
             content: opts.label or opts.pin
             fill-color: 'white'
             parent: @g
-            font-size: 3
+            font-size: 0.5
             position: @cu.bounds.center
             justification: 'center'
             data: aecad: part: \ttip
