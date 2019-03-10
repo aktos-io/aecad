@@ -2,13 +2,14 @@
 '''
 # Arguments
 
-net         : array of all elements, like <[ a b c d ]>
-conn-tree   : array of connected sub-nets, like:
+* conn-tree   : Array of connected sub-nets, like:
 
     conn-tree =
         <[ a b x y z]>
         <[ a c ]>
         <[ c d ]>
+
+* net         : (Optional) Array of all elements, like <[ a b c d ]>
 
 # Returns
 
@@ -30,15 +31,15 @@ require! 'prelude-ls': {
 intersects = (a1, a2) -> not empty intersection a1, a2
 
 export net-merge = (conn-tree, net) ->
-    debugger if @_o # debug for failed test
     unless conn-tree
         throw new Error "Tree is missing"
 
     lookup = conn-tree
-    _safe = 100 # fuse for "while true"
+    _fuse = 0 # fuse for "while true"
     while true
         merged-tree = []
         mindex = []
+
         for i1, net1 of lookup when i1 not in mindex
             merged = net1
             #console.log "#{i1}: merged:", merged, "mindex:", mindex
@@ -47,14 +48,15 @@ export net-merge = (conn-tree, net) ->
                 if net1 `intersects` net2
                     merged = union merged, net2
                     mindex.push i2
-                    #console.log "[#{net1.join ','}] intersects with [#{net2.join ','}], mindex: ", mindex
-            #console.log "#{i1}, #{i2}: pushing merged into tree:", merged
+                    #console.log "++ [#{net1.join ','}] intersects with [#{net2.join ','}], mindex: ", mindex
+            #console.log "examined #{i1}: pushing merged into tree:", merged
             merged-tree.push merged
         lookup = merged-tree
         if mindex.length is 0
             break
-        unless _safe--
-            console.error "Something is wrong here!"
+        if ++_fuse > 100
+            debugger
+            throw "Something is wrong with net-merge function!"
             break
     merged-tree = lookup
 
@@ -68,7 +70,7 @@ export net-merge = (conn-tree, net) ->
     #    and put into unconnected too
 
     unconn = null
-    # find out stray nodes 
+    # find out stray nodes
     if net
         unconn = [] # unconnected pad names
         stray-pads = net `difference` flatten merged-tree
@@ -168,3 +170,33 @@ make-tests "net-merge", tests =
                 <[ a ]>
                 ...
             stray: <[ a b c d e ]>
+
+    "large net": ->
+        tree = [
+            ["a","b"]
+            ["c"],
+            ["i","j","k","l","m","n"],
+            ["p"],
+            ["s"],
+            ["u"],
+            ["w"],
+            ["z"],
+            ["ad"],
+            ["688"],
+            ["i","j","k","l","m","n"],
+        ]
+
+        expect net-merge tree
+        .to-equal do
+            merged:
+                ["a","b"]
+                ["c"],
+                ["i","j","k","l","m","n"],
+                ["p"],
+                ["s"],
+                ["u"],
+                ["w"],
+                ["z"],
+                ["ad"],
+                ["688"],
+            stray: null
