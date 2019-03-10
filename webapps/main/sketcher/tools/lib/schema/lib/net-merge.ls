@@ -43,7 +43,7 @@ export net-merge = (conn-tree, net) ->
         for i1, net1 of lookup when i1 not in mindex
             merged = net1
             #console.log "#{i1}: merged:", merged, "mindex:", mindex
-            for i2, net2 of lookup when i2 > i1
+            for i2, net2 of lookup when +i2 > +i1
                 # combinations
                 if net1 `intersects` net2
                     merged = union merged, net2
