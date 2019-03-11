@@ -139,7 +139,7 @@ export class ComponentBase
 
     grotation: ~
         ->
-            (@owner.get-data('rotation') or 0) % 360
+            (@get-data('rotation') or 0) % 360
 
     gbounds: ~
         # Global bounds

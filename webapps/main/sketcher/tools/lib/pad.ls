@@ -136,7 +136,7 @@ export class Pad extends ComponentBase
             @cu.visible = yes
 
     rotated: (angle) ->
-        @set-data \rotation, angle
+        @set-data \rotation, ((angle + (@get-data('rotation') or 0)) % 360)
         unless @get-data 'mirrored'
             angle = -angle
         @ttip.rotate angle
