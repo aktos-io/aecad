@@ -61,11 +61,12 @@ export do
         if opts.mirror
             svg.attributes.transform = "scale(-1,1)"
 
-        deps = __DEPENDENCIES__
-        svg.attributes.data =
+        project-info =
             name: "aeCAD by Aktos Electronics"
             website: "https://aktos.io/aecad"
-            version: deps.root.commit
+            version: __DEPENDENCIES__.root.commit
+
+        svg.attributes.data = project-info
 
         # Cleanup empty layers (layers that we never created)
         for i in reverse [til svg.children.length]
@@ -97,7 +98,9 @@ export do
             else
                 JSON.stringify svg
         | 'json' =>
-            res = pretty-json @__export_json!
+            paperjs-json = @__export_json!
+                ..push ["aeCAD", project-info]
+            res = pretty-json paperjs-json
         |_ =>
             err = "Extension is not recognized: #{opts.format}"
 
@@ -144,6 +147,7 @@ export do
             # instead of first converting into SVG
             s = b.add!
             try
+                throw "Importing from SVGSON doesn't work at the moment because this process uses SVG as the middle format"
                 svg = svgson-to-svg JSON.parse data
                 @project.importSVG svg
                 s.go!
