@@ -72,7 +72,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     @ractive.set \aecadData, aeobj.data
 
                     # DEBUG: Additional data for debugging purposes
-                    @ractive.set \aecadData.grotation, aeobj.grotation
+                    #@ractive.set \aecadData.grotation, aeobj.grotation
 
                     if aeobj.parent
                         @ractive.set \aecadOwnerData, aeobj.owner.data

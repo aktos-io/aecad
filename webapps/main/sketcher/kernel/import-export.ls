@@ -6,6 +6,7 @@ require! './svgson-to-dxf': {svgson-to-dxf}
 require! '../lib/dxfToSvg': {dxfToSvg}
 require! 'dcs/browser': {SignalBranch}
 require! 'prelude-ls': {reverse, empty}
+require! './svgson-to-svg': {svgson-to-svg}
 
 export do
     __export_svg: ->
@@ -60,7 +61,11 @@ export do
         if opts.mirror
             svg.attributes.transform = "scale(-1,1)"
 
-        svg.attributes.data = "aeCAD by Aktos Electronics, https://aktos.io/aecad"
+        deps = __DEPENDENCIES__
+        svg.attributes.data =
+            name: "aeCAD by Aktos Electronics"
+            website: "https://aktos.io/aecad"
+            version: deps.root.commit
 
         # Cleanup empty layers (layers that we never created)
         for i in reverse [til svg.children.length]
@@ -76,13 +81,7 @@ export do
         res = null
         switch opts.format
         | 'svg' =>
-            res = pretty svgson.stringify svg, do
-                transformAttr: (key, value, escape) ->
-                    switch key
-                    | 'data-paper-data' =>
-                        "#{key}='#{escape JSON.stringify value}'"
-                    |_ =>
-                        "#{key}='#{escape value}'"
+            res = pretty svgson-to-svg svg
         | 'dxf' =>
             try
                 res = svgson-to-dxf svg
@@ -140,10 +139,24 @@ export do
             PNotify.notice text: "TODO: Splines can not be recognized"
             svg = dxfToSvg data
             @project.importSVG svg
+        | 'svgson' =>
+            # TODO: directly convert svgson to Paper.js JSON format
+            # instead of first converting into SVG
+            s = b.add!
+            try
+                svg = svgson-to-svg JSON.parse data
+                @project.importSVG svg
+                s.go!
+            catch
+                s.go err=e.message
         |_ =>
-            err = "Extension is not recognized: #{opts.format}"
+            s = b.add!
+            s.go err="Extension is not recognized: #{opts.format}"
 
-        err <~ b.joined
+        err, signals <~ b.joined
+        if err
+            @vlog.error err
+            return
 
         # post-process the imported data
         # -------------------------------
