@@ -3,7 +3,7 @@ require! './line': {Line}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
 # TODO: move get-aecad.ls here
-require! '../tools/lib/get-aecad': {get-aecad, get-parent-aecad}
+require! '../tools/lib/get-aecad': {get-aecad}
 
 export canvas-control =
     get-top-item: (item) ->

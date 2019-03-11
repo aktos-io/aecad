@@ -14,7 +14,10 @@ scene(name="NOTFOUND")
     a.inverted.green.item(href="#/sketcher") Sketcher
     a.inverted.green.item(href="#/webcad") WebCAD
     //-a.inverted.green.item(href="#/pcb") Pcb
+    .item.right {{dependencies.root.commit}} (+{{dependencies.root.count}}) {{#if dependencies.root.dirty}}[DIRTY]{{/if}}
     
+
+                
 scene(name="home" default public)
   .ui.container 
         .ui.grid

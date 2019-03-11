@@ -217,32 +217,50 @@ export class Schema implements bom, footprints, netlist, guide
     build-connection-list: !->
         # Re/Build the connection name table for the net
         # ------------------------------------------------
-        # * use the existing netid that supplied by any of net's pads
-        # * assign the rest of nets' netid's sequentially
+        # see docs/Schema.md/Schema.connection-list for documentation.
+        #
         @connection-list = {}
         # Collect already assigned netid's
+
+        # double-check the @netlist. it shouldn't contain same uname in different nets:
+        # TODO: Remove this precaution on v1.0
+        _used_uname = []
+        for net in @netlist
+            for pad in net
+                if pad.uname in _used_uname
+                    throw "This pad appears (#{pad.uname}) on another net.
+                        Is 'tests/simple/indirect connection' test passing?"
+                else
+                    _used_uname.push pad.uname
+        # end of double check
+
         newly-created = []
         for net in @netlist
             try
-                netid = '' + the-one-in [..netid for net]
+                existing-netid = '' + the-one-in [pad.netid for pad in net]
             catch
                 # just in case
                 console.error "#{net.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
                 throw new Error "Multiple netid's assigned to the pads in the same net"
 
             # use existing netid extracted from one of the pads
-            if netid?.match /[0-9]+/
-                if netid of @connection-list
-                    existing = @connection-list[netid].map (.uname) .join ', '
+            if existing-netid?.match /[0-9]+/
+                if existing-netid of @connection-list
+                    # this netid seems already occupied.
+                    existing = @connection-list[existing-netid].map (.uname) .join ', '
                     curr = net.map (.uname) .join ', '
-                    throw new Error "Duplicate netid found: #{netid} (#{curr} already occupied by #{existing}"
-                @connection-list[netid] = net
-                # Propagate netid's to all pads in the same net
-                for pad in net
-                    pad.netid = netid
+                    debugger
+                    throw new Error "Duplicate netid found: #{existing-netid} (
+                        #{curr} already occupied by #{existing}"
+                else
+                    # create the connection list with that existing netid
+                    @connection-list[existing-netid] = net
+                    # Propagate existing-netid to all pads in the same net
+                    for pad in net
+                        pad.netid = existing-netid
             else
-                # this net is newly created, take your note to assign next possible
-                # netid
+                # this net is newly created, take your note to assign
+                # next possible netid.
                 newly-created.push net
 
         # Assign newly created net's netid's

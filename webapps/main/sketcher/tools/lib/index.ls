@@ -21,9 +21,10 @@ require! './container': {Container}
 require! './footprint': {Footprint}
 require! './pad': {Pad}
 require! './trace': {Trace}
+require! './edge': {Edge}
 
 component-classes = {
-    Container, Footprint, Pad, Trace
+    Container, Footprint, Pad, Trace, Edge
 }
 
 for n, cls of component-classes

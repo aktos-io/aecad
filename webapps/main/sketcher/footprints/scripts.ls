@@ -5,11 +5,11 @@ export {
   # --------------------------------------------------
   c1 = find-comp "c1"
   c1-pins = c1?.get {pin: 1}
-  
+
   c3 = find-comp "c3"
   c3-pins = c3?.get {pin: 33}
-  
-  
+
+
 '''
 'pin-array-test': '''
   a = new PinArray do
@@ -24,18 +24,18 @@ export {
           count: 4
           interval: 2.54mm
       dir: '-y' # numbering direction, 'x' or 'y', default 'x'
-  
-  
+
+
 '''
 'rpi-header-test': '''
-  
+
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
   new RpiHeader do
       name: 'rpi2'
-  
-  
+
+
   /*
   x = find-comp 'rpi2'
   <~ sleep 500ms
@@ -48,7 +48,7 @@ export {
   # --------------------------------------------------
   # all lib* scripts will be included automatically.
   # --------------------------------------------------
-  
+
   parasitic =
       iface: 'a, c'
       netlist:
@@ -56,9 +56,9 @@ export {
           c: "C1.c C2.c"
       bom:
           C1206:
-              "100nF": "C1"
+              "10nF": "C1"
               "1uF": "C2"
-  
+
   power =
       # Power Layer
       # Input: 9-30V, Output: 5V and 3.3V
@@ -109,7 +109,7 @@ export {
               """
           'D15': "Should be VERY CLOSE to LM2576"
           "C3": "Should be close to _5v output"
-  
+
       tests:
           "full load":
               do: "Connect a load that draws high current"
@@ -117,13 +117,13 @@ export {
                   * "No noise"
                   * "No overheat"
                   * "No high jitter"
-  
+
           "Reverse voltage":
               do: "Apply reverse polarity"
               expect:
                   * "Stay safe for 1 minute"
                   * "No heat"
-  
+
   oc-output =
       # Open Collector Output
       iface: "out, in, gnd"
@@ -137,7 +137,8 @@ export {
               "2N2222": "Q1"
           SMD1206:
               "300 ohm": "R1"
-  
+
+
   signal-led =
       iface: "gnd, in, vcc"
       netlist:
@@ -156,7 +157,7 @@ export {
               "$color": "D1"  # Led
           SMD1206:
               "330 ohm": "R1" # Current limiting resistor
-  
+
   buzzer =
       iface: "gnd, in, vcc"
       schemas: {oc-output}
@@ -170,7 +171,159 @@ export {
           in: 'D.in'
           1: 'D.out b.c R1.2'
           vcc: 'b.a R1.1'
-  
+
+  stm32f103_bare =
+      iface: """vdd, gnd
+          PC13
+          PC14
+          PC15
+          PD0
+          PD1
+          PA0
+          PA1
+          PA2
+          PA3
+          PA4
+          PA5
+          PA6
+          PA7
+          PB0
+          PB1
+          PB2
+          PB10
+          PB11
+          PB12
+          PB13
+          PB14
+          PB15
+          PA8
+          PA9
+          PA10
+          PA11
+          PA12
+          SWDIO
+          SWCLK
+          PA15
+          PB3
+          PB4
+          PB5
+          PB6
+          PB7
+          PB8
+          PB9
+          """
+      netlist:
+          gnd: """m.VSSA m.VSS_1 m.VSS_2 m.VSS_3
+              c1.c c2.c c3.c c4.c c5.c
+              R1.2
+              c6.c
+              """
+          vdd: """m.VBAT m.VDDA m.VDD_1 m.VDD_2
+              m.VDD_3
+              c1.a c2.a c3.a c4.a c5.a
+              """
+          1: "m.Boot0 R1.1"
+          2: "m.NRST c6.a"
+          PC13: \\m.PC13
+          PC14: \\m.PC14
+          PC15: \\m.PC15
+          PD0: \\m.PD0
+          PD1: \\m.PD1
+          PA0: \\m.PA0
+          PA1: \\m.PA1
+          PA2: \\m.PA2
+          PA3: \\m.PA3
+          PA4: \\m.PA4
+          PA5: \\m.PA5
+          PA6: \\m.PA6
+          PA7: \\m.PA7
+          PB0: \\m.PB0
+          PB1: \\m.PB1
+          PB2: \\m.PB2
+          PB10: \\m.PB10
+          PB11: \\m.PB11
+          PB12: \\m.PB12
+          PB13: \\m.PB13
+          PB14: \\m.PB14
+          PB15: \\m.PB15
+          PA8: \\m.PA8
+          PA9: \\m.PA9
+          PA10: \\m.PA10
+          PA11: \\m.PA11
+          PA12: \\m.PA12
+          SWDIO: \\m.SWDIO
+          SWCLK: \\m.SWCLK
+          PA15: \\m.PA15
+          PB3: \\m.PB3
+          PB4: \\m.PB4
+          PB5: \\m.PB5
+          PB6: \\m.PB6
+          PB7: \\m.PB7
+          PB8: \\m.PB8
+          PB9: \\m.PB9
+      schemas: {parasitic}
+      bom:
+          STM32F103C8: 'm'
+          parasitic: "c1, c2, c3, c4"
+          C1206:
+              "4.7uF": "c5"
+              "100nF": "c6"
+          SMD1206:
+              "10K": "R1"
+      notes:
+          "c5": "Must be connected to VDD_3
+              according to the datasheet"
+          "m":
+              "Boot": "If SWD pins became unusable, only
+                  way to load the binary is using USART1 port"
+              "NRST": "Pull down to reset the MCU"
+
+
+
+  add-class class SMDConn_3pin extends PinArray
+      (data, overrides) ->
+          super data, overrides `based-on` do
+              pad:
+                  width: 0.9
+                  height: 3.2
+              cols:
+                  count: 3
+                  interval: 2.54mm
+              border:
+                  width: 7mm
+                  height: 3.8mm
+
+  add-class class SMDConn_4pin extends SMDConn_3pin
+      (data, overrides) ->
+          super data, overrides `based-on` do
+              cols:
+                  count: 4
+
+  oc-sensor =
+      iface: "vcc gnd out"
+      netlist:
+          vcc: "conn.1"
+          out: "conn.2"
+          gnd: "conn.3"
+      bom:
+          SMDConn_3pin: "conn"
+
+  debounce_switch =
+      # connect the mechanical switch
+      # between a and b pins
+      iface: "vcc gnd out a b"
+      netlist:
+          vcc: "R1.1"
+          a: "R1.2 R2.1"
+          out: "R2.2 C1.a"
+          gnd: "b C1.c"
+      bom:
+          SMD1206:
+              "10K": "R1"
+              "330": "R2"
+          C1206:
+              "100nF": "C1"
+
   sgw =
       iface: "Pow+, Pow-"
       netlist:
@@ -192,7 +345,7 @@ export {
           buzzer: 'beep'
           'RpiHeader' : 'rpi'
           'Conn_2pin_thd' : 'cn'
-  
+
           # Virtual components start with an underscore
           Bolt : '_1, _2, _3, _4'
           RefCross: '_a _b _c _d'
@@ -203,19 +356,19 @@ export {
           rpi.8 rpi.12 rpi.20 rpi.21
           P.vfs P.3v3
           """
-  
+
   sch = new Schema {name: 'sgw', data: sgw}
       ..clear-guides!
       ..compile!
       ..guide-unconnected!
-  
+
   pcb.ractive.fire 'calcUnconnected'
-  
+
   conn-list-txt = []
   for id, net of sch.connection-list
       conn-list-txt.push "#{id}: #{net.map (.uname) .join(',')}"
   #pcb.vlog.info conn-list-txt.join '\\n\\n'
-  
+
   unless empty upgrades=(sch.get-upgrades!)
       msg = ''
       for upgrades
@@ -224,14 +377,27 @@ export {
               aeobj: ..component
       # display a visual message
       pcb.vlog.info msg
-  
+
   PNotify.notice hide: yes, text: """
       TODO:
       * Lights should be turned on upon sgw energized.
       """
-  
+
 '''
 'lib-PinArray': '''
+  /* data format:
+
+  circular pad:
+      dia: 1.5mm
+      drill: 0.6mm
+
+  rectangular pad:
+      width: 3.1mm
+      height: 1.5mm
+
+  */
+
+
   add-class class PinArray extends Footprint
       create: (data) ->
           #console.log "Creating from scratch PinArray"
@@ -240,7 +406,7 @@ export {
               data.cols = {count: 1}
           unless data.rows
               data.rows = {count: 1}
-  
+
           iface = {}
           for cindex to data.cols.count - 1
               for rindex to data.rows.count - 1
@@ -253,7 +419,7 @@ export {
                           rindex + cindex * data.rows.count
                       | '-y' =>
                           data.rows.count - 1 - rindex + cindex * data.rows.count
-  
+
                   iface[pin-num] = if data.labels
                       if pin-num of data.labels
                           data.labels[pin-num]
@@ -261,21 +427,21 @@ export {
                           throw new Error "Undeclared label for iface: #{pin-num}"
                   else
                       pin-num
-  
+
                   p = new Pad data.pad <<< do
                       pin: pin-num
                       label: iface[pin-num]
                       parent: this
-  
+
                   p.position.y += (data.rows.interval or 0 |> mm2px) * rindex
                   p.position.x += (data.cols.interval or 0 |> mm2px) * cindex
-  
+
           @iface = iface
-  
+
           if data.mirror
               # useful for female headers
               @mirror!
-  
+
           @make-border data
 '''
 'lib-RpiHeader': '''
@@ -313,7 +479,7 @@ export {
   | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
   +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
   """
-  
+
   add-class class RpiHeader extends PinArray
       (data) ->
           super data, defaults =
@@ -330,7 +496,7 @@ export {
               dir: 'x'
               labels: table
               mirror: yes
-  
+
 '''
 'lib-SMD1206': '''
   #! requires PinArray
@@ -339,9 +505,9 @@ export {
       a: 1.6mm
       b: 0.9mm
       c: 2mm
-  
+
   {a, b, c} = smd1206
-  
+
   add-class class SMD1206 extends PinArray
       @rev_SMD1206 = 1
       (data, overrides) ->
@@ -356,9 +522,9 @@ export {
               border:
                   width: c
                   height: a
-  
+
   #new SMD1206
-  
+
   add-class class SMD1206_pol extends SMD1206
       # Polarized version of SMD1206
       (data, overrides) ->
@@ -368,11 +534,11 @@ export {
                   1: 'c'
                   2: 'a'
               mark: yes
-  
+
   add-class class LED1206 extends SMD1206_pol
-  
+
   add-class class C1206 extends SMD1206_pol
-  
+
   add-class class DO214AC extends SMD1206_pol
       # https://www.vishay.com/docs/88746/ss12.pdf
       @rev_DO214AC = 2
@@ -385,7 +551,7 @@ export {
               cols:
                   count: 2
                   interval: 5.28mm - 1.52mm
-  
+
   #new DO214AC
 '''
 'lib-LM2576': '''
@@ -403,7 +569,7 @@ export {
                   4: \\fb
                   5: \\onoff
                   6: \\gnd
-  
+
   #a = new LM2576
   #a.get {pin: 'vin'}
 '''
@@ -412,7 +578,7 @@ export {
   #
   #! requires DoublePinArray
   # ---------------------------
-  
+
   dimensions =
       # See http://www.ti.com/lit/ds/symlink/lm2576.pdf
       to263:
@@ -420,7 +586,7 @@ export {
           die : x:8mm     y:10.8mm
           pads: x:2.16mm  y:1.07mm
           pd  : 1.702
-  
+
   add-class class TO263 extends DoublePinArray
       (data, overrides) ->
           {H, die, pads, pd} = dimensions.to263
@@ -442,9 +608,9 @@ export {
                   rows:
                       count: 5
                       interval: pd
-  
+
   #new TO263
-  
+
 '''
 'lib-Conn': '''
   #! requires PinArray
@@ -462,8 +628,13 @@ export {
               rows:
                   count: 1
               dir: 'x'
-  
-  
+
+  add-class class Conn_4pin_thd extends Conn_2pin_thd
+      (data, overrides) ->
+              super data, overrides `based-on` do
+                  cols:
+                      count: 4
+
   add-class class Conn_1pin_thd extends PinArray
       (data, overrides) ->
           super data, overrides `based-on` do
@@ -476,8 +647,8 @@ export {
               rows:
                   count: 1
               dir: 'x'
-  
-  
+
+
   add-class class Bolt extends PinArray
       (data, overrides) ->
           super data, overrides `based-on` do
@@ -485,10 +656,10 @@ export {
               pad:
                   dia: 6.2mm
                   drill: 3mm
-  
+
   #new Conn_2pin_thd
   #new Conn_1pin_thd
-  
+
 '''
 'lib-Inductor': '''
   # --------------------------------------------------
@@ -496,7 +667,7 @@ export {
   #
   # This script will also be treated as a library file.
   # --------------------------------------------------
-  
+
   #! requires PinArray
   add-class class Inductor extends PinArray
       (data, overrides) ->
@@ -511,40 +682,42 @@ export {
               border:
                   width: 10.7mm
                   height: 10.2mm
-  
+
   add-class class Inductor_thd extends Inductor
       (data, overrides) ->
           super data, overrides `based-on` do
               pad:
                   drill: 0.7mm
-  
+
   #new Inductor_thd
   #new Inductor
 '''
 'lib-DoublePinArray': '''
+  #! requires PinArray
+
   add-class class DoublePinArray extends Footprint
       create: (data) ->
           overwrites =
               parent: this
               labels: data.labels
-  
+
           left = new PinArray data.left <<< overwrites
           right = new PinArray data.right <<< overwrites
-  
+
           iface = {}
           for num, label of left.iface
               iface[num] = label
           for num, label of right.iface
               iface[num] = label
           @iface = iface
-  
+
           right.position = left.position.add [data.distance |> mm2px, 0]
           @make-border data
 '''
 'double-pin-array-test': '''
   a = new SOT223 do
       name: 'hello'
-  
+
   console.log a.get {pin: 1}
 '''
 'lib-SOT223': '''
@@ -573,14 +746,14 @@ export {
               border:
                   width: 3.5mm
                   height: 6.5mm
-  
-  
+
+
   add-class class SOT23 extends DoublePinArray
       (data, overrides) ->
           pad =
               width: 0.9mm
               height: 0.7mm
-  
+
           super data, overrides `based-on` do
               name: 'c_'
               distance: 2mm
@@ -598,10 +771,10 @@ export {
               border:
                   width: 1.43mm
                   height: 3mm
-  
+
   #new SOT23
-  
-  
+
+
   add-class class NPN extends SOT23
       @rev_NPN = 1
       (data, overrides) ->
@@ -611,11 +784,11 @@ export {
                   2: 'e'
                   3: 'c'
           super data, (defaults `aea.merge` overrides)
-  
+
   #new NPN
-  
+
   add-class class PNP extends NPN
-  
+
 '''
 'lib-LM1117': '''
   #! requires SOT223
@@ -628,7 +801,7 @@ export {
                   2: 'vout'
                   3: 'vin'
                   4: 'vout'
-  
+
 '''
 'lib-canvas-helpers': '''
   add-class class RefCross extends Footprint
@@ -638,19 +811,19 @@ export {
               to: [20, 0]
               stroke-color: \\white
               parent: @g
-  
+
           @add-part 'h', new Path.Line do
               from: [0, -20]
               to: [0, 20]
               stroke-color: \\white
               parent: @g
-  
+
           @set-data 'helper', yes
-  
+
       print-mode: (val) ->
           @g.stroke-color = 'black'
-  
-  
+
+
   #new RefCross
 '''
 'lib-cap-thd': '''
@@ -673,8 +846,8 @@ export {
                   2: 'a'
               border:
                   dia: 8mm
-  
-  
+
+
   add-class class Buzzer extends CAP_thd
       (data, overrides) ->
           super data, overrides `based-on` do
@@ -684,10 +857,187 @@ export {
                   interval: 7.70mm
               border:
                   dia: 12mm
-  
+
   #new CAP_thd
   #new Buzzer
-  
-  
+
+
+'''
+'lib-tb6600': '''
+
+  add-class class TB6600 extends PinArray
+      (data) ->
+          super data, defaults =
+              name: 's_'
+              pad:
+                  dia: 2.54mm
+                  drill: 1mm
+              cols:
+                  count: 1
+              rows:
+                  count: 12
+                  interval: 5.12mm
+              dir: 'x'
+              labels:
+                  1: "vcc"    # 9-40V
+                  2: "gnd"
+                  3: "b+"     # coil B
+                  4: "b-"
+                  5: "a+"     # coil A
+                  6: "a-"
+                  7: "pul+"   # pulse
+                  8: "pul-"
+                  9: "dir+"   # direction
+                  10: "dir-"
+                  11: "ien+"  # inverse enable
+                  12: "ien-"
+              mirror: yes
+
+  #new TB6600
+'''
+'lib-QuadPinArray': '''
+  #! requires PinArray
+
+  # See LQFP48 for example
+  add-class class QuadPinArray extends Footprint
+      create: (data) ->
+          overwrites =
+              parent: this
+              labels: data.labels
+
+          left = new PinArray data.left <<< overwrites
+          right = new PinArray data.right <<< overwrites
+          top = new PinArray data.top <<< overwrites <<< {rotation: 90}
+          bottom = new PinArray data.bottom <<< overwrites <<< {rotation: 90}
+
+          iface = {}
+          for num, label of left.iface
+              iface[num] = label
+          for num, label of right.iface
+              iface[num] = label
+          for num, label of top.iface
+              iface[num] = label
+          for num, label of bottom.iface
+              iface[num] = label
+          @iface = iface
+
+          right.position = left.position.add [data.distance |> mm2px, 0]
+          top.position = right.position.add left.position .divide 2 .subtract [0, (data.distance) / 2 |> mm2px]
+          bottom.position = top.position.add [0, data.distance |> mm2px]
+          @make-border data
+
+
+
+'''
+'lib-LQFP': '''
+  #! requires QuadPinArray
+
+  add-class class LQFP48 extends QuadPinArray
+      (data, overrides) ->
+          pin-per-side = 12
+          pad =
+              width: 1.2mm
+              height: 0.3mm
+          pin-interval = 0.5mm
+
+          super data, overrides `based-on` do
+              name: 'c_'
+              distance: 8.5mm
+              left:
+                  start: 1
+                  dir: 'y'
+                  pad: pad
+                  rows:
+                      count: pin-per-side
+                      interval: pin-interval
+              bottom:
+                  start: 1 + (pin-per-side * 1)
+                  pad: pad
+                  dir: '-y'
+                  rows:
+                      count: pin-per-side
+                      interval: pin-interval
+              right:
+                  start: 1 + (pin-per-side * 2)
+                  pad: pad
+                  dir: '-y'
+                  rows:
+                      count: pin-per-side
+                      interval: pin-interval
+              top:
+                  start: 1 + (pin-per-side * 3)
+                  dir: 'y'
+                  pad: pad
+                  rows:
+                      count: pin-per-side
+                      interval: pin-interval
+              border:
+                  width: 6.5mm
+                  height: 6.5mm
+
+  #new LQFP48
+'''
+'lib-stm32': '''
+  #! requires LQFP48
+
+
+  add-class class STM32F103C8 extends LQFP48
+      (data) ->
+          super data, defaults =
+              labels:
+                  1: \\VBAT
+                  2: \\PC13 # TAMPER - RTC
+                  3: \\PC14 # OSC32_IN
+                  4: \\PC15 # OSC32_OUT
+                  5: \\PD0 # OSC_IN
+                  6: \\PD1 # OSC_OUT
+                  7: \\NRST
+                  8: \\VSSA
+                  9: \\VDDA
+                  10: \\PA0 # WKUP
+                  11: \\PA1
+                  12: \\PA2
+
+                  13: \\PA3
+                  14: \\PA4
+                  15: \\PA5
+                  16: \\PA6
+                  17: \\PA7
+                  18: \\PB0
+                  19: \\PB1
+                  20: \\PB2
+                  21: \\PB10
+                  22: \\PB11
+                  23: \\VSS_1
+                  24: \\VDD_1
+
+                  25: \\PB12
+                  26: \\PB13
+                  27: \\PB14
+                  28: \\PB15
+                  29: \\PA8
+                  30: \\PA9 # USART1_TX
+                  31: \\PA10 # USART1_RX
+                  32: \\PA11
+                  33: \\PA12
+                  34: \\SWDIO # PA13
+                  35: \\VSS_2
+                  36: \\VDD_2
+
+                  37: \\SWCLK # PA14
+                  38: \\PA15
+                  39: \\PB3
+                  40: \\PB4
+                  41: \\PB5
+                  42: \\PB6
+                  43: \\PB7
+                  44: \\Boot0
+                  45: \\PB8
+                  46: \\PB9
+                  47: \\VSS_3
+                  48: \\VDD_3
+
+
+  #new STM32F103C8
 '''
 }

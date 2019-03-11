@@ -11,6 +11,8 @@ try
     new Ractive do
         el: \body
         template: RACTIVE_PREPARSE('app.pug')
+        data:
+            dependencies: __DEPENDENCIES__
         onrender: ->
             <~ getDep "js/app3.js"
             # send signal to Async Synchronizers

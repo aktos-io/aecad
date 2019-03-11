@@ -6,7 +6,7 @@ require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
 require! 'prelude-ls': {min, empty, abs, keys}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
-require! '../../tools/lib': {getAecad}
+require! '../../tools/lib': {getAecad, Edge}
 require! 'aea/do-math': {px2mm}
 require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
@@ -24,6 +24,12 @@ export init = (pcb) ->
 
     selection = new Selection
     schema-manager = new SchemaManager
+
+    # double-tap to Esc switches to select tool
+    pcb.on-double-esc ~>
+        # TODO: send signal to the radio-button group only
+        <~ @fire \changeTool, {}, \sl
+        @set \currTool, \sl
 
     handlers =
         upgradeComponents: (ctx) ->
@@ -49,7 +55,7 @@ export init = (pcb) ->
                     console.error "Something went wrong here."
             proceed!
 
-        calcUnconnected: (ctx) ->
+        calcUnconnected: (ctx, opts={}) ->
             console.log "------------ Performing DRC ------------"
             if schema-manager.active
                 try
@@ -66,7 +72,7 @@ export init = (pcb) ->
                     total += state.total
                 pcb.ractive.set 'totalConnections', total
                 pcb.ractive.set 'unconnectedCount', unconnected
-            else
+            else if not opts.silent
                 PNotify.notice text: "No schema present at the moment."
             console.log "------------ End of DRC ------------"
 
@@ -112,12 +118,18 @@ export init = (pcb) ->
         sendTo: (ctx) ->
             pcb.history.commit!
             layer = ctx.component.get \to
-            for pcb.selection.selected
-                console.log "sending selected: ", .., "to: ", layer
-                if ..aeobj
-                    that.owner
-                        ..set-side layer
-                        ..send-to-layer 'gui' # TODO: find a more beautiful name
+            for selected in pcb.selection.selected
+                console.log "sending selected: ", selected, "to: ", layer
+                aeobj = if selected.aeobj
+                    that
+                else
+                    # convert the selected items into Edge aeobj
+                    new Edge
+                        ..import selected
+
+                aeobj.owner
+                    ..set-side layer
+                    ..send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
             pcb.history.commit!
@@ -134,7 +146,7 @@ export init = (pcb) ->
                         if ..getClassName! is \Path and ..segments.length < 2
                             ..remove!
                     if empty ..item.[]children
-                        console.log "#{..keypath.join('.')} should be deleted. (\##{++i})"
+                        console.log "#{..keypath.join('.')} should be deleted. (\##{++i})", ..item
                         ..item.remove!
             pcb.vlog.info "Removed #{i} items. Use Ctrl+Z for undo."
 

@@ -138,7 +138,8 @@ export class ComponentBase
         (val) -> @g.bounds = val
 
     grotation: ~
-        ->  (@owner.get-data('rotation') or 0) % 360
+        ->
+            (@get-data('rotation') or 0) % 360
 
     gbounds: ~
         # Global bounds

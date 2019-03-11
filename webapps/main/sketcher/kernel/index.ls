@@ -70,6 +70,10 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     #console.log "selected item's data: ", aeobj.data
                     #console.log "selected item's owner's data: ", aeobj.owner.data
                     @ractive.set \aecadData, aeobj.data
+
+                    # DEBUG: Additional data for debugging purposes
+                    #@ractive.set \aecadData.grotation, aeobj.grotation
+
                     if aeobj.parent
                         @ractive.set \aecadOwnerData, aeobj.owner.data
                 else
@@ -108,17 +112,8 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
             name: 'AltGr'
         speed-drag =
             inactive: 1.5 # inactive radius
-
-        /* Use this marker to debug speed-drag mode * /
-        marker-width = 1
-        marker = new @Shape.Circle do
-            point: @view.center
-            radius: 5
-            stroke-width: marker-width
-            opacity: 0.8
-            stroke-color: 'yellow'
-            data: {+tmp}
-        /* */
+        esc = {} # escape key handler
+        _self = this
 
         on-zoom-change = (offset, newZoom, viewPosition) ~>
             if move.grab-point
@@ -142,8 +137,6 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                         if ratio > 1
                             ratio = 1
                         dead-vect = move.speed.multiply (ratio)
-                        marker?radius = speed-drag.inactive * speed-val / @view.zoom
-                        marker?.stroke-width = marker-width / @view.zoom
                         speed = move.speed.subtract(dead-vect) .multiply coeff
                         #console.log "speed len: ", speed.length, "dead radius: ", dead-radius, "move-speed:", move.speed.length
                         @view.center = @view.center.add speed
@@ -152,7 +145,6 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                         @ractive.get 'pointer'
                             ..set ..add speed
                         @ractive.update 'pointer'
-                    marker?.position = move.grab-point
 
             ..onMouseMove = (event) ~>
                 if move.pan
@@ -181,11 +173,11 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     # delete an item with Delete key
                     @history.commit!
                     @selection.delete!
-                    @ractive.fire \calcUnconnected  # TODO: Unite this action
+                    @ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
                 | \z =>
                     if event.modifiers.control
                         @history.back!
-                        @ractive.fire \calcUnconnected  # TODO: Unite this action
+                        @ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
 
                 | speed-drag-key.key =>
                     unless event.modifiers.control
@@ -217,7 +209,15 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                             text: "Joystick mode enabled. \nPress #{speed-drag-key.name} to disable."
                             addClass: 'nonblock'
 
+                | \escape =>
+                    esc.date = Date.now!
+                    esc.date0 = esc.date0 or 0
+                    if esc.date - esc.date0 < 300ms
+                        _self._on_double_esc?!
+                    esc.date0 = esc.date
 
+    on-double-esc: (handler) ->
+        @_on_double_esc = handler
 
     on-zoom: (handler) ->
         # normalize the source values according to zoom value and pass them

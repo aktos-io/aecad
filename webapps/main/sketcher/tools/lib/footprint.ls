@@ -1,12 +1,11 @@
 require! './container': {Container}
 require! 'aea/do-math': {mm2px}
-require! 'aea/merge': {based-on}
 
 export class Footprint extends Container
     ->
         super ...
         unless @resuming
-            <~ sleep 20ms
+            <~ sleep 2ms
             data = @data
             # set side if present
             if data.side
@@ -37,7 +36,7 @@ export class Footprint extends Container
             @g.position.set displacement
 
         for @pads
-            # DO NOT USE yadayada here!
+            # DO NOT USE yadayada here! TODO: explain why.
             ..on-move ...arguments
 
     make-border: (data) ->

@@ -72,3 +72,29 @@ export do
 
         # cleanup canvas
         sch.remove-footprints!
+
+    "indirect connection": ->
+        return false 
+        open-collector =
+            # open collector output
+            iface: "Input, Output, gnd, vcc"
+            bom:
+                NPN: 'Q1'
+                "SMD1206": "R1 R2"
+                C1206: "D1"
+            netlist:
+                Input: 'R1.1'
+                2: 'Q1.b R1.2'
+                gnd: 'Q1.e'
+                Output: 'Q1.c'
+                3: "vcc D1.a"
+                4: "D1.c R2.1"
+                5: "R2.2 Q1.c"
+
+        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+
+        expect sch.compile!
+        .to-equal undefined
+
+        # cleanup canvas
+        sch.remove-footprints!

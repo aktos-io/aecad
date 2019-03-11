@@ -7,19 +7,25 @@ table
     tr 
         td Zoom 
         td: input(value="{{pcb.view.zoom}}" style="max-width: 40px; overflow-x: hidden")
-    tr 
-        td Trace width
-        td: s-input(value="{{currTrace.width}}")            
-    tr 
-        td Signal T.
-        td: s-input(value="{{currTrace.signal}}" readonly)
-    tr 
-        td Power T.
-        td: s-input(value="{{currTrace.power}}" readonly)
++if('currTool === "tr"')
+    table
+        tr 
+            td Trace width
+            td: s-input(value="{{currTrace.width}}")            
+        tr 
+            td Signal T.
+            td: s-input(value="{{currTrace.signal}}" readonly)
+        tr 
+            td Power T.
+            td: s-input(value="{{currTrace.power}}" readonly)
 
-//- Property window 
+//- # Property window 
 
+    Properties are set by kernel/index.ls/"Selection.on 'selected'" hook.
+    
     Properties which starts with an underscore are hidden. 
+    
+    ------------------------------------------------------
 .ui.segments
     h5.ui.top.attached.block.header Properties 
     .ui.segment(style="padding: 2px")
