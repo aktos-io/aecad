@@ -1,12 +1,18 @@
-# aeCAD (DRAFT)
+![image](https://user-images.githubusercontent.com/6639874/49327385-0ee89300-f572-11e8-8bf0-a11a3f6bee69.png)
+
+# aeCAD
 
 ## What is it?
 
 Electronic Design Automation software, like [KiCAD](http://kicad-pcb.org/), but using the web technologies (runs in the browser or desktop via [ElectronJS](https://electronjs.org/)) like [EasyEDA](https://easyeda.com/), with offline installation support. It will be like [Onshape](https://www.onshape.com/) to [Solidworks](http://www.solidworks.com/).
 
-Basically a software to create real-world drawings from schematics:
+Basically a software to create schematics and real-world drawings for physical production (and/or machining).
 
-![image](https://user-images.githubusercontent.com/6639874/33883344-862bcbd6-df4c-11e7-84c9-7a077be731a9.png)
+# Status
+
+Alpha: *Works for me* but not recommended for professional usage. Testers are welcome.
+
+> See also: [roadmap to beta](https://github.com/aktos-io/aecad/issues?q=is%3Aopen+is%3Aissue+milestone%3ABeta)
 
 ## Why Another Software?
 
@@ -102,21 +108,6 @@ When we need a custom hardware, following actions must be taken in order:
 5. If any optimization is required (because of component collision, insufficient PCB space, etc...), go to step 1.
 6. Produce a prototype PCB with toner transfer technique.
 7. Finalize the design and create fabrication files (Gerber files etc.)
-
-# Technology Decision
-
-Core of aeCAD will be built on [ScadaJS](https://github.com/aktos-io/scada.js). Specific libraries will be built/chosen accordingly.
-
-# Status
-
-![image](https://user-images.githubusercontent.com/6639874/49327385-0ee89300-f572-11e8-8bf0-a11a3f6bee69.png)
-
-Satus: Alpha: *Works for me* but not recommended for professional usage. Testers are welcome.
-
-Feel free to open issues if you think:
-
-* An important design consideration should be taken into account now
-* An important feature is missing in the above list
 
 # TODO
 
