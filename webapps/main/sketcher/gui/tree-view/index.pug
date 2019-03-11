@@ -19,9 +19,13 @@ table
             td Power T.
             td: s-input(value="{{currTrace.power}}" readonly)
 
-//- Property window 
+//- # Property window 
 
+    Properties are set by kernel/index.ls/"Selection.on 'selected'" hook.
+    
     Properties which starts with an underscore are hidden. 
+    
+    ------------------------------------------------------
 .ui.segments
     h5.ui.top.attached.block.header Properties 
     .ui.segment(style="padding: 2px")

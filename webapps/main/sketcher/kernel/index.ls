@@ -70,6 +70,10 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     #console.log "selected item's data: ", aeobj.data
                     #console.log "selected item's owner's data: ", aeobj.owner.data
                     @ractive.set \aecadData, aeobj.data
+
+                    # DEBUG: Additional data for debugging purposes
+                    @ractive.set \aecadData.grotation, aeobj.grotation
+
                     if aeobj.parent
                         @ractive.set \aecadOwnerData, aeobj.owner.data
                 else
