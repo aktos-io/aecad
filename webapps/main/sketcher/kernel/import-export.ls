@@ -64,7 +64,8 @@ export do
         project-info =
             name: "aeCAD by Aktos Electronics"
             website: "https://aktos.io/aecad"
-            version: __DEPENDENCIES__.root.commit
+            dependencies:
+                aecad: __DEPENDENCIES__.root.commit
 
         svg.attributes.data = project-info
 
@@ -99,7 +100,7 @@ export do
                 JSON.stringify svg
         | 'json' =>
             paperjs-json = @__export_json!
-                ..push ["aeCAD", project-info]
+                ..unshift ["aeCAD", project-info]
             res = pretty-json paperjs-json
         |_ =>
             err = "Extension is not recognized: #{opts.format}"
