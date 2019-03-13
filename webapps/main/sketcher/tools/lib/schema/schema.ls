@@ -44,7 +44,7 @@ the-one-in = (arr) ->
     # expect only one truthy value in the array
     # and return it
     the-value = null
-    for arr when ..?
+    for arr when ..? and .. isnt ""
         unless the-value
             the-value = ..
         else if "#{the-value}" isnt "#{..}"
@@ -239,9 +239,10 @@ export class Schema implements bom, footprints, netlist, guide
             try
                 existing-netid = '' + the-one-in [pad.netid for pad in net]
             catch
-                # just in case
-                console.error "#{net.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
-                throw new Error "Multiple netid's assigned to the pads in the same net"
+                # error if there are conflicting netid's already existing
+                dump = "#{net.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
+                console.error dump
+                throw new Error "Multiple netid's assigned to the pads in the same net: (format: pin-name(pin-no)[netid] ) \n\n #{dump}"
 
             # use existing netid extracted from one of the pads
             if existing-netid?.match /[0-9]+/
