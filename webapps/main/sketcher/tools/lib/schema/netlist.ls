@@ -80,20 +80,27 @@ export do
                 ..unconnected-pads = []
 
             # create the connection tree
-            connected-pads = {}
+            connected-elements = {}
             for pad in net
                 for trace-item in _traces
                     if trace-item `is-connected` pad
-                        connected-pads[][trace-item.phy-netid].push pad
+                        connected-elements[][trace-item.phy-netid].push pad
 
-            # merge connection tree
-            named-connections = [v.map (.pin) for k, v of connected-pads]
+            named-connections = []
+            for phy, elements of connected-elements
+                # at this point, "elements" are Pad instances, use their ".pin" property
+                connected = []
+                connected ++= elements.map((.pin))
+                connected ++= ["trace-id::#{..id}" for _traces when "#{..phy-netid}" is "#{phy}"]
+                named-connections.push connected
+
+
             state.reduced = net-merge named-connections, [..pin for net]
 
             # generate the list of unconnected Pad instances
             # TODO: determine discrete-pads by closest point, not by the first
             # pad in the array (which is somewhat random)
-            discrete-pads = [first pad for state.reduced]
+            discrete-pads = [first .. for state.reduced]
             if discrete-pads.length is 1
                 discrete-pads.length = 0
 
