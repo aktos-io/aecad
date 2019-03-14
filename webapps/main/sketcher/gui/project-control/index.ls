@@ -6,6 +6,20 @@ require! 'dcs/browser': {SignalBranch}
 export init = (pcb) ->
     handlers =
         export: (ctx, _filename) ->
+            dirty-confirm = new SignalBranch
+            if __DEPENDENCIES__.root.dirty
+                _sd = dirty-confirm.add!
+                <~ pcb.vlog .info do
+                    title: "Dirty state of aeCAD"
+                    icon: 'warning sign'
+                    message: "
+                        Project root has uncommitted changes. Saving project with a dirty state of aeCAD may result failure to identify the correct aeCAD version for the project file in the future.
+                        \n\n
+                        You should really commit your changes and then save your project.
+                        "
+                _sd.go!
+            <~ dirty-confirm.joined
+
             b = new SignalBranch
             filename = null
             if _filename
