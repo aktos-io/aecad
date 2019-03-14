@@ -150,9 +150,13 @@ export class Trace extends Container implements follow, helpers, end
         if @schema
             uncoupled = []
             sections = @schema._connection_states[@netid].reduced
-            for pins in sections
-                continue if @first-target.pin in pins
-                uncoupled ++= pins
+            for elements in sections
+                switch @first-target.type
+                | 'Pad' =>
+                    continue if @first-target.pin in elements
+                | 'Trace'
+                    continue if "trace-id::#{@first-target.g.id}" in elements
+                uncoupled ++= elements
 
             for @net when ..pin in uncoupled
                 ..selected = true
