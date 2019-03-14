@@ -59,15 +59,7 @@ export do
         return components
 
     get-connection-states: ->
-        /*
-        {
-            {{netid}}:
-                pads: []
-                traces: []
-                connected-pads: []
-                unconnected-pads: []
-        }
-        */
+        # see docs/Scheme.md/get-connection-states
         marker = (rect) ~>
             console.warn "Placing a tmp marker:", rect
             new @scope.Path.Rectangle {
@@ -108,6 +100,7 @@ export do
                 state.unconnected-pads.length - 1
 
         console.log ":::: Connection states: ", connection-states
+        @_connection_states = connection-states
         return connection-states
 
     get-traces: ->
