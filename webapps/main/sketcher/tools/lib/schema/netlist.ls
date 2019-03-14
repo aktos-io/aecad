@@ -59,15 +59,7 @@ export do
         return components
 
     get-connection-states: ->
-        /*
-        {
-            {{netid}}:
-                pads: []
-                traces: []
-                connected-pads: []
-                unconnected-pads: []
-        }
-        */
+        # see docs/Scheme.md/get-connection-states
         marker = (rect) ~>
             console.warn "Placing a tmp marker:", rect
             new @scope.Path.Rectangle {
@@ -88,18 +80,31 @@ export do
                 ..unconnected-pads = []
 
             # create the connection tree
-            connected-pads = {}
+            connected-elements = {}
             for pad in net
                 for trace-item in _traces
                     if trace-item `is-connected` pad
-                        connected-pads[][trace-item.phy-netid].push pad
+                        connected-elements[][trace-item.phy-netid].push pad
 
-            # merge connection tree
-            named-connections = [v.map (.pin) for k, v of connected-pads]
+            named-connections = []
+            for phy, elements of connected-elements
+                # at this point, "elements" are Pad instances, use their ".pin" property
+                connected = []
+                connected ++= elements.map((.pin))
+                connected ++= ["trace-id::#{..id}" for _traces when "#{..phy-netid}" is "#{phy}"]
+                named-connections.push connected
+
+
             state.reduced = net-merge named-connections, [..pin for net]
 
-            # generate Pad object list
-            state.unconnected-pads = [.. for net when ..pin in state.reduced.stray]
+            # generate the list of unconnected Pad instances
+            # TODO: determine discrete-pads by closest point, not by the first
+            # pad in the array (which is somewhat random)
+            discrete-pads = [first .. for state.reduced]
+            if discrete-pads.length is 1
+                discrete-pads.length = 0
+
+            state.unconnected-pads = [.. for net when ..pin in discrete-pads]
 
             # report the unconnected trace count
             state.unconnected = if empty state.unconnected-pads
@@ -108,6 +113,7 @@ export do
                 state.unconnected-pads.length - 1
 
         console.log ":::: Connection states: ", connection-states
+        @_connection_states = connection-states
         return connection-states
 
     get-traces: ->
@@ -172,9 +178,7 @@ export do
         # Mark each trace with a temporary "physical connection id". This `phy-netid`
         # will be later used to identify wire group.
         id = 1
-        for reduced.stray
-            traces[..].phy-netid = id++
-        for reduced.merged
+        for reduced
             _id = id++
             for ..
                 traces[..].phy-netid = _id

@@ -45,9 +45,7 @@ pcb.vlog.info conn-list-txt.join '\n\n'
 
             {
                 {{netid}}:
-                    reduced: See net-merge function documentation.
-                        merged: [[], ]
-                        stray: ["", ]
+                    reduced: Array of grouped pads by physical connection states 
                     unconnected-pads: Array of unconnected Pad instances.
                     total: Number of possible connections
                     unconnected: Number of missing traces
