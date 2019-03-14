@@ -14,8 +14,8 @@
 # Returns
 
 Object =
-    merged: merged conn-tree
-    stray: stray (unconnected) elements
+    merged: Array of array of connected elements
+    stray: First elements (as a sample) of each array of "merged" tree if "merged" is disjointed (has more than one array). 
 
 # - TODO: https://stackoverflow.com/q/21900713/1952991
 
