@@ -33,11 +33,24 @@ pcb.vlog.info conn-list-txt.join '\n\n'
 
 ## Schema.netlist
 
-`Array` of "`Array` of Pads which are on the same net".
+`Array` of "`Array` of Pads which are designed to be on the same net".
 
 # Short circuit detection
 
-`Schema.netlist` is reduced by `net-merge` function. ...TODO...
+`sch.netlist` is reduced by `net-merge` function. ...TODO...
+
+# Getting unconnected count
+
+"connection states" are returned by `sch.get-connection-states!` with the following format:
+
+            {
+                {{netid}}:
+                    reduced: Array of grouped pads by physical connection states 
+                    unconnected-pads: Array of unconnected Pad instances.
+                    total: Number of possible connections
+                    unconnected: Number of missing traces
+            }
+
 
 # Usage
 

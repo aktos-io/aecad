@@ -61,11 +61,22 @@ export do
         if opts.mirror
             svg.attributes.transform = "scale(-1,1)"
 
+        deps = __DEPENDENCIES__
+        if deps.root.dirty
+            PNotify.alert do
+                hide: no
+                title: "Dirty state of aeCAD"
+                text: "
+                    Project root has uncommitted changes. Saving project with a dirty state of aeCAD may result failure to identify the correct aeCAD version for the project file in the future.
+                    \n\n
+                    You should really commit your changes and then save your project.
+                    "
+
         project-info =
             name: "aeCAD by Aktos Electronics"
             website: "https://aktos.io/aecad"
             dependencies:
-                aecad: __DEPENDENCIES__.root.commit
+                aecad: deps.root.commit
 
         svg.attributes.data = project-info
 

@@ -144,10 +144,23 @@ export class Trace extends Container implements follow, helpers, end
         for @net
             ..selected = false
 
-    show-guides: ->
-        # Highlight possible target pads
-        for @net
-            ..selected = true
+    show-guides: !->
+        # Highlight possible target pads without highlighting @first-target and
+        # the elements that are already connected to it
+        if @schema
+            uncoupled = []
+            sections = @schema._connection_states[@netid].reduced
+            for elements in sections
+                switch @first-target.type
+                | 'Pad' =>
+                    continue if @first-target.pin in elements
+                | 'Trace'
+                    continue if "trace-id::#{@first-target.g.id}" in elements
+                uncoupled ++= elements
+
+            for @net when ..pin in uncoupled
+                ..selected = true
+
 
     add-segment: (point, flip-side=false) !->
         if @paused
@@ -170,6 +183,7 @@ export class Trace extends Container implements follow, helpers, end
             tolerance: 1,
             exclude: @g
             filter: (hit) ~>
+                # connect only if the target is on the same layer
                 if hit.item.data?aecad?side is curr-layer
                     return true
                 aeobj=(get-aecad hit.item)
@@ -218,6 +232,9 @@ export class Trace extends Container implements follow, helpers, end
                         """
                 return
             console.log "Connected to netid: #{@netid}"
+
+            unless @first-target
+                @first-target = target
 
             switch target.type
             | 'Trace' =>

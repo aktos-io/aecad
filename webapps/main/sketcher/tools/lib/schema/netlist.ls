@@ -59,15 +59,7 @@ export do
         return components
 
     get-connection-states: ->
-        /*
-        {
-            {{netid}}:
-                pads: []
-                traces: []
-                connected-pads: []
-                unconnected-pads: []
-        }
-        */
+        # see docs/Scheme.md/get-connection-states
         marker = (rect) ~>
             console.warn "Placing a tmp marker:", rect
             new @scope.Path.Rectangle {
@@ -80,57 +72,86 @@ export do
             }
 
         connection-states = {}
-        _traces = @get-traces!
+        _traces = @get-traces! # List of trace items with physically connected states are calculated
         # Calculate connections
         for netid, net of @connection-list
             state = connection-states.{}[netid]
-                ..traces = traces = _traces[netid] or []
                 ..total = unique [..pin for net] .length - 1    # Number of possible connections
                 ..unconnected-pads = []
 
             # create the connection tree
-            connected-pads = {}
+            connected-elements = {}
             for pad in net
                 for trace-item in _traces
                     if trace-item `is-connected` pad
-                        connected-pads[][trace-item.phy-netid].push pad
+                        connected-elements[][trace-item.phy-netid].push pad
 
-            # merge connection tree
-            named-connections = [v.map (.pin) for k, v of connected-pads]
+            named-connections = []
+            for phy, elements of connected-elements
+                # at this point, "elements" are Pad instances, use their ".pin" property
+                connected = []
+                connected ++= elements.map((.pin))
+                connected ++= ["trace-id::#{..id}" for _traces when "#{..phy-netid}" is "#{phy}"]
+                named-connections.push connected
+
+
             state.reduced = net-merge named-connections, [..pin for net]
 
-            # generate Pad object list
-            state.unconnected-pads = [.. for net when ..pin in state.reduced.stray]
+            # generate the list of unconnected Pad instances
+            # TODO: determine discrete-pads by closest point, not by the first
+            # pad in the array (which is somewhat random)
+            discrete-pads = [first .. for state.reduced]
+            if discrete-pads.length is 1
+                discrete-pads.length = 0
 
-            # report the unconnected count
+            state.unconnected-pads = [.. for net when ..pin in discrete-pads]
+
+            # report the unconnected trace count
             state.unconnected = if empty state.unconnected-pads
                 0
             else
                 state.unconnected-pads.length - 1
 
         console.log ":::: Connection states: ", connection-states
+        @_connection_states = connection-states
         return connection-states
 
     get-traces: ->
+        /*
+            Get all the trace items with a `phy-netid` property added where this
+            property shows that the traces with the same `phy-netid` is physically
+            connected with each other.
+
+            1. Find all traces (and make some necessary cleanups)
+            2. Find the physically connected traces
+            3. Generate a `phy-netid` starting from 1 and assign same `phy-netid`
+                for each "physically connected trace network".
+            4. Return the array of traces while that `phy-netid` property is assigned.
+        */
         traces = {}
+        trace-ids = []
         for {item} in @scope.get-components {exclude: '*', include: <[ Trace ]>}
             # Cleanup non-functional traces
+            # ------------------------------
             for item.children when ..getClassName?! is \Path
                 if ..segments.length is 1
                     ..remove!
             if item.children.length is 0
                 item.remove!
                 continue
+            # end of cleanup
 
             unless item.data.aecad.netid
                 console.error "Trace item:", item
                 throw new Error "A trace with no netid found"
             item.phy-netid = null
             traces[item.id] = item
+            trace-ids.push item.id # for performance reasons
+
+        # traces is now an object that contains all valid traces
 
         # detect physically connected traces
-        # assign a physical netid: same id for physically connected traces
-        trace-ids = keys traces
+        # assign a physical netid (same id for physically connected traces)
         count = trace-ids.length
         conn-traces = []
         for i from 0 til count-1
@@ -150,13 +171,20 @@ export do
                                 continue search
         reduced = net-merge(conn-traces, trace-ids.map((.to-string!)))
         #console.log "Connected traces:", conn-traces, reduced
+
+        # We have physically connected traces grouped in "reduced" variable
+        # at this point.
+
+        # Mark each trace with a temporary "physical connection id". This `phy-netid`
+        # will be later used to identify wire group.
         id = 1
-        for reduced.stray
-            traces[..].phy-netid = id++
-        for reduced.merged
+        for reduced
             _id = id++
             for ..
                 traces[..].phy-netid = _id
 
-        #console.log "Found Traces:", traces
-        return values traces
+        # Return array of simple trace items while a ".phy-netid" property is
+        # assigned each of them.
+        trace-items = values traces
+        #console.log "trace-items: ", trace-items
+        return trace-items
