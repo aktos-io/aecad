@@ -91,7 +91,11 @@ export do
             state.reduced = net-merge named-connections, [..pin for net]
 
             # generate Pad object list
-            state.unconnected-pads = [.. for net when ..pin in state.reduced.stray]
+            discrete-pads = [first pad for state.reduced.merged]
+            if discrete-pads.length is 1
+                discrete-pads.length = 0
+
+            state.unconnected-pads = [.. for net when ..pin in discrete-pads]
 
             # report the unconnected trace count
             state.unconnected = if empty state.unconnected-pads
@@ -165,8 +169,6 @@ export do
         # Mark each trace with a temporary "physical connection id". This `phy-netid`
         # will be later used to identify wire group.
         id = 1
-        for reduced.stray
-            traces[..].phy-netid = id++
         for reduced.merged
             _id = id++
             for ..

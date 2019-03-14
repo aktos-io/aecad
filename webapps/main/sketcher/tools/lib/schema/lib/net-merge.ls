@@ -15,7 +15,7 @@
 
 Object =
     merged: Array of array of connected elements
-    stray: First elements (as a sample) of each array of "merged" tree if "merged" is disjointed (has more than one array). 
+    stray: First elements (as a sample) of each array of "merged" tree if "merged" is disjointed (has more than one array).
 
 # - TODO: https://stackoverflow.com/q/21900713/1952991
 
@@ -74,6 +74,9 @@ export net-merge = (conn-tree, net) ->
     if net
         unconn = [] # unconnected pad names
         stray-pads = net `difference` flatten merged-tree
+
+        # TODO: BELOW IS DEPRECATED. THERE IS NO NEED FOR "stray" reference in the application,
+        # use the elements whose length is 1 in the "merged" reference instead.
         has-stray-nets = merged-tree.length > 1
         if not empty stray-pads or has-stray-nets
             # we have unconnected pads, use `first ref` as entry point
@@ -87,6 +90,10 @@ export net-merge = (conn-tree, net) ->
         for tail merged-tree or []
             if first ..
                 unconn.push that
+        ## END OF DEPRECATION 
+
+        # append the additional pads to merged tree
+        merged-tree ++= [[..] for stray-pads]
 
     {merged: merged-tree, stray: unconn}
 
@@ -168,7 +175,10 @@ make-tests "net-merge", tests =
         .to-equal do
             merged:
                 <[ a ]>
-                ...
+                <[ b ]>
+                <[ c ]>
+                <[ d ]>
+                <[ e ]>
             stray: <[ a b c d e ]>
 
     "large net": ->
