@@ -9,13 +9,9 @@
         <[ a c ]>
         <[ c d ]>
 
-* net         : (Optional) Array of all elements, like <[ a b c d ]>
+* net         : (Optional) Array of strings of all or additional (unconnected) elements
 
-# Returns
-
-Object =
-    merged: Array of array of connected elements
-    stray: First elements (as a sample) of each array of "merged" tree if "merged" is disjointed (has more than one array).
+# Returns Array of array of connected elements
 
 # - TODO: https://stackoverflow.com/q/21900713/1952991
 
@@ -60,49 +56,20 @@ export net-merge = (conn-tree, net) ->
             break
     merged-tree = lookup
 
-    # There are 3 possibilities here:
-    # 1. Reference net (and its pads)
-    # 2. Stray nets (and their pads)
-    # 3. Stray pads
-    #
-    # Procedure:
-    # 1. If there are stray pads or stray net(s), sample a pad from ref.
-    #    and put into unconnected too
-
-    unconn = null
     # find out stray nodes
     if net
-        unconn = [] # unconnected pad names
         stray-pads = net `difference` flatten merged-tree
-
-        # TODO: BELOW IS DEPRECATED. THERE IS NO NEED FOR "stray" reference in the application,
-        # use the elements whose length is 1 in the "merged" reference instead.
-        has-stray-nets = merged-tree.length > 1
-        if not empty stray-pads or has-stray-nets
-            # we have unconnected pads, use `first ref` as entry point
-            if first merged-tree
-                unconn.push first that
-
-        for stray-pads
-            unconn.push ..
-
-        # add stray nets' first pads as entry point
-        for tail merged-tree or []
-            if first ..
-                unconn.push that
-        ## END OF DEPRECATION 
-
-        # append the additional pads to merged tree
+        # append the additional pads to merged tree as 1-element-array
         merged-tree ++= [[..] for stray-pads]
 
-    {merged: merged-tree, stray: unconn}
+    return merged-tree
 
 # Tests
 # ---------------------------------------------------------------------
 require! 'dcs/lib/test-utils': {make-tests}
 
 make-tests "net-merge", tests =
-    1: ->
+    "simple": ->
         net = <[ a b c d e ]>
         tree =
             <[ a b ]>
@@ -110,18 +77,32 @@ make-tests "net-merge", tests =
             <[ d e ]>
 
         expect net-merge tree, net
-        .to-equal do
-            merged:
-                <[ a b ]>
-                <[ c ]>
-                <[ d e ]>
-            stray: <[ a c d ]>
+        .to-equal x =
+            <[ a b ]>
+            <[ c ]>
+            <[ d e ]>
 
     'missing tree': ->
         expect (-> net-merge null)
         .to-throw "Tree is missing"
 
-    22: ->
+    "net has only additional elements": ->
+        net = <[ g h i ]>
+        tree =
+            <[ a b ]>
+            <[ c d ]>
+            <[ e f ]>
+            <[ a c ]>
+            <[ e d ]>
+
+        expect net-merge tree, net
+        .to-equal x =
+            <[ a b c d e f ]>
+            <[ g ]>
+            <[ h ]>
+            <[ i ]>
+
+    "all networks are eventually connected": ->
         net = <[ a b c d e f ]>
         tree =
             <[ a b ]>
@@ -131,13 +112,11 @@ make-tests "net-merge", tests =
             <[ e d ]>
 
         expect net-merge tree, net
-        .to-equal do
-            merged:
-                <[ a b c d e f ]>
-                ...
-            stray: []
+        .to-equal x =
+            <[ a b c d e f ]>
+            ...
 
-    2: ->
+    "simple 2": ->
         net = <[ a b c d e ]>
         tree =
             <[ a b ]>
@@ -145,11 +124,9 @@ make-tests "net-merge", tests =
             <[ c d e ]>
 
         expect net-merge tree, net
-        .to-equal do
-            merged:
-                <[ a b ]>
-                <[ c d e ]>
-            stray: <[ a c ]>
+        .to-equal x =
+            <[ a b ]>
+            <[ c d e ]>
 
     'indirectly connected': ->
         net = <[ a b c d e ]>
@@ -159,11 +136,9 @@ make-tests "net-merge", tests =
             <[ c d e a ]>
 
         expect net-merge tree, net
-        .to-equal do
-            merged:
-                <[ a b c d e ]>
-                ...
-            stray: []
+        .to-equal x =
+            <[ a b c d e ]>
+            ...
 
     'non-functional connection': ->
         net = <[ a b c d e ]>
@@ -172,14 +147,12 @@ make-tests "net-merge", tests =
             ...
 
         expect net-merge tree, net
-        .to-equal do
-            merged:
-                <[ a ]>
-                <[ b ]>
-                <[ c ]>
-                <[ d ]>
-                <[ e ]>
-            stray: <[ a b c d e ]>
+        .to-equal x =
+            <[ a ]>
+            <[ b ]>
+            <[ c ]>
+            <[ d ]>
+            <[ e ]>
 
     "large net": ->
         tree = [
@@ -197,8 +170,7 @@ make-tests "net-merge", tests =
         ]
 
         expect net-merge tree
-        .to-equal do
-            merged:
+        .to-equal x = 
                 ["a","b"]
                 ["c"],
                 ["i","j","k","l","m","n"],
@@ -209,4 +181,3 @@ make-tests "net-merge", tests =
                 ["z"],
                 ["ad"],
                 ["688"],
-            stray: null

@@ -90,8 +90,10 @@ export do
             named-connections = [v.map (.pin) for k, v of connected-pads]
             state.reduced = net-merge named-connections, [..pin for net]
 
-            # generate Pad object list
-            discrete-pads = [first pad for state.reduced.merged]
+            # generate the list of unconnected Pad instances
+            # TODO: determine discrete-pads by closest point, not by the first
+            # pad in the array (which is somewhat random)
+            discrete-pads = [first pad for state.reduced]
             if discrete-pads.length is 1
                 discrete-pads.length = 0
 
@@ -169,7 +171,7 @@ export do
         # Mark each trace with a temporary "physical connection id". This `phy-netid`
         # will be later used to identify wire group.
         id = 1
-        for reduced.merged
+        for reduced
             _id = id++
             for ..
                 traces[..].phy-netid = _id

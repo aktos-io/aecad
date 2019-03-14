@@ -149,7 +149,7 @@ export class Trace extends Container implements follow, helpers, end
         # the elements that are already connected to it
         if @schema
             uncoupled = []
-            sections = @schema._connection_states[@netid].reduced.merged
+            sections = @schema._connection_states[@netid].reduced
             for pins in sections
                 continue if @first-target.pin in pins
                 uncoupled ++= pins
