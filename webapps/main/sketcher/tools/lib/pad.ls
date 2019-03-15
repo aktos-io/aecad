@@ -108,7 +108,7 @@ export class Pad extends ComponentBase
         #console.log "searching side (#{side}) doesn't match with ours: #{our-side}"
         return false
 
-    print-mode: (layers, our-side) ->
+    print-mode: ({layers}, our-side) ->
         if layers
             # switch to print mode
             if @side

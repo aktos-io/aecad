@@ -75,7 +75,9 @@ export do
                 console.warn "Deleting Layer?: ", child
                 svg.children.splice i, 1
 
-        if opts.mirror
+        scale = opts.scale or 1
+
+        if opts.mirror or scale isnt 1
             container = null
             if svg.children.length is 1 and svg.children.0.name is \g
                 container = svg.children.0
@@ -88,7 +90,20 @@ export do
                 svg.children = container
 
             [minx, miny, width, height] = svg.attributes.viewBox.split ',' .map (Number)
-            container.attributes.transform = "translate(#{width + minx * 2}, 0) scale(-1,1)"
+
+            s = scale
+            container.attributes.transform = if opts.mirror
+                "translate(#{s * (width + minx * 2) - minx * (s-1)}, #{-miny * (s-1)}) scale(#{-s},#{s})"
+            else
+                "translate(#{-minx * (s-1)}, #{-miny * (s-1)}) scale(#{s},#{s})"
+
+            if scale isnt 1
+                svg.attributes
+                    ..viewBox = "#{minx},#{miny},#{width * scale},#{height * scale}"
+                    ..width = "#{width * scale}"
+                    ..height = "#{height * scale}"
+
+
 
         console.log "Current svg: ", svg
         # ------------------------------------------------------

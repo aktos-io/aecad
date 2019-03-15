@@ -113,8 +113,8 @@ export class ComponentBase
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
 
-    print-mode: (layers, our-side) ->
-        # layers: [Array] String array indicates which layers (sides)
+    print-mode: (opts, our-side) ->
+        # opts.layers: [Array] String array indicates which layers (sides)
         #         to be printed
         # our-side: The side which the first container object is
         #

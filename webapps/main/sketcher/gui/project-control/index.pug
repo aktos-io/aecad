@@ -16,6 +16,7 @@
             ack-button.icon(on-click="prototypePrint" side="B.Cu, Edge" tooltip="Fabrication output of B.Cu")
                 icon.print.green
 
+
     //-file-button(on-read="importDXF2" type="text") DXF (2)
 
     //-
@@ -34,6 +35,15 @@
                 icon.download Export Project
     .item
         ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
+
+    .item 
+        .ui.buttons 
+            ack-button.icon(on-click="prototypePrint" side="F.Cu, Edge" scale="2" tooltip="TEST output of F.Cu"
+                filename="Test_F.Cu" trace-color="lightgray")
+                icon.print.red
+
+            ack-button.icon(on-click="prototypePrint" side="B.Cu, Edge" mirror="true" scale="2" tooltip="TEST output of B.Cu" filename="Test_B.Cu" trace-color="lightgray")
+                icon.print.green
 
     .item
         .ui.buttons

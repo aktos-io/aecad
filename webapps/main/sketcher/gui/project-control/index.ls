@@ -84,7 +84,10 @@ export init = (pcb) ->
             # layers to print
             layers = ctx.component.get \side .split ',' .map (.trim!)
             mirror = ctx.component.get \mirror
+            scale = ctx.component.get \scale
+            trace-color = ctx.component.get \trace-color
 
+            aeitems = []
             for pcb.project.layers
                 for ..getItems({-recursive})
                     try
@@ -101,16 +104,28 @@ export init = (pcb) ->
                             return
                     if item
                         #console.log "Found ae-obj:", item.data.aecad.type, "name: ", item.data.aecad.name
-                        get-aecad item
-                            ..print-mode layers
+                        o = get-aecad item
+                            ..print-mode {layers, trace-color}
+                        aeitems.push o
                     else if ..data?aecad?layer in layers
                         # TODO: provide a proper way
+                        # This is edge cuts
+                        debugger
                         ..stroke-color = \black
                         ..stroke-width = max ..stroke-width, pcb.ractive.get('currTrace.signal')
                     else
                         ..remove!
-            err, svg <~ pcb.export-svg {mirror}
-            create-download "#{layers.join('_')}.svg", svg
+
+            for aeitems when ..type is \Trace
+                ..g.send-to-back!
+                
+            err, svg <~ pcb.export-svg {mirror, scale}
+            filename = if ctx.component.get \filename
+                that
+            else
+                "#{layers.join('_')}"
+
+            create-download "#{filename}.svg", svg
             pcb.history.back!
 
         save: (ctx) ->
