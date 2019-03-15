@@ -107,18 +107,12 @@ export init = (pcb) ->
                         o = get-aecad item
                             ..print-mode {layers, trace-color}
                         aeitems.push o
-                    else if ..data?aecad?layer in layers
-                        # TODO: provide a proper way
-                        # This is edge cuts
-                        debugger
-                        ..stroke-color = \black
-                        ..stroke-width = max ..stroke-width, pcb.ractive.get('currTrace.signal')
                     else
                         ..remove!
 
             for aeitems when ..type is \Trace
                 ..g.send-to-back!
-                
+
             err, svg <~ pcb.export-svg {mirror, scale}
             filename = if ctx.component.get \filename
                 that
