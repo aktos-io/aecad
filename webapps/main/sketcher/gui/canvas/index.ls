@@ -72,6 +72,10 @@ export init = (pcb) ->
                     total += state.total
                 pcb.ractive.set 'totalConnections', total
                 pcb.ractive.set 'unconnectedCount', unconnected
+
+                for pcb.get-components {include: ["Trace"], exclude: "*"}
+                    ..item.send-to-back!
+
             else if not opts.silent
                 PNotify.notice text: "No schema present at the moment."
             console.log "------------ End of DRC ------------"
