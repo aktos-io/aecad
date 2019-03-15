@@ -242,7 +242,7 @@ export class ComponentBase
             # are from class definition. < FIXME: data shouldn't contain
             # properties from class definition, it should only contain instance
             # specific data
-            if k in <[ name rotation side type ]>
+            if k in <[ name rotation side type value ]>
                 continue
             delete data[k]
         data `merge` opts
