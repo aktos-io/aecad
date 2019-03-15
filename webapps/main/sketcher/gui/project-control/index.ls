@@ -87,9 +87,20 @@ export init = (pcb) ->
 
             for pcb.project.layers
                 for ..getItems({-recursive})
-                    {item} = get-parent-aecad ..
+                    try
+                        {item} = get-parent-aecad ..
+                    catch
+                        # Probably the component is declared within the actual app script.
+                        # Try to compile and try again
+                        pcb.ractive.fire \compileScript
+                        try
+                            {item} = get-parent-aecad ..
+                        catch
+                            pcb.vlog .error message: e
+                            pcb.history.back!
+                            return
                     if item
-                        #console.log "Found ae-obj:", item.data.aecad.type
+                        #console.log "Found ae-obj:", item.data.aecad.type, "name: ", item.data.aecad.name
                         get-aecad item
                             ..print-mode layers
                     else if ..data?aecad?layer in layers
