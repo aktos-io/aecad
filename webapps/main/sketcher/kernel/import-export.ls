@@ -58,9 +58,6 @@ export do
 
         # do postprocessing here
         # ------------------------------------------------------
-        if opts.mirror
-            svg.attributes.transform = "scale(-1,1)"
-
         deps = __DEPENDENCIES__
         project-info =
             name: "aeCAD by Aktos Electronics"
@@ -77,6 +74,22 @@ export do
             if empty (child?.children or [])
                 console.warn "Deleting Layer?: ", child
                 svg.children.splice i, 1
+
+        if opts.mirror
+            container = null
+            if svg.children.length is 1 and svg.children.0.name is \g
+                container = svg.children.0
+            else
+                container =
+                    name: \g
+                    type: \element
+                    children: svg.children
+                    attributes: {}
+                svg.children = container
+
+            [minx, miny, width, height] = svg.attributes.viewBox.split ',' .map (Number)
+            container.attributes.transform = "translate(#{width + minx * 2}, 0) scale(-1,1)"
+
         console.log "Current svg: ", svg
         # ------------------------------------------------------
 
@@ -118,6 +131,10 @@ export do
             transformNode: (node) ->
                 if node.attributes["data-paper-data"]
                     node.attributes["data-paper-data"] = JSON.parse htmlDecode that
+
+                # for root node
+                if node.attributes["data"]
+                    node.attributes["data"] = JSON.parse htmlDecode that
                 node
         json <~ p-svgson.then
         #console.log "Svgson AST Re-parsed:", json
