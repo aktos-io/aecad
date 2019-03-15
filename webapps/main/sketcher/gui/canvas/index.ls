@@ -45,15 +45,28 @@ export init = (pcb) ->
             selection.clear!
             PNotify.info text: "Upgraded #{upgrade-count} component(s)."
 
+        refreshLayer: (ctx, proceed) ->
+            curr-side = @get \currLayer
+            traces-on-far-side = []
+            for pcb.get-components {include: ["Trace"], exclude: "*"}
+                ..item.send-to-back!
+                if ..item.data.aecad.layer isnt curr-side
+                    traces-on-far-side.push ..item
+
+            for traces-on-far-side
+                ..send-to-back!
+
+            proceed?!
 
         switchLayer: (ctx, layer, proceed) ->
             @set \currLayer, layer
+            <~ @fire \refreshLayer
             for pcb.get-components!
                 try
                     get-aecad ..item .trigger \focus, layer
                 catch
                     console.error "Something went wrong here."
-            proceed!
+            proceed?!
 
         calcUnconnected: (ctx, opts={}) ->
             console.log "------------ Performing DRC ------------"
@@ -73,8 +86,7 @@ export init = (pcb) ->
                 pcb.ractive.set 'totalConnections', total
                 pcb.ractive.set 'unconnectedCount', unconnected
 
-                for pcb.get-components {include: ["Trace"], exclude: "*"}
-                    ..item.send-to-back!
+                pcb.ractive.fire \refreshLayer
 
             else if not opts.silent
                 PNotify.notice text: "No schema present at the moment."
