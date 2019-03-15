@@ -93,9 +93,10 @@ export do
 
             s = scale
             container.attributes.transform = if opts.mirror
-                "translate(#{s * (width + minx * 2) - minx * (s-1)}, #{-miny * (s-1)}) scale(#{-s},#{s})"
+                "translate(#{s * (width + minx) + minx}, #{-miny * (s-1)}) scale(#{-s},#{s})"
             else
                 "translate(#{-minx * (s-1)}, #{-miny * (s-1)}) scale(#{s},#{s})"
+                
 
             if scale isnt 1
                 svg.attributes
