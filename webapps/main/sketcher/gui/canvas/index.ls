@@ -48,24 +48,46 @@ export init = (pcb) ->
         refreshLayer: (ctx, proceed) ->
             curr-side = @get \currLayer
             traces-on-far-side = []
-            for pcb.get-components {include: ["Trace"], exclude: "*"}
+            components = pcb.get-components!
+
+            for components when ..item.data.aecad.type isnt \Trace
+                if ..item.data.aecad.side isnt curr-side
+                    ..item.send-to-back!
+
+            for components when ..item.data.aecad.type is \Trace
+                # Send all traces to the back so that drill holes can be exposed
+                # correctly
                 ..item.send-to-back!
-                if ..item.data.aecad.layer isnt curr-side
+
+                # TODO: Fix trace z-index correction here.
+                # ------------------------------------------
+                # NOTICE: A design change is required: Since a Trace component may
+                # include trace paths for both sides, no proper action can be taken at
+                # this point of design.
+                # In order to fix this, a trace must consist of separate components
+                # so that we could send "far-side-components" (the components that doesn't)
+                # belong to current side.
+                #
+                # However, we can do our best by sending any trace which includes
+                # the other side's path to the back
+                for path in ..item.children when path.side isnt curr-side
                     traces-on-far-side.push ..item
 
             for traces-on-far-side
+                #console.log "Sending trace to back: ", ..data.aecad, .. 
                 ..send-to-back!
 
             proceed?!
 
         switchLayer: (ctx, layer, proceed) ->
             @set \currLayer, layer
-            <~ @fire \refreshLayer
             for pcb.get-components!
                 try
                     get-aecad ..item .trigger \focus, layer
                 catch
                     console.error "Something went wrong here."
+
+            <~ @fire \refreshLayer
             proceed?!
 
         calcUnconnected: (ctx, opts={}) ->
