@@ -73,6 +73,11 @@ export class ComponentBase
             unless data?.silent
                 @create(@_data)
 
+        # do the post processing either after creation or rehydration
+        @finish!
+
+    finish: ->
+
     create: (data) ->
         # Footprint will be created at this step.
 

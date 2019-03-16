@@ -84,7 +84,7 @@ export class Pad extends ComponentBase
             content: opts.label or opts.pin
             fill-color: 'white'
             parent: @g
-            font-size: 0.5
+            font-size: 0.8
             position: @cu.bounds.center
             justification: 'center'
             data: aecad: part: \ttip
@@ -92,6 +92,14 @@ export class Pad extends ComponentBase
 
         if opts.color
             @color = that
+
+    finish: !->
+        {Point} = new PaperDraw
+        fit = @cu.bounds.scale(0.4)
+        @ttip.fit-bounds fit
+        translation = new Point [0, (@cu.bounds.center.y - @ttip.position.y)/2]
+        translation.rotate @rotation
+        @ttip.translate(translation)
 
     color: ~
         (val) !->
