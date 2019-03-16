@@ -79,27 +79,27 @@ export class Pad extends ComponentBase
                 stroke-width: 0
                 data: aecad: part: \drill
 
+
         @ttip = new PointText do
-            point: @cu.bounds.center
-            content: opts.label or opts.pin
+            #point: @cu.bounds.center
+            content: @label
             fill-color: 'white'
             parent: @g
             font-size: 0.8
-            position: @cu.bounds.center
+            #position: @cu.bounds.center
             justification: 'center'
             data: aecad: part: \ttip
-        @ttip.bounds.center = @cu.bounds.center
 
         if opts.color
             @color = that
 
     finish: !->
-        {Point} = new PaperDraw
-        fit = @cu.bounds.scale(0.4)
-        @ttip.fit-bounds fit
-        translation = new Point [0, (@cu.bounds.center.y - @ttip.position.y)/2]
-        translation.rotate @rotation
-        @ttip.translate(translation)
+        if @ttip.content # <= this checking is very important!
+            # if tooltip has no content, then calculating aspect ratio
+            # becomes Not-A-Number, which in turn breaks the app
+            # TODO: Fix this bug in Paper.js by checking width and height of source
+            # before actually calculating the overall ratio
+            @ttip.fit-bounds @cu.bounds.scale 0.6
 
     color: ~
         (val) !->
