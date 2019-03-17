@@ -74,7 +74,7 @@ export init = (pcb) ->
                     traces-on-far-side.push ..item
 
             for traces-on-far-side
-                #console.log "Sending trace to back: ", ..data.aecad, .. 
+                #console.log "Sending trace to back: ", ..data.aecad, ..
                 ..send-to-back!
 
             proceed?!
@@ -83,9 +83,9 @@ export init = (pcb) ->
             @set \currLayer, layer
             for pcb.get-components!
                 try
-                    get-aecad ..item .trigger \focus, layer
+                    get-aecad ..item ?.trigger \focus, layer
                 catch
-                    console.error "Something went wrong here."
+                    console.error "Something went wrong here.", e
 
             <~ @fire \refreshLayer
             proceed?!
