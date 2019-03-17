@@ -38,3 +38,7 @@ export class Edge extends Container
             @color = \black
         else
             @g.remove!
+
+
+    _loader: (item) ->
+        # no special action needs to be taken, (remove the default warning)
