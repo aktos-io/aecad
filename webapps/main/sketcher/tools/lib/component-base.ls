@@ -88,9 +88,6 @@ export class ComponentBase
         -> @get-data 'type'
         (val) -> @set-data 'type', val
 
-    _loader: (item) ->
-        console.warn "How do we load the item in #{@@@name}: ", item
-
     set-data: (keypath, value) ->
         _keypath = prefix-keypath 'aecad', keypath
         set-keypath @g.data, _keypath, value
