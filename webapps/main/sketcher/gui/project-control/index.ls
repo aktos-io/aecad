@@ -87,21 +87,16 @@ export init = (pcb) ->
             scale = ctx.component.get \scale
             trace-color = ctx.component.get \trace-color
 
+            pcb.ractive.fire \compileScript
             aeitems = []
             for pcb.project.layers
                 for ..getItems({-recursive})
                     try
                         {item} = get-parent-aecad ..
                     catch
-                        # Probably the component is declared within the actual app script.
-                        # Try to compile and try again
-                        pcb.ractive.fire \compileScript
-                        try
-                            {item} = get-parent-aecad ..
-                        catch
-                            pcb.vlog .error message: e
-                            pcb.history.back!
-                            return
+                        pcb.vlog .error message: e
+                        pcb.history.back!
+                        return
                     if item
                         #console.log "Found ae-obj:", item.data.aecad.type, "name: ", item.data.aecad.name
                         o = get-aecad item
