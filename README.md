@@ -1,4 +1,4 @@
-![image](https://user-images.githubusercontent.com/6639874/54744587-75082d00-4bd8-11e9-9460-7515b3d4289b.png)
+[![image](https://user-images.githubusercontent.com/6639874/54744587-75082d00-4bd8-11e9-9460-7515b3d4289b.png)](https://aktos.io/aecad/#/sketcher)
 
 # aeCAD
 
@@ -8,11 +8,17 @@ Electronic Design Automation software, like [KiCAD](http://kicad-pcb.org/), but 
 
 Basically a software to create schematics and real-world drawings for physical production (and/or machining).
 
+# Key Features 
+
+* **Scripted footprints**: Create inheritable, parametric footprints. Only new topologies has to be created, rest of footprints are only differs by their parameter values, such as pin count and pin labels. No need for incomprehensible libraries.
+* **Component based design**: Create re-usable circuits to build huge and complex circuits.
+* **Unique Placement Tools**: Right tools to use your EDA in tandem with mechanical CAD apps to handle mechanical constraints (PCB geometry, bolt placements, socket placements, heatsink placements, etc.)
+* **Browser based**: Installation headache is over. Open your browser, start using.
+* **Healthy**: Shortcuts and tools are designed [Carpal Tunnel Syndrome](https://en.wikipedia.org/wiki/Carpal_tunnel_syndrome) in mind. 
+
 # Status
 
-Alpha: *Works for me* but not recommended for professional usage. Testers are welcome.
-
-> See also: [roadmap to beta](https://github.com/aktos-io/aecad/issues?q=is%3Aopen+is%3Aissue+milestone%3ABeta)
+Pre-beta: We, as [Aktos Electronics](https://aktos.io), are using aeCAD in production. However [some cruical features](https://github.com/aktos-io/aecad/issues?q=is%3Aopen+is%3Aissue+milestone%3ABeta) are still missing.
 
 ## Why Another Software?
 
@@ -97,17 +103,18 @@ Alpha: *Works for me* but not recommended for professional usage. Testers are we
   - Inherit from Kicad
     - Clearance definition
 
-# Primary Workflow
+# Intended Workflow
 
-When we need a custom hardware, following actions must be taken in order:
+When we need a custom hardware, following actions must be taken in this specific order:
 
-1. Design/choose or optimize the device housing.
-2. Get the connectors' 3D designs, place them onto the housing in 3D design workbench or software.
-3. PCB edge cuts, connector placements on the PCB and mechanical keep out areas should be determined by 3D design phase. Export the pcb layout to the PCB design workbench (aecad/sketcher).
-4. Place the corresponding footprints on the PCB and draw the traces.
-5. If any optimization is required (because of component collision, insufficient PCB space, etc...), go to step 1.
-6. Produce a prototype PCB with toner transfer technique.
-7. Finalize the design and create fabrication files (Gerber files etc.)
+1. Design/choose or optimize the device case/housing.
+2. Get or create the connectors' 3D designs, place them onto the housing in your preferred mechanical CAD software.
+3. PCB edge cuts, connector placements on the PCB and mechanical keep out areas should be determined by 3D design phase.
+4. Import the PCB layout in aecad/sketcher. 
+5. Place the corresponding footprints on the PCB and draw the traces.
+6. If any optimization is required (because of component collision, insufficient PCB space, etc...), go to step 1.
+7. Produce a prototype PCB
+8. Finalize the design and create fabrication files (Gerber files etc.)
 
 # TODO
 
@@ -116,11 +123,4 @@ When we need a custom hardware, following actions must be taken in order:
 
 # Similar Projects
 
-* [MeowCAD](https://meowcad.com): This effort might be merged with this project.
-
-# Roadmap
-
-- [x] Decide on-disk file format, like [this](https://gist.github.com/ceremcem/14b3c1105a12f434b6f829fa88e23109)
-- [x] Create a graphics editor, like [this](http://jsfiddle.net/ceremcem/oq44bmsy/)
-- [x] Create an online footprint editor, something like [this](https://jsfiddle.net/ceremcem/8geb3vc0/).
-- [ ] Create a 3D viewer, like [this](http://jsfiddle.net/ceremcem/v0g7f3p1/)
+* [MeowCAD](https://meowcad.com)
