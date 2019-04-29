@@ -13,6 +13,11 @@ export do
         if typeof! @data.bom is \Array
             throw new Error "BOM should be Object, not Array"
         for type, val of @data.bom
+            # replace dynamic component type here 
+            for k, v of @params
+                regex = new RegExp("{{#{k}}}")
+                type = type.replace regex, v 
+
             if typeof! val is 'String'
                 # this is shorthand for "empty parametered instances"
                 val = {'': val}
@@ -30,6 +35,7 @@ export do
                     # create every #name with params: group.params
                     if name of bom
                         throw new Error "Duplicate instance: #{name}"
+                    console.log "Creating bom item: ", name, "as an instance of ", type
                     bom[name] =
                         name: name
                         params: group.params

@@ -4,6 +4,8 @@ require! 'prelude-ls': {
     first, unique-by, compact
 }
 
+require! 'aea': {merge}
+
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad}
 require! './lib': {parse-name, next-id}
@@ -52,6 +54,20 @@ the-one-in = (arr) ->
             throw new Error "We have multiple values in this array"
     the-value
 
+parse-params = (input, regex=null) -> 
+    params = input
+    if typeof! input is \String
+        # Items separated by pipe characters in key:value format 
+        # unless a regex is provided for parsing 
+        if regex
+            ...
+        else
+            params = {}
+            for input.split '|' 
+                [k, v] = ..split ':'
+                params[k] = v or null
+    return params
+
 
 export class Schema implements bom, footprints, netlist, guide
     (opts) ->
@@ -60,19 +76,7 @@ export class Schema implements bom, footprints, netlist, guide
             name: Name of schema
             prefix: *Optional* Prefix of components
             params: Variant definition
-            data:
-                iface: Interface labeling
-                netlist: Connection list
-                schemas: [Object] Available sub-circuits
-                bom: Bill of Materials
-
-                    key: value => Component's exact name: List of instances
-
-                    # or
-
-                    key:
-                        params: value
-                notes: Notes for each component
+            data: (see docs/schema-usage.md)
         '''
         unless opts
             throw new Error "Data should be provided on init."
@@ -83,6 +87,7 @@ export class Schema implements bom, footprints, netlist, guide
         @data = opts.data
         @prefix = opts.prefix or ''
         @parent = opts.parent
+        @params = {} `merge` parse-params(opts.data.params) `merge` parse-params(opts.params)
         @scope = new PaperDraw
         @manager = new SchemaManager
             ..register this
@@ -146,6 +151,9 @@ export class Schema implements bom, footprints, netlist, guide
         # Compile sub-circuits first
         for sch in values @get-bom! when sch.data
             #console.log "Initializing sub-circuit: #{sch.name} ", sch
+            for k, v of @params
+                regex = new RegExp("{{#{k}}}")
+                sch.params = sch.params.replace regex, v 
             @sub-circuits[sch.name] = new Schema sch
                 ..compile!
 
@@ -155,7 +163,7 @@ export class Schema implements bom, footprints, netlist, guide
         # compile netlist
         # -----------------
         netlist = {}
-        console.log "* Compiling schema: #{@name}"
+        #console.log "* Compiling schema: #{@name}"
         for id, conn-list of @flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
