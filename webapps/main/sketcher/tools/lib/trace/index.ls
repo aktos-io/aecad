@@ -71,14 +71,14 @@ export class Trace extends Container implements follow, helpers, end
                 else
                     ..opacity = 0.4
 
-    print-mode: (layers) ->
+    print-mode: ({layers, trace-color}) ->
         super ...
         #console.log "trace is printing for: ", side, @pads
         for @paths
             if ..data.aecad.side not in layers
                 ..remove!
             else
-                ..stroke-color = 'black'
+                ..stroke-color = trace-color or 'black'
                 ..opacity = 1
 
         # TODO: find a proper way to bring drill holes front

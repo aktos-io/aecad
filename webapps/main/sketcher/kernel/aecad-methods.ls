@@ -6,6 +6,12 @@ export do
     get-components: (opts) ->
         '''
         Returns all aeCAD components in {item, type, name, rev} form
+
+        opts:
+            include: Array of Component.type's that should be included to the search
+            exclude: Array of Component.type's that should be excluded from the search.
+                Wildcard exclude (`*`) is possible by `exclude: "*"`.
+            skip-exclude: Skips any type passed by `opts.exclude` property.
         '''
         unless opts
             opts = {}
@@ -18,7 +24,7 @@ export do
                         if type in that
                             skip-exclude = yes
                     if not skip-exclude and opts.exclude
-                        if that is '*' or type in that
+                        if opts.exclude is '*' or type in opts.exclude
                             continue
                     name = item.data.aecad.name
                     rev = item.data.aecad.rev

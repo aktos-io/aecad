@@ -6,6 +6,20 @@ require! 'dcs/browser': {SignalBranch}
 export init = (pcb) ->
     handlers =
         export: (ctx, _filename) ->
+            dirty-confirm = new SignalBranch
+            if __DEPENDENCIES__.root.dirty
+                _sd = dirty-confirm.add!
+                <~ pcb.vlog .info do
+                    title: "Dirty state of aeCAD"
+                    icon: 'warning sign'
+                    message: "
+                        Project root has uncommitted changes. Saving project with a dirty state of aeCAD may result failure to identify the correct aeCAD version for the project file in the future.
+                        \n\n
+                        You should really commit your changes and then save your project.
+                        "
+                _sd.go!
+            <~ dirty-confirm.joined
+
             b = new SignalBranch
             filename = null
             if _filename
@@ -70,22 +84,37 @@ export init = (pcb) ->
             # layers to print
             layers = ctx.component.get \side .split ',' .map (.trim!)
             mirror = ctx.component.get \mirror
+            scale = ctx.component.get \scale
+            trace-color = ctx.component.get \trace-color
 
+            pcb.ractive.fire \compileScript
+            aeitems = []
             for pcb.project.layers
                 for ..getItems({-recursive})
-                    {item} = get-parent-aecad ..
+                    try
+                        {item} = get-parent-aecad ..
+                    catch
+                        pcb.vlog .error message: e
+                        pcb.history.back!
+                        return
                     if item
-                        #console.log "Found ae-obj:", item.data.aecad.type
-                        get-aecad item
-                            ..print-mode layers
-                    else if ..data?aecad?layer in layers
-                        # TODO: provide a proper way
-                        ..stroke-color = \black
-                        ..stroke-width = max ..stroke-width, pcb.ractive.get('currTrace.signal')
+                        #console.log "Found ae-obj:", item.data.aecad.type, "name: ", item.data.aecad.name
+                        o = get-aecad item
+                            ..print-mode {layers, trace-color}
+                        aeitems.push o
                     else
                         ..remove!
-            err, svg <~ pcb.export-svg {mirror}
-            create-download "#{layers.join('_')}.svg", svg
+
+            for aeitems when ..type is \Trace
+                ..g.send-to-back!
+
+            err, svg <~ pcb.export-svg {mirror, scale}
+            filename = if ctx.component.get \filename
+                that
+            else
+                "#{layers.join('_')}"
+
+            create-download "#{filename}.svg", svg
             pcb.history.back!
 
         save: (ctx) ->

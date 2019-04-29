@@ -73,6 +73,11 @@ export class ComponentBase
             unless data?.silent
                 @create(@_data)
 
+        # do the post processing either after creation or rehydration
+        @finish!
+
+    finish: ->
+
     create: (data) ->
         # Footprint will be created at this step.
 
@@ -82,9 +87,6 @@ export class ComponentBase
     type: ~
         -> @get-data 'type'
         (val) -> @set-data 'type', val
-
-    _loader: (item) ->
-        console.warn "How do we load the item in #{@@@name}: ", item
 
     set-data: (keypath, value) ->
         _keypath = prefix-keypath 'aecad', keypath
@@ -113,8 +115,8 @@ export class ComponentBase
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
 
-    print-mode: (layers, our-side) ->
-        # layers: [Array] String array indicates which layers (sides)
+    print-mode: (opts, our-side) ->
+        # opts.layers: [Array] String array indicates which layers (sides)
         #         to be printed
         # our-side: The side which the first container object is
         #
@@ -242,7 +244,7 @@ export class ComponentBase
             # are from class definition. < FIXME: data shouldn't contain
             # properties from class definition, it should only contain instance
             # specific data
-            if k in <[ name rotation side type ]>
+            if k in <[ name rotation side type value ]>
                 continue
             delete data[k]
         data `merge` opts
