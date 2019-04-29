@@ -33,8 +33,12 @@ export class Edge extends Container
                 ..strokeColor = val
                 ..strokeWidth = 0.2mm |> mm2px
 
-    print-mode: (layers, our-side) ->
-        if \Edge in layers
+    print-mode: (opts, our-side) ->
+        if \Edge in opts.layers
             @color = \black
         else
             @g.remove!
+
+
+    _loader: (item) ->
+        # no special action needs to be taken, (remove the default warning)

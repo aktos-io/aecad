@@ -29,13 +29,13 @@ export do
                 @components.push .. <<< {source: sch}
 
         curr = @scope.get-components {exclude: <[ Trace ]>}
-        for {name, type, data} in values @get-bom! when not data # loop through only raw components
+        for {name, type, data, params} in values @get-bom! when not data # loop through only raw components
             pfx-name = "#{@prefix}#{name}"
             _Component = getClass(type)
             if pfx-name not in [..name for curr]
                 # This component hasn't been created yet, create it
                 @components.push do
-                    component: new _Component {name: pfx-name}
+                    component: new _Component {name: pfx-name, value: params}
             else
                 existing = find (.name is pfx-name), curr
                 @components.push comp =
@@ -43,6 +43,9 @@ export do
                     existing: yes
                     upgrade-needed: ''
                     type: existing.type
+
+                # update the value in any case
+                comp.component.set-data \value, params
 
                 reason = ''
                 if type isnt existing.type

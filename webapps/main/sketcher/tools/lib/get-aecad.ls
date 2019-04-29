@@ -95,11 +95,14 @@ export get-parent-aecad = (item-part) ->
     type = null
     tid = null
     for dig in [0 to 100]
-        if (try get-class item?.data?.aecad?.type)
+        _type_name = item?.data?.aecad?.type
+        if (try get-class _type_name)
             # we have a valid ae-obj
             ae-item = item
             type = that
             tid = item?data?aecad?tid
+        else if _type_name
+            throw new Error "No such component found: #{_type_name}"
         unless item.parent
             break
         if item.parent.getClassName! is \Layer
