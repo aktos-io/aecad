@@ -37,6 +37,11 @@ export do
             if typeof! schema-data is \String
                 type = schema-data
                 schema-data = null 
+            else if typeof! schema-data is \Function
+                # apparently schema data is recently converted to a function
+                # call this function without arguments. 
+                #console.warn "Schema data seems to be converted to function recently:", schema-data.name
+                schema-data = schema-data!
 
             # params: list of instances
             instances = []
