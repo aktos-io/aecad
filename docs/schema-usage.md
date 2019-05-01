@@ -33,12 +33,6 @@ sch = new Schema {
 ```
 sch.get-bom-list!
 
-# Returns: Components grouped by TYPE and then VALUE in format: 
-# {
-#   TYPE: {
-#     VALUE: {
-#       Array of {type, name, value}
-#     }
-#   }
-# }
+# Returns: Array of components grouped by TYPE+VALUE in the following format: 
+# [{count, type, value, instances}]
 ```

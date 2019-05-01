@@ -85,7 +85,17 @@ export do
                     g2[type1][type2] = [] 
                 g2[type1][type2].push i 
 
-        return g2 
+        flatten-bom = []
+        for type, v of g2
+            for value, c of v 
+                flatten-bom.push {
+                    count: c.length, 
+                    type, 
+                    value, 
+                    instances: [..name for c]
+                }
+
+        return flatten-bom
 
 
 
