@@ -40,7 +40,7 @@ export do
                     (clone @params) `merge` (parse-params params) 
                 else
                     params 
-                console.log "merged params: ", merged-params
+                #console.log "merged params: ", merged-params
 
                 for name in text2arr names
                     # create every #name with params: params

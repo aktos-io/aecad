@@ -8,7 +8,7 @@ export replace-vars = (src-data, target-obj) ->
         if expr-container-match
             # We found an expression. Evaluate it using src-data 
             expr = expr-container-match[1]
-            console.log "Found expression: ", expr, "src-data: ", src-data
+            #console.log "Found expression: ", expr, "src-data: ", src-data
             for var-name, var-value of src-data
                     variable-regex = new RegExp "\\b(" + var-name + ")\\b"
                     if variable-regex.exec expr
