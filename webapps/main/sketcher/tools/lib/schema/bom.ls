@@ -11,9 +11,20 @@ require! './lib': {parse-name}
 replace-vars = (src-data, target-obj) -> 
     res = {}
     for k, v of target-obj
-        for var-name, var-value of src-data
-            regex = new RegExp("{{" + var-name + "}}")
-            k = k.replace regex, var-value
+        expr-container-regex = /{{(.+)}}/
+        expr-container-match = expr-container-regex.exec k
+        if expr-container-match
+            # We found an expression. Evaluate it using src-data 
+            expr = expr-container-match[1]
+            for var-name, var-value of src-data
+                    variable-regex = new RegExp "\\b(" + var-name + ")\\b"
+                    if variable-regex.exec expr
+                        expr1 = expr.replace variable-regex, var-value
+                        #console.log "expression found: ", expr, "replaced with:", expr1
+                        expr = expr1
+                        try
+                            expr = math.eval(expr)
+            k = k.replace expr-container-regex, expr
 
         if typeof! v is \Object 
             v = replace-vars src-data, v
