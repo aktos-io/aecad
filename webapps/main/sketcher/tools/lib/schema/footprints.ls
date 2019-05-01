@@ -32,6 +32,7 @@ export do
         for {name, type, data, params} in values @get-bom! when not data # loop through only raw components
             pfx-name = "#{@prefix}#{name}"
             _Component = getClass(type)
+            console.log "...adding component: #{name} type: #{type} params: ", params
             if pfx-name not in [..name for curr]
                 # This component hasn't been created yet, create it
                 @components.push do

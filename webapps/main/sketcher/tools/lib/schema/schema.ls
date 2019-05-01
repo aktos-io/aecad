@@ -7,7 +7,7 @@ require! 'prelude-ls': {
 require! 'aea': {merge}
 
 # deps
-require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad}
+require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
 require! './lib': {parse-name, next-id}
 
 # Class parts
@@ -54,17 +54,6 @@ the-one-in = (arr) ->
             throw new Error "We have multiple values in this array"
     the-value
 
-parse-params = (input) -> 
-    params = input
-    if typeof! input is \String
-        # Items separated by pipe characters in key:value format 
-        # unless a regex is provided for parsing 
-        params = {}
-        for input.split '|' 
-            [k, v] = ..split ':'
-            params[k] = v or null
-    return params
-
 
 export class Schema implements bom, footprints, netlist, guide
     (opts) ->
@@ -84,7 +73,10 @@ export class Schema implements bom, footprints, netlist, guide
         @data = opts.data
         @prefix = opts.prefix or ''
         @parent = opts.parent
-        @params = {} `merge` parse-params(opts.data.params) `merge` parse-params(opts.params)
+        parent-params = parse-params(opts.params)
+        self-params = parse-params(opts.data.params)
+        @params = {} `merge` self-params `merge` parent-params
+        #console.log "Schema: #{@prefix}, pparams: ", parent-params, "sparams:", self-params, "merged:", @params
         @scope = new PaperDraw
         @manager = new SchemaManager
             ..register this

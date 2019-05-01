@@ -2,34 +2,11 @@
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
 }
-
 # deps
-require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad}
-require! './lib': {parse-name}
+require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
+require! './lib': {parse-name, replace-vars}
+require! 'aea': {clone, merge}
 
-
-replace-vars = (src-data, target-obj) -> 
-    res = {}
-    for k, v of target-obj
-        expr-container-regex = /{{(.+)}}/
-        expr-container-match = expr-container-regex.exec k
-        if expr-container-match
-            # We found an expression. Evaluate it using src-data 
-            expr = expr-container-match[1]
-            for var-name, var-value of src-data
-                    variable-regex = new RegExp "\\b(" + var-name + ")\\b"
-                    if variable-regex.exec expr
-                        expr1 = expr.replace variable-regex, var-value
-                        #console.log "expression found: ", expr, "replaced with:", expr1
-                        expr = expr1
-                        try
-                            expr = math.eval(expr)
-            k = k.replace expr-container-regex, expr
-
-        if typeof! v is \Object 
-            v = replace-vars src-data, v
-        res[k] = v 
-    return res 
 
 export do
     get-bom: ->
@@ -37,11 +14,10 @@ export do
         if typeof! @data.bom is \Array
             throw new Error "BOM should be Object, not Array"
 
-        @data.bom = replace-vars @params, @data.bom
-        for type, val of @data.bom 
-            if typeof! val is 'String'
+        for type, instances of replace-vars @params, @data.bom 
+            if typeof! instances is 'String'
                 # this is shorthand for "empty parametered instances"
-                val = {'': val}
+                instances = {'': instances}
 
             # Support for simple strings in .schemas besides actual schemas 
             schema-data = @data.schemas?[type]
@@ -54,23 +30,26 @@ export do
                 #console.warn "Schema data seems to be converted to function recently:", schema-data.name
                 schema-data = schema-data!
 
-            # params: list of instances
-            instances = []
-            for params, names of val
-                instances.push do
-                    params: params
-                    names: text2arr names
+            for params, names of instances
+                # Handle params here 
+                # "params" are mostly "value"s of instances, such as "10nF" or "3kohm"
+                # However, "params" maybe real parameters in the form of "key:value|key2:value2"
 
-            # create
-            for group in instances
-                for name in group.names
-                    # create every #name with params: group.params
+                merged-params = if /:/.exec params 
+                    # this is key:value parameters
+                    (clone @params) `merge` (parse-params params) 
+                else
+                    params 
+                console.log "merged params: ", merged-params
+
+                for name in text2arr names
+                    # create every #name with params: params
                     if name of bom
                         throw new Error "Duplicate instance: #{name}"
-                    #console.log "Creating bom item: ", name, "as an instance of ", type, "group:", group
+                    #console.log "Creating bom item: ", name, "as an instance of ", type, "params:", params
                     bom[name] =
                         name: name
-                        params: group.params
+                        params: merged-params
                         parent: @name
                         data: schema-data
                         type: type
@@ -78,7 +57,7 @@ export do
                         prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
 
         @find-unused bom
-        #console.log "Compiled bom is: ", JSON.stringify bom
+        #console.log "Compiled bom is: ", bom
         @bom = bom
 
     get-bom-components: ->
@@ -117,8 +96,6 @@ export do
                 }
 
         return flatten-bom
-
-
 
     find-unused: (bom) ->
         # detect unused pads of footprints in BOM:

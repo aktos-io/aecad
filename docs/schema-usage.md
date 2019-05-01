@@ -30,9 +30,82 @@ sch = new Schema {
 
 # Generating BOM list 
 
-```
+```ls
 sch.get-bom-list!
 
 # Returns: Array of components grouped by TYPE+VALUE in the following format: 
 # [{count, type, value, instances}]
+```
+
+### Example BOM display: 
+
+```ls
+# Dump the BOM
+bom-list = "BOM List:\n"
+bom-list += "-------------"
+for sch.get-bom-list!
+    bom-list += "\n#{..count} x #{..type}, #{..value}"
+PNotify.info do
+    text: bom-list
+# End of BOM
+```
+
+# Parametric Schematics 
+
+Schemas can use simple parameters with default values located in `.params` property: 
+
+> See [schema/tests/parametric.ls](./webapps/main/sketcher/tools/lib/schema/tests/parametric.ls) for more examples.
+
+```ls
+foo =
+    # parallel resistors
+    params:
+        R: "4Kohm"
+    iface: "1 2" # Compatible with stock resistors
+    netlist:
+        1: "r1.1 r2.1"
+        2: "r1.2 r2.2"
+    bom:
+        SMD1206:
+            "{{R * 2}}": "r1 r2"
+
+bar =
+    # series resistors
+    iface: "a b"
+    schemas: {foo}
+    bom:
+        foo:
+            'R:500ohm': "x"
+            "R:3kohm": "y"
+    netlist:
+        a: "x.2"
+        b: "y.1"
+        1: "x.1 y.2"
+
+
+sch = new Schema {
+    name: 'mytest'
+    data: bar
+    params:
+        Q: \qux
+    }
+    ..clear-guides!
+    ..compile!
+    ..guide-unconnected!
+
+bom-list = "BOM List:\n"
+bom-list += "-------------"
+for sch.get-bom-list!
+    bom-list += "\n#{..count} x #{..type}, #{..value}"
+PNotify.info do
+    text: bom-list
+```
+
+Displayed BOM is:
+
+```
+BOM List:
+-------------
+2 x SMD1206, 1000 ohm
+2 x SMD1206, 6 kohm
 ```
