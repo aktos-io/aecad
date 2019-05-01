@@ -36,6 +36,9 @@ export do
                 # This component hasn't been created yet, create it
                 @components.push do
                     component: new _Component {name: pfx-name, value: params}
+                    type: type 
+                    name: pfx-name
+                    value: params
             else
                 existing = find (.name is pfx-name), curr
                 @components.push comp =

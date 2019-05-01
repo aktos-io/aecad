@@ -48,8 +48,9 @@ export do
                     # this is only a cross reference, ignore it
                     continue
 
-                if name in keys @sub-circuits
+                if name of @sub-circuits 
                     # this is a sub-circuit element, it has been handled in its Schema
+                    #console.log "Handling #{name} with its schema:", @sub-circuits[name]
                     continue
 
                 unless name in components

@@ -12,7 +12,7 @@ replace-vars = (src-data, target-obj) ->
     res = {}
     for k, v of target-obj
         for var-name, var-value of src-data
-            regex = new RegExp("{{#{var-name}}}")
+            regex = new RegExp("{{" + var-name + "}}")
             k = k.replace regex, var-value
 
         if typeof! v is \Object 
@@ -32,10 +32,15 @@ export do
                 # this is shorthand for "empty parametered instances"
                 val = {'': val}
 
+            # Support for simple strings in .schemas besides actual schemas 
+            schema-data = @data.schemas?[type]
+            if typeof! schema-data is \String
+                type = schema-data
+                schema-data = null 
+
             # params: list of instances
             instances = []
             for params, names of val
-                # replace dynamic component type here 
                 instances.push do
                     params: params
                     names: text2arr names
@@ -51,7 +56,7 @@ export do
                         name: name
                         params: group.params
                         parent: @name
-                        data: @data.schemas?[type]
+                        data: schema-data
                         type: type
                         schema-name: "#{@name}-#{name}" # for convenience in constructor
                         prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
