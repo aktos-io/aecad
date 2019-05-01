@@ -54,18 +54,15 @@ the-one-in = (arr) ->
             throw new Error "We have multiple values in this array"
     the-value
 
-parse-params = (input, regex=null) -> 
+parse-params = (input) -> 
     params = input
     if typeof! input is \String
         # Items separated by pipe characters in key:value format 
         # unless a regex is provided for parsing 
-        if regex
-            ...
-        else
-            params = {}
-            for input.split '|' 
-                [k, v] = ..split ':'
-                params[k] = v or null
+        params = {}
+        for input.split '|' 
+            [k, v] = ..split ':'
+            params[k] = v or null
     return params
 
 
@@ -151,9 +148,6 @@ export class Schema implements bom, footprints, netlist, guide
         # Compile sub-circuits first
         for sch in values @get-bom! when sch.data
             #console.log "Initializing sub-circuit: #{sch.name} ", sch
-            for k, v of @params
-                regex = new RegExp("{{#{k}}}")
-                sch.params = sch.params.replace regex, v 
             @sub-circuits[sch.name] = new Schema sch
                 ..compile!
 
@@ -300,7 +294,7 @@ export class Schema implements bom, footprints, netlist, guide
         #console.log "... #{@name}: Netlist", @netlist
 
     post-check: ->
-        # Error report (will stay for Alpha stage)
+        # Error report (will stay while aeCAD is in Alpha stage)
         for index, pads of @netlist
             # Check for duplicate pads in the same net
             for _i1, p1 of pads

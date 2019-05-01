@@ -43,6 +43,8 @@ export do
                     existing: yes
                     upgrade-needed: ''
                     type: existing.type
+                    value: params 
+                    name: pfx-name
 
                 # update the value in any case
                 comp.component.set-data \value, params
