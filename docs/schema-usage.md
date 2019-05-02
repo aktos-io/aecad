@@ -54,7 +54,7 @@ PNotify.info do
 
 Schemas can use simple parameters with default values located in `.params` property: 
 
-> See [schema/tests/parametric.ls](./webapps/main/sketcher/tools/lib/schema/tests/parametric.ls) for more examples.
+> See [schema/tests/parametric.ls](master/../../webapps/main/sketcher/tools/lib/schema/tests/parametric.ls) for more examples.
 
 ```ls
 foo =
