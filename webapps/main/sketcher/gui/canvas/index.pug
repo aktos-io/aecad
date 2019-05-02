@@ -93,9 +93,19 @@ ack-button.mini.icon(
         ): icon.magnet.green
 
     ack-button.icon(
+        on-click="alignVertical" 
+        tooltip="Vertically align with last selected coordinates"
+        ): icon.ellipsis.vertical.green
+
+    ack-button.icon(
+        on-click="alignHorizontal" 
+        tooltip="Horizontally align with last selected coordinates"
+        ): icon.ellipsis.horizontal.green
+
+    ack-button.icon(
         on-click="measureDistance" 
         tooltip="Measure Distance from last saved coordinates"
-        ): icon.ellipsis.vertical.green
+        ): icon(svg="flat_ruler.svg")
 
 +space
 .ui.mini.buttons

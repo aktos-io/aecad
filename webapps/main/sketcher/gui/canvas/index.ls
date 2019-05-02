@@ -220,6 +220,36 @@ export init = (pcb) ->
             else
                 PNotify.notice text: "Not possible."
 
+        alignVertical: (ctx) -> 
+            bounds = pcb.ractive.get \lastBounds
+            if bounds and not empty selection.selected
+                pcb.history.commit!
+                for selection.selected
+                    # FIXME: Selection holds lots of formats, reduce this!
+                    if ..aeobj
+                        pos-y = that.owner.position.get-y!
+                        that.owner.position.set {y: pos-y, x: bounds.center.x}
+                    else
+                        pos-y = ..position.get-y!
+                        ..position.set {y: pos-y, x: bounds.center.x}
+            else
+                PNotify.notice text: "Not possible."
+
+        alignHorizontal: (ctx) -> 
+            bounds = pcb.ractive.get \lastBounds
+            if bounds and not empty selection.selected
+                pcb.history.commit!
+                for selection.selected
+                    # FIXME: Selection holds lots of formats, reduce this!
+                    if ..aeobj
+                        pos-x = that.owner.position.get-x!
+                        that.owner.position.set {x: pos-x, y: bounds.center.y}
+                    else
+                        pos-x = ..position.get-x!
+                        ..position.set {x: pos-x, y: bounds.center.y}
+            else
+                PNotify.notice text: "Not possible."
+
         measureDistance: (ctx) ->
             bounds = pcb.ractive.get \lastBounds
             unless bounds or empty selection.selected
