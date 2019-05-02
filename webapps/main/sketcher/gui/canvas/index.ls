@@ -252,7 +252,8 @@ export init = (pcb) ->
 
         measureDistance: (ctx) ->
             bounds = pcb.ractive.get \lastBounds
-            unless bounds or empty selection.selected
+
+            if not bounds or empty selection.selected 
                 PNotify.notice text: "Not possible."
             else
                 prev = bounds.center
@@ -290,6 +291,7 @@ export init = (pcb) ->
                     shadowColor: 'black'
                     shadowOffset: [0.5,0.5]
                     shadowBlur: 1
+
 
         selectComponent: (ctx, item, proceed) -> 
             for pcb.get-components! when ..name is item.id
