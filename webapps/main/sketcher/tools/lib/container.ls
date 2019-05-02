@@ -82,6 +82,12 @@ export class Container extends ComponentBase
         for pad in @pads
             res ++= pad.get query
 
+        if \item of query
+            # report matching items
+            if query.item in [@g].map((?.id)).filter((Boolean))
+                res.push this
+
+
         # Precaution for alpha stage of aeCAD
         for i1, r1 of res
             for i2, r2 of res when i2 > i1

@@ -1,5 +1,6 @@
 require! 'prelude-ls': {empty, flatten, group-by, filter, find}
 require! 'dcs/lib/event-emitter': {EventEmitter}
+require! './get-aecad': {get-aecad}
 
 
 export class Selection extends EventEmitter
@@ -99,6 +100,19 @@ export class Selection extends EventEmitter
                 @_passive.push ..
         #console.log "Selected items so far: #{@selected.length}", @selected
         @trigger \selected, @selected
+
+    get-as-aeobj: -> 
+        # get unique aeCAD objects that matches with selection
+        aeobjs = []
+        for @selected
+            try
+                aeobj = get-aecad .. .owner
+                aeobjs.push aeobj unless aeobj.gcid in [..gcid for aeobjs]
+            catch 
+                console.error "get-as-aeobj: ", e
+        aeobjs
+
+
 
     get-selection: ->
         active = null

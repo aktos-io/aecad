@@ -84,6 +84,10 @@ export class ComponentBase
     remove: ->
         @g.remove!
 
+    gcid: ~
+        # a hack for getting current id
+        -> @g.id
+
     type: ~
         -> @get-data 'type'
         (val) -> @set-data 'type', val
