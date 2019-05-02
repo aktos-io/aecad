@@ -110,6 +110,12 @@ ack-button.mini.icon(
     on-click="upgradeComponents"
     tooltip="Upgrade selected components"
     ): icon.angle.double.up
+
+dropdown(
+    button 
+    data="{{currComponentNames}}"
+    on-select="selectComponent"
+)
     
 div
 canvas#draw

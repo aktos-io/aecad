@@ -261,6 +261,10 @@ export init = (pcb) ->
                     shadowOffset: [0.5,0.5]
                     shadowBlur: 1
 
+        selectComponent: (ctx, item, proceed) -> 
+            for pcb.get-components! when ..name is item.id
+                pcb.selection.add {aeobj: get-aecad ..item}
+            proceed!
 
 
     return handlers
