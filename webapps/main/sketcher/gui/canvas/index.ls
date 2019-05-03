@@ -209,6 +209,7 @@ export init = (pcb) ->
             pcb.ractive.set \lastBounds, bounds
             #console.log "last bounds: ", bounds
             selection.clear!
+            pcb.vertex-marker bounds.center
             PNotify.info do
                 text: "Saved last bounds: (x:#{bounds.center.x |> oneDecimal}, y:#{bounds.center.y |> oneDecimal})"
                 addClass: 'nonblock'
