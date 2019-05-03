@@ -16,6 +16,12 @@ export do
         unless opts
             opts = {}
         items = []
+        if opts.exclude is '*'
+            opts.exclude = ['*']
+        for <[ include exclude skipExclude ]>            
+            if opts[..]? and typeof! opts[..] isnt \Array
+                throw new Error "'#{..}' argument must be array, not #{typeof! opts[..]}"
+            
         for @project.layers
             for item in ..getItems {-recursive}
                 if type=(item.data?aecad?type)
@@ -24,7 +30,7 @@ export do
                         if type in that
                             skip-exclude = yes
                     if not skip-exclude and opts.exclude
-                        if opts.exclude is '*' or type in opts.exclude
+                        if '*' in opts.exclude or type in opts.exclude
                             continue
                     name = item.data.aecad.name
                     rev = item.data.aecad.rev
