@@ -94,7 +94,8 @@ export MoveTool = ->
                     # move an item regularly
                     for selection.get-as-aeobj!
                         if movement-starting
-                            ..schema?.clear-guides!
+                            console.log "starting movement."
+                        ..schema?.clear-guides!
                         ..move snap.delta
                 else
                     # handle trace movement specially
