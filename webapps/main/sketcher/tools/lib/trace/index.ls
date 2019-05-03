@@ -322,3 +322,14 @@ export class Trace extends Container implements follow, helpers, end
 
     set-modifiers: (modifiers) ->
         @modifiers = modifiers
+
+    move: (displacement, opts={}) ->
+        # Moves the component with a provided amount of displacement. Default: Relative
+        # opts:
+        #       absolute: [Bool] move absolute amount
+        unless opts.absolute
+            @g.position.set @g.position.add displacement
+        else
+            @g.position.set displacement
+
+        console.warn "FIXME: trace moves must break traces at selection boundaries."
