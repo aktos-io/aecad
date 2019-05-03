@@ -8,6 +8,7 @@ require! 'prelude-ls': {min, empty, abs, keys}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../../tools/lib': {getAecad, Edge}
 require! 'aea/do-math': {px2mm}
+require! 'aea': {merge}
 require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
 export init = (pcb) ->
@@ -30,6 +31,19 @@ export init = (pcb) ->
         # TODO: send signal to the radio-button group only
         <~ @fire \changeTool, {}, \sl
         @set \currTool, \sl
+        
+    move-selection = (override={}) -> 
+        bounds = pcb.ractive.get \lastBounds
+        if bounds and not empty selection.selected
+            pcb.history.commit!
+            target-bounds = pcb.get-bounds selection.selected 
+            delta = bounds.center.subtract target-bounds.center 
+            displacement = delta `merge` override
+            for selection.get-as-aeobj!
+                ..move displacement
+        else
+            PNotify.notice text: "Not possible."
+
 
     handlers =
         upgradeComponents: (ctx) ->
@@ -215,48 +229,14 @@ export init = (pcb) ->
                 addClass: 'nonblock'
 
         moveToCenter: (ctx) ->
-            bounds = pcb.ractive.get \lastBounds
-            if bounds and not empty selection.selected
-                pcb.history.commit!
-                for selection.selected
-                    # FIXME: Selection holds lots of formats, reduce this!
-                    if ..aeobj
-                        that.owner.position.set bounds.center
-                    else
-                        ..position.set bounds.center
-            else
-                PNotify.notice text: "Not possible."
+            move-selection!
 
         alignVertical: (ctx) -> 
-            bounds = pcb.ractive.get \lastBounds
-            if bounds and not empty selection.selected
-                pcb.history.commit!
-                for selection.selected
-                    # FIXME: Selection holds lots of formats, reduce this!
-                    if ..aeobj
-                        pos-y = that.owner.position.get-y!
-                        that.owner.position.set {y: pos-y, x: bounds.center.x}
-                    else
-                        pos-y = ..position.get-y!
-                        ..position.set {y: pos-y, x: bounds.center.x}
-            else
-                PNotify.notice text: "Not possible."
+            move-selection {y: 0}
 
         alignHorizontal: (ctx) -> 
-            bounds = pcb.ractive.get \lastBounds
-            if bounds and not empty selection.selected
-                pcb.history.commit!
-                for selection.selected
-                    # FIXME: Selection holds lots of formats, reduce this!
-                    if ..aeobj
-                        pos-x = that.owner.position.get-x!
-                        that.owner.position.set {x: pos-x, y: bounds.center.y}
-                    else
-                        pos-x = ..position.get-x!
-                        ..position.set {x: pos-x, y: bounds.center.y}
-            else
-                PNotify.notice text: "Not possible."
-
+            move-selection {x: 0}
+            
         measureDistance: (ctx) ->
             bounds = pcb.ractive.get \lastBounds
 
