@@ -11,7 +11,6 @@ require! './lib': {parse-name, net-merge}
 is-connected = (item, pad) ->
     pad-bounds = pad.cu-bounds
     trace-netid = item.data.aecad.netid
-    console.log "trace-netid: ", trace-netid
     trace-netid = trace-netid.replace /[^0-9]/g, ''
     # Check if item is **properly** connected to the rectangle
     for item.children or []
