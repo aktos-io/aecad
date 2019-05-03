@@ -100,7 +100,7 @@ export MoveTool = ->
                 else
                     # handle trace movement specially
                     # 1. preserve left and right curve slope
-                    # 2. move touch ends
+                    # 2. move contacting ends
                     # ----------------------------------
                     items = []
                     for side in <[ left right ]>

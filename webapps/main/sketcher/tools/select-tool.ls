@@ -106,7 +106,11 @@ export SelectTool = ->
 
                                 # silently select all parts which are touching to the ends
                                 __tolerance__ = 0.1
-                                for part in hit.item.parent.children
+                                same-net-traces = []                                
+                                for scope.get-components {include: ['Trace'], exclude: ['*']} 
+                                    if ..item.data.aecad.netid is hit.item.parent.data.aecad.netid
+                                        same-net-traces.push ..item
+                                for part in flatten same-net-traces.map (.children)
                                     #console.log "examining trace part: ", part
                                     if part.data?.aecad?.type in <[ Pad ]>
                                         #console.log "...found via: ", part
@@ -121,7 +125,7 @@ export SelectTool = ->
                                                     item: part}
                                                     , {-select}
                                     else
-                                        # find mate segments
+                                        # find mate segments and add an appropriate solver 
                                         for mate-seg in part.getSegments!
                                             #console.log "Examining Path: #{mate-seg.getPath().id}, segment: #{mate-seg.index}"
                                             for name, hpoint of handle when mate-seg.point.isClose hpoint, __tolerance__
