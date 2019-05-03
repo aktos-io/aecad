@@ -11,6 +11,8 @@ require! './lib': {parse-name, net-merge}
 is-connected = (item, pad) ->
     pad-bounds = pad.cu-bounds
     trace-netid = item.data.aecad.netid
+    console.log "trace-netid: ", trace-netid
+    trace-netid = trace-netid.replace /[^0-9]/g, ''
     # Check if item is **properly** connected to the rectangle
     for item.children or []
         unless ..getClassName! is \Path
@@ -23,6 +25,7 @@ is-connected = (item, pad) ->
             # check all segments of the path
             if point.is-inside pad-bounds
                 # Detect short circuits
+
                 if "#{trace-netid}" isnt pad.netid
                     item.selected = true
                     pad.selected = true
