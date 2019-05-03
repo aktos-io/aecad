@@ -1,4 +1,4 @@
-require! 'prelude-ls': {flatten, sort-by, reverse, empty, keys, compact}
+require! 'prelude-ls': {flatten, sort-by, reverse, empty, keys, compact, filter}
 require! './line': {Line}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
@@ -20,6 +20,12 @@ export canvas-control =
 
     get-bounds: (items=[]) ->
         # returns overall bounds
+        
+        # FIXME: Paper.js doesn't calculate the global position of an item if 
+        # it is located inside a Group. As a workaround, any items inside a group 
+        # will be ignored 
+        items = filter (.class-name is \Group), items 
+        
         if empty items
             items = flatten [..getItems! for @project.layers]
         bounds = items.reduce ((bbox, item) ->
