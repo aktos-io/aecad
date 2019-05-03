@@ -18,13 +18,15 @@ export canvas-control =
         else
             item
 
-    get-bounds: (items=[]) ->
+    get-bounds: (_items=[]) ->
         # returns overall bounds
         
         # FIXME: Paper.js doesn't calculate the global position of an item if 
         # it is located inside a Group. As a workaround, any items inside a group 
         # will be ignored 
-        items = filter (.class-name is \Group), items 
+        items = filter (.class-name is \Group), _items 
+        if empty items and not empty _items 
+            items = _items 
         
         if empty items
             items = flatten [..getItems! for @project.layers]
