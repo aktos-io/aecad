@@ -1,4 +1,4 @@
-require! 'prelude-ls': {empty, flatten, filter, map, compact}
+require! 'prelude-ls': {empty, flatten, filter, map, compact, unique}
 require! './lib/selection': {Selection}
 require! '../kernel': {PaperDraw}
 require! './lib/get-aecad': {get-aecad}
@@ -34,6 +34,7 @@ export SelectTool = ->
 
                     items = scope.project.getItems opts
                     console.log "Selection box includes items: ", items
+                    console.log "Selected items in layer:", unique ["#{..layer?.id} (#{..layer?.name})" for items]
                     selection.add items
                 sel.box.remove!
 

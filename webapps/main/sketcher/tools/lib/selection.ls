@@ -106,7 +106,7 @@ export class Selection extends EventEmitter
         aeobjs = []
         for @selected
             try
-                aeobj = get-aecad .. .owner
+                aeobj = get-aecad (..item or ..) .owner
                 aeobjs.push aeobj unless aeobj.gcid in [..gcid for aeobjs]
             catch 
                 console.error "get-as-aeobj: ", e

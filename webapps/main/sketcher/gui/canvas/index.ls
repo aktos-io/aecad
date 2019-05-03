@@ -153,21 +153,27 @@ export init = (pcb) ->
                 pcb.cursor \default
             proceed?!
 
-        sendTo: (ctx) ->
+        sendTo: (ctx) !->
             pcb.history.commit!
             layer = ctx.component.get \to
+            aeobjs = []
             for selected in pcb.selection.selected
                 console.log "sending selected: ", selected, "to: ", layer
-                aeobj = if selected.aeobj
-                    that
-                else
-                    # convert the selected items into Edge aeobj
-                    new Edge
-                        ..import selected
+                aeobj = null
+                try
+                    aeobj = get-aecad selected .owner
+                    aeobjs.push aeobj unless aeobj.gcid in [..gcid for aeobjs]
 
-                aeobj.owner
-                    ..set-side layer
-                    ..send-to-layer 'gui' # TODO: find a more beautiful name
+                unless aeobj 
+                    # convert the selected items into Edge aeobj
+                    edge = new Edge
+                        ..import selected
+                    aeobjs.push edge 
+
+            for aeobj in aeobjs
+                aeobj.set-side layer
+                if layer isnt \Edge
+                    aeobj.send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
             pcb.history.commit!
