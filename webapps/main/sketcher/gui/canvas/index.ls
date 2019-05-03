@@ -96,7 +96,7 @@ export init = (pcb) ->
                 try
                     conn-states = that.get-connection-states!
                 catch
-                    PNotify.error hide: no, text: e.message
+                    PNotify.error text: e.message
                     pcb.ractive.set 'totalConnections', "--"
                     pcb.ractive.set 'unconnectedCount', "--"
                     return
