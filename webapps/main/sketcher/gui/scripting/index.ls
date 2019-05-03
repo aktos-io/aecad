@@ -2,7 +2,7 @@ require! 'aea'
 require! 'dcs/lib': lib
 require! 'livescript': lsc
 require! 'prelude-ls'
-require! 'aea': {create-download}
+require! 'aea': {create-download, merge}
 require! 'aea/do-math': {mm2px}
 require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
@@ -261,6 +261,28 @@ export init = (pcb) ->
             # console.log scripts
             content = "export {\n#{content}\n}"
             create-download 'scripts.ls', content
+            
+        uploadScripts: (ctx, file, next) ->
+            try 
+                try
+                    uploaded = CSON.parse file.raw
+                catch
+                    # remove `export {` and `}` parts and retry
+                    contents = file.raw.split '\n'
+                    uploaded = CSON.parse contents.splice(1, contents.length - 2).join '\n'
+                    
+                scripts = @get \drawingLs
+                console.log "Dumping current scripts as a backup:"
+                console.log CSON.stringify(scripts)
+                PNotify.info text: "Current scripts are dumped into the console just in case"
+                scripts `merge` uploaded
+                @set \drawingLs, scripts 
+                next!
+            catch err
+                @get \vlog .error do
+                    title: 'Import Error'
+                    message: err.to-string!
+                next err.to-string!
 
         restart-diff: (ctx) ->
             action <~ @get \vlog .yesno do

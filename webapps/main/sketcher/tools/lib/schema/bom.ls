@@ -64,6 +64,10 @@ export do
         b = flatten [..name for filter (-> not it.data), values @get-bom!]
         #console.log "bom raw components found:", b
         return b
+        
+    get-component-names: -> 
+        # Returns component names in {id, name} format  
+        [{id: v.name, name: v.name} for k, v of @components]
 
     get-bom-list: -> 
         # group by type, and then value 
