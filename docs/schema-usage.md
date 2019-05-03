@@ -109,3 +109,9 @@ BOM List:
 2 x SMD1206, 1000 ohm
 2 x SMD1206, 6 kohm
 ```
+
+# Populating selection dropdown
+
+```ls
+pcb.ractive.set \currComponentNames, sch.get-component-names!
+```
