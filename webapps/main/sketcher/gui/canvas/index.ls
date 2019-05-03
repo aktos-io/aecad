@@ -301,7 +301,7 @@ export init = (pcb) ->
 
         selectComponent: (ctx, item, proceed) -> 
             for pcb.get-components! when ..name is item.id
-                pcb.selection.add {aeobj: get-aecad ..item}
+                pcb.selection.add {item: ..item}
             proceed!
 
 
