@@ -64,14 +64,16 @@ export init = (pcb) ->
             traces-on-far-side = []
             components = pcb.get-components!
 
-            for components when ..item.data.aecad.type isnt \Trace
+            for components when ..type isnt \Trace
                 if ..item.data.aecad.side isnt curr-side
                     ..item.send-to-back!
 
-            for components when ..item.data.aecad.type is \Trace
+            for components when ..type is \Trace
                 # Send all traces to the back so that drill holes can be exposed
                 # correctly
                 ..item.send-to-back!
+                trace-layer = ..item.parent
+                trace-layer.send-to-back!
 
                 # TODO: Fix trace z-index correction here.
                 # ------------------------------------------
