@@ -71,7 +71,7 @@ export do
 
     get-bom-list: -> 
         # group by type, and then value 
-        comp = [{..type, ..value, ..name} for values @components]
+        comp = [{..type, ..value, ..name} for values @components when ..name.0 isnt '_']
         arr = comp 
         g1 = {}
         for i in arr
