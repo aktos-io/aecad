@@ -82,7 +82,6 @@ export class Pad extends ComponentBase
 
         @ttip = new PointText do
             #point: @cu.bounds.center
-            content: @label
             fill-color: 'white'
             # THIS DOESN'T ACTUALLY WORK: parent: @g
             font-size: 0.8
@@ -95,6 +94,7 @@ export class Pad extends ComponentBase
             @color = that
 
     finish: !->
+        @ttip.content = @label 
         if @ttip.content # <= this checking is very important!
             # if tooltip has no content, then calculating aspect ratio
             # becomes Not-A-Number, which in turn breaks the app
@@ -191,7 +191,7 @@ export class Pad extends ComponentBase
         # Return pad label (eg. "Vin")
         ->
             label = @get-data 'label'
-            "#{label or @num}"
+            "#{label or @num or ''}"
 
     num: ~
         # Return pad number (eg. 5) regardless of existence of @label
