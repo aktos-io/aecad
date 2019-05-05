@@ -75,7 +75,14 @@ export do
             }
 
         connection-states = {}
-        _traces = @get-traces! # List of trace items with physically connected states are calculated
+        # List of trace items with physically connected states are calculated
+        {trace-items: _traces, vias} = @get-traces! 
+
+        # Adding vias to connection list
+        console.log "vias:", vias
+        for netid, pads of vias 
+            @connection-list[][netid] ++= pads 
+
         # Calculate connections
         for netid, net of @connection-list
             state = connection-states.{}[netid]
@@ -133,11 +140,13 @@ export do
         */
         traces = {}
         trace-ids = []
-        for {item} in @scope.get-components {exclude: '*', include: <[ Trace ]>}
+        vias = {}
+        for {item, aeobj} in @scope.get-components {exclude: '*', include: <[ Trace ]>}
             # Cleanup non-functional traces
             # ------------------------------
             for item.children when ..getClassName?! is \Path
                 if ..segments.length is 1
+                    console.log "Removing single segment child of Trace:", ..
                     ..remove!
             if item.children.length is 0
                 item.remove!
@@ -150,6 +159,10 @@ export do
             item.phy-netid = null
             traces[item.id] = item
             trace-ids.push item.id # for performance reasons
+
+            for (item.children or []) when ..data.aecad?type is \Pad
+                via = get-aecad .. 
+                vias[][via.netid].push via
 
         # traces is now an object that contains all valid traces
 
@@ -190,4 +203,4 @@ export do
         # assigned each of them.
         trace-items = values traces
         #console.log "trace-items: ", trace-items
-        return trace-items
+        return {trace-items, vias}
