@@ -274,9 +274,13 @@ export class Trace extends Container implements follow, helpers, end
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
 
+            if /[^0-9\\.]+/.exec curr.trace.width
+                @scope.vlog.error "Unrecognized trace width: #{curr.trace.width}"
+                return 
+            trace-width = curr.trace.width |> parse-float |> mm2px
             @line = new @scope.Path(snap)
                 ..strokeColor = curr.layer.color
-                ..strokeWidth = curr.trace.width |> mm2px
+                ..strokeWidth = trace-width
                 ..strokeCap = 'round'
                 ..strokeJoin = 'round'
                 ..selected = yes
