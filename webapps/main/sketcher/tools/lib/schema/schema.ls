@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, unique-by, compact
+    first, unique-by, compact, map 
 }
 
 require! 'aea': {merge}
@@ -16,6 +16,7 @@ require! './footprints'
 require! './netlist'
 require! './guide'
 require! './schema-manager': {SchemaManager}
+require! '../text2arr': {text2arr}
 
 # Recursively walk through links
 get-net = (netlist, id, included=[], mark) ~>
@@ -54,6 +55,17 @@ the-one-in = (arr) ->
             throw new Error "We have multiple values in this array"
     the-value
 
+prefix-value = (o, pfx) ->
+            res = {}
+            for k, v of o 
+                if typeof! v is \Object 
+                    v2 = prefix-value v, pfx
+                    res[k] = v2 
+                else 
+                    res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
+            return res 
+
+        
 
 export class Schema implements bom, footprints, netlist, guide
     (opts) ->
@@ -71,6 +83,11 @@ export class Schema implements bom, footprints, netlist, guide
             throw new Error "Name is required for Schema"
         @name = opts.schema-name or opts.name
         @data = opts.data
+
+        parent-bom = prefix-value((opts.bom or {}), "__")
+        #console.log "parent bom: ", parent-bom
+        @data.bom `merge` parent-bom
+
         @prefix = opts.prefix or ''
         @parent = opts.parent
         parent-params = parse-params(opts.params)
