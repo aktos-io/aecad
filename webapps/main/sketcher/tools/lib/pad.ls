@@ -15,6 +15,7 @@ Pad
     .uname          : uniqe pin name (eg. "P.C1.gnd(5)")
     .label          : label seen on the pad (eg. "gnd")
     .num            : exact pin number in the footprint (eg. "5")
+    .netid          : Net ID of the pad
 
 
 /* ------------------------------------------------- */
@@ -206,7 +207,13 @@ export class Pad extends ComponentBase
         -> "#{@pin}(#{@num})"
 
     netid: ~
-        -> if @get-data \netid => "#{that}" else that
+        -> 
+            _netid = @get-data('netid') or ''
+            if @owner.type is \Trace 
+                _netid = @owner.netid 
+
+            return _netid 
+
         (val) -> @set-data 'netid', "#{val}"
 
     net: ~
