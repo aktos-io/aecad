@@ -18,26 +18,27 @@ export canvas-control =
         else
             item
 
-    get-bounds: (_items=[]) ->
-        # returns overall bounds
-        
-        # FIXME: Paper.js doesn't calculate the global position of an item if 
-        # it is located inside a Group. As a workaround, any items inside a group 
-        # will be ignored 
-        items = filter (.class-name is \Group), _items 
-        if empty items and not empty _items 
-            items = _items 
-        
+    get-bounds: (items=[]) ->
+        # returns overall bounds        
         if empty items
             items = flatten [..getItems! for @project.layers]
+        console.log "Calculating bounds of items:", items 
         bounds = items.reduce ((bbox, item) ->
-            _bounds = if item.getClassName! is \Rectangle => item else item.bounds
-            unless bbox
+            switch item.getClassName! 
+            | \Rectangle => 
+                _bounds = item
+            | \PointText => 
+                # skip PointText
+                return bbox
+            |_ => 
+                _bounds = item.bounds 
+
+            return unless bbox
                 _bounds
             else
                 bbox.unite _bounds
             ), null
-        #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
+        console.log "...bounds: #{bounds?.width}, #{bounds?.height}"
         return bounds
 
     cursor: (name) ->

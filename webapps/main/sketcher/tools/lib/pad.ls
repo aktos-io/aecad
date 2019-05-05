@@ -84,11 +84,12 @@ export class Pad extends ComponentBase
             #point: @cu.bounds.center
             content: @label
             fill-color: 'white'
-            parent: @g
+            # THIS DOESN'T ACTUALLY WORK: parent: @g
             font-size: 0.8
             #position: @cu.bounds.center
             justification: 'center'
             data: aecad: part: \ttip
+        @ttip.parent = @g
 
         if opts.color
             @color = that

@@ -4,7 +4,7 @@ require! '../../tools/move-tool': {MoveTool}
 require! '../../tools/line-tool': {LineTool}
 require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
-require! 'prelude-ls': {min, empty, abs, keys}
+require! 'prelude-ls': {min, empty, abs, keys, unique-by}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../../tools/lib': {getAecad, Edge}
 require! 'aea/do-math': {px2mm}
@@ -36,7 +36,15 @@ export init = (pcb) ->
         bounds = pcb.ractive.get \lastBounds
         if bounds and not empty selection.selected
             pcb.history.commit!
-            target-bounds = pcb.get-bounds selection.selected 
+
+            # test if this is a complex selection
+            # FIXME: multiple formats in selection "[ITEM] or [{item: ITEM, aeobj, ...}]"
+            # adds unnecessary complexity 
+            s = selection.selected 
+            if selection.selected.0.item
+                s = unique-by (.id), [..item for selection.selected]
+
+            target-bounds = pcb.get-bounds s
             delta = bounds.center.subtract target-bounds.center 
             displacement = delta `merge` override
             for selection.get-as-aeobj!
