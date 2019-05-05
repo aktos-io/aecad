@@ -9,11 +9,13 @@ export canvas-control =
     get-top-item: (item) ->
         if @ractive.get \selectGroup
             # select the top level group
-            for dig in  [0 to 100]
+            _fuse = 100
+            for i in  [to _fuse]
                 if item.parent.getClassName! is \Layer
                     break
                 item = item.parent
-            console.log "Dig level: ", dig
+            if i is _fuse 
+                throw new Error "Fuse activated for get-top-item!"
             item
         else
             item
@@ -22,7 +24,7 @@ export canvas-control =
         # returns overall bounds        
         if empty items
             items = flatten [..getItems! for @project.layers]
-        console.log "Calculating bounds of items:", items 
+        #console.log "Calculating bounds of items:", items 
         bounds = items.reduce ((bbox, item) ->
             switch item.getClassName! 
             | \Rectangle => 
@@ -38,7 +40,7 @@ export canvas-control =
             else
                 bbox.unite _bounds
             ), null
-        console.log "...bounds: #{bounds?.width}, #{bounds?.height}"
+        #console.log "...bounds: #{bounds?.width}, #{bounds?.height}"
         return bounds
 
     cursor: (name) ->
