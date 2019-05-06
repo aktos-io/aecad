@@ -24,11 +24,6 @@ export do
             if typeof! schema-data is \String
                 type = schema-data
                 schema-data = null 
-            else if typeof! schema-data is \Function
-                # apparently schema data is recently converted to a function
-                # call this function without arguments. 
-                #console.warn "Schema data seems to be converted to function recently:", schema-data.name
-                schema-data = schema-data!
 
             for params, names of instances
                 # Handle params here 
@@ -47,11 +42,15 @@ export do
                     if name of bom
                         throw new Error "Duplicate instance: #{name}"
                     #console.log "Creating bom item: ", name, "as an instance of ", type, "params:", params
+                    calculated-schema = if typeof! schema-data is \Function 
+                        schema-data params
+                    else 
+                        schema-data
                     bom[name] =
                         name: name
                         params: merged-params
                         parent: @name
-                        data: schema-data
+                        data: calculated-schema
                         type: type
                         schema-name: "#{@name}-#{name}" # for convenience in constructor
                         prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
