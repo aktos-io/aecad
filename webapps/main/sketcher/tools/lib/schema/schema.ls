@@ -82,8 +82,11 @@ export class Schema implements bom, footprints, netlist, guide
         unless opts.name
             throw new Error "Name is required for Schema"
         @name = opts.schema-name or opts.name
-        @data = opts.data
-
+        @data = if typeof! opts.data is \Function 
+            opts.data(opts.value) 
+        else 
+            opts.data 
+            
         parent-bom = prefix-value((opts.bom or {}), "__")
         #console.log "parent bom: ", parent-bom
         @data.bom `merge` parent-bom
