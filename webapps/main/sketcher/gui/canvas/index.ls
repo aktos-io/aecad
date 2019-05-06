@@ -291,8 +291,9 @@ export init = (pcb) ->
 
 
         selectComponent: (ctx, item, proceed) -> 
-            for pcb.get-components! when ..name is item.id
-                pcb.selection.add {item: ..item}
+            if item.id 
+                for pcb.get-components! when ..name is item.id
+                    pcb.selection.add {item: ..item}
             proceed!
 
 
