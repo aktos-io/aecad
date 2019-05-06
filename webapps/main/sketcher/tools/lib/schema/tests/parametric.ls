@@ -1,4 +1,5 @@
 require! '../schema': {Schema}
+require! mathjs
 
 
 export do
@@ -109,6 +110,50 @@ export do
                     ]
             }
         ]
+
+        # cleanup canvas
+        sch.remove-footprints!
+
+    "factory parametric sub-circuit": ->
+        foo = (args) -> 
+            type = args?type or "C1206"
+            (value) ->         
+                r = mathjs.eval "#{value} * 2"
+                # parallel resistors
+                iface: "1 2" # Compatible with stock resistors
+                netlist:
+                    1: "r1.1 r2.1"
+                    2: "r1.2 r2.2"
+                bom:
+                    "#{type}":
+                        "#{r}": "r1 r2"
+
+        bar =
+            # series resistors
+            iface: "a b"
+            schemas: 
+                foo: foo {type: "SMD1206"}
+            bom:
+                foo:
+                    '500ohm': "x"
+                    "3kohm": "y"
+            netlist:
+                a: "x.2"
+                b: "y.1"
+                1: "x.1 y.2"
+
+
+        sch = new Schema {
+            name: 'mytest'
+            prefix: 'test.'
+            data: bar
+            }
+            ..compile!
+
+        expect sch.get-bom-list!
+        .to-equal bom-list =
+            * {count: 2, type: "SMD1206", value: "1000 ohm", "instances":["test.x.r1","test.x.r2"]}
+            * {count: 2, type: "SMD1206", value: "6 kohm", "instances":["test.y.r1","test.y.r2"]}
 
         # cleanup canvas
         sch.remove-footprints!
