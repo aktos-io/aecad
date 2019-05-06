@@ -309,6 +309,10 @@ export class Trace extends Container implements follow, helpers, end
         outer-dia = @ractive.get \currTrace.via.outer
         inner-dia = @ractive.get \currTrace.via.inner
 
+        if /[^0-9\\.]+/.exec outer-dia
+            @scope.vlog.error "Unrecognized via outer dia: #{outer-dia}"
+            return 
+
         via = new Pad do
             dia: outer-dia
             drill: inner-dia
