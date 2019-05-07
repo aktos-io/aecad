@@ -183,10 +183,13 @@ export init = (pcb) ->
             aeobjs = []
             for selected in pcb.selection.selected
                 console.log "sending selected: ", selected, "to: ", layer
-                aeobj = null
+                aeobj = selected.aeobj
                 try
-                    aeobj = get-aecad selected .owner
-                    aeobjs.push aeobj unless aeobj.gcid in [..gcid for aeobjs]
+                    if aeobj
+                        aeobjs.push aeobj.owner
+                    else                    
+                        aeobj = get-aecad selected .owner
+                        aeobjs.push aeobj unless aeobj.gcid in [..gcid for aeobjs]
 
                 unless aeobj 
                     # convert the selected items into Edge aeobj
