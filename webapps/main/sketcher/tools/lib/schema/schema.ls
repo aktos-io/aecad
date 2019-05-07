@@ -46,14 +46,16 @@ get-net = (netlist, id, included=[], mark) ~>
 the-one-in = (arr) ->
     # expect only one truthy value in the array
     # and return it
-    the-value = null
-    for arr when ..? and .. isnt ""
-        unless the-value
-            the-value = ..
-        else if "#{the-value}" isnt "#{..}"
-            console.error "the-one-in: ", arr
-            throw new Error "We have multiple values in this array"
-    the-value
+    the-only-value = null
+    for id in arr
+        id = parse-int id 
+        if id 
+            unless the-only-value
+                the-only-value = id
+            else if "#{id}" isnt "#{the-only-value}"
+                console.error "the-one-in: ", arr
+                throw new Error "We have multiple values in this array"
+    the-only-value
 
 prefix-value = (o, pfx) ->
             res = {}
