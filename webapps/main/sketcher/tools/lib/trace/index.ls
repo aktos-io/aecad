@@ -69,7 +69,7 @@ export class Trace extends Container implements follow, helpers, end
                 if ..data.aecad.side is args.0
                     ..opacity = 1
                 else
-                    ..opacity = 0.4
+                    ..opacity = 0.1
 
     print-mode: ({layers, trace-color}) ->
         super ...
