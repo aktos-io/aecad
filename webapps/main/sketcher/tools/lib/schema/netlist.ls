@@ -24,10 +24,10 @@ is-connected = (item, pad) ->
             # check all segments of the path
             if point.is-inside pad-bounds
                 # Detect short circuits
-
-                if "#{trace-netid}" isnt pad.netid
+                if "#{trace-netid}" isnt "#{pad.netid}"
                     item.selected = true
                     pad.selected = true
+                    console.warn "Short circuit item: ", item, item.position, "Pad is:", pad, pad.gpos                   
                     throw new Error "Short circuit: #{pad.uname} (n:#{pad.netid}) with #{item.data.aecad.tid} (n:#{trace-netid})"
                 else
                     #console.log "Pad #{pad.uname} seems to be connected with Trace tid: #{item.data.aecad.tid}"
