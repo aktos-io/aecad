@@ -1,4 +1,4 @@
-[![image](https://user-images.githubusercontent.com/6639874/54744587-75082d00-4bd8-11e9-9460-7515b3d4289b.png)](https://aktos.io/aecad/#/sketcher)
+[![image](https://user-images.githubusercontent.com/6639874/57297827-5226cf00-70d9-11e9-9f70-277fa059a98e.png)](https://aktos.io/aecad/#/sketcher)
 
 # aeCAD
 
