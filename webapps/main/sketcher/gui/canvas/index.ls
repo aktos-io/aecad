@@ -40,9 +40,12 @@ export init = (pcb) ->
             # test if this is a complex selection
             # FIXME: multiple formats in selection "[ITEM] or [{item: ITEM, aeobj, ...}]"
             # adds unnecessary complexity 
-            s = selection.selected 
-            if selection.selected.0.item
-                s = unique-by (.id), [..item for selection.selected]
+            s = []
+            for selection.selected 
+                if ..aeobj
+                    s.push ..aeobj.g if ..aeobj.g.id not in [..id for s]
+                else if ..item
+                    s.push ..item if ..item.id not in [..id for s]
 
             target-bounds = pcb.get-bounds s
             delta = bounds.center.subtract target-bounds.center 
