@@ -158,7 +158,6 @@ export class Selection extends EventEmitter
 
     bounds: ->
         # get selection bounds
-        debugger 
         selected-items = for @selected
             if ..aeobj
                 that.gbounds
