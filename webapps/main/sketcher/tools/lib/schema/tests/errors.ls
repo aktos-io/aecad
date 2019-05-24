@@ -71,3 +71,43 @@ export do
         sch = new Schema {name: 'test', data: parasitic, prefix: 'test.'}
         expect (-> sch.compile!)
         .to-throw "Unconnected iface: test.a"
+
+    "improper schematic declaration": -> 
+        foo = (args) -> 
+            (value) ->         
+                iface: "1 2" # Compatible with stock resistors
+                netlist:
+                    1: "r1.1 r2.1"
+                    2: "r1.2 r2.2"
+                bom:
+                    "SMD1206":
+                        "#{r}": "r1 r2"
+
+        bar =
+            # series resistors
+            iface: "a b"
+            schemas: 
+                foo: foo
+            bom:
+                foo:
+                    '500ohm': "x"
+                    "3kohm": "y"
+            netlist:
+                a: "x.2"
+                b: "y.1"
+                1: "x.1 y.2"
+
+
+        sch = null
+        compile-schema = -> 
+            sch := new Schema {
+                name: 'mytest'
+                prefix: 'test.'
+                data: bar
+                }
+                ..compile!
+
+        expect compile-schema
+        .to-throw '''Sub-circuit "foo" should be simple function, not a factory function. Did you forget to initialize it?'''
+
+        sch.remove-footprints!

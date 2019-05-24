@@ -57,26 +57,29 @@ Schemas can use simple parameters with default values located in `.params` prope
 > See [schema/tests/parametric.ls](master/../../webapps/main/sketcher/tools/lib/schema/tests/parametric.ls) for more examples.
 
 ```ls
-foo =
-    # parallel resistors
-    params:
-        R: "4Kohm"
-    iface: "1 2" # Compatible with stock resistors
-    netlist:
-        1: "r1.1 r2.1"
-        2: "r1.2 r2.2"
-    bom:
-        SMD1206:
-            "{{R * 2}}": "r1 r2"
+foo = (args) ->
+    (value) ->
+        value ?= "1K"
+        r = mathjs.eval "#{value} * 2"
+
+        schema =
+            # parallel resistors
+            iface: "1 2" # Compatible with stock resistors
+            netlist:
+                1: "r1.1 r2.1"
+                2: "r1.2 r2.2"
+            bom:
+                SMD1206:
+                    "#{r}": "r1 r2"
 
 bar =
     # series resistors
     iface: "a b"
-    schemas: {foo}
+    schemas: {foo: foo!}
     bom:
         foo:
-            'R:500ohm': "x"
-            "R:3kohm": "y"
+            '500ohm': "x"
+            "3kohm": "y"
     netlist:
         a: "x.2"
         b: "y.1"

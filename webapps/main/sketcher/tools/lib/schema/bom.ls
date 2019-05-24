@@ -46,6 +46,9 @@ export do
                         schema-data params
                     else 
                         schema-data
+
+                    if typeof! calculated-schema is \Function 
+                        throw new Error "Sub-circuit \"#{type}\" should be simple function, not a factory function. Did you forget to initialize it?"
                     bom[name] =
                         name: name
                         params: merged-params
