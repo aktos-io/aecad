@@ -8,13 +8,14 @@ require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
 require! '../../tools/lib/schema/tests': {schema-tests}
 require! 'diff': jsDiff
+require! 'mathjs'
 
 {text2arr} = tool-lib
 {keys, values, map, filter, find} = prelude-ls
 
 export init = (pcb) ->
     # Modules to be included into dynamic scripts
-    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on}
+    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on, mathjs}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
