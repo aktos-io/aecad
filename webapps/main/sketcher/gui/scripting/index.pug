@@ -37,6 +37,12 @@ dropdown(
         on-click="downloadScripts" 
         tooltip="Download all scripts"
         ): icon.download 
+
+    file-button.icon(
+        on-read="uploadScripts" 
+        tooltip="Upload custom scripts"
+        type="text")
+        icon.upload 
     //-
         ack-button.icon(
             on-click="restartDiff" 

@@ -20,11 +20,28 @@ export class Edge extends Container
 
     import: (data) ->
         # imports a Paper.js data to turn that into an aeObj
+        # TODO:
+        # ---------
+        # Add this Edge object into the layer that the "data" belongs to. This way we could 
+        # move any "Edge" part along with its layer. 
+        #console.log "Edge is importing data from layer: ", data.layer?.id, data.layer?.name
         data.parent = @g
 
     move: (displacement, opts={}) ->
-        # DO NOT MOVE EDGE AT THE MOMENT
-        return
+        # Moves the component with a provided amount of displacement. Default: Relative
+        # opts:
+        #       absolute: [Bool] move absolute amount
+
+        console.warn "FIXME: Not moving edge item"
+        return 
+
+        # TODO: Move all items in the same layer
+        unless opts.absolute
+            for @g.layer.children 
+                ..position.set ..position.add displacement
+        else
+            for @g.layer.children 
+                ..position.set displacement
 
     color: ~
         (val) ->

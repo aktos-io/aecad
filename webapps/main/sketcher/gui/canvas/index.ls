@@ -4,10 +4,11 @@ require! '../../tools/move-tool': {MoveTool}
 require! '../../tools/line-tool': {LineTool}
 require! '../../tools/select-tool': {SelectTool}
 require! '../../tools/lib/selection': {Selection}
-require! 'prelude-ls': {min, empty, abs, keys}
+require! 'prelude-ls': {min, empty, abs, keys, unique-by}
 require! 'dcs/lib/keypath': {set-keypath, get-keypath}
 require! '../../tools/lib': {getAecad, Edge}
 require! 'aea/do-math': {px2mm}
+require! 'aea': {merge}
 require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
 export init = (pcb) ->
@@ -30,6 +31,30 @@ export init = (pcb) ->
         # TODO: send signal to the radio-button group only
         <~ @fire \changeTool, {}, \sl
         @set \currTool, \sl
+        
+    move-selection = (override={}) -> 
+        bounds = pcb.ractive.get \lastBounds
+        if bounds and not empty selection.selected
+            pcb.history.commit!
+
+            # test if this is a complex selection
+            # FIXME: multiple formats in selection "[ITEM] or [{item: ITEM, aeobj, ...}]"
+            # adds unnecessary complexity 
+            s = []
+            for selection.selected 
+                if ..aeobj
+                    s.push ..aeobj.g if ..aeobj.g.id not in [..id for s]
+                else if ..item
+                    s.push ..item if ..item.id not in [..id for s]
+
+            target-bounds = pcb.get-bounds s
+            delta = bounds.center.subtract target-bounds.center 
+            displacement = delta `merge` override
+            for selection.get-as-aeobj!
+                ..move displacement
+        else
+            PNotify.notice text: "Not possible."
+
 
     handlers =
         upgradeComponents: (ctx) ->
@@ -50,14 +75,16 @@ export init = (pcb) ->
             traces-on-far-side = []
             components = pcb.get-components!
 
-            for components when ..item.data.aecad.type isnt \Trace
+            for components when ..type isnt \Trace
                 if ..item.data.aecad.side isnt curr-side
                     ..item.send-to-back!
 
-            for components when ..item.data.aecad.type is \Trace
+            for components when ..type is \Trace
                 # Send all traces to the back so that drill holes can be exposed
                 # correctly
                 ..item.send-to-back!
+                trace-layer = ..item.parent
+                trace-layer.send-to-back!
 
                 # TODO: Fix trace z-index correction here.
                 # ------------------------------------------
@@ -96,7 +123,7 @@ export init = (pcb) ->
                 try
                     conn-states = that.get-connection-states!
                 catch
-                    PNotify.error hide: no, text: e.message
+                    PNotify.error text: e.message
                     pcb.ractive.set 'totalConnections', "--"
                     pcb.ractive.set 'unconnectedCount', "--"
                     return
@@ -153,21 +180,30 @@ export init = (pcb) ->
                 pcb.cursor \default
             proceed?!
 
-        sendTo: (ctx) ->
+        sendTo: (ctx) !->
             pcb.history.commit!
             layer = ctx.component.get \to
+            aeobjs = []
             for selected in pcb.selection.selected
                 console.log "sending selected: ", selected, "to: ", layer
-                aeobj = if selected.aeobj
-                    that
-                else
-                    # convert the selected items into Edge aeobj
-                    new Edge
-                        ..import selected
+                aeobj = selected.aeobj
+                try
+                    if aeobj
+                        aeobjs.push aeobj.owner
+                    else                    
+                        aeobj = get-aecad selected .owner
+                        aeobjs.push aeobj unless aeobj.gcid in [..gcid for aeobjs]
 
-                aeobj.owner
-                    ..set-side layer
-                    ..send-to-layer 'gui' # TODO: find a more beautiful name
+                unless aeobj 
+                    # convert the selected items into Edge aeobj
+                    edge = new Edge
+                        ..import selected
+                    aeobjs.push edge 
+
+            for aeobj in aeobjs
+                aeobj.set-side layer
+                if layer isnt \Edge
+                    aeobj.send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
             pcb.history.commit!
@@ -203,26 +239,24 @@ export init = (pcb) ->
             pcb.ractive.set \lastBounds, bounds
             #console.log "last bounds: ", bounds
             selection.clear!
+            pcb.vertex-marker bounds.center
             PNotify.info do
                 text: "Saved last bounds: (x:#{bounds.center.x |> oneDecimal}, y:#{bounds.center.y |> oneDecimal})"
                 addClass: 'nonblock'
 
         moveToCenter: (ctx) ->
-            bounds = pcb.ractive.get \lastBounds
-            if bounds and not empty selection.selected
-                pcb.history.commit!
-                for selection.selected
-                    # FIXME: Selection holds lots of formats, reduce this!
-                    if ..aeobj
-                        that.owner.position.set bounds.center
-                    else
-                        ..position.set bounds.center
-            else
-                PNotify.notice text: "Not possible."
+            move-selection!
 
+        alignVertical: (ctx) -> 
+            move-selection {y: 0}
+
+        alignHorizontal: (ctx) -> 
+            move-selection {x: 0}
+            
         measureDistance: (ctx) ->
             bounds = pcb.ractive.get \lastBounds
-            unless bounds or empty selection.selected
+
+            if not bounds or empty selection.selected 
                 PNotify.notice text: "Not possible."
             else
                 prev = bounds.center
@@ -261,6 +295,12 @@ export init = (pcb) ->
                     shadowOffset: [0.5,0.5]
                     shadowBlur: 1
 
+
+        selectComponent: (ctx, item, proceed) -> 
+            if item.id 
+                for pcb.get-components! when ..name is item.id
+                    pcb.selection.add {item: ..item}
+            proceed!
 
 
     return handlers

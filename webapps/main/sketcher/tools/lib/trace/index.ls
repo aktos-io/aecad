@@ -69,7 +69,7 @@ export class Trace extends Container implements follow, helpers, end
                 if ..data.aecad.side is args.0
                     ..opacity = 1
                 else
-                    ..opacity = 0.4
+                    ..opacity = 0.1
 
     print-mode: ({layers, trace-color}) ->
         super ...
@@ -274,9 +274,13 @@ export class Trace extends Container implements follow, helpers, end
                 layer: @ractive.get \currProps
                 trace: @ractive.get \currTrace
 
+            if /[^0-9\\.]+/.exec curr.trace.width
+                @scope.vlog.error "Unrecognized trace width: #{curr.trace.width}"
+                return 
+            trace-width = curr.trace.width |> parse-float |> mm2px
             @line = new @scope.Path(snap)
                 ..strokeColor = curr.layer.color
-                ..strokeWidth = curr.trace.width |> mm2px
+                ..strokeWidth = trace-width
                 ..strokeCap = 'round'
                 ..strokeJoin = 'round'
                 ..selected = yes
@@ -305,6 +309,10 @@ export class Trace extends Container implements follow, helpers, end
         outer-dia = @ractive.get \currTrace.via.outer
         inner-dia = @ractive.get \currTrace.via.inner
 
+        if /[^0-9\\.]+/.exec outer-dia
+            @scope.vlog.error "Unrecognized via outer dia: #{outer-dia}"
+            return 
+
         via = new Pad do
             dia: outer-dia
             drill: inner-dia
@@ -322,3 +330,14 @@ export class Trace extends Container implements follow, helpers, end
 
     set-modifiers: (modifiers) ->
         @modifiers = modifiers
+
+    move: (displacement, opts={}) ->
+        # Moves the component with a provided amount of displacement. Default: Relative
+        # opts:
+        #       absolute: [Bool] move absolute amount
+        unless opts.absolute
+            @g.position.set @g.position.add displacement
+        else
+            @g.position.set displacement
+
+        console.warn "FIXME: trace moves must break traces at selection boundaries."

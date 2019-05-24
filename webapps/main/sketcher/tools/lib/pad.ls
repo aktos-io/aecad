@@ -15,6 +15,7 @@ Pad
     .uname          : uniqe pin name (eg. "P.C1.gnd(5)")
     .label          : label seen on the pad (eg. "gnd")
     .num            : exact pin number in the footprint (eg. "5")
+    .netid          : Net ID of the pad
 
 
 /* ------------------------------------------------- */
@@ -82,18 +83,19 @@ export class Pad extends ComponentBase
 
         @ttip = new PointText do
             #point: @cu.bounds.center
-            content: @label
             fill-color: 'white'
-            parent: @g
+            # THIS DOESN'T ACTUALLY WORK: parent: @g
             font-size: 0.8
             #position: @cu.bounds.center
             justification: 'center'
             data: aecad: part: \ttip
+        @ttip.parent = @g
 
         if opts.color
             @color = that
 
     finish: !->
+        @ttip.content = @label 
         if @ttip.content # <= this checking is very important!
             # if tooltip has no content, then calculating aspect ratio
             # becomes Not-A-Number, which in turn breaks the app
@@ -190,7 +192,7 @@ export class Pad extends ComponentBase
         # Return pad label (eg. "Vin")
         ->
             label = @get-data 'label'
-            "#{label or @num}"
+            "#{label or @num or ''}"
 
     num: ~
         # Return pad number (eg. 5) regardless of existence of @label
@@ -205,7 +207,13 @@ export class Pad extends ComponentBase
         -> "#{@pin}(#{@num})"
 
     netid: ~
-        -> if @get-data \netid => "#{that}" else that
+        -> 
+            _netid = @get-data('netid') or ''
+            if @owner.type is \Trace 
+                _netid = @owner.netid 
+
+            return _netid 
+
         (val) -> @set-data 'netid', "#{val}"
 
     net: ~
@@ -278,4 +286,4 @@ export class Pad extends ComponentBase
                 # our side is focused
                 @g.opacity = 1
             else
-                @g.opacity = 0.4
+                @g.opacity = 0.1

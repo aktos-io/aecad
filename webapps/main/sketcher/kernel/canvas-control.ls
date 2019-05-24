@@ -1,4 +1,4 @@
-require! 'prelude-ls': {flatten, sort-by, reverse, empty, keys, compact}
+require! 'prelude-ls': {flatten, sort-by, reverse, empty, keys, compact, filter}
 require! './line': {Line}
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 
@@ -9,27 +9,38 @@ export canvas-control =
     get-top-item: (item) ->
         if @ractive.get \selectGroup
             # select the top level group
-            for dig in  [0 to 100]
+            _fuse = 100
+            for i in  [to _fuse]
                 if item.parent.getClassName! is \Layer
                     break
                 item = item.parent
-            console.log "Dig level: ", dig
+            if i is _fuse 
+                throw new Error "Fuse activated for get-top-item!"
             item
         else
             item
 
     get-bounds: (items=[]) ->
-        # returns overall bounds
+        # returns overall bounds        
         if empty items
             items = flatten [..getItems! for @project.layers]
+        #console.log "Calculating bounds of items:", items 
         bounds = items.reduce ((bbox, item) ->
-            _bounds = if item.getClassName! is \Rectangle => item else item.bounds
-            unless bbox
+            switch item.getClassName! 
+            | \Rectangle => 
+                _bounds = item
+            | \PointText => 
+                # skip PointText
+                return bbox
+            |_ => 
+                _bounds = item.bounds 
+
+            return unless bbox
                 _bounds
             else
                 bbox.unite _bounds
             ), null
-        #console.log "found items: ", items.length, "bounds: #{bounds?.width}, #{bounds?.height}"
+        #console.log "...bounds: #{bounds?.width}, #{bounds?.height}"
         return bounds
 
     cursor: (name) ->

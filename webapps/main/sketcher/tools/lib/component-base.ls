@@ -84,6 +84,10 @@ export class ComponentBase
     remove: ->
         @g.remove!
 
+    gcid: ~
+        # a hack for getting current id
+        -> @g.id
+
     type: ~
         -> @get-data 'type'
         (val) -> @set-data 'type', val
@@ -170,15 +174,21 @@ export class ComponentBase
 
     name: ~
         -> @get-data \name
+        (val) -> 
+            console.log "Component #{@name} renamed to #{val}..."
+            @set-data \name, val 
 
     owner: ~
         ->
             _owner = this
-            for to 100
+            _fuse = 100
+            for i to _fuse 
                 if _owner.parent
                     _owner = _owner.parent
                 else
                     break
+            if i is _fuse 
+                throw new Error "Fuse activated here."
             return _owner
 
     nextid: ->

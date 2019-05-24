@@ -115,3 +115,17 @@ pcb.ractive.fire 'calcUnconnected'
 # Selecting unused components
 
 TODO
+
+# Prefixing current components
+
+Let's assume you wanted your previous drawing to be a sub-circuit of current schema. 
+
+After you defined your previous schema as a single component, you need to fix the 
+prefixes: 
+
+```
+for pcb.get-components {exclude: <[ Trace Edge RefCross ]>}
+    console.log "component: ", ..
+    aeobj = get-aecad ..item
+    aeobj.name = "d.#{aeobj.name}"
+```

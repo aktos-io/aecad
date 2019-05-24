@@ -100,7 +100,7 @@ export class History
 
             _names.push name
         unless empty _names
-            PNotify.notice hide: no, text: """
+            PNotify.notice hide: yes, text: """
                 Script update:
                 -----------------------
                 #{_names.map (-> "* #{it}\n")}

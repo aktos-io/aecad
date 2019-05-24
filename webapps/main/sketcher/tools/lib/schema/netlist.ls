@@ -10,7 +10,8 @@ require! './lib': {parse-name, net-merge}
 
 is-connected = (item, pad) ->
     pad-bounds = pad.cu-bounds
-    trace-netid = item.data.aecad.netid
+    trace-netid = "#{item.data.aecad.netid}"
+    trace-netid = trace-netid.replace /[^0-9]/g, ''
     # Check if item is **properly** connected to the rectangle
     for item.children or []
         unless ..getClassName! is \Path
@@ -23,9 +24,10 @@ is-connected = (item, pad) ->
             # check all segments of the path
             if point.is-inside pad-bounds
                 # Detect short circuits
-                if "#{trace-netid}" isnt pad.netid
+                if "#{trace-netid}" isnt "#{pad.netid}"
                     item.selected = true
                     pad.selected = true
+                    console.warn "Short circuit item: ", item, item.position, "Pad is:", pad, pad.gpos                   
                     throw new Error "Short circuit: #{pad.uname} (n:#{pad.netid}) with #{item.data.aecad.tid} (n:#{trace-netid})"
                 else
                     #console.log "Pad #{pad.uname} seems to be connected with Trace tid: #{item.data.aecad.tid}"
@@ -48,8 +50,9 @@ export do
                     # this is only a cross reference, ignore it
                     continue
 
-                if name in keys @sub-circuits
+                if name of @sub-circuits 
                     # this is a sub-circuit element, it has been handled in its Schema
+                    #console.log "Handling #{name} with its schema:", @sub-circuits[name]
                     continue
 
                 unless name in components
@@ -72,7 +75,14 @@ export do
             }
 
         connection-states = {}
-        _traces = @get-traces! # List of trace items with physically connected states are calculated
+        # List of trace items with physically connected states are calculated
+        {trace-items: _traces, vias} = @get-traces! 
+
+        # Adding vias to connection list
+        console.log "vias:", vias
+        for netid, pads of vias 
+            @connection-list[][netid] ++= pads 
+
         # Calculate connections
         for netid, net of @connection-list
             state = connection-states.{}[netid]
@@ -112,7 +122,7 @@ export do
             else
                 state.unconnected-pads.length - 1
 
-        console.log ":::: Connection states: ", connection-states
+        #console.log ":::: Connection states: ", connection-states
         @_connection_states = connection-states
         return connection-states
 
@@ -130,11 +140,13 @@ export do
         */
         traces = {}
         trace-ids = []
-        for {item} in @scope.get-components {exclude: '*', include: <[ Trace ]>}
+        vias = {}
+        for {item, aeobj} in @scope.get-components {exclude: '*', include: <[ Trace ]>}
             # Cleanup non-functional traces
             # ------------------------------
             for item.children when ..getClassName?! is \Path
                 if ..segments.length is 1
+                    console.log "Removing single segment child of Trace:", ..
                     ..remove!
             if item.children.length is 0
                 item.remove!
@@ -147,6 +159,10 @@ export do
             item.phy-netid = null
             traces[item.id] = item
             trace-ids.push item.id # for performance reasons
+
+            for (item.children or []) when ..data.aecad?type is \Pad
+                via = get-aecad .. 
+                vias[][via.netid].push via
 
         # traces is now an object that contains all valid traces
 
@@ -187,4 +203,4 @@ export do
         # assigned each of them.
         trace-items = values traces
         #console.log "trace-items: ", trace-items
-        return trace-items
+        return {trace-items, vias}

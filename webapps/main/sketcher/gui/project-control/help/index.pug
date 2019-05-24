@@ -1,10 +1,13 @@
-h3 Navigation 
-
 //- TODO: Compile this help from a Markdown document 
 
-h5 Global
-include ./help/global.pug    
+h3 Footprint
 .ui.accordion(as-accordion)
+    include ./help/footprints.pug
+
+h3 Navigation
+.ui.accordion(as-accordion)
+    include ./help/basic.pug    
+
     //- Select 
     include ./help/select.pug
 
@@ -13,3 +16,6 @@ include ./help/global.pug
     
     //- Move 
     include ./help/move.pug 
+    
+        
+    

@@ -32,10 +32,14 @@ export do
         for {name, type, data, params} in values @get-bom! when not data # loop through only raw components
             pfx-name = "#{@prefix}#{name}"
             _Component = getClass(type)
+            #console.log "...adding component: #{name} type: #{type} params: ", params
             if pfx-name not in [..name for curr]
                 # This component hasn't been created yet, create it
                 @components.push do
                     component: new _Component {name: pfx-name, value: params}
+                    type: type 
+                    name: pfx-name
+                    value: params
             else
                 existing = find (.name is pfx-name), curr
                 @components.push comp =
@@ -43,6 +47,8 @@ export do
                     existing: yes
                     upgrade-needed: ''
                     type: existing.type
+                    value: params 
+                    name: pfx-name
 
                 # update the value in any case
                 comp.component.set-data \value, params

@@ -97,6 +97,16 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
 
         $ window .on \unload, ~>
             @history.save!
+            
+        do
+            @vlog.clog "Starting autosave..."
+            <~ :lo(op) ~> 
+                period = 2min
+                <~ sleep period * 60_000
+                @vlog.clog "Running autosave after #{period}mins..."
+                @history.save!
+                PNotify.info text: "Autosave complete."
+                lo(op) 
 
         # http://paperjs.org/reference/paperscope/#settings
         @_scope.settings

@@ -1,0 +1,9 @@
+.title #[.ui.icon.label.green: icon.arrow.right Inheriting a footprint]
+.content
+	:markdown-it
+		# Footprint(data, overrides)
+
+		* `data`: The data belongs to the final footprint. Leave as is while overriding another footprint.
+		* `overrides`: Hardcoded intheritance data. 
+
+		Reason: The `data` is separated from `overrides` because when footprint class is upgraded, tip data should be re-used cleanly. Only `data` is saved within the file, rest of information is collected from the footprint class. 

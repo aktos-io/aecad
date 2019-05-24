@@ -66,7 +66,7 @@ export do
                 aecad: deps.root.commit
 
         svg.attributes.data = project-info
-
+   
         # Cleanup empty layers (layers that we never created)
         for i in reverse [til svg.children.length]
             child = svg.children[i]
@@ -87,7 +87,7 @@ export do
                     type: \element
                     children: svg.children
                     attributes: {}
-                svg.children = container
+                svg.children = [container]
 
             [minx, miny, width, height] = svg.attributes.viewBox.split ',' .map (Number)
 
@@ -105,8 +105,7 @@ export do
                     ..height = "#{height * scale}"
 
 
-
-        console.log "Current svg: ", svg
+        #console.log "Current svg ast: ", svg
         # ------------------------------------------------------
 
         err = null

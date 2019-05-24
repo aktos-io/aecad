@@ -61,6 +61,9 @@ export get-aecad = (item-part, parent-ae) ->
                 item: parent-item
                 parent: parent-ae
 
+        # Let's double check that we detected the correct parent. 
+        # If ae-obj (at this point) is the correct parent, then "self.ae-item.id"
+        # must be its child.
         unless item-is-root
             # `self` was not the root ae-item, we should return related ae-obj
             child = ae-obj.get {item: self.ae-item.id} .0

@@ -12,22 +12,22 @@ export class SchemaManager
         @using = null
 
     register: (schema) ->
-        name = schema.name
-        unless name
+        unless schema.name
             throw new Error "Schema must have a name."
 
         # auto activate last defined parent schema
         unless schema.parent
-            @active-schema = name
+            @active-schema = schema.name
 
+        action = "Adding new"
         if name of @schemas
-            console.log "Updating schema: #{name}"
+            action = "Updating"
             @schemas[name] = null
             delete @schemas[name]
-        else
-            console.log "Adding new schema: #{name}"
+        _params = JSON.stringify schema.params
+        #console.log "#{action} schema: #{schema.name}#{if schema.params => ", params: #{_params}" else ""}"
 
-        @schemas[name] = schema
+        @schemas[schema.name] = schema
 
     curr: ~
         -> @active

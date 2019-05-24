@@ -1,11 +1,13 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, unique-by, compact
+    first, unique-by, compact, map 
 }
 
+require! 'aea': {merge}
+
 # deps
-require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad}
+require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
 require! './lib': {parse-name, next-id}
 
 # Class parts
@@ -14,6 +16,7 @@ require! './footprints'
 require! './netlist'
 require! './guide'
 require! './schema-manager': {SchemaManager}
+require! '../text2arr': {text2arr}
 
 # Recursively walk through links
 get-net = (netlist, id, included=[], mark) ~>
@@ -43,15 +46,28 @@ get-net = (netlist, id, included=[], mark) ~>
 the-one-in = (arr) ->
     # expect only one truthy value in the array
     # and return it
-    the-value = null
-    for arr when ..? and .. isnt ""
-        unless the-value
-            the-value = ..
-        else if "#{the-value}" isnt "#{..}"
-            console.error "the-one-in: ", arr
-            throw new Error "We have multiple values in this array"
-    the-value
+    the-only-value = null
+    for id in arr
+        id = parse-int id 
+        if id 
+            unless the-only-value
+                the-only-value = id
+            else if "#{id}" isnt "#{the-only-value}"
+                console.error "the-one-in: ", arr
+                throw new Error "We have multiple values in this array"
+    the-only-value
 
+prefix-value = (o, pfx) ->
+            res = {}
+            for k, v of o 
+                if typeof! v is \Object 
+                    v2 = prefix-value v, pfx
+                    res[k] = v2 
+                else 
+                    res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
+            return res 
+
+        
 
 export class Schema implements bom, footprints, netlist, guide
     (opts) ->
@@ -60,19 +76,7 @@ export class Schema implements bom, footprints, netlist, guide
             name: Name of schema
             prefix: *Optional* Prefix of components
             params: Variant definition
-            data:
-                iface: Interface labeling
-                netlist: Connection list
-                schemas: [Object] Available sub-circuits
-                bom: Bill of Materials
-
-                    key: value => Component's exact name: List of instances
-
-                    # or
-
-                    key:
-                        params: value
-                notes: Notes for each component
+            data: (see docs/schema-usage.md)
         '''
         unless opts
             throw new Error "Data should be provided on init."
@@ -80,9 +84,21 @@ export class Schema implements bom, footprints, netlist, guide
         unless opts.name
             throw new Error "Name is required for Schema"
         @name = opts.schema-name or opts.name
-        @data = opts.data
+        @data = if typeof! opts.data is \Function 
+            opts.data(opts.value) 
+        else 
+            opts.data 
+            
+        parent-bom = prefix-value((opts.bom or {}), "__")
+        #console.log "parent bom: ", parent-bom
+        @data.bom `merge` parent-bom
+
         @prefix = opts.prefix or ''
         @parent = opts.parent
+        parent-params = parse-params(opts.params)
+        self-params = parse-params(opts.data.params)
+        @params = {} `merge` self-params `merge` parent-params
+        #console.log "Schema: #{@prefix}, pparams: ", parent-params, "sparams:", self-params, "merged:", @params
         @scope = new PaperDraw
         @manager = new SchemaManager
             ..register this
@@ -155,7 +171,7 @@ export class Schema implements bom, footprints, netlist, guide
         # compile netlist
         # -----------------
         netlist = {}
-        console.log "* Compiling schema: #{@name}"
+        #console.log "* Compiling schema: #{@name}"
         for id, conn-list of @flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
@@ -292,7 +308,7 @@ export class Schema implements bom, footprints, netlist, guide
         #console.log "... #{@name}: Netlist", @netlist
 
     post-check: ->
-        # Error report (will stay for Alpha stage)
+        # Error report (will stay while aeCAD is in Alpha stage)
         for index, pads of @netlist
             # Check for duplicate pads in the same net
             for _i1, p1 of pads

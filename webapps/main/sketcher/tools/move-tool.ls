@@ -92,17 +92,15 @@ export MoveTool = ->
 
                 unless move.mode is \trace
                     # move an item regularly
-                    for selection.selected
-                        if ..aeobj
-                            if movement-starting
-                                ..aeobj.schema?.clear-guides!
-                            that.owner.move snap.delta
-                        else
-                            .. `shift-item` snap.delta
+                    for selection.get-as-aeobj!
+                        if movement-starting
+                            console.log "starting movement."
+                        ..schema?.clear-guides!
+                        ..move snap.delta
                 else
                     # handle trace movement specially
                     # 1. preserve left and right curve slope
-                    # 2. move touch ends
+                    # 2. move contacting ends
                     # ----------------------------------
                     items = []
                     for side in <[ left right ]>
