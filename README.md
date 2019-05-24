@@ -1,4 +1,4 @@
-[![image](https://user-images.githubusercontent.com/6639874/54744587-75082d00-4bd8-11e9-9460-7515b3d4289b.png)](https://aktos.io/aecad/#/sketcher)
+[![image](https://user-images.githubusercontent.com/6639874/57297951-9dd97880-70d9-11e9-9d63-be42fa1f6c30.png)](https://aktos.io/aecad/#/sketcher)
 
 # aeCAD
 
@@ -15,7 +15,7 @@ Basically a software to create schematics and real-world drawings for physical p
 | **Scripted footprints** | Create inheritable, parametric footprints. Only new topologies has to be created, rest of footprints are only differs by their parameter values, such as pin count and pin labels. No need for incomprehensible libraries.
 | **Component based design** | Create re-usable circuits to build huge and complex circuits.
 | **Future proof project files** | Project files includes dependency information, so you are guaranteed to be able to open your project after 3 years, no matter how the file format has been changed in the latest version. 
-| **Unique Placement Tools** | Right tools to use your EDA in tandem with mechanical CAD apps to handle mechanical constraints (PCB geometry, bolt placements, socket placements, heatsink placements, etc.)
+| **Correct Tools for Placement** | Appropriate tools to use your EDA in tandem with mechanical CAD output for a correct approach of handling mechanical constraints (PCB geometry, bolt placements, socket placements, heatsink placements, etc.)
 | **Browser based** | Installation headache is over. Open your browser, start using. No need for active internet connection after first load.
 | **Healthy** | Shortcuts and tools are designed [Carpal Tunnel Syndrome](https://en.wikipedia.org/wiki/Carpal_tunnel_syndrome) in mind. 
 
