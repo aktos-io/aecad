@@ -144,7 +144,7 @@ export do
         for {item, aeobj} in @scope.get-components {exclude: '*', include: <[ Trace ]>}
             # Cleanup non-functional traces
             # ------------------------------
-            for item.children when ..getClassName?! is \Path
+            for item.children when ..?getClassName?! is \Path
                 if ..segments.length is 1
                     console.log "Removing single segment child of Trace:", ..
                     ..remove!
