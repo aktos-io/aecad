@@ -45,7 +45,10 @@ export SelectTool = ->
                 filter: (hit) ->
                     if hit.item.data.guide
                         return false
-                    true
+                    else if hit.item.data.aecad.side isnt scope.ractive.get \currLayer
+                        return false 
+                    else 
+                        return true
             console.log "Select Tool: Hit result is: ", hit
 
             # Ctrl modifier is used for multiple selection
