@@ -2,10 +2,86 @@ require! '../../tools/lib': {get-aecad, get-parent-aecad}
 require! 'prelude-ls': {max}
 require! 'aea': {create-download, ext}
 require! 'dcs/browser': {SignalBranch}
+require! 'jszip'
+
 
 export init = (pcb) ->
+    prototypePrint = (opts, callback) !->
+        pcb.history.commit!
+
+        # layers to print
+        layers = opts.side.split ',' .map (.trim!)
+        mirror = opts.mirror 
+        scale = opts.scale
+        trace-color = opts.trace-color
+
+        aeitems = []
+        for pcb.project.layers
+            for ..getItems({-recursive})
+                try
+                    {item} = get-parent-aecad ..
+                catch
+                    pcb.vlog .error message: e
+                    pcb.history.back!
+                    return
+                if item
+                    #console.log "Found ae-obj:", item.data.aecad.type, "name: ", item.data.aecad.name
+                    o = get-aecad item
+                        ..print-mode {layers, trace-color}
+                    aeitems.push o
+                else
+                    ..remove!
+
+        for aeitems when ..type is \Trace
+            ..g.send-to-back!
+
+        err, svg <~ pcb.export-svg {mirror, scale}
+        pcb.history.back!
+        callback err, svg
+
+
     handlers =
-        export: (ctx, _filename) ->
+        exportDrawing: (ctx) -> 
+            action, data <~ pcb.vlog .yesno do
+                title: 'Filename'
+                icon: ''
+                closable: yes
+                template: RACTIVE_PREPARSE('./export-dialog.pug')
+                buttons:
+                    save:
+                        text: 'Save'
+                        color: \green
+                    cancel:
+                        text: \Cancel
+                        color: \gray
+                        icon: \remove
+
+            if action in [\hidden, \cancel]
+                console.log "Cancelled."
+                b.cancel!
+                return
+            filename = data.filename
+            files = []
+            format = filename |> ext
+            PNotify.info text: "Preparing #{filename}..."
+            <~ sleep 100ms 
+            err, res <~ pcb.export {format}
+            if err
+                PNotify.error text: err
+                return 
+            create-download filename, res
+
+        downloadProject: (ctx, filename) ->
+            files = []
+            format = filename |> ext
+            project-name = filename.split '.' .0
+            output-name = "#{project-name}.zip"
+
+            unless project-name
+                pcb.vlog .error do
+                    message: "You should supply a project name."
+                return 
+
             dirty-confirm = new SignalBranch
             if __DEPENDENCIES__.root.dirty
                 _sd = dirty-confirm.add!
@@ -19,41 +95,78 @@ export init = (pcb) ->
                         "
                 _sd.go!
             <~ dirty-confirm.joined
-
-            b = new SignalBranch
-            filename = null
-            if _filename
-                filename = _filename
-            else
-                s = b.add!
-                action, data <~ pcb.vlog .yesno do
-                    title: 'Filename'
-                    icon: ''
-                    closable: yes
-                    template: RACTIVE_PREPARSE('./export-dialog.pug')
-                    buttons:
-                        save:
-                            text: 'Save'
-                            color: \green
-                        cancel:
-                            text: \Cancel
-                            color: \gray
-                            icon: \remove
-
-                if action in [\hidden, \cancel]
-                    console.log "Cancelled."
-                    b.cancel!
-                    return
-                filename := data.filename
-                s.go!
-            <~ b.joined
-            format = filename |> ext
+            PNotify.info text: "Preparing #{output-name}..."
+            <~ sleep 100ms 
             err, res <~ pcb.export {format}
             unless err
-                create-download filename, res
+                files.push [filename, res]
             else
                 PNotify.error text: err
+                return 
 
+            # compile once before generating current svg outputs.
+            pcb.ractive.fire \compileScript
+
+            # F.Cu, Fabrication
+            err, res <~ prototypePrint {side: "F.Cu, Edge", +mirror}
+            unless err 
+                filename = "F.Cu-fabrication.svg"
+                files.push [filename, res]
+            else 
+                PNotify.error text: err
+                return 
+
+            <~ set-immediate
+            # B.Cu, Fabrication
+            err, res <~ prototypePrint {side: "B.Cu, Edge"}
+            unless err 
+                filename = "B.Cu-fabrication.svg"
+                files.push [filename, res]
+            else 
+                PNotify.error text: err
+                return 
+
+            <~ set-immediate
+            # Front Assembly
+            err, res <~ prototypePrint {side: "F.Cu, Edge", scale: 2, trace-color: "lightgray"}
+            unless err 
+                filename = "Assembly_Front.svg"
+                files.push [filename, res]
+            else 
+                PNotify.error text: err
+                return 
+
+            <~ set-immediate
+            # Back Assembly
+            err, res <~ prototypePrint {side: "B.Cu, Edge", scale: 2, trace-color: "lightgray", +mirror}
+            unless err 
+                filename = "Assembly_Back.svg"
+                files.push [filename, res]
+            else 
+                PNotify.error text: err
+                return 
+
+            <~ set-immediate
+            # Get scripts 
+            scripts = pcb.ractive.get \drawingLs
+            content = CSON.stringify(scripts, null, 2)
+            # workaround: we are not able to include JSON (or CSON) files with Browserify
+            # directly require by:
+            # require! './path/to/scripts'
+            # console.log scripts
+            files.push ["scripts.ls", "export {\n#{content}\n}"]
+
+            # Empty file to invalidate the manually reduced fabrication file
+            files.push ["fabrication-merged.svg", ""]
+
+            # create a zip file 
+            zip = new jszip! 
+            for [name, content] in files 
+                zip.file name, content 
+
+            content <~ zip.generateAsync({type: "blob"}).then
+            create-download output-name, content
+    
         import: (ctx, file, next) ->
             # Create a layer with file name and send the contents into this layer
             <~ @fire \activateLayer, ctx, file.basename
@@ -78,44 +191,6 @@ export init = (pcb) ->
                 text: "Changes reverted."
                 addClass: 'nonblock'
 
-        prototypePrint: (ctx) !->
-            pcb.history.commit!
-
-            # layers to print
-            layers = ctx.component.get \side .split ',' .map (.trim!)
-            mirror = ctx.component.get \mirror
-            scale = ctx.component.get \scale
-            trace-color = ctx.component.get \trace-color
-
-            pcb.ractive.fire \compileScript
-            aeitems = []
-            for pcb.project.layers
-                for ..getItems({-recursive})
-                    try
-                        {item} = get-parent-aecad ..
-                    catch
-                        pcb.vlog .error message: e
-                        pcb.history.back!
-                        return
-                    if item
-                        #console.log "Found ae-obj:", item.data.aecad.type, "name: ", item.data.aecad.name
-                        o = get-aecad item
-                            ..print-mode {layers, trace-color}
-                        aeitems.push o
-                    else
-                        ..remove!
-
-            for aeitems when ..type is \Trace
-                ..g.send-to-back!
-
-            err, svg <~ pcb.export-svg {mirror, scale}
-            filename = if ctx.component.get \filename
-                that
-            else
-                "#{layers.join('_')}"
-
-            create-download "#{filename}.svg", svg
-            pcb.history.back!
 
         save: (ctx) ->
             # save project
