@@ -23,7 +23,7 @@
     .item 
         .ui.input.right.labeled
             input(value="{{project.name}}")
-            btn.icon.green.label(on-click="['downloadProject', project.name + '.json']")
+            btn.icon.green.label(on-click="['downloadProject', project.name]")
                 icon.download Save Project
     .item
         ack-button.icon(on-click="undo" tooltip="Undo changes") Undo

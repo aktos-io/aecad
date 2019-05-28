@@ -71,10 +71,9 @@ export init = (pcb) ->
                 return 
             create-download filename, res
 
-        downloadProject: (ctx, filename) ->
+        downloadProject: (ctx, project-name) ->
             files = []
-            format = filename |> ext
-            project-name = filename.split '.' .0
+            format = "json"
             output-name = "#{project-name}.zip"
 
             unless project-name
@@ -99,7 +98,7 @@ export init = (pcb) ->
             <~ sleep 100ms 
             err, res <~ pcb.export {format}
             unless err
-                files.push [filename, res]
+                files.push ["pcb.#{format}", res]
             else
                 PNotify.error text: err
                 return 
@@ -107,20 +106,41 @@ export init = (pcb) ->
             # compile once before generating current svg outputs.
             pcb.ractive.fire \compileScript
 
-            # F.Cu, Fabrication
+            # Fabrication
+            fabrication = "2_Fabrication"
             err, res <~ prototypePrint {side: "F.Cu, Edge", +mirror}
             unless err 
-                filename = "F.Cu-fabrication.svg"
+                filename = "#{fabrication}_F.Cu.svg"
                 files.push [filename, res]
             else 
                 PNotify.error text: err
                 return 
 
-            <~ set-immediate
-            # B.Cu, Fabrication
             err, res <~ prototypePrint {side: "B.Cu, Edge"}
             unless err 
-                filename = "B.Cu-fabrication.svg"
+                filename = "#{fabrication}_B.Cu.svg"
+                files.push [filename, res]
+            else 
+                PNotify.error text: err
+                return 
+
+            # Empty file to invalidate the manually reduced fabrication file
+            files.push ["#{fabrication}_merged.svg", ""]
+
+
+            # Testing
+            testing = "1_Testing"
+            err, res <~ prototypePrint {side: "F.Cu, Edge"}
+            unless err 
+                filename = "#{testing}_F.Cu.svg"
+                files.push [filename, res]
+            else 
+                PNotify.error text: err
+                return 
+
+            err, res <~ prototypePrint {side: "B.Cu, Edge", +mirror}
+            unless err 
+                filename = "#{testing}_B.Cu.svg"
                 files.push [filename, res]
             else 
                 PNotify.error text: err
@@ -128,9 +148,10 @@ export init = (pcb) ->
 
             <~ set-immediate
             # Front Assembly
+            assembly = "3_Assembly"
             err, res <~ prototypePrint {side: "F.Cu, Edge", scale: 2, trace-color: "lightgray"}
             unless err 
-                filename = "Assembly_Front.svg"
+                filename = "#{assembly}_Front.svg"
                 files.push [filename, res]
             else 
                 PNotify.error text: err
@@ -140,7 +161,7 @@ export init = (pcb) ->
             # Back Assembly
             err, res <~ prototypePrint {side: "B.Cu, Edge", scale: 2, trace-color: "lightgray", +mirror}
             unless err 
-                filename = "Assembly_Back.svg"
+                filename = "#{assembly}_Back.svg"
                 files.push [filename, res]
             else 
                 PNotify.error text: err
@@ -156,8 +177,8 @@ export init = (pcb) ->
             # console.log scripts
             files.push ["scripts.ls", "export {\n#{content}\n}"]
 
-            # Empty file to invalidate the manually reduced fabrication file
-            files.push ["fabrication-merged.svg", ""]
+            # README 
+            files.push ["README.md", JSON.stringify __DEPENDENCIES__]
 
             # create a zip file 
             zip = new jszip! 
