@@ -286,4 +286,4 @@ export class Pad extends ComponentBase
                 # our side is focused
                 @g.opacity = 1
             else
-                @g.opacity = 0.1
+                @g.opacity = @blur-opacity
