@@ -43,10 +43,17 @@ export SelectTool = ->
             hit = scope.hitTest event.point, do
                 tolerance: 2
                 filter: (hit) ->
+                    #console.log "Filtering hit test:", hit
                     if hit.item.data.guide
                         return false
-                    else if hit.item.data.aecad.side isnt scope.ractive.get \currLayer
-                        return false 
+                    else if side=hit.item.data.aecad.side isnt scope.ractive.get \currLayer
+                        if hit.aeobj.side is scope.ractive.get \currLayer
+                            return true 
+
+                        # still allow selecting through hole elements 
+                        if hit.aeobj?type is "Pad" and hit.aeobj.drill?
+                            return true 
+                        return false
                     else 
                         return true
             console.log "Select Tool: Hit result is: ", hit
