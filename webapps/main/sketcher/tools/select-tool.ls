@@ -185,7 +185,12 @@ export SelectTool = ->
                                                         #console.log "solving #{name} side for delta: ", delta
                                                         hline.move delta
                                                         isec = hline.intersect mline
-                                                        isec.subtract m1
+                                                        if isec 
+                                                            isec.subtract m1
+                                                        else
+                                                            # lines are not intersecting, they are parallel
+                                                            throw new Error "Unimplemented feature: Handle moving the lines when they are parallel"
+
 
                                                 selection.add {
                                                     name,
