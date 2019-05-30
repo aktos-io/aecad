@@ -84,7 +84,7 @@ export init = (pcb) ->
             dirty-confirm = new SignalBranch
             if __DEPENDENCIES__.root.dirty
                 _sd = dirty-confirm.add!
-                <~ pcb.vlog .info do
+                answer <~ pcb.vlog .info do
                     title: "Dirty state of aeCAD"
                     icon: 'warning sign'
                     message: "
@@ -92,7 +92,11 @@ export init = (pcb) ->
                         \n\n
                         You should really commit your changes and then save your project.
                         "
-                _sd.go!
+                if answer is \ok
+                    _sd.go!
+                else
+                    _sd.cancel! 
+                    PNotify.notice text: "Cancelled download."
             <~ dirty-confirm.joined
             PNotify.info text: "Preparing #{output-name}..."
             <~ sleep 100ms 
