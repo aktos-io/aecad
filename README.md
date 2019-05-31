@@ -12,10 +12,10 @@ Basically a software to create schematics and real-world drawings for physical p
 
 | Feature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description
 | -------------- | --- | 
-| **Scripted footprints** | Create inheritable, parametric footprints. Only new topologies has to be created, rest of footprints are only differs by their parameter values, such as pin count and pin labels. No need for incomprehensible libraries.
+| **Parametric footprints** | Create inheritable, parametric footprints. Only new topologies has to be created, rest of footprints are only differs by their parameter values, such as pin count and pin labels. No need for incomprehensible libraries.
 | **Component based design** | Create re-usable circuits to build huge and complex circuits.
-| **Future proof project files** | Project files includes dependency information, so you are guaranteed to be able to open your project after 3 years, no matter how the file format has been changed in the latest version. 
-| **Correct Tools for Placement** | Appropriate tools to use your EDA in tandem with mechanical CAD output for a correct approach of handling mechanical constraints (PCB geometry, bolt placements, socket placements, heatsink placements, etc.)
+| **Scripting support** | Create schemas and PCB layouts via Livescript and/or Javascript. 
+| **Correct Tools for Placement** | Appropriate tools to use your EDA in tandem with a mechanical CAD output for a correct approach of handling mechanical constraints (PCB geometry, bolt placements, socket placements, heatsink placements, etc.)
 | **Browser based** | Installation headache is over. Open your browser, start using. No need for active internet connection after first load.
 | **Healthy** | Shortcuts and tools are designed [Carpal Tunnel Syndrome](https://en.wikipedia.org/wiki/Carpal_tunnel_syndrome) in mind. 
 
