@@ -129,8 +129,14 @@ export init = (pcb) ->
                 return 
 
             # Empty file to invalidate the manually reduced fabrication file
-            files.push ["#{fabrication}_merged.svg", ""]
-
+            files.push ["#{fabrication}_merged.svg", """
+                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <svg
+                   viewBox="0 0 210 297"
+                   height="297mm"
+                   width="210mm">
+                </svg>
+                """]
 
             # Testing
             testing = "1_Testing"
