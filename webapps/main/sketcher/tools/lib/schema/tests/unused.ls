@@ -1,7 +1,7 @@
 require! '../schema': {Schema}
 
 export do
-    1: ->
+    "unused pads": ->
         open-collector =
             # open collector output
             iface: "Input, Output, gnd"
@@ -47,6 +47,29 @@ export do
 
         expect (-> sch.compile!)
         .to-throw "Unused pads: test.A.Input,test.A.Output,test.A.gnd"
+
+        # cleanup canvas
+        sch.remove-footprints!
+
+    "false unused pads": ->
+        open-collector =
+            # open collector output
+            iface: "Input, Output, gnd"
+            bom:
+                NPN: 'Q1'
+                "SMD1206": "R1"
+            netlist:
+                Input: 'R1.1'
+                2: 'Q1.b R1.2'
+                gnd: 'Q1.e'
+                Output: 'Q1.c'
+            no-connect: 
+                'R1.2'
+
+        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+
+        expect (-> sch.compile!)
+        .to-throw "False unused pads: test.R1.2"
 
         # cleanup canvas
         sch.remove-footprints!
