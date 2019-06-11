@@ -192,7 +192,9 @@ export class Pad extends ComponentBase
         # Return pad label (eg. "Vin")
         ->
             label = @get-data 'label'
-            "#{label or @num or ''}"
+            x = "#{label or @num or ''}"
+            @owner.set-data "_labels.#{@num}", x 
+            x 
 
     num: ~
         # Return pad number (eg. 5) regardless of existence of @label
