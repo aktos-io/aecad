@@ -60,6 +60,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
             @canvas.style.background = that
 
         @tools = {}
+        observer = null 
         @selection = new Selection
             ..scope = this
             ..on \selected, (items) ~>
@@ -70,12 +71,15 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     #console.log "selected item's data: ", aeobj.data
                     #console.log "selected item's owner's data: ", aeobj.owner.data
                     @ractive.set \aecadData, aeobj.data
+                    observer := @ractive.observe \aecadData, (_new, _old) ~> 
+                        aeobj.finish?!
 
                     # DEBUG: Additional data for debugging purposes
                     #@ractive.set \aecadData.grotation, aeobj.grotation
 
                     if aeobj.parent
                         @ractive.set \aecadOwnerData, aeobj.owner.data
+
                 else
                     # hit is *probably* a trace part (a Curve of a Path)
                     if selected.item?getPath?!
@@ -85,6 +89,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
             ..on \cleared, ~>
                 @ractive.set \aecadData, {}
                 @ractive.set \aecadOwnerData, {}
+                observer?cancel?!
 
         # visual logger
         @vlog = new VLogger @ractive
