@@ -120,6 +120,9 @@ export class ComponentBase
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
 
+    allow-duplicate-labels: ~
+        -> @overrides.allow-duplicate-labels
+
     print-mode: (opts, our-side) ->
         # opts.layers: [Array] String array indicates which layers (sides)
         #         to be printed

@@ -180,7 +180,7 @@ export class Pad extends ComponentBase
     get: (query) ->
         res = []
         if \pin of query
-            if "#{query.pin}" is @label
+            if "#{query.pin}" in [@label, "#{@num}"]
                 res.push this
         if \item of query
             # report matching items

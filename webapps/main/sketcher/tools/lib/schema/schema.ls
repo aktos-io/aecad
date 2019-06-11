@@ -208,6 +208,11 @@ export class Schema implements bom, footprints, netlist, guide
                         console.error "Current iface:", comp.iface
                         throw new Error "No such pin found: '#{pin}' of '#{name}'"
 
+                    unless comp.allow-duplicate-labels
+                        if pads.length > 1
+                            if comp.type not in [..type for @get-upgrades!]
+                                throw new Error "Multiple pins found: '#{pin}' of '#{name}' (#{comp.type}) in #{@name}"
+
                     # find duplicate pads (shouldn't be)
                     if (unique-by (.uname), pads).length isnt pads.length
                         console.error "FOUND DUPLICATE PADS in ", name
