@@ -180,7 +180,7 @@ export class Pad extends ComponentBase
     get: (query) ->
         res = []
         if \pin of query
-            if "#{query.pin}" is @label
+            if "#{query.pin}" in [@label, "#{@num}"]
                 res.push this
         if \item of query
             # report matching items
@@ -192,7 +192,9 @@ export class Pad extends ComponentBase
         # Return pad label (eg. "Vin")
         ->
             label = @get-data 'label'
-            "#{label or @num or ''}"
+            x = "#{label or @num or ''}"
+            @owner.set-data "_labels.#{@num}", x 
+            x 
 
     num: ~
         # Return pad number (eg. 5) regardless of existence of @label

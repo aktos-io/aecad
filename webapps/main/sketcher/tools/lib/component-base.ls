@@ -120,6 +120,9 @@ export class ComponentBase
     send-to-layer: (layer-name) ->
         @g `@scope.send-to-layer` layer-name
 
+    allow-duplicate-labels: ~
+        -> @overrides.allow-duplicate-labels
+
     print-mode: (opts, our-side) ->
         # opts.layers: [Array] String array indicates which layers (sides)
         #         to be printed
@@ -255,10 +258,11 @@ export class ComponentBase
             # are from class definition. < FIXME: data shouldn't contain
             # properties from class definition, it should only contain instance
             # specific data
-            if k in <[ name rotation side type value ]>
+            if k in <[ name rotation side type value _labels ]>
                 continue
             delete data[k]
         data `merge` opts
+        data.labels = clone(data.labels or {}) `merge` (data._labels or {})
         comp = new (get-class data.type) data
         comp.g.position = @g.position
         @remove!
