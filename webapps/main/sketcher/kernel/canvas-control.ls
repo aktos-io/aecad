@@ -198,14 +198,14 @@ export canvas-control =
                 for compact flatten [that] when hit.item.isDescendant(..) or hit.item.id is ..id
                     continue outer
 
+            # add aeCAD objects
+            if opts.aecad
+                hit.aeobj = get-aecad hit.item
+
             # Apply filter
             if opts.filter
                 unless opts.filter(hit)
                     continue
-
-            # add aeCAD objects
-            if opts.aecad
-                hit.aeobj = get-aecad hit.item
 
             hits.push hit
         hits

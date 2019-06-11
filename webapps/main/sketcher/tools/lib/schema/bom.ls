@@ -1,6 +1,6 @@
 # global imports
 require! 'prelude-ls': {
-    find, empty, unique, difference, max, keys, flatten, filter, values
+    find, empty, unique, difference, max, keys, flatten, filter, values, map
 }
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
@@ -147,3 +147,16 @@ export do
             else
                 "Unused pads:"
             throw new Error "#{msg} #{unused.map (~> "#{@prefix}#{it}") .join ','}"
+
+
+        # Detect erroneous unused pad declaration
+        used = (keys @data.netlist) ++ (values @data.netlist) 
+            |> flatten 
+            |> map text2arr 
+            |> flatten
+
+        false-unused = []
+        for pad in used or [] when pad in @no-connect
+            false-unused.push pad 
+        unless empty false-unused
+            throw new Error "False unused pads: #{false-unused.map (~> "#{@prefix}#{it}") .join ','}"

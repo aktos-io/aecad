@@ -216,6 +216,9 @@ export class Pad extends ComponentBase
 
         (val) -> @set-data 'netid', "#{val}"
 
+    is-via: ~
+        -> @owner.type is \Trace
+
     net: ~
         (val) ->
             # TODO: assign relevant net on schema.compile! time
@@ -286,4 +289,4 @@ export class Pad extends ComponentBase
                 # our side is focused
                 @g.opacity = 1
             else
-                @g.opacity = 0.1
+                @g.opacity = @blur-opacity
