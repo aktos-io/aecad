@@ -20,15 +20,7 @@ An `Object` where key: `trace-id`, value: array of related Pads. Built by
 1. Use the existing netid if one is supplied by any of each net's pads.
 2. Assign the rest of nets' netid's sequentially
 
-### Debugging connection list
-
-```
-conn-list-txt = []
-for id, net of sch.connection-list
-    conn-list-txt.push "#{id}: #{net.map (.uname) .join(',')}"
-pcb.vlog.info conn-list-txt.join '\n\n'
-```
-
+(see [Troubleshooting](./troubleshooting.md) for more)
 
 
 ## Schema.netlist

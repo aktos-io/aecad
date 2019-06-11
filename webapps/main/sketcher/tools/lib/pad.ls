@@ -216,6 +216,9 @@ export class Pad extends ComponentBase
 
         (val) -> @set-data 'netid', "#{val}"
 
+    is-via: ~
+        -> @owner.type is \Trace
+
     net: ~
         (val) ->
             # TODO: assign relevant net on schema.compile! time

@@ -100,12 +100,19 @@ export do
             for phy, elements of connected-elements
                 # at this point, "elements" are Pad instances, use their ".pin" property
                 connected = []
-                connected ++= elements.map((.pin))
+                get-pin-name = (pad) -> 
+                    if pad.is-via 
+                        "via::#{pad.owner.tid}"
+                    else
+                        pad.pin 
+
+                for elements 
+                    connected.push get-pin-name(..) 
                 connected ++= ["trace-id::#{..id}" for _traces when "#{..phy-netid}" is "#{phy}"]
                 named-connections.push connected
 
 
-            state.reduced = net-merge named-connections, [..pin for net]
+            state.reduced = net-merge named-connections, [get-pin-name(..) for net]
 
             # generate the list of unconnected Pad instances
             # TODO: determine discrete-pads by closest point, not by the first
