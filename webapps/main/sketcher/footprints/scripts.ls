@@ -174,7 +174,8 @@ export {
       iface: "Pow+, Pow-"
       netlist:
           gnd: """ P.gnd cn.1 Pow- led1.gnd
-              led2.gnd rpi.gnd beep.gnd
+              led2.gnd beep.gnd
+              ,rpi.gnd5,rpi.gnd6,rpi.gnd2,rpi.gnd7,rpi.gnd8,rpi.gnd3
               """
           vff: 'P.vff, cn.2, Pow+'
           '5v': 'P.5v rpi.5v led1.vcc led2.vcc'
@@ -201,6 +202,7 @@ export {
           rpi.14 rpi.15 rpi.18 rpi.23 rpi.24 rpi.25
           rpi.8 rpi.12 rpi.20 rpi.21
           P.vfs P.3v3
+          rpi.gnd4,rpi.gnd1
           """
   
   sch = new Schema {name: 'sgw', data: sgw}
@@ -223,7 +225,7 @@ export {
       text: bom-list
   
   unless empty upgrades=(sch.get-upgrades!)
-      msg = ''
+      msg = \''
       for upgrades
           msg += ..reason + '\\n\\n'
           pcb.selection.add do
@@ -291,36 +293,37 @@ export {
   #
   # This script will also be treated as a library file.
   # --------------------------------------------------
-  table = table2obj {key: 'Physical', value: 'BCM'}, """
-  +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
-  | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
-  +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
-  | 3v3 | 3v3 |    3.3v |      |   |  1 || 2  |   |      | 5v      | 5v  | 5v  |
-  |   2 |   8 |   SDA.1 | ALT0 | 1 |  3 || 4  |   |      | 5V      | 5v  | 5v  |
-  |   3 |   9 |   SCL.1 | ALT0 | 1 |  5 || 6  |   |      | 0v      | gnd | gnd |
-  |   4 |   7 | GPIO. 7 |   IN | 1 |  7 || 8  | 1 | ALT5 | TxD     | 15  | 14  |
-  | gnd | gnd |      0v |      |   |  9 || 10 | 1 | ALT5 | RxD     | 16  | 15  |
-  |  17 |   0 | GPIO. 0 |   IN | 0 | 11 || 12 | 0 | IN   | GPIO. 1 | 1   | 18  |
-  |  27 |   2 | GPIO. 2 |   IN | 0 | 13 || 14 |   |      | 0v      | gnd | gnd |
-  |  22 |   3 | GPIO. 3 |   IN | 0 | 15 || 16 | 0 | IN   | GPIO. 4 | 4   | 23  |
-  | 3v3 | 3v3 |    3.3v |      |   | 17 || 18 | 0 | IN   | GPIO. 5 | 5   | 24  |
-  |  10 |  12 |    MOSI | ALT0 | 0 | 19 || 20 |   |      | 0v      | gnd | gnd |
-  |   9 |  13 |    MISO | ALT0 | 0 | 21 || 22 | 0 | IN   | GPIO. 6 | 6   | 25  |
-  |  11 |  14 |    SCLK | ALT0 | 0 | 23 || 24 | 1 | OUT  | CE0     | 10  | 8   |
-  | gnd | gnd |      0v |      |   | 25 || 26 | 1 | OUT  | CE1     | 11  | 7   |
-  |   0 |  30 |   SDA.0 |   IN | 1 | 27 || 28 | 1 | IN   | SCL.0   | 31  | 1   |
-  |   5 |  21 | GPIO.21 |   IN | 1 | 29 || 30 |   |      | 0v      | gnd | gnd |
-  |   6 |  22 | GPIO.22 |   IN | 1 | 31 || 32 | 0 | IN   | GPIO.26 | 26  | 12  |
-  |  13 |  23 | GPIO.23 |   IN | 0 | 33 || 34 |   |      | 0v      | gnd | gnd |
-  |  19 |  24 | GPIO.24 |   IN | 0 | 35 || 36 | 0 | IN   | GPIO.27 | 27  | 16  |
-  |  26 |  25 | GPIO.25 |   IN | 0 | 37 || 38 | 0 | IN   | GPIO.28 | 28  | 20  |
-  | gnd | gnd |      0v |      |   | 39 || 40 | 0 | IN   | GPIO.29 | 29  | 21  |
-  +-----+-----+---------+------+---+----++----+---+------+---------+-----+-----+
+  table = """
+  +------+-----+---------+------+---+---Pi 3---+---+------+---------+-----+------+
+  | BCM  | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM  |
+  +------+-----+---------+------+---+----++----+---+------+---------+-----+------+
+  | 3v3  | 3v3 |    3.3v |      |   |  1 || 2  |   |      | 5v      | 5v  | 5v   |
+  |   2  |   8 |   SDA.1 | ALT0 | 1 |  3 || 4  |   |      | 5V      | 5v  | 5v   |
+  |   3  |   9 |   SCL.1 | ALT0 | 1 |  5 || 6  |   |      | 0v      | gnd | gnd4 |
+  |   4  |   7 | GPIO. 7 |   IN | 1 |  7 || 8  | 1 | ALT5 | TxD     | 15  | 14   |
+  | gnd1 | gnd |      0v |      |   |  9 || 10 | 1 | ALT5 | RxD     | 16  | 15   |
+  |  17  |   0 | GPIO. 0 |   IN | 0 | 11 || 12 | 0 | IN   | GPIO. 1 | 1   | 18   |
+  |  27  |   2 | GPIO. 2 |   IN | 0 | 13 || 14 |   |      | 0v      | gnd | gnd5 |
+  |  22  |   3 | GPIO. 3 |   IN | 0 | 15 || 16 | 0 | IN   | GPIO. 4 | 4   | 23   |
+  | 3v3  | 3v3 |    3.3v |      |   | 17 || 18 | 0 | IN   | GPIO. 5 | 5   | 24   |
+  |  10  |  12 |    MOSI | ALT0 | 0 | 19 || 20 |   |      | 0v      | gnd | gnd6 |
+  |   9  |  13 |    MISO | ALT0 | 0 | 21 || 22 | 0 | IN   | GPIO. 6 | 6   | 25   |
+  |  11  |  14 |    SCLK | ALT0 | 0 | 23 || 24 | 1 | OUT  | CE0     | 10  | 8    |
+  | gnd2 | gnd |      0v |      |   | 25 || 26 | 1 | OUT  | CE1     | 11  | 7    |
+  |   0  |  30 |   SDA.0 |   IN | 1 | 27 || 28 | 1 | IN   | SCL.0   | 31  | 1    |
+  |   5  |  21 | GPIO.21 |   IN | 1 | 29 || 30 |   |      | 0v      | gnd | gnd7 |
+  |   6  |  22 | GPIO.22 |   IN | 1 | 31 || 32 | 0 | IN   | GPIO.26 | 26  | 12   |
+  |  13  |  23 | GPIO.23 |   IN | 0 | 33 || 34 |   |      | 0v      | gnd | gnd8 |
+  |  19  |  24 | GPIO.24 |   IN | 0 | 35 || 36 | 0 | IN   | GPIO.27 | 27  | 16   |
+  |  26  |  25 | GPIO.25 |   IN | 0 | 37 || 38 | 0 | IN   | GPIO.28 | 28  | 20   |
+  | gnd3 | gnd |      0v |      |   | 39 || 40 | 0 | IN   | GPIO.29 | 29  | 21   |
+  +-----+-----+---------+------+---+----++----+---+------+---------+-----+-------+
   | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
   +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
   """
   
   add-class class RpiHeader extends PinArray
+      @rev_RpiHeader = 1
       (data) ->
           super data, defaults =
               name: 'rpi_'
@@ -334,8 +337,11 @@ export {
                   count: 20
                   interval: 2.54mm
               dir: 'x'
-              labels: table
+              labels: table2obj {key: 'Physical', value: 'BCM'}, table
               mirror: yes
+              disallow-pin-numbers: yes
+              allow-duplicate-labels: yes
+  
   
 '''
 'lib-SMD1206': '''
@@ -409,6 +415,7 @@ export {
                   4: \\fb
                   5: \\onoff
                   6: \\gnd
+              allow-duplicate-labels: yes
   
   #a = new LM2576
   #a.get {pin: 'vin'}
@@ -626,6 +633,7 @@ export {
 'lib-LM1117': '''
   #! requires SOT223
   add-class class LM1117 extends SOT223
+      @rev_LM1117 = 1
       (data, overrides) ->
           super data, overrides `based-on` do
               labels:
@@ -634,7 +642,7 @@ export {
                   2: 'vout'
                   3: 'vin'
                   4: 'vout'
-  
+              allow-duplicate-labels: yes
 '''
 'lib-canvas-helpers': '''
   add-class class RefCross extends Footprint
