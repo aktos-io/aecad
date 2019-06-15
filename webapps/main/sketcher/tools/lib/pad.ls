@@ -180,7 +180,11 @@ export class Pad extends ComponentBase
     get: (query) ->
         res = []
         if \pin of query
-            if "#{query.pin}" in [@label, "#{@num}"]
+            lookup-pins = [@label]
+            unless @owner.disallow-pin-numbers
+                lookup-pins.push "#{@num}"
+
+            if "#{query.pin}" in lookup-pins 
                 res.push this
         if \item of query
             # report matching items

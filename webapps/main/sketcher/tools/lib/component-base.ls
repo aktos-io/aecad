@@ -123,6 +123,9 @@ export class ComponentBase
     allow-duplicate-labels: ~
         -> @overrides.allow-duplicate-labels
 
+    disallow-pin-numbers: ~
+        -> @overrides.disallow-pin-numbers
+
     print-mode: (opts, our-side) ->
         # opts.layers: [Array] String array indicates which layers (sides)
         #         to be printed

@@ -205,8 +205,9 @@ export class Schema implements bom, footprints, netlist, guide
 
                     pads = (comp.get {pin}) or []
                     if empty pads
-                        console.error "Current iface:", comp.iface
-                        throw new Error "No such pin found: '#{pin}' of '#{name}'"
+                        if comp.type not in [..type for @get-upgrades!]
+                            console.error "Current iface:", comp.iface
+                            throw new Error "No such pin found: '#{pin}' of '#{name}'"
 
                     unless comp.allow-duplicate-labels
                         if pads.length > 1
