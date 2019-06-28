@@ -162,6 +162,7 @@ export do
 
             unless item.data.aecad.netid
                 console.error "Trace item:", item
+                item.selected = true
                 throw new Error "A trace with no netid found"
             item.phy-netid = null
             traces[item.id] = item
