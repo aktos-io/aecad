@@ -47,6 +47,11 @@ export SelectTool = ->
                     if hit.item.data.guide
                         return false
                     else if side=hit.item.data.aecad.side isnt scope.ractive.get \currLayer
+                        # allow selecting components in scripting layer 
+                        if hit.aeobj.side not in <[ F.Cu B.Cu Edge ]>
+                            return true 
+
+                        # do not allow selecting components in different physical layers
                         if hit.aeobj.side is scope.ractive.get \currLayer
                             return true 
 
