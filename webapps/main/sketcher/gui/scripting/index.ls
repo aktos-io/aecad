@@ -27,6 +27,11 @@ export init = (pcb) ->
         canvas project view
         """ |> text2arr |> map (name) -> modules[name] = pcb[name]
 
+    modules <<< do
+        TODO: (markdown) -> 
+            PNotify.notice do
+                text: markdown
+                addClass: 'nonblock'
 
     runScript = (code, opts={+clear}) ~>
         compiled = no
