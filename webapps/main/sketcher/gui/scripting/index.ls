@@ -27,6 +27,7 @@ export init = (pcb) ->
         canvas project view
         """ |> text2arr |> map (name) -> modules[name] = pcb[name]
 
+
     runScript = (code, opts={+clear}) ~>
         compiled = no
         @set \output, ''
@@ -36,7 +37,8 @@ export init = (pcb) ->
 
             libs = []
             for name, src of @get \drawingLs when name.starts-with \lib
-                libs.push {name, src}
+                unless @get(\scriptName) is name 
+                    libs.push {name, src}
             #console.log "drawingls: ", libs
 
             # Correctly sort according to their class definitions
@@ -69,11 +71,10 @@ export init = (pcb) ->
             #console.log "libs: ", libs
             for libs
                 insert-dep ..
-
+    
             # append actual code
             if @get \scriptName
-                unless that.starts-with 'lib' # prevent duplicate inclusion
-                    ordered.push {name: @get('scriptName'), src: code}
+                ordered.push {name: @get('scriptName'), src: '__main__ = yes\n' + code}
 
             output = []
             for ordered
