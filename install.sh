@@ -9,4 +9,4 @@ npm install
 cd node_modules
 git clone --recursive https://github.com/ceremcem/node-occ
 cd node-occ
-npm install
+./build.sh
