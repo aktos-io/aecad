@@ -94,6 +94,15 @@ export class Pad extends ComponentBase
         if opts.color
             @color = that
 
+        
+        if pos=opts.position
+            if pos.x
+                @position.x += pos.x |> mm2px
+            if pos.y
+                @position.y += pos.y |> mm2px
+        
+
+
     finish: !->
         @ttip.content = @label 
         if @ttip.content # <= this checking is very important!
