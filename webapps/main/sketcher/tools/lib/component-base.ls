@@ -176,8 +176,12 @@ export class ComponentBase
     gpos: ~
         # Global position
         ->
-            # TODO: I really don't know why ".parent" part is needed. Find out why.
-            @g.parent.localToGlobal @g.bounds.center
+            # FIXME: I really don't know why ".parent" part is needed. Find out why.
+            try 
+                @g.parent.localToGlobal @g.bounds.center
+            catch 
+                debugger 
+                throw e 
 
     name: ~
         -> @get-data \name
