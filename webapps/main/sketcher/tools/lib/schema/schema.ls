@@ -205,9 +205,10 @@ export class Schema implements bom, footprints, netlist, guide
 
                     pads = (comp.get {pin}) or []
                     if empty pads
-                        if comp.type not in [..type for @get-upgrades!]
-                            console.error "Current iface:", comp.iface
-                            throw new Error "No such pin found: '#{pin}' of '#{name}'"
+                        if comp.type not in flatten [[..type, ..component.type] for @get-upgrades!]
+                            console.error "Current iface:", comp, comp.iface
+                            throw new Error "No such pin found: '#{pin}' of '#{name}' (check the console output)"
+
 
                     unless comp.allow-duplicate-labels
                         if pads.length > 1
@@ -272,7 +273,6 @@ export class Schema implements bom, footprints, netlist, guide
                     # this netid seems already occupied.
                     existing = @connection-list[existing-netid].map (.uname) .join ', '
                     curr = net.map (.uname) .join ', '
-                    debugger
                     throw new Error "Duplicate netid found: #{existing-netid} (
                         #{curr} already occupied by #{existing}"
                 else

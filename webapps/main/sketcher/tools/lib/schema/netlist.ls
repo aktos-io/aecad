@@ -35,6 +35,12 @@ is-connected = (item, pad) ->
     return false
 
 
+get-pin-name = (pad) -> 
+    if pad.is-via 
+        "via::#{pad.owner.tid}"
+    else
+        pad.pin 
+
 export do
     get-netlist-components: ->
         components = []
@@ -100,12 +106,6 @@ export do
             for phy, elements of connected-elements
                 # at this point, "elements" are Pad instances, use their ".pin" property
                 connected = []
-                get-pin-name = (pad) -> 
-                    if pad.is-via 
-                        "via::#{pad.owner.tid}"
-                    else
-                        pad.pin 
-
                 for elements 
                     connected.push get-pin-name(..) 
                 connected ++= ["trace-id::#{..id}" for _traces when "#{..phy-netid}" is "#{phy}"]
