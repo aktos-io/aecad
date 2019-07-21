@@ -12,6 +12,8 @@ is-connected = (item, pad) ->
     pad-bounds = pad.cu-bounds
     trace-netid = "#{item.data.aecad.netid}"
     trace-netid = trace-netid.replace /[^0-9]/g, ''
+    trace-global = item.localToGlobal()
+
     # Check if item is **properly** connected to the rectangle
     for item.children or []
         unless ..getClassName! is \Path
@@ -22,7 +24,7 @@ is-connected = (item, pad) ->
             continue
         for {point} in ..segments
             # check all segments of the path
-            if point.is-inside pad-bounds
+            if point.add(trace-global).is-inside pad-bounds
                 # Detect short circuits
                 if "#{trace-netid}" isnt "#{pad.netid}"
                     item.selected = true
