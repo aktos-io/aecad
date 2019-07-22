@@ -276,6 +276,7 @@ export class Trace extends Container implements follow, helpers, end
 
             if /[^0-9\\.]+/.exec curr.trace.width
                 @scope.vlog.error "Unrecognized trace width: #{curr.trace.width}"
+                @ractive.set \currTrace.width, 0.2
                 return 
             trace-width = curr.trace.width |> parse-float |> mm2px
             @line = new @scope.Path(snap)
