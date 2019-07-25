@@ -11,6 +11,9 @@ require! 'aea/do-math': {px2mm}
 require! 'aea': {merge}
 require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
+format = (x) ->
+    "#{oneDecimal (x |> px2mm), 2} mm"
+
 export init = (pcb) ->
     # tools
     trace-tool = TraceTool.call this, pcb
@@ -40,17 +43,11 @@ export init = (pcb) ->
             # test if this is a complex selection
             # FIXME: multiple formats in selection "[ITEM] or [{item: ITEM, aeobj, ...}]"
             # adds unnecessary complexity 
-            s = []
-            for selection.selected 
-                if ..aeobj
-                    s.push ..aeobj.g if ..aeobj.g.id not in [..id for s]
-                else if ..item
-                    s.push ..item if ..item.id not in [..id for s]
-
-            target-bounds = pcb.get-bounds s
-            delta = bounds.center.subtract target-bounds.center 
-            displacement = delta `merge` override
+            delta = bounds.center.subtract selection.bounds!.center
+            d = displacement = delta `merge` override
+            console.log "Moving source by #{d.x |> format}mm, #{d.y |> format}mm"
             for selection.get-as-aeobj!
+                console.log "...moving aeobj:", ..
                 ..move displacement
         else
             PNotify.notice text: "Not possible."
@@ -230,9 +227,11 @@ export init = (pcb) ->
 
         saveBounds: (ctx) ->
             if empty selection.selected
+                bounds = pcb.ractive.get \lastBounds
                 PNotify.notice do
                     text: "No selection found (last saved coordinates are intact)."
                     addClass: 'nonblock'
+                pcb.vertex-marker bounds.center
                 return
 
             bounds = selection.bounds!
@@ -271,9 +270,6 @@ export init = (pcb) ->
                     selected: yes
                     data: {+tmp, +guide}
                     opacity: 0.5
-
-                format = (x) ->
-                    "#{oneDecimal (x |> px2mm), 2} mm"
 
                 dist = prev.subtract(curr).length |> format
                 dx = prev.x - curr.x |> abs |> format
