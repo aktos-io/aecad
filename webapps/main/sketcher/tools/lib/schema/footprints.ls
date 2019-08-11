@@ -50,14 +50,16 @@ export do
                     value: params 
                     name: pfx-name
 
-                # update the value in any case
-                comp.component.set-data \value, params
-
+                
                 reason = ''
                 if type isnt existing.type
                     comp.upgrade-needed = yes
                     reason += "Type changed from #{existing.type} to #{type}"
                     comp.type = type
+                else
+                    # update the value in any case
+                    comp.component.set-data \value, params
+
 
                 curr-rev = get-rev _Component
                 if curr-rev isnt (existing.rev or 0)
