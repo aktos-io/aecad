@@ -28,6 +28,7 @@ export class Footprint extends Container
 
     move: (displacement, opts={}) ->
         # Moves the component with a provided amount of displacement. Default: Relative
+        # displacement: unit: pixels
         # opts:
         #       absolute: [Bool] move absolute amount
         unless opts.absolute
