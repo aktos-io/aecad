@@ -9,7 +9,7 @@
     - Weird design for storing instance references: HSheet instance references are stored in their own hierarchical sheets, thus you may easily end up duplicate/conflicting component references when you copy a HSheet to another project, duplicate a HSheet in the same project and rename it, etc... 
       - Hard to create new tools for handling the problem.
     - Including HSheets from another directory is not possible
-- Bugfixes take centuries. 
+- Bugfixes take centuries.[[1]](https://forum.kicad.info/t/unconnected-wire-count-changes-between-restarts-of-pcbnew/2882) 
 - ~~[Feature requests are not welcome.](https://forum.kicad.info/t/can-i-merge-2-separate-kicad-board-designs-into-new-pcb-layout/821/14?u=ceremcem)~~ Apparently this was not exactly true. 
   > Some very active community members act like they have rights to talk on behalf of Kicad in KicadForum, which misguides people (including me) to interpret the case like so. 
 - It's so hard to install both Kicad and the libraries that that we needed [a separate project for that purpose](https://github.com/aktos-io/kicad-install)
