@@ -96,10 +96,14 @@ export class GerberReducer
         for l, reducer of @reducers 
             reducer.reset!
 
-    append: (layer, data) -> 
+    append: (layer, drill, data) -> 
         unless layer of @reducers 
             @reducers[layer] = new GerberFileReducer
         @reducers[layer].append data 
+        cu-layers = <[ F.Cu B.Cu ]>
+        if drill and layer in cu-layers
+            for cu-layers when .. isnt layer
+                @reducers[..].append data 
 
     export: -> 
         output = {}

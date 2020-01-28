@@ -314,7 +314,7 @@ export class Pad extends ComponentBase
 
             if @data.dia 
                 # circular 
-                @gerber-reducer.append side, """
+                @gerber-reducer.append side, @drill, """
                     G04 #{@uname}*                      # comment 
                     # G04 Side is: #{side}*             #
                     %FSLAX25Y25*%                       # set number format to 2.5
@@ -333,7 +333,7 @@ export class Pad extends ComponentBase
                 # rectangular 
                 [w, h] = [@data.width, @data.height]
                 #console.log "Pad coord: #{@uname}: x:#{@gpos.x}, y:#{@gpos.y}"
-                @gerber-reducer.append side, """
+                @gerber-reducer.append side, @drill, """
                     G04 #{@uname}*                      # comment 
                     # G04 Side is: #{side}*             #
                     %FSLAX25Y25*%                       # set number format to 2.5
