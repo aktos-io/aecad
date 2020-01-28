@@ -84,11 +84,11 @@ export init = (pcb) ->
             # create a zip file 
             zip = new jszip! 
             for name, content of gerb.export! 
-                console.log "content:", content
                 zip.file "project-#{name}.gbr", content 
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content
+            console.log "Exported to Gerber."
 
         downloadProject: (ctx, project-name) ->
             files = []
