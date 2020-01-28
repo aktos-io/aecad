@@ -1,5 +1,6 @@
 require! 'dcs/lib/keypath': {get-keypath, set-keypath}
 require! '../../kernel': {PaperDraw}
+require! '../../kernel/gerber-plotter': {GerberReducer}
 require! './get-aecad': {get-aecad}
 require! './get-class': {get-class}
 require! 'aea': {merge, clone}
@@ -24,6 +25,8 @@ export class ComponentBase
         for <[ left right top bottom center ]>
             Object.defineProperty @, .., do
                 get: ~> @g.bounds[..]
+
+        @gerber-reducer = new GerberReducer
 
         @overrides = overrides or {}
         if init=data?init

@@ -1,6 +1,6 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
-require! 'aea/do-math': {mm2px}
+require! 'aea/do-math': {mm2px, px2mm}
 require! 'prelude-ls': {empty, sort-by}
 
 /* -------------------------------------------------
@@ -305,3 +305,48 @@ export class Pad extends ComponentBase
                 @g.opacity = 1
             else
                 @g.opacity = @blur-opacity
+        | 'export-gerber' => 
+            side = args.0
+            if @side-match side 
+                coord-to-gerber = (-> (it * 1e5) |>  parse-int)
+                x-pos = coord-to-gerber px2mm @gpos.x 
+                mirror-offset = 200mm # FIXME: remove this offset properly
+                y-pos = coord-to-gerber (mirror-offset - px2mm @gpos.y)
+
+                debugger 
+                if @data.dia 
+                    # circular 
+                    @gerber-reducer.append side, """
+                        G04 #{@uname}*                      # comment 
+                        # G04 Side is: #{side}*             #
+                        %FSLAX25Y25*%                       # set number format to 2.5
+                        %MOMM*%                             # set units to MM
+                        %LPD*%                              # Set the polarity to [D]ark
+
+                        %ADD10C,#{@data.dia}*%                 # "Aperture Define D10 as Circle"
+
+                        D10*                                # Set the current tool (aperture) to D10
+                        X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
+                        D01*                                # Create a drawing with current (=D10) aperture
+
+                        M02*                                # End of file 
+                        """ 
+                else 
+                    # rectangular 
+                    [w, h] = [@data.width, @data.height]
+                    #console.log "Pad coord: #{@uname}: x:#{@gpos.x}, y:#{@gpos.y}"
+                    @gerber-reducer.append side, """
+                        G04 #{@uname}*                      # comment 
+                        # G04 Side is: #{side}*             #
+                        %FSLAX25Y25*%                       # set number format to 2.5
+                        %MOMM*%                             # set units to MM
+                        %LPD*%                              # Set the polarity to [D]ark
+
+                        %ADD10R,#{w}X#{h}*%                 # "Aperture Define D10 as Rectangle"
+
+                        D10*                                # Set the current tool (aperture) to D10
+                        X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
+                        D01*                                # Create a drawing with current (=D10) aperture
+
+                        M02*                                # End of file 
+                        """ 

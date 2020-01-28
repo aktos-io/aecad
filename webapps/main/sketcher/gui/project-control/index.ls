@@ -3,6 +3,7 @@ require! 'prelude-ls': {max}
 require! 'aea': {create-download, ext}
 require! 'dcs/browser': {SignalBranch}
 require! 'jszip'
+require! '../../kernel/gerber-plotter': {GerberReducer}
 
 
 export init = (pcb) ->
@@ -70,6 +71,34 @@ export init = (pcb) ->
                 PNotify.error text: err
                 return 
             create-download filename, res
+
+        downloadGerber: (ctx, project-name) -> 
+            console.log "Exporting to Gerber..."
+            gerb = new GerberReducer
+            gerb.reset!
+            output-name = "#{project-name}-gerber.zip"
+            files = []
+
+            layers = <[ F.Cu B.Cu Edge ]> 
+
+            for aeobj in pcb.get-aeobjs!
+                for layer in layers 
+                    gerb.append layer, aeobj.trigger \export-gerber, layer 
+
+            #files.push ["hello.gtl", gp.export!.top-layer]
+
+            # create a zip file 
+            /*
+            zip = new jszip! 
+            for [name, content] in files 
+                console.log "content:", content
+                zip.file name, content 
+            */
+
+            content = gerb.export!
+            output-name = "project.gbr"
+            #content <~ zip.generateAsync({type: "blob"}).then
+            create-download output-name, content
 
         downloadProject: (ctx, project-name) ->
             files = []
