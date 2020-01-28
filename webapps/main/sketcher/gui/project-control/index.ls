@@ -77,27 +77,17 @@ export init = (pcb) ->
             gerb = new GerberReducer
             gerb.reset!
             output-name = "#{project-name}-gerber.zip"
-            files = []
-
-            layers = <[ F.Cu B.Cu Edge ]> 
 
             for aeobj in pcb.get-aeobjs!
-                for layer in layers 
-                    gerb.append layer, aeobj.trigger \export-gerber, layer 
-
-            #files.push ["hello.gtl", gp.export!.top-layer]
+                aeobj.trigger \export-gerber
 
             # create a zip file 
-            /*
             zip = new jszip! 
-            for [name, content] in files 
+            for name, content of gerb.export! 
                 console.log "content:", content
-                zip.file name, content 
-            */
+                zip.file "project-#{name}.gbr", content 
 
-            content = gerb.export!
-            output-name = "project.gbr"
-            #content <~ zip.generateAsync({type: "blob"}).then
+            content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content
 
         downloadProject: (ctx, project-name) ->

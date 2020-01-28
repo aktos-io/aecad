@@ -2,13 +2,10 @@ remove-bash-comments = (.replace /\s*#.*$/mg, '')
 
 export class GerberPlotter
 
-export class GerberReducer
-    @instance = null
-    ->
-        # Make this class Singleton
-        return @@instance if @@instance
-        @@instance = this
-
+export class GerberFileReducer
+    -> 
+        @reset! 
+        
     reset: -> 
         @apertures = {} # key: geometry, value: aperture id
         @format = "LAX25Y25"
@@ -25,7 +22,7 @@ export class GerberReducer
 
         @gerber-parts = []
 
-    append: (layer, data) -> 
+    append: (data) -> 
         # append a gerber drawing
         if data 
             gdata = data |> remove-bash-comments
@@ -86,3 +83,27 @@ export class GerberReducer
         #{@gerber-parts.join '\n'}
         #{@gerber-end |> remove-bash-comments}
         """
+
+export class GerberReducer
+    @instance = null
+    ->
+        # Make this class Singleton
+        return @@instance if @@instance
+        @@instance = this
+        @reducers = {}
+
+    reset: !-> 
+        for l, reducer of @reducers 
+            reducer.reset!
+
+    append: (layer, data) -> 
+        unless layer of @reducers 
+            @reducers[layer] = new GerberFileReducer
+        @reducers[layer].append data 
+
+    export: -> 
+        output = {}
+        for layer, reducer of @reducers
+            output[layer] = reducer.export!
+        return output
+
