@@ -348,3 +348,6 @@ export class Pad extends ComponentBase
 
                     M02*                                # End of file 
                     """ 
+
+            if @drill 
+                @gerber-reducer.add-drill @data.drill, {x: x-pos/1e5, y: y-pos/1e5}

@@ -96,6 +96,7 @@ export class GerberReducer
     reset: !-> 
         for l, reducer of @reducers 
             reducer.reset!
+        @drills = {}
 
     append: (layers, drill, data) -> 
         unless data?
@@ -108,10 +109,48 @@ export class GerberReducer
             unless layer of @reducers 
                 @reducers[layer] = new GerberFileReducer
             @reducers[layer].append data 
-    
+ 
+    add-drill: (dia, coord) -> 
+        @drills[][dia].push coord 
+
+    export-excellon: -> 
+        # https://web.archive.org/web/20071030075236/http://www.excellon.com/manuals/program.htm
+        tool-table = {}
+        for index, dia of Object.keys @drills
+            tool-table[index+1] = dia 
+
+        excellon-start = """
+            M48
+            FMAT,2
+            METRIC,TZ
+            #{[ "T#{i}C#{dia}" for i, dia of tool-table].join '\n'}
+            %
+            G90
+            G05
+            M71
+            """
+
+        excellon-job = []
+        for tool-index, dia of tool-table 
+            excellon-job.push "T#{tool-index}"
+            for @drills[dia]
+                excellon-job.push "X#{..x}Y#{..y}"
+
+        excellon-end = """
+            M30
+            """
+
+        return """
+            #{excellon-start}
+            #{excellon-job.join '\n'}
+            #{excellon-end}
+            """
+   
     export: -> 
         output = {}
         for layer, reducer of @reducers
             output[layer] = reducer.export!
+
+        output["drill"] = @export-excellon!
         return output
 
