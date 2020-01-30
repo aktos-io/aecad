@@ -325,7 +325,7 @@ export class Pad extends ComponentBase
 
                     D10*                                # Set the current tool (aperture) to D10
                     X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
-                    D01*                                # Create a drawing with current (=D10) aperture
+                    D03*                                # Create a drawing with current (=D10) aperture
 
                     M02*                                # End of file 
                     """ 
@@ -344,7 +344,7 @@ export class Pad extends ComponentBase
 
                     D10*                                # Set the current tool (aperture) to D10
                     X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
-                    D01*                                # Create a drawing with current (=D10) aperture
+                    D03*                                # Create a drawing with current (=D10) aperture
 
                     M02*                                # End of file 
                     """ 
