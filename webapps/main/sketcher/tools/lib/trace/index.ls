@@ -76,9 +76,9 @@ export class Trace extends Container implements follow, helpers, end
                 ..trigger \export-gerber
 
             coord-to-gerber = (-> (it * 1e5) |>  parse-int)
-            vertex-coord = (vertex) -> 
+            vertex-coord = (vertex) ~> 
                 mirror-offset = 200mm # FIXME: remove this offset properly
-                p = vertex.getPoint()
+                p = @g.localToGlobal vertex.getPoint()
                 return do
                     x: coord-to-gerber (px2mm p.x)
                     y: coord-to-gerber (mirror-offset - px2mm p.y)
