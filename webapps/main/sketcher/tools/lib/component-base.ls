@@ -223,6 +223,8 @@ export class ComponentBase
         # trigger an event for children
         for @pads
             ..on ...arguments
+        else
+            @on ...arguments 
 
     on: !->
         # propagate the event to the children by default

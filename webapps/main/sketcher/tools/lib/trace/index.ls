@@ -4,7 +4,7 @@ require! '../selection': {Selection}
 require! './helpers': {helpers}
 require! './follow': {follow}
 require! './lib': {get-tid}
-require! 'aea/do-math': {mm2px}
+require! 'aea/do-math': {mm2px, px2mm}
 require! '../pad': {Pad}
 require! '../container': {Container}
 require! '../../../kernel': {PaperDraw}
@@ -70,6 +70,46 @@ export class Trace extends Container implements follow, helpers, end
                     ..opacity = 1
                 else
                     ..opacity = @blur-opacity
+
+        | 'export-gerber' => 
+            for @pads
+                ..trigger \export-gerber
+
+            coord-to-gerber = (-> (it * 1e5) |>  parse-int)
+            vertex-coord = (vertex) -> 
+                mirror-offset = 200mm # FIXME: remove this offset properly
+                p = vertex.getPoint()
+                return do
+                    x: coord-to-gerber (px2mm p.x)
+                    y: coord-to-gerber (mirror-offset - px2mm p.y)
+            gerb-stroke-width = (path) ->
+                path.getStrokeWidth() 
+                    |> px2mm
+                    |> (* 10)
+                    |> Math.round
+                    |> (/ 10)
+
+            for path in @paths
+                #if path.data.aecad.side not in layers
+                side = path.data.aecad.side
+                stroke-width = gerb-stroke-width path
+
+                vertex = path.getFirstSegment()
+                {x, y} = vertex-coord vertex
+
+                gerb = []
+                gerb.push """
+                    %ADD10C,#{stroke-width}*%
+                    %LPD*%
+                    D10*
+                    X#{x}Y#{y}D02*
+                    G01*
+                    """
+                while vertex=vertex.getNext()
+                    {x, y} = vertex-coord vertex
+                    gerb.push "X#{x}Y#{y}D01*"
+                @gerber-reducer.append side, gerb.join('\n')
+
 
     print-mode: ({layers, trace-color}) ->
         super ...

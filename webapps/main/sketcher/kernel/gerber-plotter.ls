@@ -91,20 +91,24 @@ export class GerberReducer
         return @@instance if @@instance
         @@instance = this
         @reducers = {}
+        @cu-layers = <[ F.Cu B.Cu ]>
 
     reset: !-> 
         for l, reducer of @reducers 
             reducer.reset!
 
-    append: (layer, drill, data) -> 
-        unless layer of @reducers 
-            @reducers[layer] = new GerberFileReducer
-        @reducers[layer].append data 
-        cu-layers = <[ F.Cu B.Cu ]>
-        if drill and layer in cu-layers
-            for cu-layers when .. isnt layer
-                @reducers[..].append data 
-
+    append: (layers, drill, data) -> 
+        unless data?
+            data = drill 
+            drill = no 
+        if not layers? or drill 
+            layers = @cu-layers 
+        layers = [layers] if typeof! layers isnt \Array 
+        for layer in layers 
+            unless layer of @reducers 
+                @reducers[layer] = new GerberFileReducer
+            @reducers[layer].append data 
+    
     export: -> 
         output = {}
         for layer, reducer of @reducers
