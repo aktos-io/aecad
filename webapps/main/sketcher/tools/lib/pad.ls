@@ -332,6 +332,9 @@ export class Pad extends ComponentBase
             else 
                 # rectangular 
                 [w, h] = [@data.width, @data.height]
+                if @data.rotation %% 360 in [90, 270]
+                    # FIXME: This is a quick and dirty hack for rotated pads
+                    [w, h] = [h, w]
                 #console.log "Pad coord: #{@uname}: x:#{@gpos.x}, y:#{@gpos.y}"
                 @gerber-reducer.append side, @drill, """
                     G04 #{@uname}*                      # comment 
@@ -350,4 +353,7 @@ export class Pad extends ComponentBase
                     """ 
 
             if @drill 
-                @gerber-reducer.add-drill @data.drill, {x: x-pos/1e5, y: y-pos/1e5}
+                @gerber-reducer.add-drill @data.drill, {
+                    x: x-pos/1e5
+                    y: y-pos/1e5
+                }

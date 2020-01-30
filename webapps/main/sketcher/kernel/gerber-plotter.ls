@@ -111,7 +111,7 @@ export class GerberReducer
             @reducers[layer].append data 
  
     add-drill: (dia, coord) -> 
-        @drills[][dia].push coord 
+        @drills[][dia.to-fixed 1].push coord 
 
     export-excellon: -> 
         # https://web.archive.org/web/20071030075236/http://www.excellon.com/manuals/program.htm

@@ -95,6 +95,9 @@ export class Trace extends Container implements follow, helpers, end
                 stroke-width = gerb-stroke-width path
 
                 vertex = path.getFirstSegment()
+                unless vertex?
+                    console.warn "Skipping empty path:", path
+                    continue 
                 {x, y} = vertex-coord vertex
 
                 gerb = []
