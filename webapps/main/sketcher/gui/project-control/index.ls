@@ -84,8 +84,13 @@ export init = (pcb) ->
 
             # create a zip file 
             zip = new jszip! 
+            extension = 
+                "F.Cu": "GTL"
+                "B.Cu": "GBL"
+                "drill": "XLN"
+                "Edge": "GKO"
             for name, content of gerb.export! 
-                zip.file "project-#{name}.gbr", content 
+                zip.file "project-#{name}.#{extension[name]}", content 
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content
