@@ -78,6 +78,7 @@ export init = (pcb) ->
             gerb.reset!
             output-name = "#{project-name}-gerber.zip"
 
+            console.log "aeObjs: ", pcb.get-aeobjs!
             for aeobj in pcb.get-aeobjs!
                 aeobj.trigger \export-gerber
 
