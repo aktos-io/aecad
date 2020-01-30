@@ -1,3 +1,4 @@
+require! '../tools/lib/get-aecad': {get-aecad}
 
 # dig item untill it has no children or it's an aeCAD object
 dig-for-aecad = (item) ->
@@ -36,6 +37,12 @@ export do
                     rev = item.data.aecad.rev
                     items.push {item, type, name, rev}
         items
+
+    get-aeobjs: (opts) -> 
+        aeobjs = []
+        for @get-components opts 
+            aeobjs.push get-aecad ..item
+        aeobjs
 
     vertex-marker: (point) ->
         @_prev_vertex_marker?remove!

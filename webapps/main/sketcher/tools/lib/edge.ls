@@ -1,5 +1,5 @@
 require! './container': {Container}
-require! 'aea/do-math': {mm2px}
+require! 'aea/do-math': {mm2px, px2mm}
 
 export class Edge extends Container
     ->
@@ -59,3 +59,38 @@ export class Edge extends Container
 
     _loader: (item) ->
         # no special action needs to be taken, (remove the default warning)
+
+    on: (event, ...args) ->
+        switch event
+        | 'export-gerber' => 
+            @paths = @g.children
+            side = our-side = @owner.side or @side
+            stroke-width = 0.2mm
+            
+            coord-to-gerber = (-> (it * 1e5) |>  parse-int)
+            vertex-coord = (vertex) ~> 
+                mirror-offset = 200mm # FIXME: remove this offset properly
+                p = @g.localToGlobal vertex.getPoint()
+                return do
+                    x: coord-to-gerber (px2mm p.x)
+                    y: coord-to-gerber (mirror-offset - px2mm p.y)
+
+            for path in @paths
+                #if path.data.aecad.side not in layers
+
+                vertex = path.getFirstSegment()
+                {x, y} = vertex-coord vertex
+
+                gerb = []
+                gerb.push """
+                    %ADD10C,#{stroke-width}*%
+                    %LPD*%
+                    D10*
+                    X#{x}Y#{y}D02*
+                    G01*
+                    """
+                while vertex=vertex.getNext()
+                    {x, y} = vertex-coord vertex
+                    gerb.push "X#{x}Y#{y}D01*"
+                @gerber-reducer.append side, gerb.join('\n')
+
