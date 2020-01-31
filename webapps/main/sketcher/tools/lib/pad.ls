@@ -317,7 +317,7 @@ export class Pad extends ComponentBase
                 @gerber-reducer.append side, @drill, """
                     G04 #{@uname}*                      # comment 
                     # G04 Side is: #{side}*             #
-                    %FSLAX25Y25*%                       # set number format to 2.5
+                    %FSLAX35Y35*%                       # set number format to 3.5
                     %MOMM*%                             # set units to MM
                     %LPD*%                              # Set the polarity to [D]ark
 
@@ -339,7 +339,7 @@ export class Pad extends ComponentBase
                 @gerber-reducer.append side, @drill, """
                     G04 #{@uname}*                      # comment 
                     # G04 Side is: #{side}*             #
-                    %FSLAX25Y25*%                       # set number format to 2.5
+                    %FSLAX35Y35*%                       # set number format to 3.5
                     %MOMM*%                             # set units to MM
                     %LPD*%                              # Set the polarity to [D]ark
 

@@ -8,12 +8,12 @@ export class GerberFileReducer
         
     reset: -> 
         @apertures = {} # key: geometry, value: aperture id
-        @format = "LAX25Y25"
+        @format = "LAX35Y35"
         @aperture-id = 10
         @unit = 'MM'
         @gerber-start = """
             G04 project-name*               # comment 
-            %FSLAX25Y25*%                   # set number format to 2.5
+            %FS#{@format}*%                 # set number format
             %MOMM*%                         # set units to MM
             """
         @gerber-end = """
