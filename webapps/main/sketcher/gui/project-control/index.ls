@@ -6,6 +6,7 @@ require! 'jszip'
 require! '../../kernel/gerber-plotter': {GerberReducer}
 
 
+
 export init = (pcb) ->
     prototypePrint = (opts, callback) !->
         pcb.history.commit!
@@ -71,30 +72,6 @@ export init = (pcb) ->
                 PNotify.error text: err
                 return 
             create-download filename, res
-
-        downloadGerber: (ctx, project-name) -> 
-            console.log "Exporting to Gerber..."
-            gerb = new GerberReducer
-            gerb.reset!
-            output-name = "#{project-name}-gerber.zip"
-
-            console.log "aeObjs: ", pcb.get-aeobjs!
-            for aeobj in pcb.get-aeobjs!
-                aeobj.trigger \export-gerber
-
-            # create a zip file 
-            zip = new jszip! 
-            extension = 
-                "F.Cu": "GTL"
-                "B.Cu": "GBL"
-                "drill": "XLN"
-                "Edge": "GKO"
-            for name, content of gerb.export! 
-                zip.file "project-#{name}.#{extension[name]}", content 
-
-            content <~ zip.generateAsync({type: "blob"}).then
-            create-download output-name, content
-            console.log "Exported to Gerber."
 
         downloadProject: (ctx, project-name) ->
             files = []
@@ -219,6 +196,23 @@ export init = (pcb) ->
             zip = new jszip! 
             for [name, content] in files 
                 zip.file name, content 
+
+            # Create Gerber 
+            gerb = new GerberReducer
+            gerb.reset!
+            
+            console.log "aeObjs: ", pcb.get-aeobjs!
+            for aeobj in pcb.get-aeobjs!
+                aeobj.trigger \export-gerber
+
+            extension = 
+                "F.Cu": "GTL"
+                "B.Cu": "GBL"
+                "drill": "XLN"
+                "Edge": "GKO"
+
+            for name, content of gerb.export! 
+                zip.folder \gerber .file "#{name}.#{extension[name]}", content 
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content
