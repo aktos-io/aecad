@@ -23,4 +23,7 @@ install-node-occ:
 	./build.sh || true; \
 	)
 
+update:
+	git pull
+	git submodule update --recursive --init
 
