@@ -48,7 +48,7 @@ export init = (pcb) ->
                 title: 'Filename'
                 icon: ''
                 closable: yes
-                template: RACTIVE_PREPARSE('./export-dialog.pug')
+                template: require('./export-dialog.pug')
                 buttons:
                     save:
                         text: 'Save'
@@ -84,7 +84,7 @@ export init = (pcb) ->
                 return 
 
             dirty-confirm = new SignalBranch
-            if __DEPENDENCIES__.root.dirty
+            if require('app-version.json').root.dirty
                 _sd = dirty-confirm.add!
                 answer <~ pcb.vlog .info do
                     title: "Dirty state of aeCAD"
@@ -190,7 +190,7 @@ export init = (pcb) ->
             files.push ["scripts.ls", "export {\n#{content}\n}"]
 
             # README 
-            files.push ["README.md", JSON.stringify __DEPENDENCIES__]
+            files.push ["README.md", JSON.stringify require('app-version.json')]
 
             # create a zip file 
             zip = new jszip! 
@@ -211,8 +211,9 @@ export init = (pcb) ->
                 "drill": "XLN"
                 "Edge": "GKO"
 
+
             for name, content of gerb.export! 
-                zip.folder \gerber .file "#{name}.#{extension[name]}", content 
+                zip.folder \gerber .file "#{name}.#{extension[name] or 'gbr'}", content 
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content
@@ -259,4 +260,4 @@ export init = (pcb) ->
 
         showHelp: (ctx) ->
             @get \vlog .info do
-                template: RACTIVE_PREPARSE('./help/index.pug')
+                template: require('./help/index.pug')

@@ -1,10 +1,11 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $DIR/scada.js/tools/service-runner/tmux-launch
-launch-service $(calc-session-name "$0")
-
+sname=$(calc-session-name "$0")
+tmux_set_venv $sname ${SCADAJS_1_ENV:-"$DIR/scada.js/nodeenv"}
+launch-service $sname
 
 # run commands in tmux session
-run-in-tmux "cd servers" './run-ls webserver.ls'
+run-in-tmux "cd servers" './run-ls webserver.ls --production'
 run-in-tmux "cd servers" './run-ls occ-service.ls'
 run-in-tmux "cd ~/node-occ-sample" "npm start"

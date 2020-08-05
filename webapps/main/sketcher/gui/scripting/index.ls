@@ -329,7 +329,7 @@ export init = (pcb) ->
             sdiff_ = jsDiff.structuredPatch(name, "#{name} (server)", current, remote, "local", "server")
             console.log "scripting: diff: ", sdiff_
             @get \vlog .info do
-                template: RACTIVE_PREPARSE('./diff.pug')
+                template: require('./diff.pug')
                 data:
                     diff: sdiff_
 

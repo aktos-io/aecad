@@ -4,7 +4,7 @@ require! './ractive-drag'
 
 
 handle = Ractive.extend do
-    template: RACTIVE_PREPARSE('handle.pug')
+    template: require('./handle.pug')
     onrender: ->
         @set \position.left, (@get \x) / 0.26
         @set \position.top, (@get \y) / 0.26
@@ -12,11 +12,11 @@ handle = Ractive.extend do
         position: {top: 0, left: 0}
 
 cpad = Ractive.extend do
-    template: RACTIVE_PREPARSE('cpad.pug')
+    template: require('./cpad.pug')
     components: {handle}
 
 bga = Ractive.extend do
-    template: RACTIVE_PREPARSE('bga.pug')
+    template: require('./bga.pug')
     components: {cpad}
     data: ->
         edgePins: 4
@@ -26,14 +26,14 @@ bga = Ractive.extend do
         position: {top: 0, left: 0}
 
 rpad = Ractive.extend do
-    template: RACTIVE_PREPARSE('rpad.pug')
+    template: require('./rpad.pug')
 
 wire = Ractive.extend do
-    template: RACTIVE_PREPARSE('wire.pug')
+    template: require('./wire.pug')
 
 
 Ractive.components['pcb'] = Ractive.extend do
-    template: RACTIVE_PREPARSE('index.pug')
+    template: require('./index.pug')
     on:
         download: (ctx) ->
             pcb = @find \#pcb

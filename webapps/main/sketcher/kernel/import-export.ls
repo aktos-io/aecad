@@ -58,7 +58,7 @@ export do
 
         # do postprocessing here
         # ------------------------------------------------------
-        deps = __DEPENDENCIES__
+        deps = require('app-version.json')
         project-info =
             name: "aeCAD by Aktos Electronics"
             website: "https://aktos.io/aecad"

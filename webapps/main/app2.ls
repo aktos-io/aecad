@@ -10,9 +10,9 @@ try
 
     new Ractive do
         el: \body
-        template: RACTIVE_PREPARSE('app.pug')
+        template: require('./app.pug')
         data:
-            dependencies: __DEPENDENCIES__
+            dependencies: require('app-version.json')
         onrender: ->
             <~ getDep "js/app3.js"
             # send signal to Async Synchronizers

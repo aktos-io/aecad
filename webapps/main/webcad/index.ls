@@ -2,7 +2,7 @@ require! 'three': THREE
 require! 'aea': {create-download, VLogger}
 
 Ractive.components['webcad'] = Ractive.extend do
-    template: RACTIVE_PREPARSE('index.pug')
+    template: require('./index.pug')
     onrender: ->
         view = @find '#graphical_view'
         vlog = new VLogger(this)

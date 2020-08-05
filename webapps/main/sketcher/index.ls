@@ -3,7 +3,7 @@ require! './kernel': {PaperDraw}
 require! './footprints/scripts'
 
 Ractive.components['sketcher'] = Ractive.extend do
-    template: RACTIVE_PREPARSE('index.pug')
+    template: require('./index.pug')
     onrender: (ctx) ->
         # output container
         canvas = @find '#draw'
