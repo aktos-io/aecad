@@ -2,9 +2,11 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ "$1" == "--background" ]] && HEADLESS=true || HEADLESS=false
 . $DIR/scada.js/tools/service-runner/tmux-launch
-sname=$(calc-session-name "$0")
-tmux_set_venv $sname ${SCADAJS_1_ENV:-"$DIR/scada.js/nodeenv"}
-launch-service $sname
+launch-service $(calc-session-name "$0")
+
+# Virtual Environment
+env="${SCADAJS_1_ENV:-"$DIR/scada.js/nodeenv"}"
+run-in-tmux "tmux setenv 'VIRTUAL_ENV' $venv && exit"
 
 # run commands in tmux session
 run-in-tmux "cd servers" './run-ls webserver.ls --production'

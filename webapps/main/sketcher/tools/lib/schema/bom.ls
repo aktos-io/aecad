@@ -4,7 +4,7 @@ require! 'prelude-ls': {
 }
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
-require! './lib': {parse-name, replace-vars}
+require! './lib': {parse-name}
 require! 'aea': {clone, merge}
 
 
@@ -14,7 +14,7 @@ export do
         if typeof! @data.bom is \Array
             throw new Error "BOM should be Object, not Array"
 
-        for type, instances of replace-vars @params, @data.bom 
+        for type, instances of @data.bom 
             if typeof! instances is 'String'
                 # this is shorthand for "empty parametered instances"
                 instances = {'': instances}

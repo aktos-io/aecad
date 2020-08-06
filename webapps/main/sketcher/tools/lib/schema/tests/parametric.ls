@@ -4,26 +4,27 @@ require! mathjs
 
 export do
     "simple parametric sub-circuit": ->
-        foo =
-            # parallel resistors
-            params:
-                R: "4Kohm"
-            iface: "1 2" # Compatible with stock resistors
-            netlist:
-                1: "r1.1 r2.1"
-                2: "r1.2 r2.2"
-            bom:
-                SMD1206:
-                    "{{R * 2}}": "r1 r2"
+        foo = (config)-> 
+            (value) -> 
+                R = mathjs.evaluate "#{value} * 2"
+
+                # parallel resistors                
+                iface: "1 2" # Make it compatible with simple resistor iface.
+                netlist:
+                    1: "r1.1 r2.1"
+                    2: "r1.2 r2.2"
+                bom:
+                    SMD1206:
+                        "#{R}": "r1 r2"
 
         bar =
             # series resistors
             iface: "a b"
-            schemas: {foo}
+            schemas: {foo: foo!}
             bom:
                 foo:
-                    'R:500ohm': "x"
-                    "R:3kohm": "y"
+                    '500ohm': "x"
+                    "3kohm": "y"
             netlist:
                 a: "x.2"
                 b: "y.1"
@@ -46,42 +47,42 @@ export do
         sch.remove-footprints!
 
     "break parameter propagation": -> 
-        baz =
-            # series resistors
-            params:
-                R: "123ohm"
-            iface: "1 2"
-            netlist:
-                1: "r1.a"
-                2: "r2.c"
-                "x": "r1.c r2.a"
-            bom:
-                C1206:
-                    "{{R * 4}}": "r1 r2"
+        baz = (config) -> 
+            (value) -> 
+                R = mathjs.evaluate "#{value} * 4"
 
-        foo =
-            # parallel resistors
-            params:
-                R: "4kohm"
-            iface: "1 2" # Compatible with stock resistors
-            netlist:
-                1: "r1.1 r2.1"
-                2: "r1.2 r2.2"
-                3: "r3.1 r3.2"
-            schemas: {baz}
-            bom:
-                baz:
-                    "2kohm": "r1 r2"
-                    "1kohm": "r3"
+                # series resistors
+                iface: "1 2"
+                netlist:
+                    1: "r1.a"
+                    2: "r2.c"
+                    "x": "r1.c r2.a"
+                bom:
+                    C1206:
+                        "#R": "r1 r2"
+
+        foo = (config) -> 
+            (value) -> 
+
+                iface: "1 2" 
+                netlist:
+                    1: "r1.1 r2.1"
+                    2: "r1.2 r2.2"
+                    3: "r3.1 r3.2"
+                schemas: {baz: baz!}
+                bom:
+                    baz:
+                        "2kohm": "r1 r2"
+                        "1kohm": "r3"
 
         bar =
             # series resistors
             iface: "a b"
-            schemas: {foo}
+            schemas: {foo: foo!}
             bom:
                 foo:
-                    'R:500ohm': "x"
-                    "R:3kohm": "y"
+                    '500ohm': "x"
+                    "3kohm": "y"
             netlist:
                 a: "x.2"
                 b: "y.1"
@@ -100,14 +101,16 @@ export do
         expect sch.get-bom-list!
         .to-equal bom-list = [
             {
-                "count":12,
-                "type":"C1206",
-                "value":"492 ohm",
-                "instances":[
-                    "test.x.r1.r1","test.x.r1.r2","test.x.r2.r1","test.x.r2.r2","test.x.r3.r1",
-                    "test.x.r3.r2","test.y.r1.r1","test.y.r1.r2","test.y.r2.r1","test.y.r2.r2",
-                    "test.y.r3.r1","test.y.r3.r2"
-                    ]
+                "count": 8, 
+                "instances": ["test.x.r1.r1", "test.x.r1.r2", "test.x.r2.r1", "test.x.r2.r2", "test.y.r1.r1", "test.y.r1.r2", "test.y.r2.r1", "test.y.r2.r2"], 
+                "type": "C1206", 
+                "value": "8 kohm"
+            }, 
+            {
+                "count": 4, 
+                "instances": ["test.x.r3.r1", "test.x.r3.r2", "test.y.r3.r1", "test.y.r3.r2"], 
+                "type": "C1206", 
+                "value": "4 kohm"
             }
         ]
 
@@ -115,10 +118,10 @@ export do
         sch.remove-footprints!
 
     "factory parametric sub-circuit": ->
-        foo = (args) -> 
-            type = args?type or "C1206"
+        foo = (config) -> 
+            type = config?type or "C1206"
             (value) ->         
-                r = mathjs.eval "#{value} * 2"
+                R = mathjs.evaluate "#{value} * 2"
                 # parallel resistors
                 iface: "1 2" # Compatible with stock resistors
                 netlist:
@@ -126,13 +129,13 @@ export do
                     2: "r1.2 r2.2"
                 bom:
                     "#{type}":
-                        "#{r}": "r1 r2"
+                        "#{R}": "r1 r2"
 
         bar =
             # series resistors
             iface: "a b"
             schemas: 
-                foo: foo {type: "SMD1206"}
+                foo: foo({type: "SMD1206"})
             bom:
                 foo:
                     '500ohm': "x"
