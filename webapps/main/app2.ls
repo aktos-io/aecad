@@ -4,7 +4,6 @@ try
 
     # App scenes
     require! './terminal-block'
-    require! './sketcher'
     require! './webcad'
     require! './pcb'
 
