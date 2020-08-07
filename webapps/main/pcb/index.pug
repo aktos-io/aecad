@@ -1,9 +1,14 @@
-p
-    btn(on-click="download") Download 
+include ./gui/project-control/index.pug
 
-svg#pcb(version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-    height="100mm" 
-    width="100mm"
-    )
-    bga
-    bga(pinDistance="4.6")
+div(style="padding: 20px")
+    .ui.grid
+        .row
+            .two.wide.column 
+                include ./gui/tree-view/index.pug
+            .fourteen.wide.column
+                .ui.stackable.grid 
+                    .row 
+                        .nine.wide.column 
+                            include ./gui/canvas/index.pug
+                        .seven.wide.column 
+                            include ./gui/scripting/index.pug

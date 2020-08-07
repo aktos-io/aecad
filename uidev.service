@@ -1,7 +1,12 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+HEADLESS=false
 . $DIR/scada.js/tools/service-runner/tmux-launch
 launch-service $(calc-session-name "$0")
+
+# Virtual Environment support
+venv="${SCADAJS_1_ENV:-"$DIR/scada.js/nodeenv"}"
+run-in-tmux "tmux setenv 'VIRTUAL_ENV' $venv && exit"
 
 if [[ ! -e $DIR/editor ]]; then
     if hash subl; then
@@ -10,8 +15,9 @@ if [[ ! -e $DIR/editor ]]; then
         ln -s `which atom` editor
     fi
 fi
+
 # run commands in tmux session
 run-in-tmux 'xdg-open .' './editor .'
-run-in-tmux "cd scada.js" "./watch.sh main"
-run-in-tmux "cd servers" './run-ls webserver.ls'
+run-in-tmux "cd scada.js" "export APP=main" "make development"
+run-in-tmux "cd servers" './run-ls webserver.ls --development'
 run-in-tmux "cd servers" './run-ls occ-service.ls'

@@ -1,5 +1,5 @@
 Ractive.components['terminal-block'] = Ractive.extend do
-    template: RACTIVE_PREPARSE('index.pug')
+    template: require('./index.pug')
     data: ->
         sofar: 0
         cumulative: (index) ->

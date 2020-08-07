@@ -11,10 +11,9 @@ scene(name="NOTFOUND")
 .ui.fixed.inverted.menu
     a.inverted.green.item(href="#/") Home
     //-a.inverted.green.item(href="#/terminal-block") Terminal 
-    a.inverted.green.item(href="#/sketcher") Sketcher
-    a.inverted.green.item(href="#/webcad") WebCAD
-    //-a.inverted.green.item(href="#/pcb") Pcb
-    .item.right {{dependencies.root.commit}} (+{{dependencies.root.count}}) {{#if dependencies.root.dirty}}[DIRTY]{{/if}}
+    a.inverted.green.item(href="#/pcb") PCB
+    //-a.inverted.green.item(href="#/webcad") WebCAD
+    .item.right {{dependencies.commit}} (+{{dependencies.count}}) {{#if dependencies.dirty}}[DIRTY]{{/if}}
     
 
                 
@@ -29,16 +28,18 @@ scene(name="home" default public)
                 .column 
                     .ui.p Status: Pre-beta
                     .ui.p Source: #[a(href="https://github.com/aktos-io/aecad") https://github.com/aktos-io/aecad]
-                
-scene(name="terminal-block" public)
-    terminal-block  
 
-scene(name="sketcher" public)
-    sketcher
-    
-scene(name="webcad" public)
-    webcad
+//-                 
+    scene(name="terminal-block" public)
+        terminal-block  
 
 scene(name="pcb" public)
     pcb
+    
+//- 
+    scene(name="webcad" public)
+        webcad
+
+    scene(name="pcb" public)
+        pcb
     
