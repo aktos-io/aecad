@@ -3,6 +3,9 @@ SHELL = /bin/bash
 production:
 	cd scada.js && make production APP=main
 
+development:
+	./uidev.service
+
 install-deps:
 	@( cd scada.js; \
 	make create-venv 2> /dev/null; \
