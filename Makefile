@@ -8,7 +8,7 @@ development:
 
 install-deps:
 	@( cd scada.js; \
-	make create-venv 2> /dev/null; \
+	[[ ! -d ./nodeenv ]] && make create-venv;\
 	source ./venv; \
 	make install-deps CONF=../dcs-modules.txt; \
 	cd ..; \
