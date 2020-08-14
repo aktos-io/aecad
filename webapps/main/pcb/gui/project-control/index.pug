@@ -2,12 +2,10 @@
 
     .item 
         .ui.buttons 
-            file-button.icon(on-read="import" type="text"): icon.upload Import
-            btn.icon(on-click="exportDrawing"): icon.download Export
-    .item
-        a.icon(href="sgw-example.json" download tooltip="Download the example project")
-            icon.download.pink
-
+            file-button.icon(on-read="import" type="text" 
+                tooltip="Upload the project JSON file"): icon.upload Import
+            btn.icon(on-click="exportDrawing"
+                tooltip="Export all layers"): icon.download Export
 
     //-file-button(on-read="importDXF2" type="text") DXF (2)
 
@@ -35,10 +33,14 @@
                 on-click="save" 
                 tooltip="Save now in local storage (just in case)"
                 ): icon.save
-            btn.icon(
+            btn.icon.red(
                 on-click="clear" 
                 tooltip="Clear project"
                 ): icon.erase
             
+    .right.item
+        .ui.button.basic.mini.pink
+            a.icon(href="sgw-example.json" download tooltip="Download the example project")
+                icon.download Example
     .right.item 
         btn.icon(on-click="showHelp"): icon.help Help

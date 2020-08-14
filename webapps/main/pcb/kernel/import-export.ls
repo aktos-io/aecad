@@ -63,7 +63,7 @@ export do
             name: "aeCAD by Aktos Electronics"
             website: "https://aktos.io/aecad"
             dependencies:
-                aecad: deps.root.commit
+                aecad: deps.commit
 
         svg.attributes.data = project-info
    

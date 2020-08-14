@@ -60,7 +60,6 @@ export init = (pcb) ->
 
             if action in [\hidden, \cancel]
                 console.log "Cancelled."
-                b.cancel!
                 return
             filename = data.filename
             files = []
@@ -84,7 +83,7 @@ export init = (pcb) ->
                 return 
 
             dirty-confirm = new SignalBranch
-            if require('app-version.json').root.dirty
+            if require('app-version.json').dirty
                 _sd = dirty-confirm.add!
                 answer <~ pcb.vlog .info do
                     title: "Dirty state of aeCAD"
@@ -201,6 +200,8 @@ export init = (pcb) ->
             gerb = new GerberReducer
             gerb.reset!
             
+            # Every aeObj is responsible for registering its own 
+            # Gerber data. 
             console.log "aeObjs: ", pcb.get-aeobjs!
             for aeobj in pcb.get-aeobjs!
                 aeobj.trigger \export-gerber
@@ -210,7 +211,6 @@ export init = (pcb) ->
                 "B.Cu": "GBL"
                 "drill": "XLN"
                 "Edge": "GKO"
-
 
             for name, content of gerb.export! 
                 zip.folder \gerber .file "#{name}.#{extension[name] or 'gbr'}", content 
