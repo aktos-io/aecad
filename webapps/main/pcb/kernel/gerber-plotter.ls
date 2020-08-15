@@ -89,19 +89,22 @@ export class GerberReducer # Singleton
 
     The data is registered into its relevant GerberLayerReducer.
     '''
-    @extension = 
-        "F.Cu": "GTL"
-        "B.Cu": "GBL"
-        "drill": "XLN"
-        "Cut.Edge": "GKO"
+    @extension =  
+        # Suggested extensions from: https://github.com/aktos-io/aecad/issues/52
+        "F.Cu"      : "GTL"
+        "B.Cu"      : "GBL"
+        "drill"     : "XLN"
+        "Cut.Edge"  : "GKO"
+        "F.Mask"    : "GTS"
+        "B.Mask"    : "GBS"
+        "F.Silk"    : "GTO"
+        "B.Silk"    : "GBO"
 
     @instance = null
     ->
         return @@instance if @@instance
         @@instance = this
-        @reducers = {}
-        @cu-layers = <[ F.Cu B.Cu ]>
-        @mask-layers = <[ F.Mask B.Mask ]>
+        @reducers = {} # {layer: {side: Reducer, ...}, ...}
 
     reset: !-> 
         for layer, sides of @reducers 
@@ -133,7 +136,7 @@ export class GerberReducer # Singleton
         Usage: 
 
             .append {layer: "Cu", gerber: data}
-            .append {layer: "Mask", side: "S", gerber: data}
+            .append {layer: "Mask", side: "F", gerber: data}
 
         '''
         sides = if layer is \Edge 
@@ -143,7 +146,7 @@ export class GerberReducer # Singleton
 
         for _side in sides  
             @reducers{}[layer]{}[_side] ?= new GerberLayerReducer
-            @reducers[layer][_side].append gerber 
+                ..append gerber 
  
     add-drill: (dia, coord) -> 
         @drills[][dia.to-fixed 1].push coord 

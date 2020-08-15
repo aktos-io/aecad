@@ -89,9 +89,10 @@ export init = (pcb) ->
                     title: "Dirty state of aeCAD"
                     icon: 'warning sign'
                     message: "
-                        Project root has uncommitted changes. Saving project with a dirty state of aeCAD may result failure to identify the correct aeCAD version for the project file in the future.
+                        aeCAD has uncommitted changes. 
                         \n\n
-                        You should really commit your changes and then save your project.
+                        If your project depends on a new feature, you can't compile the same project 
+                        in the future by using the version information embedded into the project's README.
                         "
                 if answer is \ok
                     _sd.go!
