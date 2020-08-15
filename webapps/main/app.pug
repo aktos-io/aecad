@@ -13,7 +13,8 @@ scene(name="NOTFOUND")
     //-a.inverted.green.item(href="#/terminal-block") Terminal 
     a.inverted.green.item(href="#/pcb") PCB
     //-a.inverted.green.item(href="#/webcad") WebCAD
-    .item.right {{dependencies.commit}} (+{{dependencies.count}}) {{#if dependencies.dirty}}[DIRTY]{{/if}}
+    .item.right
+        a(href="https://github.com/aktos-io/aecad/tree/{{dependencies.commit}}") {{dependencies.commit}} (+{{dependencies.count}}) {{#if dependencies.dirty}}[DIRTY]{{/if}}
     
 
                 
