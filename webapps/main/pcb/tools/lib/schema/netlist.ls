@@ -87,7 +87,7 @@ export do
         {trace-items: _traces, vias} = @get-traces! 
 
         # Adding vias to connection list
-        console.log "vias:", vias
+        #console.log "vias:", vias
         for netid, pads of vias 
             @connection-list[][netid] ++= pads 
 
