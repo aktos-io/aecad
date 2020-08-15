@@ -311,51 +311,63 @@ export class Pad extends ComponentBase
             mirror-offset = 200mm # FIXME: remove this offset properly
             y-pos = coord-to-gerber (mirror-offset - px2mm @gpos.y)
 
-            gerber-data = if @data.dia 
-                # circular 
-                """
-                G04 #{@uname}*                      # comment 
-                # G04 Side is: #{@layer}.#{@side2}* 
-                %FSLAX35Y35*%                       # set number format to 3.5
-                %MOMM*%                             # set units to MM
-                %LPD*%                              # Set the polarity to [D]ark
+            margin = 0.2mm 
 
-                %ADD10C,#{@data.dia}*%              # "Aperture Define D10 as Circle"
+            gerber-data = (margin=0) ~> 
+                if @data.dia 
+                    # circular 
+                    """
+                    G04 #{@uname}*                          # comment 
+                    # G04 Side is: #{@layer}.#{@side2}* 
+                    %FSLAX35Y35*%                           # set number format to 3.5 for coordinates 
+                    %MOMM*%                                 # set units to MM
+                    %LPD*%                                  # Set the polarity to [D]ark
 
-                D10*                                # Set the current tool (aperture) to D10
-                X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
-                D03*                                # Create a drawing with current (=D10) aperture
+                    %ADD10C,#{@data.dia + 2 * margin}*%     # "Aperture Define D10 as Circle"
 
-                M02*                                # End of file 
-                """
-            else 
-                # rectangular 
-                [w, h] = [@data.width, @data.height]
-                if @data.rotation %% 360 in [90, 270]
-                    # FIXME: This is a quick and dirty hack for rotated pads
-                    [w, h] = [h, w]
-                #console.log "Pad coord: #{@uname}: x:#{@gpos.x}, y:#{@gpos.y}"
-                """
-                G04 #{@uname}*                      # comment 
-                # G04 Side is: #{@layer}.#{@side2}* 
-                %FSLAX35Y35*%                       # set number format to 3.5
-                %MOMM*%                             # set units to MM
-                %LPD*%                              # Set the polarity to [D]ark
+                    D10*                                    # Set the current tool (aperture) to D10
+                    X#{x-pos}Y#{y-pos}D02*                  # Go to (D02) that coordinates
+                    D03*                                    # Create a drawing with current (=D10) aperture
 
-                %ADD10R,#{w}X#{h}*%                 # "Aperture Define D10 as Rectangle"
+                    M02*                                    # End of file 
+                    """
+                else 
+                    # rectangular 
+                    [w, h] = [@data.width, @data.height]
+                    if @data.rotation %% 360 in [90, 270]
+                        # FIXME: This is a quick and dirty hack for rotated pads
+                        [w, h] = [h, w]
+                    #console.log "Pad coord: #{@uname}: x:#{@gpos.x}, y:#{@gpos.y}"
+                    """
+                    G04 #{@uname}*                          # comment 
+                    # G04 Side is: #{@layer}.#{@side2}* 
+                    %FSLAX35Y35*%                           # set number format to 3.5 for coordinates
+                    %MOMM*%                                 # set units to MM
+                    %LPD*%                                  # Set the polarity to [D]ark
 
-                D10*                                # Set the current tool (aperture) to D10
-                X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
-                D03*                                # Create a drawing with current (=D10) aperture
+                    %ADD10R,#{w + margin}X#{h + margin}*%   # "Aperture Define D10 as Rectangle"
 
-                M02*                                # End of file 
-                """ 
+                    D10*                                    # Set the current tool (aperture) to D10
+                    X#{x-pos}Y#{y-pos}D02*                  # Go to (D02) that coordinates
+                    D03*                                    # Create a drawing with current (=D10) aperture
 
+                    M02*                                    # End of file 
+                    """ 
+
+            # Add Copper layer 
             @gerber-reducer.append do
                 layer: if @is-via then \Cu else @layer 
                 side: if @drill or @is-via then null else @side2
-                gerber: gerber-data
+                gerber: gerber-data!
 
+            # Add Mask Layer 
+            unless @is-via
+                @gerber-reducer.append do
+                    layer: \Mask 
+                    side: if @drill then null else @side2
+                    gerber: gerber-data(margin=0.2mm)
+
+            # Add drill
             if @drill 
                 @gerber-reducer.add-drill @data.drill, do
                     x: x-pos/1e5
