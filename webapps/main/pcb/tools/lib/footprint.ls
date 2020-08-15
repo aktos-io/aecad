@@ -1,5 +1,5 @@
 require! './container': {Container}
-require! 'aea/do-math': {mm2px}
+require! 'aea/do-math': {mm2px, px2mm}
 
 export class Footprint extends Container
     ->
@@ -73,3 +73,16 @@ export class Footprint extends Container
     print-mode: ->
         @border?.remove!
         super ...
+
+    on: (event, ...args) ->
+        super ...
+        switch event
+        | 'export-gerber' => 
+            # Export Gerber Silkscreen data
+            _round2 = -> it * 100 |> Math.round |> (/100)
+            if border=@owner.border
+                w = px2mm border.size.width |> _round2
+                h = px2mm border.size.height |> _round2
+                t = border.type 
+                console.log "TODO: export-gerber border size: #{w}mm, #{h}mm, #t", border
+            return
