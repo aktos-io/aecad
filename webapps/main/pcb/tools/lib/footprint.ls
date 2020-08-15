@@ -62,7 +62,7 @@ export class Footprint extends Container
 
     mirror: ->
         super ...
-        @border?.stroke-color = switch @side.0
+        @border?.stroke-color = switch @side2
             | 'F' => 'DeepPink'
             | 'B' => 'LightSeaGreen'
 

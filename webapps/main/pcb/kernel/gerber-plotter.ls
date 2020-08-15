@@ -1,8 +1,6 @@
 remove-bash-comments = (.replace /\s*#.*$/mg, '')
 
-export class GerberPlotter
-
-export class GerberFileReducer
+export class GerberLayerReducer
     -> 
         @reset! 
         
@@ -84,31 +82,68 @@ export class GerberFileReducer
         #{@gerber-end |> remove-bash-comments}
         """
 
-export class GerberReducer
+export class GerberReducer # Singleton
+    '''
+    This is a singleton class where any aeObj will use to send 
+    its Gerber data. 
+
+    The data is registered into its relevant GerberLayerReducer.
+    '''
+    @extension = 
+        "F.Cu": "GTL"
+        "B.Cu": "GBL"
+        "drill": "XLN"
+        "Cut.Edge": "GKO"
+
     @instance = null
     ->
-        # Make this class Singleton
         return @@instance if @@instance
         @@instance = this
         @reducers = {}
         @cu-layers = <[ F.Cu B.Cu ]>
+        @mask-layers = <[ F.Mask B.Mask ]>
 
     reset: !-> 
-        for l, reducer of @reducers 
-            reducer.reset!
+        for layer, sides of @reducers 
+            for side, reducer of sides 
+                reducer.reset!
         @drills = {}
 
-    append: (layers, drill, data) -> 
-        unless data?
-            data = drill 
-            drill = no 
-        if not layers? or drill 
-            layers = @cu-layers 
-        layers = [layers] if typeof! layers isnt \Array 
-        for layer in layers 
-            unless layer of @reducers 
-                @reducers[layer] = new GerberFileReducer
-            @reducers[layer].append data 
+    append: ({layer, side, gerber}) -> 
+        '''
+        layer   : 
+            Required: Physical Layer. One of: 
+
+                * Cu (Copper layer)
+                * Mask (Solder Mask) 
+                * Silk  (Names, values, outlines)
+                * Paste (Solder Paste)
+                * Edge (Mechanical Layer)
+
+        side    : 
+            Required. One of: 
+
+                * "B" (for Back)
+                * "F" (for Front)
+                * null (for "Symmetric")
+
+        gerber  : Gerber data 
+
+
+        Usage: 
+
+            .append {layer: "Cu", gerber: data}
+            .append {layer: "Mask", side: "S", gerber: data}
+
+        '''
+        sides = if layer is \Edge 
+            <[ Cut ]>
+        else 
+            if side then [side] else <[ F B ]>
+
+        for _side in sides  
+            @reducers{}[layer]{}[_side] ?= new GerberLayerReducer
+            @reducers[layer][_side].append gerber 
  
     add-drill: (dia, coord) -> 
         @drills[][dia.to-fixed 1].push coord 
@@ -148,9 +183,15 @@ export class GerberReducer
    
     export: -> 
         output = {}
-        for layer, reducer of @reducers
-            output[layer] = reducer.export!
+        for layer, sides of @reducers
+            for side, reducer of sides 
+                output["#{side}.#{layer}"] = 
+                    content: reducer.export!
+                    ext: @@extension["#{side}.#{layer}"] or "gbr"
 
-        output["drill"] = @export-excellon!
+        output["drill"] = 
+            content: @export-excellon!
+            ext: @@extension["drill"]
+
         return output
 

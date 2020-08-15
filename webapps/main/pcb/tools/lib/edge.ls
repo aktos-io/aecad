@@ -64,7 +64,6 @@ export class Edge extends Container
         switch event
         | 'export-gerber' => 
             @paths = @g.children
-            side = our-side = @owner.side or @side
             stroke-width = 0.2mm
             
             coord-to-gerber = (-> (it * 1e5) |>  parse-int)
@@ -92,5 +91,9 @@ export class Edge extends Container
                 while vertex=vertex.getNext()
                     {x, y} = vertex-coord vertex
                     gerb.push "X#{x}Y#{y}D01*"
-                @gerber-reducer.append side, gerb.join('\n')
+
+                @gerber-reducer.append {
+                    layer: \Edge, 
+                    gerber: gerb.join('\n')
+                }
 

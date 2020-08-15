@@ -202,18 +202,12 @@ export init = (pcb) ->
             
             # Every aeObj is responsible for registering its own 
             # Gerber data. 
-            console.log "aeObjs: ", pcb.get-aeobjs!
+            #console.log "aeObjs: ", pcb.get-aeobjs!
             for aeobj in pcb.get-aeobjs!
                 aeobj.trigger \export-gerber
 
-            extension = 
-                "F.Cu": "GTL"
-                "B.Cu": "GBL"
-                "drill": "XLN"
-                "Edge": "GKO"
-
-            for name, content of gerb.export! 
-                zip.folder \gerber .file "#{name}.#{extension[name] or 'gbr'}", content 
+            for name, {content, ext} of gerb.export! 
+                zip.folder \gerber .file "#{name}.#{ext}", content 
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content

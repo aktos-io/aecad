@@ -250,7 +250,17 @@ export class ComponentBase
 
     side: ~
         # eg. F.Cu, B.Cu
-        -> @owner.get-data 'side' or @get-data \side
+        -> 
+            #TODO: Add: console.warn "Component.side will be deprecated soon. Use .side2 "
+            @owner.get-data 'side' or @get-data \side
+
+    layer: ~
+        # returns: "Cu", "Mask" or null
+        -> @side?.split '.' .1
+
+    side2: ~
+        # returns: "F", "B" or null 
+        -> @side?.split '.' .0
 
     _data: ~
         # merged data of both instance data and pedigree classes' overwrites

@@ -91,7 +91,7 @@ export class Trace extends Container implements follow, helpers, end
 
             for path in @paths
                 #if path.data.aecad.side not in layers
-                side = path.data.aecad.side
+                [side2, layer] = path.data.aecad.side.split '.'
                 stroke-width = gerb-stroke-width path
 
                 vertex = path.getFirstSegment()
@@ -111,7 +111,11 @@ export class Trace extends Container implements follow, helpers, end
                 while vertex=vertex.getNext()
                     {x, y} = vertex-coord vertex
                     gerb.push "X#{x}Y#{y}D01*"
-                @gerber-reducer.append side, gerb.join('\n')
+                
+                @gerber-reducer.append do
+                    layer: layer 
+                    side: side2
+                    gerber: gerb.join('\n')
 
 
     print-mode: ({layers, trace-color}) ->

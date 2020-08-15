@@ -281,7 +281,6 @@ export class Pad extends ComponentBase
             if min-dist < 0 or dist < min-dist
                 min-dist = dist
                 npad = ..
-        console.log "Nearest pad: ", npad.uname, "cid:", npad.cid
         return npad
 
     guides: ~
@@ -312,23 +311,23 @@ export class Pad extends ComponentBase
             mirror-offset = 200mm # FIXME: remove this offset properly
             y-pos = coord-to-gerber (mirror-offset - px2mm @gpos.y)
 
-            if @data.dia 
+            gerber-data = if @data.dia 
                 # circular 
-                @gerber-reducer.append side, @drill, """
-                    G04 #{@uname}*                      # comment 
-                    # G04 Side is: #{side}*             #
-                    %FSLAX35Y35*%                       # set number format to 3.5
-                    %MOMM*%                             # set units to MM
-                    %LPD*%                              # Set the polarity to [D]ark
+                """
+                G04 #{@uname}*                      # comment 
+                # G04 Side is: #{@layer}.#{@side2}* 
+                %FSLAX35Y35*%                       # set number format to 3.5
+                %MOMM*%                             # set units to MM
+                %LPD*%                              # Set the polarity to [D]ark
 
-                    %ADD10C,#{@data.dia}*%                 # "Aperture Define D10 as Circle"
+                %ADD10C,#{@data.dia}*%              # "Aperture Define D10 as Circle"
 
-                    D10*                                # Set the current tool (aperture) to D10
-                    X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
-                    D03*                                # Create a drawing with current (=D10) aperture
+                D10*                                # Set the current tool (aperture) to D10
+                X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
+                D03*                                # Create a drawing with current (=D10) aperture
 
-                    M02*                                # End of file 
-                    """ 
+                M02*                                # End of file 
+                """
             else 
                 # rectangular 
                 [w, h] = [@data.width, @data.height]
@@ -336,24 +335,28 @@ export class Pad extends ComponentBase
                     # FIXME: This is a quick and dirty hack for rotated pads
                     [w, h] = [h, w]
                 #console.log "Pad coord: #{@uname}: x:#{@gpos.x}, y:#{@gpos.y}"
-                @gerber-reducer.append side, @drill, """
-                    G04 #{@uname}*                      # comment 
-                    # G04 Side is: #{side}*             #
-                    %FSLAX35Y35*%                       # set number format to 3.5
-                    %MOMM*%                             # set units to MM
-                    %LPD*%                              # Set the polarity to [D]ark
+                """
+                G04 #{@uname}*                      # comment 
+                # G04 Side is: #{@layer}.#{@side2}* 
+                %FSLAX35Y35*%                       # set number format to 3.5
+                %MOMM*%                             # set units to MM
+                %LPD*%                              # Set the polarity to [D]ark
 
-                    %ADD10R,#{w}X#{h}*%                 # "Aperture Define D10 as Rectangle"
+                %ADD10R,#{w}X#{h}*%                 # "Aperture Define D10 as Rectangle"
 
-                    D10*                                # Set the current tool (aperture) to D10
-                    X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
-                    D03*                                # Create a drawing with current (=D10) aperture
+                D10*                                # Set the current tool (aperture) to D10
+                X#{x-pos}Y#{y-pos}D02*              # Go to (D02) that coordinates
+                D03*                                # Create a drawing with current (=D10) aperture
 
-                    M02*                                # End of file 
-                    """ 
+                M02*                                # End of file 
+                """ 
+
+            @gerber-reducer.append do
+                layer: if @is-via then \Cu else @layer 
+                side: if @drill or @is-via then null else @side2
+                gerber: gerber-data
 
             if @drill 
-                @gerber-reducer.add-drill @data.drill, {
+                @gerber-reducer.add-drill @data.drill, do
                     x: x-pos/1e5
                     y: y-pos/1e5
-                }
