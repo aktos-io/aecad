@@ -185,6 +185,7 @@ export MoveTool = ->
 
             | \ı, \r, \I, \R, \i =>
                 # rotate the top level group
+                scope.history.commit!
                 angle = if event.modifiers.shift => 45 else 90
                 for selection.selected
                     if ..aeobj
