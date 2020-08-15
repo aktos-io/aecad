@@ -305,13 +305,10 @@ export class Pad extends ComponentBase
             else
                 @g.opacity = @blur-opacity
         | 'export-gerber' => 
-            side = our-side = @owner.side or @side
             coord-to-gerber = (-> (it * 1e5) |>  parse-int)
             x-pos = coord-to-gerber px2mm @gpos.x 
             mirror-offset = 200mm # FIXME: remove this offset properly
             y-pos = coord-to-gerber (mirror-offset - px2mm @gpos.y)
-
-            margin = 0.2mm 
 
             gerber-data = (margin=0) ~> 
                 if @data.dia 
