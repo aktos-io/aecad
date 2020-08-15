@@ -191,8 +191,8 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     @ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
                 | \z =>
                     if event.modifiers.control
-                        @history.back!
-                        @ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
+                        # Undo changes 
+                        @ractive.fire \undo 
 
                 | speed-drag-key.key =>
                     unless event.modifiers.control

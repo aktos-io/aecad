@@ -26,12 +26,19 @@ export class History
             console.log "removing old history"
             @commits.shift!
 
-    back: ->
+    back: (cb) ->
+        err=false
+        res=null 
         if @commits.pop!
             console.log "Going back in the history. Left: #{@commits.length}"
             @load-project that
+            res = {left: @commits.length}
         else
             console.warn "No commits left, sorry."
+            err=true
+
+        if typeof! cb is \Function
+            cb(err, res)
 
 
     load-project: (data) ->
@@ -108,7 +115,7 @@ export class History
         @ractive.set \drawingLs, saved
         #console.log "loaded scripts: ", data
 
-    save: ->
+    save: (cb) ->
         # Save history into browser's local storage
         # -----------------------------------------
         # save current project
@@ -131,7 +138,14 @@ export class History
         # save last 10 commits of history
         @db.set \history, @commits.slice(-10)
 
-        console.log "Saved at ", Date!, "project length: #{parseInt(data.length/1024)}KB"
+        res = 
+            message: "Saved at #{Date!}"
+            size: "#{parseInt(data.length/1024)}KB"
+
+        console.log "#{res.message}, size: #{res.size}"
+
+        if typeof! cb is \Function 
+            cb(err=null, res)
 
     load: ->
         # Load from browser's local storage

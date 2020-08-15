@@ -111,7 +111,7 @@ ack-button.mini.icon(
 .ui.mini.buttons
     ack-button.icon(
         on-click="calcUnconnected"
-        tooltip="Unconnected count"
+        tooltip="Unconnected count (click to re-calculate)"
         class="{{#if unconnectedCount}}red{{else}}green{{/if}}"
         ) {{unconnectedCount}}/{{totalConnections}}
         

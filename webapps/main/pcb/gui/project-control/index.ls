@@ -232,18 +232,23 @@ export init = (pcb) ->
             proceed!
 
         undo: (ctx) ->
-            pcb.history.back!
-            PNotify.info do
-                text: "Changes reverted."
-                addClass: 'nonblock'
-
+            err, res <~ pcb.history.back
+            unless err 
+                PNotify.info do
+                    text: "Changes reverted. (left: #{res.left})"
+                    addClass: 'nonblock'
+                pcb.ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
+            else 
+                PNotify.notice do 
+                    text: "No commits left."
+                    addClass: "nonblock"
 
         save: (ctx) ->
             # save project
             #pcb.history.commit! ### No need to bloat the history
-            pcb.history.save!
+            err, res <~ pcb.history.save
             PNotify.info do
-                text: "Saved #{Date!}"
+                text: res.message
                 addClass: 'nonblock'
 
         clear: (ctx) ->
