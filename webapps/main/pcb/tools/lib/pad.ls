@@ -334,7 +334,7 @@ export class Pad extends ComponentBase
                 else 
                     # rectangular 
                     [w, h] = [@data.width, @data.height]
-                    if @data.rotation %% 360 in [90, 270]
+                    if (@owner.data.rotation) %% 360 in [90, 270]
                         # FIXME: This is a quick and dirty hack for rotated pads
                         [w, h] = [h, w]
                     #console.log "Pad coord: #{@uname}: x:#{@gpos.x}, y:#{@gpos.y}"
