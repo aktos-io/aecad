@@ -1,7 +1,10 @@
 SHELL = /bin/bash
 
-production:
+release:
 	cd scada.js && make production APP=main
+
+release-push:
+	cd scada.js && make release-push
 
 development:
 	./uidev.service
