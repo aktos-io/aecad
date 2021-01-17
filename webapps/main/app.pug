@@ -9,16 +9,16 @@ scene(name="NOTFOUND")
             No one created #[b {{@shared.router.scene}}] scene yet.
 
 .ui.fixed.inverted.menu
-    a.inverted.green.item(href="#/") Home
+    a.inverted.green.item(href="#/") PCB
     //-a.inverted.green.item(href="#/terminal-block") Terminal 
-    a.inverted.green.item(href="#/pcb") PCB
+    a.inverted.green.item(href="#/about") About
     //-a.inverted.green.item(href="#/webcad") WebCAD
     .item.right
         a(href="https://github.com/aktos-io/aecad/tree/{{dependencies.commit}}") {{dependencies.commit}} (+{{dependencies.count}}) {{#if dependencies.dirty}}[DIRTY]{{/if}}
     
 
                 
-scene(name="home" default public)
+scene(name="about" public)
   .ui.container 
         .ui.grid
             .row
@@ -28,13 +28,15 @@ scene(name="home" default public)
             .row
                 .column 
                     .ui.p Status: Pre-beta
+            .row
+                .column
                     .ui.p Source: #[a(href="https://github.com/aktos-io/aecad") https://github.com/aktos-io/aecad]
 
 //-                 
     scene(name="terminal-block" public)
         terminal-block  
 
-scene(name="pcb" public)
+scene(name="pcb" public default)
     pcb
     
 //- 
