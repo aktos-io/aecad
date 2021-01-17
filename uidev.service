@@ -11,5 +11,5 @@ tmux setenv -t $sname 'VIRTUAL_ENV' $SCADAJS_VENV
 
 # run commands in tmux session
 run-in-tmux "cd scada.js" "export APP=main" "make development"
-run-in-tmux "cd servers" './run-ls webserver.ls --development'
 run-in-tmux "cd servers" './run-ls occ-service.ls'
+run-in-tmux "cd servers" './run-ls webserver.ls --development'
