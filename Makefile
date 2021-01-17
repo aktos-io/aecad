@@ -6,6 +6,9 @@ release:
 release-push:
 	cd scada.js && make release-push
 
+touch-app-version:
+	cd scada.js && make update-app-version
+
 development:
 	./uidev.service
 
