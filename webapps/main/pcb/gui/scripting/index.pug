@@ -9,7 +9,8 @@
 dropdown(
     object-data="{{drawingLs}}" 
     selected-key="{{scriptName}}" 
-    on-select="scriptSelected")
+    on-select="scriptSelected"
+    listen-external="true")
 //- no need for this?
     btn.mini(
         on-click="@.set('scriptName', null)" 
