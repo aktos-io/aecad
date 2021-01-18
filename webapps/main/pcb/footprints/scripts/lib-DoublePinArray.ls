@@ -1,3 +1,5 @@
+#! requires PinArray
+
 add-class class DoublePinArray extends Footprint
     create: (data) ->
         overwrites =

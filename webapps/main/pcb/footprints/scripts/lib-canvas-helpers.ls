@@ -1,5 +1,7 @@
 add-class class RefCross extends Footprint
     create: (data) ->
+        @side = "Edge"
+        @send-to-layer "gui"
         @add-part 'v', new Path.Line do
             from: [-20, 0]
             to: [20, 0]

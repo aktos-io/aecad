@@ -6,15 +6,16 @@
 
 #! requires PinArray
 add-class class Inductor extends PinArray
+    @rev_Inductor = 2
     (data, overrides) ->
         super data, overrides `based-on` do
             name: 'L_'
             pad:
-                width: 4mm
-                height: 4.5mm
+                height: 7.5mm
+                width: 3mm
             cols:
                 count: 2
-                interval: 8mm
+                interval: 6mm
             border:
                 width: 10.7mm
                 height: 10.2mm

@@ -65,3 +65,63 @@ add-class class NPN extends SOT23
 #new NPN
 
 add-class class PNP extends NPN
+
+add-class class BC807_SOT23 extends PNP
+
+add-class class BC640_SOT23 extends PNP
+    (data, overrides) ->
+        super data, overrides `based-on` do
+            labels:
+                1: 'e'
+                2: 'c'
+                3: 'b'
+
+add-class class NMos extends SOT23
+    @rev_NMos = 1
+    (data, overrides) ->
+        super data, overrides `based-on` do
+            labels:
+                1: 'g'
+                2: 's'
+                3: 'd'
+
+
+add-class class IRLML2502 extends NMos
+
+add-class class DPAK extends DoublePinArray
+    # Reference: https://www.infineon.com/export/sites/default/en/product/packages/_images/09018a90800830a9.png_1448008138.png
+    (data, overrides) ->
+        super data, overrides `based-on` do
+            name: 'c_'
+            distance: 6.3mm
+            left:
+                start: 3
+                pad:
+                    width: 6.4mm
+                    height: 5.8mm
+                cols:
+                    count: 1
+            right:
+                dir: '-y'
+                pad:
+                    width: 2.2mm
+                    height: 1.2mm
+                rows:
+                    count: 2
+                    interval: 2.28mm * 2
+            border:
+                width: 6.3mm + 3.2mm + 1.1mm + 1mm
+                height: 6.8mm
+
+#new DPAK
+
+add-class class IRFR024 extends DPAK
+    (data, overrides) ->
+        super data, overrides `based-on` do
+            labels:
+                1: "g"
+                2: "s"
+                3: "d"
+
+#new IRFR024
+

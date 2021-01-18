@@ -4,7 +4,7 @@
 #
 # This script will also be treated as a library file.
 # --------------------------------------------------
-table = """
+table = '''
 +------+-----+---------+------+---+---Pi 3---+---+------+---------+-----+------+
 | BCM  | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM  |
 +------+-----+---------+------+---+----++----+---+------+---------+-----+------+
@@ -31,7 +31,7 @@ table = """
 +-----+-----+---------+------+---+----++----+---+------+---------+-----+-------+
 | BCM | wPi |   Name  | Mode | V | Physical | V | Mode | Name    | wPi | BCM |
 +-----+-----+---------+------+---+---Pi 3---+---+------+---------+-----+-----+
-"""
+'''
 
 add-class class RpiHeader extends PinArray
     @rev_RpiHeader = 1
@@ -52,4 +52,3 @@ add-class class RpiHeader extends PinArray
             mirror: yes
             disallow-pin-numbers: yes
             allow-duplicate-labels: yes
-
