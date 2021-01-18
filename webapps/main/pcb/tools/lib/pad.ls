@@ -40,9 +40,14 @@ export class Pad extends ComponentBase
                 x: opts.width |> mm2px
                 y: opts.height |> mm2px
 
-            rect = new Rectangle do
-                from: [0, 0]
-                to: dimensions
+            if opts.centered
+                rect = new Rectangle do
+                    from: [-dimensions.x/2, -dimensions.y/2]
+                    to: [+dimensions.x/2, +dimensions.y/2]
+            else
+                rect = new Rectangle do
+                    from: [0,0]
+                    to: [dimensions.x, dimensions.y]
 
             geo-params = {rectangle: dimensions}
 
@@ -101,7 +106,13 @@ export class Pad extends ComponentBase
             if pos.y
                 @position.y += pos.y |> mm2px
         
+    pos-x: ~
+        -> @position.x |> px2mm
+        (val) -> @position.x = (val |> mm2px)
 
+    pos-y: ~
+        -> @position.y |> px2mm
+        (val) -> @position.y = (val |> mm2px)
 
     finish: !->
         @ttip.content = @label 
