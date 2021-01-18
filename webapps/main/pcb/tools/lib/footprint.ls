@@ -26,6 +26,23 @@ export class Footprint extends Container
         -> @get-data('_iface') or {}
         (val) -> @set-data '_iface', val
 
+    iface-add: (pin-or-definition, label-or-null) -> 
+        # Designing @iface as a property is a kind of wrong decision because it's not 
+        # clear what to assign while assigning. This function should be used instead. 
+        #
+        # Usage: iface-add 1, 'a'
+        #        iface add {1: 'a', 2: 'b'}
+        curr-iface = @get-data('_iface') or {}
+        if typeof! pin-or-definition isnt \Object
+            # Single assignment mode 
+            pin-or-definition = {"#{pin-or-definition}": label-or-null}
+
+        for pin, label of pin-or-definition
+            curr-iface[pin] = label or pin 
+
+        @set-data '_iface', curr-iface
+
+
     move: (displacement, opts={}) ->
         # Moves the component with a provided amount of displacement. Default: Relative
         # displacement: unit: pixels
@@ -57,7 +74,6 @@ export class Footprint extends Container
 
             center = @g.bounds.center
             pos = {x: 0, y: 0}
-            console.log "type of center:", center
             if (typeof! opts.centered is \Boolean) and not opts.centered
                 if type is \Rectangle
                     pos = 

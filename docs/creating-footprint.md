@@ -21,36 +21,38 @@ add-class class ExampleFootprint extends Footprint
         '''
         data: (Object)
         --------------
-        The initialization data. May be supplied when this footprint 
-        is inherited.
+        Supplied by the parent part for overriding the configuration when
+        inherited.
 
         @iface: (Object)
         ----------------
-        Interface data for this footprint. Normally all pins should 
-        be exposed.
+        Interface data for the footprint. Normally all pins should 
+        be exposed. Some no-connect pins may not be included. 
 
-        Same property is used within schemas to provide connection 
-        information.
+        Use @iface-add(pin, label) function to set @iface. 
 
         @make-border (Function. Args: {border: Object})
         ----------------------------------------------
         > Note: This function should be called after initializing all Pad objects
-        > because it determines the center of the footprint by iterating over Pad objects.
+        > when centering is required because it iterates over all Pad's to calculate
+        > the bounding box. 
         
         Object defines the footprint border. Automatically centered to the bounding 
         box of the Pad's. 
+
+        Multiple borders allowed. 
         
         If `width` and `height` keys exist, it is Rectangular.
         If `dia` key exist, it's Circular.
         `drill`: Drill hole diameter.
         `offset-x`: Offset towards +x direction.
         `offset-y`: Offset towards +y direction.
+        .centered: If false, top-left point is placed to origin. 
 
         @mirror() (Function)
         --------------------
         Create mirror of this footprint. Useful for female header 
         definitions and trough-hole components. 
-        '''
         
         Pad(Object): Class.
         -------------------
@@ -66,6 +68,7 @@ add-class class ExampleFootprint extends Footprint
         Position defines: 
             * Center of a circular pad.
             * Top-left point of a rectangular pad.
+        '''
         
         ...
         
@@ -218,7 +221,7 @@ add-class class ExampleFootprint extends Footprint
 new ExampleFootprint!
 ```
 
-# Highly Asymmetric Footprint 
+# A Highly Asymmetric Footprint Example
 
 Component: [Bourns Trimpot 3006P](https://user-images.githubusercontent.com/6639874/104923123-af95a900-59ac-11eb-8b7f-8e1f7f30f68a.png)
 
@@ -227,8 +230,14 @@ Component: [Bourns Trimpot 3006P](https://user-images.githubusercontent.com/6639
 
 ```ls
 add-class class Trimpot_Bourns_3006P extends Footprint
-    create: (data) ->
+    '''
+    Electrical Properties:
 
+    1 ~~~~~~ 3
+        ^--2
+    '''
+    @rev_Trimpot_Bourns_3006P = 1       # <- Use @rev_{CLASS_NAME} to upgrade the components in place. 
+    create: (data) ->
         dia = 1.2mm
         drill = 0.6mm
         body-length = 19.2mm
@@ -241,11 +250,11 @@ add-class class Trimpot_Bourns_3006P extends Footprint
         d13x = 12.7mm # distance from 1 to 3, x direction
         d23x = 5.08mm
         d3rx = 3.3mm
-        
+
         d23y = 2.54mm
         d3by = 1.4mm
         d13y = 0mm
-        
+
         # calculated values
         dl1x = body-length - (d13x + d3rx)
         dt1y = body-height - (d13y + d3by)
@@ -253,18 +262,18 @@ add-class class Trimpot_Bourns_3006P extends Footprint
         pads =
             pin1:
                 desc: {pin: 1, dia, drill}
-                position: 
-                    x: dl1x 
+                position:
+                    x: dl1x
                     y: dt1y
             pin2:
                 desc: {pin: 2, dia, drill}
-                position: 
-                    x: dl1x + d13x - d23x 
+                position:
+                    x: dl1x + d13x - d23x
                     y: dt1y + d13y - d23y
             pin3:
                 desc: {pin: 3, dia, drill}
-                position: 
-                    x: dl1x + d13x 
+                position:
+                    x: dl1x + d13x
                     y: dt1y + d13y
 
         border =
@@ -279,10 +288,10 @@ add-class class Trimpot_Bourns_3006P extends Footprint
                 centered: no
                 offset-x:~ -> border.body.width
                 offset-y:~ -> border.body.height/2 - @height/2
-                
+
         for i, pad of pads
-            # initialize @iface
-            @iface[pad.desc.pin] = pad.desc.label
+            # initialize iface
+            @iface-add pad.desc.pin, pad.desc.label
 
             # create Pad objects
             new Pad ({parent: this} <<< pad.desc)
@@ -292,11 +301,11 @@ add-class class Trimpot_Bourns_3006P extends Footprint
         for name, data of border
             @make-border {border: data}
 
-        # We assumed to view from top. However, all 
-        # dimensions were defined from bottom. 
+        # We assumed to view from top. However, all
+        # dimensions were defined from bottom.
         @mirror!
 
-new Trimpot_Bourns_3006P!
+#new Trimpot_Bourns_3006P!
 ```
 
 ![image](https://user-images.githubusercontent.com/6639874/104927460-82e49000-59b2-11eb-8f53-896cbe209fcb.png)
