@@ -23,7 +23,7 @@ export class Footprint extends Container
         # as the first thing in a component/circuit. However, as this information
         # might be generated dynamically on creation time, it is useful to
         # provide a caching mechanism)
-        -> @get-data('_iface')
+        -> @get-data('_iface') or {}
         (val) -> @set-data '_iface', val
 
     move: (displacement, opts={}) ->
@@ -41,7 +41,8 @@ export class Footprint extends Container
             ..on-move ...arguments
 
     make-border: (data) ->
-        if opts=data?.border
+        opts=data?.border
+        if opts
             if opts.dia
                 type = 'Circle'
                 dimensions =
@@ -54,8 +55,24 @@ export class Footprint extends Container
                         y: mm2px opts.height
                     radius: 0.3
 
-            @add-part 'border', new @scope.Shape[type] dimensions <<< do
-                center: @g.bounds.center
+            center = @g.bounds.center
+            pos = {x: 0, y: 0}
+            console.log "type of center:", center
+            if (typeof! opts.centered is \Boolean) and not opts.centered
+                if type is \Rectangle
+                    pos = 
+                        x: dimensions.size.x/2
+                        y: dimensions.size.y/2
+                else
+                    throw new Error "What?"
+
+            if opts.offset-x?
+                pos.x += that |> mm2px
+            
+            if opts.offset-y?
+                pos.y += that |> mm2px
+
+            @add-part 'border', new @scope.Shape[type] dimensions <<< {position: pos} <<< center <<< do
                 stroke-color: 'DeepPink'
                 stroke-width: 0.2
                 parent: @g
