@@ -48,8 +48,8 @@ add-class class ExampleFootprint extends Footprint
 
         @mirror() (Function)
         --------------------
-        Create mirror of this footprint. Useful for creating female 
-        headers.
+        Create mirror of this footprint. Useful for female header 
+        definitions and trough-hole components. 
         '''
         
         Pad(Object): Class.
@@ -61,6 +61,7 @@ add-class class ExampleFootprint extends Footprint
             .dia: Dimensions if it's a Circle.
             .pos-x: Absolute x position in mm. (Type: Property)
             .pos-y: Absolute y position in mm. (Type: Property)
+            .centered: Boolean. Rectangular pads are centered if set to true.
             
         Position defines: 
             * Center of a circular pad.
@@ -216,4 +217,88 @@ add-class class ExampleFootprint extends Footprint
 
 new ExampleFootprint!
 ```
+
+# Highly Asymmetric Footprint 
+
+Component: [Bourns Trimpot 3006P](https://user-images.githubusercontent.com/6639874/104923123-af95a900-59ac-11eb-8b7f-8e1f7f30f68a.png)
+
+![image](https://user-images.githubusercontent.com/6639874/104923425-17e48a80-59ad-11eb-82b5-a3ad7219c17d.png)
+
+
+```ls
+add-class class Trimpot_Bourns_3006P extends Footprint
+    create: (data) ->
+
+        dia = 1.2mm
+        drill = 0.6mm
+        body-length = 19.2mm
+        body-height = 5mm
+        #
+        #            ,- t(op)
+        # [ 1 2 3 ]=
+        # l       r  ^- b(ottom)
+        #
+        d13x = 12.7mm # distance from 1 to 3, x direction
+        d23x = 5.08mm
+        d3rx = 3.3mm
+        
+        d23y = 2.54mm
+        d3by = 1.4mm
+        d13y = 0mm
+        
+        # calculated values
+        dl1x = body-length - (d13x + d3rx)
+        dt1y = body-height - (d13y + d3by)
+
+        pads =
+            pin1:
+                desc: {pin: 1, dia, drill}
+                position: 
+                    x: dl1x 
+                    y: dt1y
+            pin2:
+                desc: {pin: 2, dia, drill}
+                position: 
+                    x: dl1x + d13x - d23x 
+                    y: dt1y + d13y - d23y
+            pin3:
+                desc: {pin: 3, dia, drill}
+                position: 
+                    x: dl1x + d13x 
+                    y: dt1y + d13y
+
+        border =
+            body:
+                width: body-length
+                height: body-height
+                centered: no
+
+            screw:
+                width: 0.8mm
+                height: 2.4mm
+                centered: no
+                offset-x:~ -> border.body.width
+                offset-y:~ -> border.body.height/2 - @height/2
+                
+        for i, pad of pads
+            # initialize @iface
+            @iface[pad.desc.pin] = pad.desc.label
+
+            # create Pad objects
+            new Pad ({parent: this} <<< pad.desc)
+                ..pos-x += pad.position.x
+                ..pos-y += pad.position.y
+
+        for name, data of border
+            @make-border {border: data}
+
+        # We assumed to view from top. However, all 
+        # dimensions were defined from bottom. 
+        @mirror!
+
+new Trimpot_Bourns_3006P!
+```
+
+![image](https://user-images.githubusercontent.com/6639874/104927460-82e49000-59b2-11eb-8f53-896cbe209fcb.png)
+
 
