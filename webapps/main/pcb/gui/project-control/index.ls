@@ -225,27 +225,25 @@ export init = (pcb) ->
             try 
                 project-name = file.basename.split('.')[0]
                 console.log "project name is: ", project-name
+                pcb.history.commit!
+                pcb.clear-canvas!
+
                 b = new SignalBranch
                 zip <~ jszip.loadAsync(file.blob).then
-
                 if Boolean(zip.file("#{project-name}/pcb.json"))
                     pfx = "#{project-name}/"
                 else 
                     pfx = ""
 
-
                 # import drawing 
                 signal = b.add!
                 zip.file("#{pfx}pcb.json").async("string").then (contents) ~> 
-                    <~ @fire \activateLayer, ctx, "pcb"
-                    for pcb.project.layers
-                        switch ..name
-                        | "pcb", null => ..clear!
                     err <~ pcb.import contents, do
                         format: "json"
                         name: "pcb"
-
+                    <~ pcb.ractive.fire \activateLayer, ctx, "pcb"
                     signal.go err
+
                 get-filename = (f) -> 
                     x = f.split('/').pop()
                     x.substr(0, x.lastIndexOf('.'))
@@ -267,7 +265,6 @@ export init = (pcb) ->
                             drawingLs[get-filename(file)] = contents 
                             signal.go!
                 <~ b.joined
-
                 # Assign relevant objects
                 pcb.ractive.set 'project.name', project-name
                 pcb.ractive.set \drawingLs, drawingLs
