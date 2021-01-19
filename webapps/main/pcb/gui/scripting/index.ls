@@ -9,6 +9,10 @@ require! '../../kernel': {PaperDraw}
 require! '../../tools/lib/schema/tests': {schema-tests}
 require! 'diff': jsDiff
 require! 'mathjs'
+require! 'jszip'
+
+get-filename = (f) -> f.substr(0, f.lastIndexOf('.'))
+get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
 
 {text2arr} = tool-lib
 {keys, values, map, filter, find} = prelude-ls
@@ -250,46 +254,73 @@ export init = (pcb) ->
                         text: \Cancel
                         color: \green
                         icon: \remove
+                    everything:
+                        text: \Everything
+                        color: \violet
+                        icon: \danger 
 
             if action in [\hidden, \cancel]
                 console.log "Cancelled."
                 return
 
-            @set 'scriptName', null # remove selected script first
-            @delete 'drawingLs', script-name
+            avail = Object.keys(@get 'drawingLs')
+            script-pos = avail.index-of script-name
+            next-script = avail[if script-pos > 0 then script-pos - 1 else 1]
+
+            # select next script
+            @set \editorContent, ''
+            if action is \everything
+                @set \scriptName, ''
+                @set \drawingLs, {}
+            else 
+                @set \scriptName, next-script
+                @delete 'drawingLs', script-name
+
             console.warn "Deleted #{script-name}..."
 
-        downloadScripts: (ctx) ->
-            scripts = @get \drawingLs
-            content = CSON.stringify(scripts, null, 2)
-            # workaround: we are not able to include JSON (or CSON) files with Browserify
-            # directly require by:
-            # require! './path/to/scripts'
-            # console.log scripts
-            content = "export {\n#{content}\n}"
-            create-download 'scripts.ls', content
+        downloadScripts: (ctx) ->            
+            # workaround: to include JSON (or CSON) files with Browserify
+            #content = "export {\n#{content}\n}"
             
-        uploadScripts: (ctx, file, next) ->
+            zip = new jszip! 
+            for name, content of @get('drawingLs')
+                if not name
+                    console.log "Skipping hidden file"
+                    continue
+                zip.file "#{name}.ls", content
+
+            content <~ zip.generateAsync({type: "blob"}).then
+            create-download "scripts.zip", content
+            
+        uploadScripts: (ctx, file, cb) ->
             try 
-                try
-                    uploaded = CSON.parse file.raw
-                catch
-                    # remove `export {` and `}` parts and retry
-                    contents = file.raw.split '\n'
-                    uploaded = CSON.parse contents.splice(1, contents.length - 2).join '\n'
-                    
-                scripts = @get \drawingLs
-                console.log "Dumping current scripts as a backup:"
-                console.log CSON.stringify(scripts)
-                PNotify.info text: "Current scripts are dumped into the console just in case"
-                scripts `merge` uploaded
-                @set \drawingLs, scripts 
-                next!
+                zip <~ jszip.loadAsync(file.blob).then
+
+                # backup current files 
+                backup-key = "drawingLsBackup"
+                @set backup-key, JSON.parse JSON.stringify (@get \drawingLs)
+                PNotify.info text: "Current scripts are backed up in Ractive.#{backup-key}."
+
+                for let file, prop of zip.files
+
+                    if prop.dir 
+                        console.log "Directory entry, skipping:", prop.name
+                    else if prop.name.starts-with '.'
+                        console.log "Skipping hidden file"
+                    else
+                        console.log "Unpacking #{file}..."
+                        contents <~ zip.file(file).async("string").then
+                        @get("drawingLs")[get-filename(file)] = contents 
+                        console.log "...unpacked #{file}"
+
+                <~ sleep 100
+                console.log "Drawing ls is: ", @get \drawingLs
+                return cb(null)
             catch err
                 @get \vlog .error do
                     title: 'Import Error'
                     message: err.to-string!
-                next err.to-string!
+                cb(err.to-string!)
 
         restart-diff: (ctx) ->
             action <~ @get \vlog .yesno do

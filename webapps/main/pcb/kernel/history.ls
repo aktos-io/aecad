@@ -80,40 +80,8 @@ export class History
         @ractive.set \scriptHashes, null
 
     load-scripts: (saved) ->
-        orig = @ractive.get \drawingLs
-        curr-orig-h = @ractive.get \scriptHashes
-        prev-orig-h = (@db.get \scriptHashes) or {}
-        saved-h = do ->
-            x = {}
-            for n, c of saved
-                x[n] = hash(c)
-            return x
-
-        updated-scripts = values(curr-orig-h) `difference` values(prev-orig-h)
-        name-of-hash = (x) ->
-            for name, h of curr-orig-h
-                return name if h is x
-
-        _names = []
-        for h in updated-scripts
-            name = name-of-hash h
-            if h in values(saved-h)
-                console.log "We already have this, skipping: ", name
-                continue
-
-            @ractive.set "drawingLsUpdates.#{Ractive.escapeKey name}", do
-                remote: orig[name]
-                current: saved[name]
-
-            _names.push name
-        unless empty _names
-            PNotify.notice hide: yes, text: """
-                Script update:
-                -----------------------
-                #{_names.map (-> "* #{it}\n")}
-                """
         @ractive.set \drawingLs, saved
-        #console.log "loaded scripts: ", data
+        #console.log "loaded scripts: ", saved
 
     save: (cb) ->
         # Save history into browser's local storage
