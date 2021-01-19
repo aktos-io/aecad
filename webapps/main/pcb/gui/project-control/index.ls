@@ -227,6 +227,8 @@ export init = (pcb) ->
                 console.log "project name is: ", project-name
                 pcb.history.commit!
                 pcb.clear-canvas!
+                pcb.ractive.set \editorContent, ""
+                pcb.ractive.set \scriptName, null
 
                 b = new SignalBranch
                 zip <~ jszip.loadAsync(file.blob).then
