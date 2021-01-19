@@ -24,6 +24,12 @@
             btn.icon.green.label(on-click="['downloadProject', project.name]")
                 icon.download Save Project
 
+        file-button.icon(
+            on-read="uploadProject" 
+            tooltip="Open existing project"
+            type="binary")
+            icon.folder.open 
+
     .item
         ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
 
@@ -42,7 +48,7 @@
         btn.green(
             on-click="runTests"
             tooltip="Run Tests"
-            ): icon.stethoscope
+            ): icon.checkmark
             
     .right.item
         .ui.button.basic.mini.pink

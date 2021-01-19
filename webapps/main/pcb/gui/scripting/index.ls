@@ -9,6 +9,8 @@ require! '../../kernel': {PaperDraw}
 require! 'diff': jsDiff
 require! 'mathjs'
 require! 'jszip'
+require! 'dcs/browser': {SignalBranch}
+
 
 get-filename = (f) -> f.substr(0, f.lastIndexOf('.'))
 get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
@@ -271,36 +273,27 @@ export init = (pcb) ->
             
             zip = new jszip! 
             for name, content of @get('drawingLs')
-                if not name
-                    console.log "Skipping hidden file"
-                    continue
                 zip.file "#{name}.ls", content
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download "scripts.zip", content
             
         uploadScripts: (ctx, file, cb) ->
-            try 
+            try
+                b = new SignalBranch
                 zip <~ jszip.loadAsync(file.blob).then
-
-                # backup current files 
-                backup-key = "drawingLsBackup"
-                @set backup-key, JSON.parse JSON.stringify (@get \drawingLs)
-                PNotify.info text: "Current scripts are backed up in Ractive.#{backup-key}."
-
                 for let file, prop of zip.files
-
                     if prop.dir 
                         console.log "Directory entry, skipping:", prop.name
                     else if prop.name.starts-with '.'
                         console.log "Skipping hidden file"
                     else
                         console.log "Unpacking #{file}..."
+                        s = b.add!
                         contents <~ zip.file(file).async("string").then
                         @get("drawingLs")[get-filename(file)] = contents 
-                        console.log "...unpacked #{file}"
-
-                <~ sleep 100
+                        s.go!
+                <~ b.joined
                 # select the first script (TODO: don't change if new scripts include
                 # a script with a same name as selected script)
                 @set \scriptName, n=(Object.keys @get("drawingLs") .0)

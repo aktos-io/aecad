@@ -192,15 +192,6 @@ export init = (pcb) ->
                 return 
 
             <~ set-immediate
-            # Get scripts 
-            scripts = pcb.ractive.get \drawingLs
-            content = CSON.stringify(scripts, null, 2)
-            # workaround: we are not able to include JSON (or CSON) files with Browserify
-            # directly require by:
-            # require! './path/to/scripts'
-            # console.log scripts
-            files.push ["scripts.ls", "export {\n#{content}\n}"]
-
             # README 
             files.push ["README.md", JSON.stringify require('app-version.json')]
 
@@ -208,6 +199,11 @@ export init = (pcb) ->
             zip = new jszip! 
             for [name, content] in files 
                 zip.file name, content 
+
+            # Save scripts 
+            scripts = zip.folder "scripts"
+            for name, content of (pcb.ractive.get \drawingLs)
+                scripts.file "#{name}.ls", content
 
             # Create Gerber 
             gerb = new GerberReducer
@@ -224,6 +220,58 @@ export init = (pcb) ->
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content
+
+        uploadProject: (ctx, file, cb) ->
+            try 
+                project-name = file.basename.split('.')[0]
+                console.log "project name is: ", project-name
+                b = new SignalBranch
+                zip <~ jszip.loadAsync(file.blob).then
+
+                # import drawing 
+                signal = b.add!
+                zip.file("pcb.json").async("string").then (contents) ~> 
+                    <~ @fire \activateLayer, ctx, "pcb"
+                    for pcb.project.layers
+                        switch ..name
+                        | "pcb", null => ..clear!
+                    err <~ pcb.import contents, do
+                        format: "json"
+                        name: "pcb"
+
+                    signal.go err
+                get-filename = (f) -> 
+                    x = f.split('/').pop()
+                    x.substr(0, x.lastIndexOf('.'))
+
+                # import scripts
+                drawingLs = {}    # remove everything
+                for let file, prop of zip.files
+                    if prop.dir 
+                        console.log "Directory entry, skipping:", prop.name
+                    else if prop.name.starts-with '.'
+                        console.log "Skipping hidden file"
+                    else
+                        console.log "Unpacking #{file}..."
+                        if file.starts-with "scripts/"
+                            signal = b.add!
+                            contents <~ zip.file(file).async("string").then
+                            drawingLs[get-filename(file)] = contents 
+                            signal.go!
+                <~ b.joined
+
+                # Assign relevant objects
+                pcb.ractive.set 'project.name', project-name
+                pcb.ractive.set \drawingLs, drawingLs
+                pcb.ractive.set \scriptName, project-name
+
+                return cb(null)
+            catch err
+                @get \vlog .error do
+                    title: 'Import Error'
+                    message: err.to-string!
+                cb(err.to-string!)
+
     
         import: (ctx, file, next) ->
             # Create a layer with file name and send the contents into this layer
