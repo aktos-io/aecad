@@ -1,0 +1,13 @@
+#!/bin/bash
+set -u
+project=$1
+filename="${project%/}.new.zip"
+
+if [[ -f $filename ]]; then
+    echo "Removing previous $filename"
+    rm $filename
+fi
+
+cd $project && zip "../$filename" ./*
+
+echo "Saved as: $filename"

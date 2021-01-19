@@ -1,0 +1,13 @@
+#!/bin/bash
+for fullname in $(ls *.zip 2> /dev/null); do
+    if [[ $fullname == *.new.zip ]]; then
+        echo "Skipping newly packed file: $fullname"
+        continue
+    fi
+    filename="${fullname%.*}"
+    echo "Filename: $filename"
+    [[ -d "$filename" ]] && rm -r "$filename"
+    unzip $fullname -d $filename > /dev/null && rm "$fullname"
+    echo "Deleted $fullname"
+    notify-send "aeCAD Extract" "\"$filename\" is extracted."
+done
