@@ -228,9 +228,15 @@ export init = (pcb) ->
                 b = new SignalBranch
                 zip <~ jszip.loadAsync(file.blob).then
 
+                if Boolean(zip.file("#{project-name}/pcb.json"))
+                    pfx = "#{project-name}/"
+                else 
+                    pfx = ""
+
+
                 # import drawing 
                 signal = b.add!
-                zip.file("pcb.json").async("string").then (contents) ~> 
+                zip.file("#{pfx}pcb.json").async("string").then (contents) ~> 
                     <~ @fire \activateLayer, ctx, "pcb"
                     for pcb.project.layers
                         switch ..name
@@ -251,9 +257,11 @@ export init = (pcb) ->
                         console.log "Directory entry, skipping:", prop.name
                     else if prop.name.starts-with '.'
                         console.log "Skipping hidden file"
+                    else if get-filename(file).trim() is ""
+                        console.warn "SKIPPING EMPTY FILENAME"
                     else
-                        console.log "Unpacking #{file}..."
-                        if file.starts-with "scripts/"
+                        if file.starts-with "#{pfx}scripts/" 
+                            console.log "Unpacking #{file}..."
                             signal = b.add!
                             contents <~ zip.file(file).async("string").then
                             drawingLs[get-filename(file)] = contents 
