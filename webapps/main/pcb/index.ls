@@ -1,6 +1,5 @@
 require! 'aea': {VLogger, hash}
 require! './kernel': {PaperDraw}
-require! './footprints/scripts'
 
 Ractive.components['pcb'] = Ractive.extend do
     template: require('./index.pug')
@@ -49,13 +48,8 @@ Ractive.components['pcb'] = Ractive.extend do
         autoCompile: no
         selectAllLayer: no
         selectGroup: yes
-        drawingLs: scripts
-        scriptName: 'schematic-test'
-        scriptHashes: do ->
-            s = {}
-            for k, v of scripts
-                s[k] = hash v
-            return s
+        drawingLs: {}
+        scriptName: ''
         layers:
             'F.Cu':
                 color: 'red'

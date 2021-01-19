@@ -4,7 +4,7 @@ require! 'aea': {create-download, ext}
 require! 'dcs/browser': {SignalBranch}
 require! 'jszip'
 require! '../../kernel/gerber-plotter': {GerberReducer}
-
+require! '../../tools/lib/schema/tests': {schema-tests}
 
 
 export init = (pcb) ->
@@ -43,6 +43,18 @@ export init = (pcb) ->
 
 
     handlers =
+        runTests: (ctx) -> 
+            schema-tests (err) ->
+                unless err
+                    PNotify.success text: "All schema tests are passed."
+                else
+                    PNotify.error hide: no, text: """
+                        Failed Schema test: #{err.test-name}
+
+                        #{err.message or 'Check console'}
+                        """
+                    console.error err
+           
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do
                 title: 'Filename'

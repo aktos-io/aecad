@@ -6,7 +6,6 @@ require! 'aea': {create-download, merge}
 require! 'aea/do-math': {mm2px}
 require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
-require! '../../tools/lib/schema/tests': {schema-tests}
 require! 'diff': jsDiff
 require! 'mathjs'
 require! 'jszip'
@@ -131,18 +130,6 @@ export init = (pcb) ->
 
     # Register all classes on app load
     runScript '# placeholder content', {-clear, name: 'Initialization run', +silent}
-
-    # perform tests
-    schema-tests (err) ->
-        unless err
-            PNotify.success text: "All schema tests are passed."
-        else
-            PNotify.error hide: no, text: """
-                Failed Schema test: #{err.test-name}
-
-                #{err.message or 'Check console'}
-                """
-            console.error err
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile
@@ -270,7 +257,7 @@ export init = (pcb) ->
             # select next script
             @set \editorContent, ''
             if action is \everything
-                @set \scriptName, ''
+                @set \scriptName, null
                 @set \drawingLs, {}
             else 
                 @set \scriptName, next-script
@@ -314,7 +301,11 @@ export init = (pcb) ->
                         console.log "...unpacked #{file}"
 
                 <~ sleep 100
-                console.log "Drawing ls is: ", @get \drawingLs
+                # select the first script (TODO: don't change if new scripts include
+                # a script with a same name as selected script)
+                @set \scriptName, n=(Object.keys @get("drawingLs") .0)
+                @set \drawingLs, @get \drawingLs
+                console.log "Setting scriptName as #{n}"
                 return cb(null)
             catch err
                 @get \vlog .error do
