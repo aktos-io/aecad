@@ -115,8 +115,8 @@ export class Pad extends ComponentBase
         (val) -> @position.y = (val |> mm2px)
 
     finish: !->
-        @ttip.content = @label 
-        if @ttip.content # <= this checking is very important!
+        @ttip?.content = @label 
+        if @ttip?.content # <= this checking is very important!
             # if tooltip has no content, then calculating aspect ratio
             # becomes Not-A-Number, which in turn breaks the app
             # TODO: Fix this bug in Paper.js by checking width and height of source
