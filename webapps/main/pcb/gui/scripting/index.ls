@@ -73,7 +73,7 @@ export init = (pcb) ->
                             insert-dep that
                         else
                             debugger
-                            throw new Error "Missing dependency: #{dep}"
+                            throw new Error "Missing dependency: \"#{dep}\". Required by #{lib.name}"
 
                 unless find (.name is lib.name), ordered
                     ordered.push lib
