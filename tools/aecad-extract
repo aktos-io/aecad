@@ -1,13 +1,31 @@
 #!/bin/bash
-for fullname in $(ls *.zip 2> /dev/null); do
-    if [[ $fullname == *.new.zip ]]; then
-        echo "Skipping newly packed file: $fullname"
-        continue
+info(){
+    echo "$@"
+    notify-send "$@"
+}
+
+error(){
+    echo "ERROR: $@"
+    notify-send "$@"
+}
+
+[[ "$1" == "--force" ]] && force=true || force=false
+
+working_tree_clean(){
+    git status $1 | grep "nothing to commit, working tree clean" > /dev/null
+}
+
+for zipfile in $(ls *.zip 2> /dev/null); do
+    [[ $zipfile == *.new.zip ]] && continue
+    [[ $zipfile == *.gerber.zip ]] && continue
+    outdir="${zipfile%.*}"
+    if working_tree_clean $outdir || $force; then
+        [[ $force = true ]] && echo "Force enabled: Removing $outdir"
+        rm -r "$outdir"
+        unzip $zipfile -d $outdir > /dev/null && rm "$zipfile"
+        info "aeCAD Extract" "\"$zipfile\" is extracted."
+        echo "Deleted \"$zipfile\""
+    else
+        error "aeCAD Extract ERROR!" "\"$outdir\" has unsaved work. Not extracting."
     fi
-    filename="${fullname%.*}"
-    echo "Filename: $filename"
-    [[ -d "$filename" ]] && rm -r "$filename"
-    unzip $fullname -d $filename > /dev/null && rm "$fullname"
-    echo "Deleted $fullname"
-    notify-send "aeCAD Extract" "\"$filename\" is extracted."
 done
