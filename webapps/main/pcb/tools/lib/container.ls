@@ -39,7 +39,7 @@ export class Container extends ComponentBase
         scale-factor = switch @get-data \symmetryAxis
         | 'x' => [-1, 1]
         |_ => [1, -1]
-        console.log "scale factor is: ", scale-factor
+        #console.log "scale factor is: ", scale-factor
         @g.scale ...scale-factor
         x = @g.bounds.center
         rotation = @get-data('rotation') or 0
@@ -48,7 +48,7 @@ export class Container extends ComponentBase
         for @pads
             ..mirrored? scale-factor, rotation
 
-    bounds:~
+    mbounds:~ # bounds, metric
         -> 
             {x, y, width, height} = @g.bounds
             return {
