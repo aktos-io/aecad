@@ -70,6 +70,8 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 if aeobj=(selected.aeobj)
                     #console.log "selected item's data: ", aeobj.data
                     #console.log "selected item's owner's data: ", aeobj.owner.data
+                    unless "userDefined" of aeobj.data
+                        aeobj.data.userDefined = ""
                     @ractive.set \aecadData, aeobj.data
                     observer := @ractive.observe \aecadData, (_new, _old) ~> 
                         aeobj.finish?!

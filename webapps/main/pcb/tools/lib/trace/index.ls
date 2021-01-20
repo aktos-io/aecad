@@ -89,9 +89,11 @@ export class Trace extends Container implements follow, helpers, end
                     |> Math.round
                     |> (/ 10)
 
+            userDefined = (try CSON.parse @data["userDefined"])
+
             for path in @paths
                 #if path.data.aecad.side not in layers
-                [side2, layer] = path.data.aecad.side.split '.'
+                [side2, layer] = path.data.aecad.side.split '.' # eg. ["F", "Cu"]
                 stroke-width = gerb-stroke-width path
 
                 vertex = path.getFirstSegment()
@@ -116,6 +118,14 @@ export class Trace extends Container implements follow, helpers, end
                     layer: layer 
                     side: side2
                     gerber: gerb.join('\n')
+
+                if userDefined?unmask
+                    # Remove the soldermask
+                    console.log "Removing soldermask of: ", this
+                    @gerber-reducer.append do
+                        layer: "Mask" 
+                        side: side2
+                        gerber: gerb.join('\n')
 
 
     print-mode: ({layers, trace-color}) ->
