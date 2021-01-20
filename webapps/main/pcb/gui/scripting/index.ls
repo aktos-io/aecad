@@ -3,7 +3,7 @@ require! 'dcs/lib': lib
 require! 'livescript': lsc
 require! 'prelude-ls'
 require! 'aea': {create-download, merge}
-require! 'aea/do-math': {mm2px}
+require! 'aea/do-math': {mm2px, px2mm}
 require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
 require! 'diff': jsDiff
@@ -20,7 +20,7 @@ get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
 
 export init = (pcb) ->
     # Modules to be included into dynamic scripts
-    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on, mathjs}
+    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on, mathjs, px2mm}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
