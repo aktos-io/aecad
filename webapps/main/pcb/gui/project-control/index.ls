@@ -152,6 +152,50 @@ export init = (pcb) ->
                 </svg>
                 """]
 
+            # Generate Gerbv project files for more visual inspection
+            # Usage: gerbv -p file.gvp
+            gen-gvp = (layers={}) -> 
+                '''
+                (gerbv-file-version! "2.0A")
+                (define-layer! 5 (cons 'filename "gerber/'''+layers.cu+'''")
+                    (cons 'visible #t)
+                    (cons 'color #(65535 65535 65535))
+                    (cons 'alpha #(51400))
+                )
+                (define-layer! 4 (cons 'filename "gerber/'''+layers.mask+'''")
+                    (cons 'inverted #t)
+                    (cons 'visible #t)
+                    (cons 'color #(34983 0 428))
+                    (cons 'alpha #(54741))
+                )
+                (define-layer! 3 (cons 'filename "gerber/Cut.Edge.GKO")
+                    (cons 'visible #t)
+                    (cons 'color #(65535 40745 0))
+                )
+                (define-layer! 0 (cons 'filename "gerber/drill.XLN")
+                    (cons 'visible #t)
+                    (cons 'color #(0 0 0))
+                    (cons 'attribs (list
+                        (list 'autodetect 'Boolean 1)
+                        (list 'zero_suppression 'Enum 1)
+                        (list 'units 'Enum 1)
+                        (list 'digits 'Integer 3)
+                    ))
+                )
+                (set-render-type! 3)
+                '''
+
+            sides = 
+                front: 
+                    cu: "F.Cu.GTL"
+                    mask: "F.Mask.GTS"
+                back: 
+                    cu: "B.Cu.GBL"
+                    mask: "B.Mask.GBS"
+
+            for side, f of sides
+                files.push ["gerber-#{side}.gvp", gen-gvp(f)]
+      
             # Testing
             testing = "1_Testing"
             err, res <~ prototypePrint {side: "F.Cu, Edge"}
