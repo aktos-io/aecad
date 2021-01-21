@@ -73,14 +73,18 @@ export class Footprint extends Container
                     radius: 0.3
 
             center = @g.bounds.center
-            pos = {x: 0, y: 0}
             if (typeof! opts.centered is \Boolean) and not opts.centered
                 if type is \Rectangle
                     pos = 
                         x: dimensions.size.x/2
                         y: dimensions.size.y/2
                 else
-                    throw new Error "What?"
+                    pos: {x:0, y: 0}
+            else
+                # centered 
+                pos = {x: center.x, y: center.y}
+
+
 
             if opts.offset-x?
                 pos.x += that |> mm2px

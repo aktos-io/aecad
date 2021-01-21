@@ -2,6 +2,8 @@ require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! './get-aecad': {get-aecad}
 require! 'prelude-ls': {find}
+require! 'aea/do-math': {mm2px, px2mm}
+
 
 export class Container extends ComponentBase
     color: ~
@@ -37,7 +39,7 @@ export class Container extends ComponentBase
         scale-factor = switch @get-data \symmetryAxis
         | 'x' => [-1, 1]
         |_ => [1, -1]
-        console.log "scale factor is: ", scale-factor
+        #console.log "scale factor is: ", scale-factor
         @g.scale ...scale-factor
         x = @g.bounds.center
         rotation = @get-data('rotation') or 0
@@ -45,6 +47,16 @@ export class Container extends ComponentBase
         @g.bounds.center = x  # this is interesting, I'd expect no need for this
         for @pads
             ..mirrored? scale-factor, rotation
+
+    mbounds:~ # bounds, metric
+        -> 
+            {x, y, width, height} = @g.bounds
+            return {
+                x, 
+                y,
+                width: width |> px2mm 
+                height: height |> px2mm
+            }
 
     mirrored: !->
         # send mirror signal to children

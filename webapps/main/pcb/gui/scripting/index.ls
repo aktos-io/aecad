@@ -3,19 +3,24 @@ require! 'dcs/lib': lib
 require! 'livescript': lsc
 require! 'prelude-ls'
 require! 'aea': {create-download, merge}
-require! 'aea/do-math': {mm2px}
+require! 'aea/do-math': {mm2px, px2mm}
 require! '../../tools/lib': tool-lib
 require! '../../kernel': {PaperDraw}
-require! '../../tools/lib/schema/tests': {schema-tests}
 require! 'diff': jsDiff
 require! 'mathjs'
+require! 'jszip'
+require! 'dcs/browser': {SignalBranch}
+
+
+get-filename = (f) -> f.substr(0, f.lastIndexOf('.'))
+get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
 
 {text2arr} = tool-lib
 {keys, values, map, filter, find} = prelude-ls
 
 export init = (pcb) ->
     # Modules to be included into dynamic scripts
-    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on, mathjs}
+    modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on, mathjs, px2mm}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
@@ -68,7 +73,7 @@ export init = (pcb) ->
                             insert-dep that
                         else
                             debugger
-                            throw new Error "Missing dependency: #{dep}"
+                            throw new Error "Missing dependency: \"#{dep}\". Required by #{lib.name}"
 
                 unless find (.name is lib.name), ordered
                     ordered.push lib
@@ -127,18 +132,6 @@ export init = (pcb) ->
 
     # Register all classes on app load
     runScript '# placeholder content', {-clear, name: 'Initialization run', +silent}
-
-    # perform tests
-    schema-tests (err) ->
-        unless err
-            PNotify.success text: "All schema tests are passed."
-        else
-            PNotify.error hide: no, text: """
-                Failed Schema test: #{err.test-name}
-
-                #{err.message or 'Check console'}
-                """
-            console.error err
 
     h = @observe \editorContent, ((_new) ~>
         if @get \autoCompile
@@ -250,46 +243,68 @@ export init = (pcb) ->
                         text: \Cancel
                         color: \green
                         icon: \remove
+                    everything:
+                        text: \Everything
+                        color: \violet
+                        icon: \danger 
 
             if action in [\hidden, \cancel]
                 console.log "Cancelled."
                 return
 
-            @set 'scriptName', null # remove selected script first
-            @delete 'drawingLs', script-name
+            avail = Object.keys(@get 'drawingLs')
+            script-pos = avail.index-of script-name
+            next-script = avail[if script-pos > 0 then script-pos - 1 else 1]
+
+            # select next script
+            @set \editorContent, ''
+            if action is \everything
+                @set \scriptName, null
+                @set \drawingLs, {}
+            else 
+                @set \scriptName, next-script
+                @delete 'drawingLs', script-name
+
             console.warn "Deleted #{script-name}..."
 
-        downloadScripts: (ctx) ->
-            scripts = @get \drawingLs
-            content = CSON.stringify(scripts, null, 2)
-            # workaround: we are not able to include JSON (or CSON) files with Browserify
-            # directly require by:
-            # require! './path/to/scripts'
-            # console.log scripts
-            content = "export {\n#{content}\n}"
-            create-download 'scripts.ls', content
+        downloadScripts: (ctx) ->            
+            # workaround: to include JSON (or CSON) files with Browserify
+            #content = "export {\n#{content}\n}"
             
-        uploadScripts: (ctx, file, next) ->
-            try 
-                try
-                    uploaded = CSON.parse file.raw
-                catch
-                    # remove `export {` and `}` parts and retry
-                    contents = file.raw.split '\n'
-                    uploaded = CSON.parse contents.splice(1, contents.length - 2).join '\n'
-                    
-                scripts = @get \drawingLs
-                console.log "Dumping current scripts as a backup:"
-                console.log CSON.stringify(scripts)
-                PNotify.info text: "Current scripts are dumped into the console just in case"
-                scripts `merge` uploaded
-                @set \drawingLs, scripts 
-                next!
+            zip = new jszip! 
+            for name, content of @get('drawingLs')
+                zip.file "#{name}.ls", content
+
+            content <~ zip.generateAsync({type: "blob"}).then
+            create-download "scripts.zip", content
+            
+        uploadScripts: (ctx, file, cb) ->
+            try
+                b = new SignalBranch
+                zip <~ jszip.loadAsync(file.blob).then
+                for let file, prop of zip.files
+                    if prop.dir 
+                        console.log "Directory entry, skipping:", prop.name
+                    else if prop.name.starts-with '.'
+                        console.log "Skipping hidden file"
+                    else
+                        console.log "Unpacking #{file}..."
+                        s = b.add!
+                        contents <~ zip.file(file).async("string").then
+                        @get("drawingLs")[get-filename(file)] = contents 
+                        s.go!
+                <~ b.joined
+                # select the first script (TODO: don't change if new scripts include
+                # a script with a same name as selected script)
+                @set \scriptName, n=(Object.keys @get("drawingLs") .0)
+                @set \drawingLs, @get \drawingLs
+                console.log "Setting scriptName as #{n}"
+                return cb(null)
             catch err
                 @get \vlog .error do
                     title: 'Import Error'
                     message: err.to-string!
-                next err.to-string!
+                cb(err.to-string!)
 
         restart-diff: (ctx) ->
             action <~ @get \vlog .yesno do

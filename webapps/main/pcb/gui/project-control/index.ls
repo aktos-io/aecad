@@ -4,7 +4,8 @@ require! 'aea': {create-download, ext}
 require! 'dcs/browser': {SignalBranch}
 require! 'jszip'
 require! '../../kernel/gerber-plotter': {GerberReducer}
-
+require! '../../tools/lib/schema/tests': {schema-tests}
+require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
 
 export init = (pcb) ->
@@ -43,6 +44,18 @@ export init = (pcb) ->
 
 
     handlers =
+        runTests: (ctx) -> 
+            schema-tests (err) ->
+                unless err
+                    PNotify.success text: "All schema tests are passed."
+                else
+                    PNotify.error hide: no, text: """
+                        Failed Schema test: #{err.test-name}
+
+                        #{err.message or 'Check console'}
+                        """
+                    console.error err
+           
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do
                 title: 'Filename'
@@ -140,6 +153,57 @@ export init = (pcb) ->
                 </svg>
                 """]
 
+            # Generate Gerbv project files for more visual inspection
+            # Usage: gerbv -p file.gvp
+            gen-gvp = (layers={}) -> 
+                '''
+                (gerbv-file-version! "2.0A")
+                (define-layer! 5 (cons 'filename "gerber/'''+layers.cu+'''")
+                    (cons 'visible #t)
+                    (cons 'color #(65535 65535 65535))
+                    (cons 'alpha #(51400))
+                )
+                (define-layer! 4 (cons 'filename "gerber/'''+layers.mask+'''")
+                    (cons 'inverted #t)
+                    (cons 'visible #t)
+                    (cons 'color #(34983 0 428))
+                    (cons 'alpha #(54741))
+                )
+                (define-layer! 3 (cons 'filename "gerber/Cut.Edge.GKO")
+                    (cons 'visible #t)
+                    (cons 'color #(65535 40745 0))
+                )
+                (define-layer! 0 (cons 'filename "gerber/drill.XLN")
+                    (cons 'visible #t)
+                    (cons 'color #(0 0 0))
+                    (cons 'attribs (list
+                        (list 'autodetect 'Boolean 1)
+                        (list 'zero_suppression 'Enum 1)
+                        (list 'units 'Enum 1)
+                        (list 'digits 'Integer 3)
+                    ))
+                )
+                (set-render-type! 3)
+                '''
+
+            sides = 
+                front: 
+                    cu: "F.Cu.GTL"
+                    mask: "F.Mask.GTS"
+                back: 
+                    cu: "B.Cu.GBL"
+                    mask: "B.Mask.GBS"
+
+            for side, f of sides
+                files.push ["gerber-#{side}.gvp", gen-gvp(f)]
+
+            # BoM            
+            schema = (new SchemaManager).active
+            bom-list = ""
+            for schema.get-bom-list!
+                bom-list += "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]\n"
+            files.push ["BOM.txt", bom-list]
+
             # Testing
             testing = "1_Testing"
             err, res <~ prototypePrint {side: "F.Cu, Edge"}
@@ -180,15 +244,6 @@ export init = (pcb) ->
                 return 
 
             <~ set-immediate
-            # Get scripts 
-            scripts = pcb.ractive.get \drawingLs
-            content = CSON.stringify(scripts, null, 2)
-            # workaround: we are not able to include JSON (or CSON) files with Browserify
-            # directly require by:
-            # require! './path/to/scripts'
-            # console.log scripts
-            files.push ["scripts.ls", "export {\n#{content}\n}"]
-
             # README 
             files.push ["README.md", JSON.stringify require('app-version.json')]
 
@@ -196,6 +251,11 @@ export init = (pcb) ->
             zip = new jszip! 
             for [name, content] in files 
                 zip.file name, content 
+
+            # Save scripts 
+            scripts = zip.folder "scripts"
+            for name, content of (pcb.ractive.get \drawingLs)
+                scripts.file "#{name}.ls", content
 
             # Create Gerber 
             gerb = new GerberReducer
@@ -212,6 +272,65 @@ export init = (pcb) ->
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download output-name, content
+
+        uploadProject: (ctx, file, cb) ->
+            try 
+                project-name = file.basename.split('.')[0]
+                console.log "project name is: ", project-name
+                pcb.history.commit!
+                pcb.clear-canvas!
+                pcb.ractive.set \editorContent, ""
+                pcb.ractive.set \scriptName, null
+
+                b = new SignalBranch
+                zip <~ jszip.loadAsync(file.blob).then
+                if Boolean(zip.file("#{project-name}/pcb.json"))
+                    pfx = "#{project-name}/"
+                else 
+                    pfx = ""
+
+                # import drawing 
+                signal = b.add!
+                zip.file("#{pfx}pcb.json").async("string").then (contents) ~> 
+                    err <~ pcb.import contents, do
+                        format: "json"
+                        name: "pcb"
+                    <~ pcb.ractive.fire \activateLayer, ctx, "pcb"
+                    signal.go err
+
+                get-filename = (f) -> 
+                    x = f.split('/').pop()
+                    x.substr(0, x.lastIndexOf('.'))
+
+                # import scripts
+                drawingLs = {}    # remove everything
+                for let file, prop of zip.files
+                    if prop.dir 
+                        console.log "Directory entry, skipping:", prop.name
+                    else if prop.name.starts-with '.'
+                        console.log "Skipping hidden file"
+                    else if get-filename(file).trim() is ""
+                        console.warn "SKIPPING EMPTY FILENAME"
+                    else
+                        if file.starts-with "#{pfx}scripts/" 
+                            console.log "Unpacking #{file}..."
+                            signal = b.add!
+                            contents <~ zip.file(file).async("string").then
+                            drawingLs[get-filename(file)] = contents 
+                            signal.go!
+                <~ b.joined
+                # Assign relevant objects
+                pcb.ractive.set 'project.name', project-name
+                pcb.ractive.set \drawingLs, drawingLs
+                pcb.ractive.set \scriptName, project-name
+
+                return cb(null)
+            catch err
+                @get \vlog .error do
+                    title: 'Import Error'
+                    message: err.to-string!
+                cb(err.to-string!)
+
     
         import: (ctx, file, next) ->
             # Create a layer with file name and send the contents into this layer

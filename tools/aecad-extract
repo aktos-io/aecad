@@ -1,0 +1,31 @@
+#!/bin/bash
+info(){
+    echo "$@"
+    notify-send "$@"
+}
+
+error(){
+    echo "ERROR: $@"
+    notify-send "$@"
+}
+
+[[ "$1" == "--force" ]] && force=true || force=false
+
+working_tree_clean(){
+    git status $1 | grep "nothing to commit, working tree clean" > /dev/null
+}
+
+for zipfile in $(ls *.zip 2> /dev/null); do
+    [[ $zipfile == *.new.zip ]] && continue
+    [[ $zipfile == *.gerber.zip ]] && continue
+    outdir="${zipfile%.*}"
+    if working_tree_clean $outdir || $force; then
+        [[ $force = true ]] && echo "Force enabled: Removing $outdir"
+        rm -r "$outdir"
+        unzip $zipfile -d $outdir > /dev/null && rm "$zipfile"
+        info "aeCAD Extract" "\"$zipfile\" is extracted."
+        echo "Deleted \"$zipfile\""
+    else
+        error "aeCAD Extract ERROR!" "\"$outdir\" has unsaved work. Not extracting."
+    fi
+done

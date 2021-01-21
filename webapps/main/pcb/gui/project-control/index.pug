@@ -24,6 +24,12 @@
             btn.icon.green.label(on-click="['downloadProject', project.name]")
                 icon.download Save Project
 
+        file-button.icon(
+            on-read="uploadProject" 
+            tooltip="Open existing project"
+            type="binary")
+            icon.folder.open 
+
     .item
         ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
 
@@ -37,10 +43,16 @@
                 on-click="clear" 
                 tooltip="Clear project"
                 ): icon.erase
+
+    .item
+        btn.green(
+            on-click="runTests"
+            tooltip="Run Tests"
+            ): icon.checkmark
             
     .right.item
         .ui.button.basic.mini.pink
-            a.icon(href="sgw-example.json" download tooltip="Download the example project")
+            a.icon(href="https://github.com/ceremcem/sgw-example/archive/master.zip" download tooltip="Download the example project")
                 icon.download Example
     .right.item 
         btn.icon(on-click="showHelp"): icon.help Help
