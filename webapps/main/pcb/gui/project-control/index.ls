@@ -5,6 +5,7 @@ require! 'dcs/browser': {SignalBranch}
 require! 'jszip'
 require! '../../kernel/gerber-plotter': {GerberReducer}
 require! '../../tools/lib/schema/tests': {schema-tests}
+require! '../../tools/lib/schema/schema-manager': {SchemaManager}
 
 
 export init = (pcb) ->
@@ -195,7 +196,14 @@ export init = (pcb) ->
 
             for side, f of sides
                 files.push ["gerber-#{side}.gvp", gen-gvp(f)]
-      
+
+            # BoM            
+            schema = (new SchemaManager).active
+            bom-list = ""
+            for schema.get-bom-list!
+                bom-list += "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]\n"
+            files.push ["BOM.txt", bom-list]
+
             # Testing
             testing = "1_Testing"
             err, res <~ prototypePrint {side: "F.Cu, Edge"}
