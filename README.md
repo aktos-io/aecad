@@ -111,13 +111,35 @@ Pre-beta: We, as [Aktos Electronics](https://aktos.io), are using aeCAD in produ
 When we need a custom hardware, following actions must be taken in this specific order:
 
 1. Design/choose or optimize the device case/housing.
-2. Get or create the connectors' 3D designs, place them onto the housing in your preferred mechanical CAD software.
-3. PCB edge cuts, connector placements on the PCB and mechanical keep out areas should be determined by 3D design phase.
-4. Import the PCB layout in aecad/sketcher. 
-5. Place the corresponding footprints on the PCB and draw the traces.
-6. If any optimization is required (because of component collision, insufficient PCB space, etc...), go to step 1.
+2. Get or create the connectors' 3D models, place them within the housing in your preferred mechanical CAD software.
+3. PCB edge cuts, connector placements (pin holes) on the PCB and mechanical keep out areas should be determined in 3D design phase.
+4. Export the PCB layout in DXF format and import it in aeCAD. 
+5. Place the rest of the circuit components, draw the PCB.
+6. If any optimization is required (in case of component collision, insufficient PCB space, etc...), go to step 1.
 7. Produce a prototype PCB
 8. Finalize the design and create fabrication files (Gerber files etc.)
+
+# Install
+
+### Use Online 
+
+You can use aeCAD online at https://aktos.io/aecad
+
+### Use Offline
+
+You can download the files and open in your browser. 
+
+1. Download the latest release: https://github.com/aktos-io/aecad-webapp/archive/master.zip
+2. Unzip 
+3. Open the `index.html` in your browser. 
+
+### Build aeCAD
+
+See [./docs/development.md](./docs/development.md)
+
+# Usage
+
+This part is under development. I can barely find time to complete the documentation. You can start with `Help` button, on the top right corner. Then simply click to green "Compile" button (`[>]`), poke around with the example design (which can be downloaded by its link button). 
 
 # TODO
 
