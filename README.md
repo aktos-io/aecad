@@ -17,7 +17,7 @@ Basically a software to create schematics and real-world drawings for physical p
 | **Scripting support** | Create schemas and PCB layouts via Livescript and/or Javascript. 
 | **Correct Tools for Placement** | Appropriate tools to use your EDA in tandem with a mechanical CAD output for a correct approach of handling mechanical constraints (PCB geometry, bolt placements, socket placements, heatsink placements, etc.)
 | **Browser based** | Installation headache is over. Open your browser, start using. No need for active internet connection after first load.
-| **Healthy** | Shortcuts and tools are designed [Carpal Tunnel Syndrome](https://en.wikipedia.org/wiki/Carpal_tunnel_syndrome) in mind. 
+| **Healthy** | Shortcuts and tools are designed with [Carpal Tunnel Syndrome](https://en.wikipedia.org/wiki/Carpal_tunnel_syndrome) in mind. 
 
 # Status
 
