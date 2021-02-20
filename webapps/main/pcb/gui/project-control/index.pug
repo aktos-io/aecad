@@ -21,14 +21,22 @@
     .item 
         .ui.input.right.labeled
             input(value="{{project.name}}")
-            btn.icon.green.label(on-click="['downloadProject', project.name]")
-                icon.download Save Project
+            btn.icon.green.label(
+                tooltip="Save project"
+                on-click="['downloadProject', project.name]")
+                icon.download
 
         file-button.icon(
             on-read="uploadProject" 
             tooltip="Open existing project"
             type="binary")
             icon.folder.open 
+
+        //- TODO: Implement this 
+            btn.icon.red(
+                tooltip="Close project"
+                on-click="closeProject")
+                icon.folder.close
 
     .item
         ack-button.icon(on-click="undo" tooltip="Undo changes") Undo
@@ -41,7 +49,7 @@
                 ): icon.save
             btn.icon.red(
                 on-click="clear" 
-                tooltip="Clear project"
+                tooltip="Clear drawing area"
                 ): icon.erase
 
     .item

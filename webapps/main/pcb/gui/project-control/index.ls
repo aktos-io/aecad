@@ -330,7 +330,6 @@ export init = (pcb) ->
                     title: 'Import Error'
                     message: err.to-string!
                 cb(err.to-string!)
-
     
         import: (ctx, file, next) ->
             # Create a layer with file name and send the contents into this layer
