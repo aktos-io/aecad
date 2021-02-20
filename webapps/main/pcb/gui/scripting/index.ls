@@ -157,14 +157,14 @@ export init = (pcb) ->
             @set \editorContent, item.content
             h.resume!
             unless item.content
-                @get \project.layers.scripting .clear!
+                @get \project.layers.scripting ?.clear!
             progress!
 
         compileScript: (ctx) ~>
             runScript @get \editorContent
 
         clearScriptLayer: (ctx) ~>
-            @get \project.layers.scripting .clear!
+            @get \project.layers.scripting ?.clear!
 
         newScript: (ctx) ~>
             action, data <~ @get \vlog .yesno do
