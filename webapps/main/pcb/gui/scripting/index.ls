@@ -257,9 +257,9 @@ export init = (pcb) ->
             next-script = avail[if script-pos > 0 then script-pos - 1 else 1]
 
             # select next script
-            @set \editorContent, ''
             if action is \everything
                 @set \scriptName, null
+                @set \editorContent, ''
                 @set \drawingLs, {}
             else 
                 @set \scriptName, next-script
