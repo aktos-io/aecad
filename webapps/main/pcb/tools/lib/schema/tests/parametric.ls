@@ -93,8 +93,6 @@ export do
             name: 'mytest'
             prefix: 'test.'
             data: bar
-            params:
-                Q: \qux
             }
             ..compile!
 

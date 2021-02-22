@@ -75,7 +75,6 @@ export class Schema implements bom, footprints, netlist, guide
         opts:
             name: Name of schema
             prefix: *Optional* Prefix of components
-            params: Variant definition
             data: (see docs/schema-usage.md)
         '''
         unless opts
@@ -95,10 +94,6 @@ export class Schema implements bom, footprints, netlist, guide
 
         @prefix = opts.prefix or ''
         @parent = opts.parent
-        parent-params = parse-params(opts.params)
-        self-params = parse-params(opts.data.params)
-        @params = {} `merge` self-params `merge` parent-params
-        #console.log "Schema: #{@prefix}, pparams: ", parent-params, "sparams:", self-params, "merged:", @params
         @scope = new PaperDraw
         @manager = new SchemaManager
             ..register this

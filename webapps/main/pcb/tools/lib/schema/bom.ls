@@ -26,17 +26,6 @@ export do
                 schema-data = null 
 
             for params, names of instances
-                # Handle params here 
-                # "params" are mostly "value"s of instances, such as "10nF" or "3kohm"
-                # However, "params" maybe real parameters in the form of "key:value|key2:value2"
-
-                merged-params = if /:/.exec params 
-                    # this is key:value parameters
-                    (clone @params) `merge` (parse-params params) 
-                else
-                    params 
-                #console.log "merged params: ", merged-params
-
                 for name in text2arr names
                     # create every #name with params: params
                     if name of bom
@@ -51,7 +40,7 @@ export do
                         throw new Error "Sub-circuit \"#{type}\" should be simple function, not a factory function. Did you forget to initialize it?"
                     bom[name] =
                         name: name
-                        params: merged-params
+                        params: params
                         parent: @name
                         data: calculated-schema
                         type: type

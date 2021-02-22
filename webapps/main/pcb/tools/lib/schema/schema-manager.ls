@@ -24,8 +24,6 @@ export class SchemaManager
             action = "Updating"
             @schemas[name] = null
             delete @schemas[name]
-        _params = JSON.stringify schema.params
-        #console.log "#{action} schema: #{schema.name}#{if schema.params => ", params: #{_params}" else ""}"
 
         @schemas[schema.name] = schema
 
