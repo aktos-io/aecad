@@ -121,3 +121,13 @@ for pcb.get-components {exclude: <[ Trace Edge RefCross ]>}
     aeobj = get-aecad ..item
     aeobj.name = "d.#{aeobj.name}"
 ```
+
+# Generating BOM list 
+
+```ls
+sch.get-bom-list!
+
+# Returns: Array of components grouped by TYPE+VALUE in the following format: 
+# [{count, type, value, instances}]
+```
+
