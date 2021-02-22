@@ -86,11 +86,14 @@ export init = (pcb) ->
             if @get \scriptName
                 ordered.push {name: @get('scriptName'), src: '__main__ = yes\n' + code}
 
+
+            /* This is a debug output
             output = []
             for ordered
                 output.push "* Using: #{..name}"
             ordered.push "----------------------"
             @set \output, output.join('\n')
+            */
 
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
