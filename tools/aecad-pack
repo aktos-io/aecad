@@ -1,13 +1,24 @@
 #!/bin/bash
 set -u
+
+calc_dir_csum(){
+    find $1 -xdev -type f -print0 \
+        | LC_COLLATE=C sort -z \
+        | xargs -0 cat \
+        | sha1sum \
+        | head -c 8
+}
+
+
 project=$1
-filename="${project%/}.new.zip"
+csum=$(calc_dir_csum $project)
+filename="${project%/}.${csum}.zip"
 
 if [[ -f $filename ]]; then
-    echo "Removing previous $filename"
-    rm $filename
+    echo "$filename exists, doing nothing."
+    exit 0
 fi
 
-cd $project && zip -r "../$filename" ./*
+cd $project && zip -rq "../$filename" ./*
 
 echo "Saved as: $filename"
