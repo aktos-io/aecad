@@ -34,6 +34,7 @@ export init = (pcb) ->
 
     modules <<< do
         TODO: (markdown) -> 
+            console.warn "TODO Handler: #{markdown}" 
             PNotify.notice do
                 text: markdown
                 addClass: 'nonblock'
@@ -46,55 +47,67 @@ export init = (pcb) ->
                 throw new Error "Content is not string!"
 
             libs = []
-            for name, src of @get \drawingLs when name.starts-with \lib
-                unless @get(\scriptName) is name 
-                    libs.push {name, src}
-            #console.log "drawingls: ", libs
+            script-name = @get \scriptName
+            for name, src of @get \drawingLs
+                libs.push {name, src: "__main__ = #{name is script-name}\n" + src}
+            #console.log "drawingls (main script: #{script-name}): ", libs
 
-            # Correctly sort according to their class definitions
+            # Determine dependencies and provisions 
             for lib in libs
                 for lib.src.split '\n'
-                    if ..match /.*\b(class)\s+([^\s]+)\b/
+                    if ..match /^[^#]*\b(class)\s+([^\s]+)\b/
                         _cls = that.2
                         lib.[]exposes.push _cls
                         #console.log "------> #{lib.name} exposes #{_cls}"
-                    if ..match /#!\s*requires\s+(.*)\b/
-                        lib.[]depends.push that.1
+                    # handle `... # provides: this` line
+                    if ..match /^([^=]+)\b.+\s#\s*provides:?\s*this\b/
+                        lib.[]exposes.push that.1 
+                        #console.log "------> #{lib.name} exposes/provides #{that.1}"
+                    if (a=..match /^#!\s*requires\s+(.+)\b/) or (b=..match /^#\s*depends:?\s*(.+)\b/)
+                        lib.[]depends ++= (a or b).1.split(',')
                         #console.log "----> #{lib.name} depends #{that.1}"
 
+            # Sort by dependency order
             ordered = []
+            main-script = find (-> it.name is script-name), libs
+
             insert-dep = (lib) !->
                 for dep in lib.[]depends
-                    unless find (-> dep in it.[]exposes), ordered
-                        # currently no lib presents that exposes the dependency
-                        if find (-> dep in it.[]exposes), libs
+                    if dep in main-script.[]exposes
+                        console.log "INFO: Skipping processing #{lib.name} 
+                            because it depends \"#{dep}\" from the main script (#{script-name})."
+                        return
+
+                for dep in lib.[]depends
+                    console.log "Dependency resolution: #{lib.name} depends on #{dep}."
+                    unless ordered |> find (-> dep in it.[]exposes)
+                        if libs |> find (-> dep in it.[]exposes)
                             # recursively check its dependencies
-                            #console.log "inserting sub-dep #{dep}: ", that
+                            console.log "...resolving #{that.name} because it's required by #{lib.name}"
                             insert-dep that
                         else
-                            debugger
-                            throw new Error "Missing dependency: \"#{dep}\". Required by #{lib.name}"
+                            throw new Error "Missing definition: \"#{dep}\". Required by #{lib.name}"
 
                 unless find (.name is lib.name), ordered
-                    ordered.push lib
+                    if lib.name isnt main-script.name 
+                        ordered.push lib
+                        console.log "...inserting #{lib.name} to the ordered list."
 
             #console.log "libs: ", libs
-            for libs
+            for ([main-script] ++ libs)
                 insert-dep ..
-    
-            # append actual code
-            if @get \scriptName
-                ordered.push {name: @get('scriptName'), src: '__main__ = yes\n' + code}
 
+            # add main script
+            ordered.push main-script
 
-            /* This is a debug output
-            output = []
-            for ordered
-                output.push "* Using: #{..name}"
-            ordered.push "----------------------"
-            @set \output, output.join('\n')
-            */
-
+            # This is a debug output
+            debug = no; if debug
+                output = []
+                for ordered
+                    output.push "* Using: #{..name}"
+                ordered.push "----------------------"
+                @set \output, output.join('\n')
+            
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
             js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
@@ -207,19 +220,8 @@ export init = (pcb) ->
             default-content =
                 '''
                 # --------------------------------------------------
-                # all lib* scripts will be included automatically.
-
-                '''
-
-            if (data.filename.starts-with 'lib')
-                default-content +=
-                    '''
-                    #
-                    # This script will also be treated as a library file.
-
-                    '''
-            default-content +=
-                '''
+                # Use "# depends: foo" for dependencies 
+                # Use "foo = # provides:this" for manual provisions
                 # --------------------------------------------------
 
                 '''
