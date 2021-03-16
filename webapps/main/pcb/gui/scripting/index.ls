@@ -64,7 +64,7 @@ export init = (pcb) ->
                         lib.[]exposes.push that.1 
                         #console.log "------> #{lib.name} exposes/provides #{that.1}"
                     if (a=..match /^#!\s*requires\s+(.+)\b/) or (b=..match /^#\s*depends:?\s*(.+)\b/)
-                        lib.[]depends ++= (a or b).1.split(',')
+                        lib.[]depends ++= (a or b).1.split(',').map (.trim!)
                         #console.log "----> #{lib.name} depends #{that.1}"
 
             # Sort by dependency order
