@@ -266,6 +266,9 @@ export class ComponentBase
         # merged data of both instance data and pedigree classes' overwrites
         -> clone(@data) `merge` @overrides
 
+    value: ~
+        -> @_data.value
+
     data: ~
         -> @get-data('.') or {}
 

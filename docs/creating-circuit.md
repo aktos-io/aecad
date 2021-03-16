@@ -2,7 +2,7 @@
 
 A circuit is a simple JSON object with `iface`, `netlist`, `bom` and optional `schemas`, `no-connect` and `notes` fields. 
 
-A subcircuit is a function that takes `value` as an argument (while being initiated within the `bom` section) and returns the schema JSON. Subcircuits are registered in `schemas` section. 
+A subcircuit is a simple schema JSON or a function that takes `value` as an argument (while being initiated within the `bom` section) which returns a schema JSON. Subcircuits are registered in `schemas` section. 
 
 Generally it's wise to declare a function that returns the subcircuit function. In this way you can easily provide parameters to get the proper variant of the subcircuit during registration in the `schemas` section.
 
@@ -24,6 +24,14 @@ foo = (config) ->
 > It may also make sense to declare the tip circuit as if it were a subcircuit, because every circuit can be considered as a subcircuit in the future.
 
 Footprints are initiated in `bom` section with either `{"Footprint": [instances]}` or `{"Footprint": {"value": [instances]}}` format.
+
+### `value` 
+
+The `value` is a simple string value that is assigned in `bom` section.
+
+For subcircuits, it's passed as the first argument in `schema/bom.ls` if the subcircuit is a function.
+
+For Footprints, it's passed as `data.value` in `schema/footprints.ls`
 
 ### Example Circuit
 
@@ -64,7 +72,7 @@ bar =
         a: "x.2"
         b: "y.1"
         1: "x.1 y.2"
-if __main__?
+if __main__
     sch = new Schema {
         name: 'my-circuit'
         data: bar

@@ -1,8 +1,10 @@
-# What is aeobj
+# What is `aeobj`
 
-An `aeobj` is a JS object whose
-- "on-disk-data" is a plain Paper.js JSON with `data.aecad.type` is one of the known types[1].
-- itself is the "rehydrated" (resumed) or newly created instance of `data.aecad.type` class.
+An `aeobj` is a JS object where:
+- "on-disk-data" is a plain Paper.js JSON (`[TYPE_STRING, ARGS_OBJECT]`) where `ARGS_OBJECT.data.aecad.type` is one of the known component types[1].
+- it is the "rehydrated" (resumed) (or a newly created) instance of `data.aecad.type` class.
+
+Rehydration is done by `new THAT_CLASS data.aecad`
 
 See `get-aecad.ls/get-aecad` for the details.
 
@@ -27,6 +29,8 @@ All component data should reside in its `Group.data`.
             label: Label of handle (eg. pin)
 
 ### when aecad.type is "via"
+
+...TODO
 
 
 ### Temporary Objects
@@ -59,3 +63,19 @@ data:
 # Behavior
 
 See `help.pug` (the help button) for behavior explanation.
+
+# Examples
+
+```json
+            "data": {
+              "aecad": {
+                "type": "SMD1206",
+                "name": "s1",
+                "value": "120ohm",
+                "rev": 2,
+                "_labels": {"1": "1", "2": "2"},
+                "_iface": {"1": 1, "2": 2},
+                "side": "B.Cu",
+                "userDefined": ""
+              }
+            },

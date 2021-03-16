@@ -10,7 +10,7 @@ Coordinate System:
     v
     +y
     
-    Units: in "mm", unless explicitly declared.
+    Units: in "mm", unless explicitly stated.
 ```
 
 ## Creating From Scratch 
@@ -23,6 +23,10 @@ add-class class ExampleFootprint extends Footprint
         --------------
         Supplied by the parent part for overriding the configuration when
         inherited.
+
+        @value: (String)
+        ----------------
+        Footprint value that is initialized within "bom" section of Schema. Alias for `data.value`.
 
         @iface: (Object)
         ----------------
@@ -73,6 +77,39 @@ add-class class ExampleFootprint extends Footprint
         ...
         
 ```
+
+# Inheriting 
+
+```ls
+
+add-class class Example2Footprint extends ExampleFootprint
+    (data, overrides) ->
+        '''
+        data: Object 
+        ------------
+        Data to be used to create the Footprint. `merge`d with `overrides`
+        within `component-base.ls` before it's actually used. 
+
+        overrides: Object 
+        -----------------
+        Overridden data. The purpose of having a separate object for 
+        overrides is that the underlying data structure might be dramatically 
+        changed when this footprint is revised. `overrides` data is kept within
+        the drawing file, so it is always available for re-merge. 
+        '''
+        super data, overrides `based-on` do
+            labels:
+                1: "gnd"
+                2: "A"
+                3: "B"
+                4: "vcc"
+
+
+```
+
+## On-disk data format
+
+See ./aeobj.md
 
 # One Pad Footprint 
 
