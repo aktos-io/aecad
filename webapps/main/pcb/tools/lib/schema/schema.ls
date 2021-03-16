@@ -88,9 +88,7 @@ export class Schema implements bom, footprints, netlist, guide
         else 
             opts.data 
             
-        parent-bom = prefix-value((opts.bom or {}), "__")
-        #console.log "parent bom: ", parent-bom
-        @data.bom `merge` parent-bom
+        @data.bom `merge` (opts.bom or {})
 
         @prefix = opts.prefix or ''
         @parent = opts.parent
