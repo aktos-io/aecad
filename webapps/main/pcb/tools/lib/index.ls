@@ -7,7 +7,8 @@ require! './schema': {Schema, SchemaManager}
 require! './text2arr': {text2arr}
 
 utils = {
-    get-class, add-class
+    get-class, add-class, 
+    provides: add-class # alias 
     get-aecad, get-parent-aecad
     find-comp
     ComponentBase
