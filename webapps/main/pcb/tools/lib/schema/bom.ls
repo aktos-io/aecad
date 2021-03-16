@@ -106,7 +106,7 @@ export do
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
-                sample = new Component (args.params or {})
+                sample = new Component {value: args.params}
                 iface = values sample.iface
                 sample.remove!
                 iface
