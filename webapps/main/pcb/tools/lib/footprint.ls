@@ -30,12 +30,11 @@ export class Footprint extends Container
                 val = val.reduce ((o, key) -> o[key] = key; o), {}
             @set-data '_iface', val
 
-    iface-add: (pin-or-definition, label-or-null) -> 
-        # Designing @iface as a property is a kind of wrong decision because it's not 
-        # clear what to assign while assigning. This function should be used instead. 
+    iface-add: (pin-or-definition, label-or-null) ->
+        # Expand existing interface.
         #
         # Usage: iface-add 1, 'a'
-        #        iface add {1: 'a', 2: 'b'}
+        #        iface-add {1: 'a', 2: 'b'}
         curr-iface = @get-data('_iface') or {}
         if typeof! pin-or-definition isnt \Object
             # Single assignment mode 
