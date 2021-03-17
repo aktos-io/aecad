@@ -39,6 +39,32 @@ export init = (pcb) ->
                 text: markdown
                 addClass: 'nonblock'
 
+        standard: (sch) ->
+            sch   
+                ..clear-guides!
+                ..compile!
+                ..guide-unconnected!  
+            
+            # Calculate unconnected count
+            pcb.ractive.fire 'calcUnconnected'
+
+            # Populate component-selection dropdown
+            # Any component can be highlighted by selecting it
+            # from the "component selection dropdown", located above of drawing area:
+            pcb.ractive.set \currComponentNames, sch.get-component-names!
+
+            # Detect component upgrades
+            unless modules.empty upgrades=(sch.get-upgrades!)
+                msg = ''
+                for upgrades
+                    msg += ..reason + '\n\n'
+                    pcb.selection.add do
+                        aeobj: ..component
+                # display a visual message
+                pcb.vlog.info msg
+
+
+
     runScript = (code, opts={+clear}) ~>
         compiled = no
         @set \output, ''
@@ -63,7 +89,7 @@ export init = (pcb) ->
                     if ..match /^([^=]+)\b.+\s#\s*provides:?\s*this\b/
                         lib.[]exposes.push that.1 
                         #console.log "------> #{lib.name} exposes/provides #{that.1}"
-                    if (a=..match /^#!\s*requires\s+(.+)\b/) or (b=..match /^#\s*depends:?\s*(.+)\b/)
+                    if (a=..match /^#!?\s*[Rr]equires:?\s*(.+)\b/) or (b=..match /^#\s*[Dd]epends:?\s*(.+)\b/)
                         lib.[]depends ++= (a or b).1.split(',').map (.trim!)
                         #console.log "----> #{lib.name} depends #{that.1}"
 
