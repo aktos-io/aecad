@@ -102,19 +102,29 @@ export do
                 continue
             pads = if args.data
                 # this is a sub-circuit, use its `iface` as `pad`s
+                #console.log "iface of subcircuit: ", that.iface
                 that.iface |> text2arr
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
                 sample = new Component {value: args.params}
-                iface = values sample.iface
+                #console.log ".iface of #{Component.name}: ", sample.iface
+                if Object.keys(sample.iface).length is 0
+                    throw new Error "@iface can not be an empty object. If this is 
+                        intended, set #{Component.name}.iface to {+ignore} to explicitly disable."
+
+                iface = if sample.iface.ignore? is true 
+                    []
+                else
+                    values sample.iface
+
                 sample.remove!
                 iface
 
             for pad in pads or []
                 required-pads["#{instance}.#{pad}"] = null
 
-        # iface pins are required to be used
+        # Schema interface 
         for @iface
             required-pads["#{..}"] = "iface"
 

@@ -24,7 +24,11 @@ export class Footprint extends Container
         # might be generated dynamically on creation time, it is useful to
         # provide a caching mechanism)
         -> @get-data('_iface') or {}
-        (val) -> @set-data '_iface', val
+        (val) -> 
+            if typeof! val is \Array
+                # convert it to 1 to 1 object 
+                val = val.reduce ((o, key) -> o[key] = key; o), {}
+            @set-data '_iface', val
 
     iface-add: (pin-or-definition, label-or-null) -> 
         # Designing @iface as a property is a kind of wrong decision because it's not 
