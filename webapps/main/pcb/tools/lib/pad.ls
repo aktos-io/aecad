@@ -71,7 +71,7 @@ export class Pad extends ComponentBase
 
         @cu = new Shape[geometry] geo-params <<< do
             rectangle: rect
-            fillColor: 'deepPink'
+            fillColor: 'mediumVioletRed'
             parent: @g
             stroke-width: 0
             data: aecad: part: \cu
