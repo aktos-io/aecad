@@ -7,7 +7,7 @@ A subcircuit is a simple schema JSON or a function that takes `value` as an argu
 Generally it's wise to declare a function that returns the subcircuit function. In this way you can easily provide parameters to get the proper variant of the subcircuit during registration in the `schemas` section.
 
 ```ls
-foo = (config) -> 
+foo = (config) -> # provides this 
 	(value) -> 
 		iface: "1 2" 
 		netlist:
@@ -32,6 +32,13 @@ The `value` is a simple string value that is assigned in `bom` section.
 For subcircuits, it's passed as the first argument in `schema/bom.ls` if the subcircuit is a function.
 
 For Footprints, it's passed as `data.value` in `schema/footprints.ls`
+
+### `# provides this`
+
+This indicator makes this function (subcircuit) added to the "`.[]exposes`" array so that any other 
+dependent can explicitly require this function by `# depends: foo` syntax. 
+
+If omitted, the script of subcircuit is loaded anyway, so it's normally found. It's only useful to detect/resolve a circular dependency. When a circular dependency is detected, the dependent is not loaded.
 
 ### Example Circuit
 
