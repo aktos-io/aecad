@@ -52,15 +52,8 @@
                 tooltip="Clear drawing area"
                 ): icon.erase
 
-    .item
-        btn.green(
-            on-click="runTests"
-            tooltip="Run Tests"
-            ): icon.checkmark
-            
-    .right.item
+    .right.item 
         .ui.button.basic.mini.pink
             a.icon(href="https://github.com/ceremcem/sgw-example/archive/master.zip" download tooltip="Download the example project")
                 icon.download Example
-    .right.item 
         btn.icon(on-click="showHelp"): icon.help Help

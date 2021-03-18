@@ -46,7 +46,11 @@ dependent can explicitly require this function by `# depends: foo` syntax.
 
 If omitted, the script of subcircuit is loaded anyway, so it's normally found. It's only useful to detect/resolve a circular dependency. When a circular dependency is detected, the dependent is not loaded.
 
-### Example Circuit
+# Unit tests
+
+Call `run-unit-tests!` in your circuit script. 
+
+# Example Circuit
 
 ```ls
 baz = (config) -> 
