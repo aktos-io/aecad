@@ -104,18 +104,19 @@ export class Schema implements bom, footprints, netlist, guide
 
     post-process-data: (data) -> 
         # Build interface
+        @data._iface = []
         for text2arr @data.iface
             if ..match /([^.]+)\.(.+)/
                 # {{COMPONENT}}.{{PIN}} syntax 
                 pad = that.0 # pad is {{COMPONENT}}.{{PIN}}
                 component = that.1
                 pin = that.2
-                @data.[]_iface.push pin 
+                @data._iface.push pin 
 
                 @data.netlist["__iface_#{pad}__"] = [pin, pad]
 
             else 
-                @data.[]_iface.push .. 
+                @data._iface.push .. 
 
         # build clean and reduced netlist 
         :outer for connection-name, _net of @data.netlist
