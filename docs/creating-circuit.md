@@ -29,7 +29,6 @@ Footprints are initiated in `bom` section with either `{"Footprint": [instances]
 
 Format: `{"connection name": ARRAY_OF_PADS}`
 
-Connection name: One of `iface` pins or any possible value. String values are exposed as `iface`, unless they are started with an `_underscore`. 
 
 ### `value` 
 

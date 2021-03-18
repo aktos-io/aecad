@@ -103,7 +103,7 @@ export do
             pads = if args.data
                 # this is a sub-circuit, use its `iface` as `pad`s
                 #console.log "iface of subcircuit: ", that.iface
-                that.iface |> text2arr
+                that.iface |> text2arr |> map (.replace /[^.]+\./, '')
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type

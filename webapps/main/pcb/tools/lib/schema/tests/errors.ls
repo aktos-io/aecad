@@ -111,3 +111,47 @@ export do
         .to-throw '''Sub-circuit "foo" should be simple function, not a factory function. Did you forget to initialize it?'''
 
         sch.remove-footprints!
+
+    "unconnected pins of Sub-circuit": -> 
+        AM26C31x_circuit = (config) -> # provides this
+            # config:
+            #   variant: AM26C31x variant
+            (value) ->
+                iface: "c1.1a,c1.1y,c1.1z,c1.g,c1.2z,
+                    c1.2y,c1.2a,c1.3a,c1.3y,c1.3z,c1.n_g,
+                    c1.4z,c1.4y,c1.4a,c1.vcc,c1.gnd"
+
+                netlist:
+                    "vcc": "c1.vcc c2.a"
+                    "gnd": "c1.gnd c2.c"
+                bom:
+                    AM26C31x:
+                        "#{config.variant}": "c1"
+                    C1206:
+                        "100nF": "c2"
+
+        example =
+            iface: "+3v3 gnd A1 B1"
+            schemas:
+                AM26C31D_std: AM26C31x_circuit({variant: "D"})
+            bom:
+                AM26C31D_std: "x1"
+            netlist:
+                "+3v3": "x1.vcc"
+                "gnd": "x1.gnd"
+                "A1": "x1.1y"
+                "B1": "x1.1z"
+
+
+        sch = null
+        compile-schema = -> 
+            sch := new Schema {
+                name: 'mytest'
+                prefix: 'test.'
+                data: example
+                }
+                ..compile!
+
+        expect compile-schema
+        .to-throw '''Unused pads: test.x1.1a,test.x1.g,test.x1.2z,test.x1.2y,test.x1.2a,test.x1.3a,test.x1.3y,test.x1.3z,test.x1.n_g,test.x1.4z,test.x1.4y,test.x1.4a'''
+        sch.remove-footprints!
