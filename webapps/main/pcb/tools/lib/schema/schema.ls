@@ -104,6 +104,20 @@ export class Schema implements bom, footprints, netlist, guide
         @post-process-data!
 
     post-process-data: (data) -> 
+        # Build interface
+        for text2arr @data.iface
+            if ..match /([^.]+)\.(.+)/
+                # {{COMPONENT}}.{{PIN}} syntax 
+                pad = that.0 # pad is {{COMPONENT}}.{{PIN}}
+                component = that.1
+                pin = that.2
+                @_iface.push pin 
+
+                @data.netlist["__iface_#{pad}__"] = [pin, pad]
+
+            else 
+                @_iface.push .. 
+
         # build clean and reduced netlist 
         :outer for connection-name, _net of @data.netlist
             net = text2arr _net
@@ -116,15 +130,10 @@ export class Schema implements bom, footprints, netlist, guide
 
             @_netlist[connection-name] = net
 
-        # Build interface
-        for text2arr @data.iface
-            if ..match /([^.]+)\.(.+)/
-                # {{COMPONENT}}.{{PIN}} syntax 
-                component = that.1
-                pin = that.2
-                @_iface.push pin 
-            else 
-                @_iface.push .. 
+            # connection names that are started with a letter 
+            # are automatically exposed as interface pins 
+            if connection-name.match /^[a-zA-Z]/
+                @_iface.push connection-name
 
     external-components: ~
         # Current schema's external components

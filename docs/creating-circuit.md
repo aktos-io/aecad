@@ -25,6 +25,12 @@ foo = (config) -> # provides this
 
 Footprints are initiated in `bom` section with either `{"Footprint": [instances]}` or `{"Footprint": {"value": [instances]}}` format.
 
+### `netlist`
+
+Format: `{"connection name": ARRAY_OF_PADS}`
+
+Connection name: One of `iface` pins or any possible value. String values are exposed as `iface`, unless they are started with an `_underscore`. 
+
 ### `value` 
 
 The `value` is a simple string value that is assigned in `bom` section.
@@ -80,32 +86,16 @@ bar =
         b: "y.1"
         1: "x.1 y.2"
 if __main__
-    sch = new Schema {
+    # Runs unit tests until they are succeeded. 
+    #run-unit-tests! 
+
+    # `standard` is a function that takes a schema object and post-processes it 
+    # (compiles, creates guides, etc.) accordingly. Returns the same schema object.
+    standard new Schema {
         name: 'my-circuit'
         data: bar
         bom:
             # helper materials
             RefCross: '_a _b'   # underline prefixes excluded from BOM
         }
-        ..clear-guides!
-        ..compile!
-        ..guide-unconnected!
-    
-    # Calculate unconnected count
-    pcb.ractive.fire 'calcUnconnected'
-
-    # Populate component-selection dropdown
-    # Any component can be highlighted by selecting it 
-    # from the "component selection dropdown", located above of drawing area:
-    pcb.ractive.set \currComponentNames, sch.get-component-names!
-    
-    # Detect component upgrades
-    unless empty upgrades=(sch.get-upgrades!)
-        msg = ''
-        for upgrades
-            msg += ..reason + '\n\n'
-            pcb.selection.add do
-                aeobj: ..component
-        # display a visual message
-        pcb.vlog.info msg
 ```
