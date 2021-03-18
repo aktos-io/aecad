@@ -102,8 +102,8 @@ export do
                 continue
             pads = if args.data
                 # this is a sub-circuit, use its `iface` as `pad`s
-                #console.log "iface of subcircuit: ", that.iface
-                that.iface |> text2arr
+                #console.log "iface of subcircuit: ", that._iface
+                that._iface 
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type

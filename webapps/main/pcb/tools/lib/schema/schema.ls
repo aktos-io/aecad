@@ -99,7 +99,6 @@ export class Schema implements bom, footprints, netlist, guide
         @sub-circuits = {}              # TODO: DOCUMENT THIS
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
 
-        @_iface = []                  # array of interface pins
         @_netlist = {}                # cached and post-processed {CONN_ID: [PADS]}
         @post-process-data!
 
@@ -111,12 +110,12 @@ export class Schema implements bom, footprints, netlist, guide
                 pad = that.0 # pad is {{COMPONENT}}.{{PIN}}
                 component = that.1
                 pin = that.2
-                @_iface.push pin 
+                @data.[]_iface.push pin 
 
                 @data.netlist["__iface_#{pad}__"] = [pin, pad]
 
             else 
-                @_iface.push .. 
+                @data.[]_iface.push .. 
 
         # build clean and reduced netlist 
         :outer for connection-name, _net of @data.netlist
@@ -133,7 +132,7 @@ export class Schema implements bom, footprints, netlist, guide
             # connection names that are started with a letter 
             # are automatically exposed as interface pins 
             if connection-name.match /^[a-zA-Z]/
-                @_iface.push connection-name
+                @data.[]_iface.push connection-name
 
     external-components: ~
         # Current schema's external components
@@ -177,7 +176,7 @@ export class Schema implements bom, footprints, netlist, guide
             no
 
     iface: ~
-        -> @_iface
+        -> @data._iface
             
     no-connect: ~
         -> text2arr @data.no-connect
