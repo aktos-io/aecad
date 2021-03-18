@@ -79,9 +79,7 @@ export class Schema implements bom, footprints, netlist, guide
         unless opts
             throw new Error "Data should be provided on init."
 
-        unless opts.name
-            throw new Error "Name is required for Schema"
-        @name = opts.schema-name or opts.name
+        @name = opts.schema-name or opts.name or "main"
         @data = if typeof! opts.data is \Function 
             opts.data(opts.value) 
         else 
