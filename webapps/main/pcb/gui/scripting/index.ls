@@ -32,6 +32,7 @@ export init = (pcb) ->
         canvas project view
         """ |> text2arr |> map (name) -> modules[name] = pcb[name]
 
+    unit-tests-passed = false 
     modules <<< do
         TODO: (markdown) -> 
             console.warn "TODO Handler: #{markdown}" 
@@ -62,6 +63,12 @@ export init = (pcb) ->
                         aeobj: ..component
                 # display a visual message
                 pcb.vlog.info msg
+
+        run-unit-tests: -> 
+            unless unit-tests-passed
+                err <~ pcb.ractive.fire \runTests
+                unit-tests-passed := not err 
+
 
 
 

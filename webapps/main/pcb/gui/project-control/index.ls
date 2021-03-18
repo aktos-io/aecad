@@ -44,7 +44,7 @@ export init = (pcb) ->
 
 
     handlers =
-        runTests: (ctx) -> 
+        runTests: (ctx, callback) -> 
             schema-tests (err) ->
                 unless err
                     PNotify.success text: "All schema tests are passed."
@@ -55,6 +55,9 @@ export init = (pcb) ->
                         #{err.message or 'Check console'}
                         """
                     console.error err
+
+                if typeof! callback is \Function 
+                    callback err 
            
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do
