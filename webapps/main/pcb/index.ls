@@ -37,6 +37,8 @@ Ractive.components['pcb'] = Ractive.extend do
         pcb.view.center = [0,0]
         @fire 'fitAll'
 
+        @fire 'runTests'
+
     computed:
         currProps:
             get: ->
