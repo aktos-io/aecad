@@ -28,7 +28,7 @@ add-class class ExampleFootprint extends Footprint
         ----------------
         Footprint value that is initialized within "bom" section of Schema. Alias for `data.value`.
 
-        @iface: (Object)
+        @iface: (Object) (Required)
         ----------------
         Interface data for the footprint. Normally all pins should 
         be exposed. Some no-connect pins may not be included. 
