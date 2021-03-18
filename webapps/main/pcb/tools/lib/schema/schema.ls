@@ -98,7 +98,25 @@ export class Schema implements bom, footprints, netlist, guide
         @compiled = false
         @connection-list = {}           # key: trace-id, value: array of related Pads
         @sub-circuits = {}              # TODO: DOCUMENT THIS
-        @netlist = []                   # array of "array of Pads which are on the same net"
+        @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
+
+        @_iface = []                  # array of interface pins
+        @_netlist = {}                # cached and post-processed {CONN_ID: [PADS]}
+        @post-process-data!
+
+    post-process-data: (data) -> 
+        # Build interface
+        for text2arr @data.iface
+            if ..match /([^.]+)\.(.+)/
+                # {{COMPONENT}}.{{PIN}} syntax 
+                component = that.1
+                pin = that.2
+                @_iface.push pin 
+            else 
+                @_iface.push .. 
+        
+        for connection-name, net of @data.netlist
+            @_netlist[connection-name] = text2arr net
 
     external-components: ~
         # Current schema's external components
@@ -106,12 +124,10 @@ export class Schema implements bom, footprints, netlist, guide
 
     flatten-netlist: ~
         ->
-            netlist = {}
-            for c-name, net of @data.netlist
-                netlist[c-name] = text2arr net
+            netlist = @_netlist
 
+            # unconnected interface pins will be treated as null nets
             for @iface
-                # interfaces are null nets
                 unless .. of netlist
                     netlist[..] = []
 
@@ -144,8 +160,8 @@ export class Schema implements bom, footprints, netlist, guide
             no
 
     iface: ~
-        -> text2arr @data.iface
-
+        -> @_iface
+            
     no-connect: ~
         -> text2arr @data.no-connect
 
@@ -303,8 +319,8 @@ export class Schema implements bom, footprints, netlist, guide
         @post-check!
 
         # Output the generated report
-        #console.log "... #{@name}: Connection list:", @connection-list
-        #console.log "... #{@name}: Netlist", @netlist
+        #console.log "... Schema: #{@name}, Connection list:", @connection-list
+        #console.log "... Schema: #{@name}, Netlist:", @netlist
 
     post-check: ->
         # Error report (will stay while aeCAD is in Alpha stage)

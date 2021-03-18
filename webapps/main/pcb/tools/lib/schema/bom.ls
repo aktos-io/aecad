@@ -129,8 +129,8 @@ export do
             required-pads["#{..}"] = "iface"
 
         # find used iface pins
-        for id, net of @data.netlist
-            for (text2arr net) ++ [id]
+        for id, net of @_netlist
+            for net ++ [id]
                 #console.log "...pad #{..} is used."
                 if .. of required-pads
                     delete required-pads[..]
@@ -148,13 +148,9 @@ export do
                 "Unused pads:"
             throw new Error "#{msg} #{unused.map (~> "#{@prefix}#{it}") .join ','}"
 
-
         # Detect erroneous unused pad declaration
-        used = (keys @data.netlist) ++ (values @data.netlist) 
-            |> flatten 
-            |> map text2arr 
-            |> flatten
-
+        # (the pads that are declared as "no-connect" but are actually used in the circuit)
+        used = flatten ((keys @_netlist) ++ (values @_netlist))
         false-unused = []
         for pad in used or [] when pad in @no-connect
             false-unused.push pad 

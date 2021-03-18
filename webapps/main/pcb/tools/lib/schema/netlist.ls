@@ -46,11 +46,11 @@ get-pin-name = (pad) ->
 export do
     get-netlist-components: ->
         components = []
-        for id, conn-list of @data.netlist
-            for n-name in text2arr conn-list # node-name
+        for id, conn-list of @_netlist
+            for n-name in conn-list # node-name
                 {name, link} = parse-name n-name
 
-                if name in text2arr @data.iface
+                if name in @iface
                     # This is an interface reference, not a physical component
                     continue
 
