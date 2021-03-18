@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, unique-by, compact, map 
+    first, unique-by, compact, map, intersection
 }
 
 require! 'aea': {merge}
@@ -67,7 +67,6 @@ prefix-value = (o, pfx) ->
                     res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
             return res 
 
-        
 
 export class Schema implements bom, footprints, netlist, guide
     (opts) ->
@@ -105,6 +104,18 @@ export class Schema implements bom, footprints, netlist, guide
         @post-process-data!
 
     post-process-data: (data) -> 
+        # build clean and reduced netlist 
+        :outer for connection-name, _net of @data.netlist
+            net = text2arr _net
+            # check if we have an indirectly connected net 
+            for _c, _n of @_netlist
+                if not empty intersection ([_c] ++ _n), ([connection-name] ++ net)
+                    # we have such a net already, merge into it
+                    @_netlist[_c] = unique @_netlist[_c] ++ [connection-name] ++ net
+                    continue outer 
+
+            @_netlist[connection-name] = net
+
         # Build interface
         for text2arr @data.iface
             if ..match /([^.]+)\.(.+)/
@@ -114,9 +125,6 @@ export class Schema implements bom, footprints, netlist, guide
                 @_iface.push pin 
             else 
                 @_iface.push .. 
-        
-        for connection-name, net of @data.netlist
-            @_netlist[connection-name] = text2arr net
 
     external-components: ~
         # Current schema's external components

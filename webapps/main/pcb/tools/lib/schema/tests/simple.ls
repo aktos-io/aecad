@@ -74,7 +74,6 @@ export do
         sch.remove-footprints!
 
     "indirect connection": ->
-        return false 
         open-collector =
             # open collector output
             iface: "Input, Output, gnd, vcc"
