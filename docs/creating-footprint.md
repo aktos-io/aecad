@@ -72,6 +72,8 @@ add-class class ExampleFootprint extends Footprint
         Position defines: 
             * Center of a circular pad.
             * Top-left point of a rectangular pad.
+
+        @allow-duplicate-labels: (Boolean)
         '''
         
         ...

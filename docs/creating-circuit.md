@@ -46,6 +46,20 @@ dependent can explicitly require this function by `# depends: foo` syntax.
 
 If omitted, the script of subcircuit is loaded anyway, so it's normally found. It's only useful to detect/resolve a circular dependency. When a circular dependency is detected, the dependent is not loaded.
 
+### `iface`
+
+Interface of this circuit. This is used as connection points when the circuit is used as a subcircuit.
+
+Syntax: 
+
+```ls
+iface: [
+    foo     # Expose the "foo" connection ("foo" key of the netlist)
+    c1.x    # Automatically expose component c1's 'x' pin.
+    c1.*    # Automatically expose component c1's every pin. 
+    ]
+
+```
 # Unit tests
 
 Call `run-unit-tests!` in your circuit script. 

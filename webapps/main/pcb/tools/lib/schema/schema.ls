@@ -111,8 +111,11 @@ export class Schema implements bom, footprints, netlist, guide
                 pad = that.0 # pad is {{COMPONENT}}.{{PIN}}
                 component = that.1
                 pin = that.2
+
+                # Expose this pin as an interface
                 @data._iface.push pin 
 
+                # connect the interface pin to the corresponding net  
                 @data.netlist["__iface_#{pad}__"] = [pin, pad]
 
             else 
