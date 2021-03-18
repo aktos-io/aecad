@@ -64,6 +64,8 @@ export init = (pcb) ->
                 # display a visual message
                 pcb.vlog.info msg
 
+            return sch
+
         run-unit-tests: -> 
             unless unit-tests-passed
                 err <~ pcb.ractive.fire \runTests
