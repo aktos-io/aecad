@@ -275,8 +275,10 @@ export class Schema implements bom, footprints, netlist, guide
         # TODO: Remove this precaution on v1.0
         _used_uname = []
         for net in @netlist
-            for pad in net
+            for pad in unique-by (.uname), net
                 if pad.uname in _used_uname
+                    console.warn "Problematic Netlist is: ", @netlist
+                    console.warn "...Nets: ", [..map((.uname)) for @netlist when pad.uname in ..map((.uname))]
                     throw "This pad appears (#{pad.uname}) on another net.
                         Is 'tests/simple/indirect connection' test passing?"
                 else
