@@ -98,7 +98,9 @@ export do
         required-pads = {}
         for instance, args of bom
             #console.log "Found #{args.type} instance: #{instance}"
-            if instance.starts-with '_'
+            if instance.starts-with '__'
+                # Completely exclude double underscored components from 
+                # connections and bom
                 continue
             pads = if args.data
                 # this is a sub-circuit, use its `iface` as `pad`s
@@ -146,7 +148,7 @@ export do
                 "Unconnected iface:"
             else
                 "Unused pads:"
-            throw new Error "#{msg} #{unused.map (~> "#{@prefix}#{it}") .join ','}"
+            throw new Error "#{msg} #{unused.map (~> "#{@prefix}#{it}") .join ', '}"
 
         # Detect erroneous unused pad declaration
         # (the pads that are declared as "no-connect" but are actually used in the circuit)

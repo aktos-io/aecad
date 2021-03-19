@@ -133,14 +133,14 @@ export do
             # series resistors
             iface: "a b"
             schemas: 
-                foo: foo({type: "SMD1206"})
+                foo_1206: foo({type: "SMD1206"})
             bom:
-                foo:
+                foo_1206:
                     '500ohm': "x"
-                    "3kohm": "y"
+                    "3kohm": "y _z"
             netlist:
-                a: "x.2"
-                b: "y.1"
+                a: "x.2 _z.1"
+                b: "y.1 _z.2"
                 1: "x.1 y.2"
 
 

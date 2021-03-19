@@ -46,7 +46,7 @@ export do
         sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
 
         expect (-> sch.compile!)
-        .to-throw "Unused pads: test.A.Input,test.A.Output,test.A.gnd"
+        .to-throw "Unused pads: test.A.Input, test.A.Output, test.A.gnd"
 
         # cleanup canvas
         sch.remove-footprints!

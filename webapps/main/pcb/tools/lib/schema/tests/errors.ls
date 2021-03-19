@@ -153,5 +153,5 @@ export do
                 ..compile!
 
         expect compile-schema
-        .to-throw '''Unused pads: test.x1.1a,test.x1.g,test.x1.2z,test.x1.2y,test.x1.2a,test.x1.3a,test.x1.3y,test.x1.3z,test.x1.n_g,test.x1.4z,test.x1.4y,test.x1.4a'''
+        .to-throw '''Unused pads: test.x1.1a, test.x1.g, test.x1.2z, test.x1.2y, test.x1.2a, test.x1.3a, test.x1.3y, test.x1.3z, test.x1.n_g, test.x1.4z, test.x1.4y, test.x1.4a'''
         sch.remove-footprints!
