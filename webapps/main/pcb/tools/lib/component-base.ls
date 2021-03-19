@@ -75,7 +75,10 @@ export class ComponentBase
 
             # perform the actual drawing
             unless data?.silent
-                @create(@_data)
+                try 
+                    @create(@_data)
+                catch 
+                    throw new Error "#{@@@name}: #{e}"
 
         # do the post processing either after creation or rehydration
         @finish!
