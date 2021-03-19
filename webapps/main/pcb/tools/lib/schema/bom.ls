@@ -63,7 +63,7 @@ export do
     get-bom-list: -> 
         # group by type, and then value 
         comp = [{..type, ..value, ..name} for values @components 
-            when (..name.0 isnt '_') and (..value?0 isnt '_')]
+            when (not ..name.match /(^|\.)_.+/) and (..value?0 isnt '_')]
         arr = comp 
         g1 = {}
         for i in arr
