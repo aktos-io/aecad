@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, unique-by, compact, map, intersection
+    first, unique-by, compact, map, intersection, reject
 }
 
 require! 'aea': {merge}
@@ -125,7 +125,7 @@ export class Schema implements bom, footprints, netlist, guide
             for _c, _n of @_netlist
                 if not empty intersection ([_c] ++ _n), ([connection-name] ++ net)
                     # we have such a net already, merge into it
-                    @_netlist[_c] = unique @_netlist[_c] ++ [connection-name] ++ net
+                    @_netlist[_c] = unique reject (.starts-with '__iface_'), (@_netlist[_c] ++ [connection-name] ++ net)
                     continue outer 
 
             @_netlist[connection-name] = net
