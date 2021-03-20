@@ -94,6 +94,10 @@ export do
         return flatten-bom
 
     find-unused: (bom) ->
+        if "unused" in text2arr @data.disable-drc
+            console.warn ".find-unused() is disabled by @data.disable-drc"
+            return 
+
         # detect unused pads of footprints in BOM:
         required-pads = {}
         for instance, args of bom
