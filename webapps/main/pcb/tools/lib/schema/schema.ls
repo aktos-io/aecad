@@ -102,6 +102,12 @@ export class Schema implements bom, footprints, netlist, guide
         @post-process-data!
 
     post-process-data: (data) -> 
+        # Check for netlist errors 
+        for conn, net of @data.netlist 
+            for comp in text2arr net 
+                if comp.match /([^.]+)\.$/
+                    throw new Error "Netlist Error: Empty pins are not allowed. 
+                        Check \"#{comp}\" pin at netlist[\"#{conn}\"] connection."
         # Build interface
         for text2arr @data.iface
             if ..match /([^.]+)\.(.+)/
@@ -233,7 +239,9 @@ export class Schema implements bom, footprints, netlist, guide
                     if empty pads
                         if comp.type not in flatten [[..type, ..component.type] for @get-upgrades!]
                             console.error "Current iface:", comp, comp.iface
-                            throw new Error "No such pin found: '#{pin}' of '#{name}' (check the console output)"
+                            err = "No such pin found: '#{pin}' of '#{name}'"
+                            console.error err 
+                            throw new Error  "#{err} (check the console output)"
 
 
                     unless comp.allow-duplicate-labels
@@ -243,7 +251,7 @@ export class Schema implements bom, footprints, netlist, guide
 
                     # find duplicate pads (shouldn't be)
                     if (unique-by (.uname), pads).length isnt pads.length
-                        console.error "FOUND DUPLICATE PADS in ", name
+                        console.info "INFO: FOUND DUPLICATE PADS in ", name
 
                     net.push {name, pads}
             unless id of netlist

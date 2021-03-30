@@ -98,15 +98,6 @@ export class Container extends ComponentBase
             # report matching items
             if query.item in [@g].map((?.id)).filter((Boolean))
                 res.push this
-
-
-        # Precaution for alpha stage of aeCAD
-        for i1, r1 of res
-            for i2, r2 of res when i2 > i1
-                if r1.uname is r2.uname
-                    console.error "..........we are reporting duplicate pads!", (res.map (.uname) .join ', ')
-                    console.log r1, r2
-        # end of precaution
         res
 
     on-move: ->
