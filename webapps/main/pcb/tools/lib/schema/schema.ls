@@ -118,14 +118,16 @@ export class Schema implements bom, footprints, netlist, guide
             else 
                 @_iface.push .. 
 
-        # build clean and reduced netlist 
+        # Reduce netlist
         :outer for connection-name, _net of @data.netlist
             net = text2arr _net
             # check if we have an indirectly connected net 
             for _c, _n of @_netlist
                 if not empty intersection ([_c] ++ _n), ([connection-name] ++ net)
                     # we have such a net already, merge into it
-                    @_netlist[_c] = unique reject (.starts-with '__iface_'), (@_netlist[_c] ++ [connection-name] ++ net)
+                    @_netlist[_c] = (@_netlist[_c] ++ [connection-name] ++ net)
+                        |> reject (.starts-with '__iface_')     # virtual interface entries 
+                        |> unique
                     continue outer 
 
             @_netlist[connection-name] = net
@@ -218,6 +220,9 @@ export class Schema implements bom, footprints, netlist, guide
                     unless comp
                         if name in @iface
                             console.log "Found an interface handle: #{name}. Silently skipping."
+                            continue
+                        else if name of @data.netlist
+                            # This is a connection name, silently skip it 
                             continue
                         else
                             console.error "Current components: ", @components-by-name

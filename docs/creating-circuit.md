@@ -25,10 +25,38 @@ foo = (config) -> # provides this
 
 Footprints are initiated in `bom` section with either `{"Footprint": [instances]}` or `{"Footprint": {"value": [instances]}}` format.
 
-### `netlist`
+### `.netlist`
 
 Format: `{"connection name": ARRAY_OF_PADS}`
 
+### `.iface`
+
+Interface of this circuit. This is used as connection points when the circuit is used as a subcircuit.
+
+Syntax: 
+
+```ls
+iface: [
+    foo     # Expose the "foo" connection ("foo" key of the netlist)
+    c1.x    # Automatically expose component c1's 'x' pin.
+    c1.*    # Automatically expose component c1's every pin. 
+    ]
+
+```
+
+### `.disable-drc`
+
+Disable Design Rule Checking for the provided functionalities. Supported switches: 
+
+* `unused`: Disable unused pad detection. 
+
+Example: 
+
+```ls
+mycircuit = 
+  ...
+  disable-drc: "unused"
+```
 
 ### `value` 
 
@@ -45,20 +73,11 @@ dependent can explicitly require this function by `# depends: foo` syntax.
 
 If omitted, the script of subcircuit is loaded anyway, so it's normally found. It's only useful to detect/resolve a circular dependency. When a circular dependency is detected, the dependent is not loaded.
 
-### `iface`
+# Excluding from BOM and connection list
 
-Interface of this circuit. This is used as connection points when the circuit is used as a subcircuit.
+Single underscore prefixed components (`_x`) are excluded from BOM, but included into the netlist. (See `.get-bom-list()`)
+Double underscore prefixed components (`__x`) are exclude both from BOM and the netlist. (See `.find-unused()`)
 
-Syntax: 
-
-```ls
-iface: [
-    foo     # Expose the "foo" connection ("foo" key of the netlist)
-    c1.x    # Automatically expose component c1's 'x' pin.
-    c1.*    # Automatically expose component c1's every pin. 
-    ]
-
-```
 # Unit tests
 
 Call `run-unit-tests!` in your circuit script. 
