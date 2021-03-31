@@ -64,6 +64,9 @@ export init = (pcb) ->
                 # display a visual message
                 pcb.vlog.info msg
 
+            if sch.data.disable-drc
+                PNotify.notice text: "DRC Disabled: #{that}"
+
             return sch
 
         run-unit-tests: -> 
