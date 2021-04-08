@@ -298,7 +298,7 @@ export init = (pcb) ->
                     err <~ pcb.import contents, do
                         format: "json"
                         name: "pcb"
-                    <~ pcb.ractive.fire \activateLayer, ctx, "pcb"
+                    <~ pcb.ractive.fire \activateLayer, ctx, "gui"
                     signal.go err
 
                 get-filename = (f) -> 
