@@ -132,13 +132,10 @@ export canvas-control =
 
     clear-canvas: ->
         # clears all layers by properly removing @ractive references
-        for name of @project.layers
-            @remove-layer name
-
-        for name, layer of @ractive.get 'project.layers'
-            console.warn "How come these layer isn't deleted in above loop: #{name}"
-            layer.remove!
-            @ractive.delete 'project.layers', name
+        for @project.layers 
+            ..remove-children!
+        @ractive.delete 'project', 'layers'
+        @ractive.set 'project.layers', {}
 
     send-to-layer: (item, name) ->
         #set-keypath item, 'data.aecad.side', name # DO NOT DO THAT, LEAVE THIS TO COMPONENT
