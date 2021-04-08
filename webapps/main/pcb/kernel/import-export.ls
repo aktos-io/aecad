@@ -232,7 +232,7 @@ export do
                     needs-rerun = true
                     continue
                 if layer.getChildren!.length is 0
-                    console.log "removing layer..."
+                    console.warn "removing empty layer..."
                     layer.remove!
                     continue
 
@@ -249,16 +249,8 @@ export do
             console.warn "Workaround for load-project works."
         #console.log "Loaded project: ", @project
 
-        @layouts[name] = json
+        @layouts[name] = @project.exportJSON!
         @active-layout = name 
-
-    active-layout: ~
-        -> @_active_layout
-        (name) -> 
-            if name isnt @_active_layout
-                @_active_layout = name 
-                @ractive.update 'activeLayout'
-                @ractive.update 'layouts'
 
 importDXF2 = (ctx, file, next) ~>
     <~ @fire \activateLayer, ctx, \import

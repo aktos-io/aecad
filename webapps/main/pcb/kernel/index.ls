@@ -49,8 +49,8 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
 
             @ractive = opts.ractive
 
-            @_active_layout = @ractive.get \project.name
-            @layouts = {} # name: Layout
+            @_active_layout = null
+            @layouts = {} # format: {name: Project}
 
             # zooming
             $ @canvas .mousewheel (event) ~>
@@ -275,3 +275,13 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 continue
             #console.log "Updating zoom subscriber: #{_id}"
             handler(@view.zoom)
+
+    active-layout: ~
+        ->  
+            @_active_layout or @ractive.get('project.name')
+
+        (name) -> 
+            if name isnt @_active_layout
+                @_active_layout = name 
+                @ractive.update 'activeLayout'
+                @ractive.update 'layouts'

@@ -89,12 +89,6 @@ export class History
     load: ->
         # Load from browser's local storage
         # --------------------------------------
-        if @db.get \project
-            @load-project that
-
-        if @db.get \scripts
-            @load-scripts that
-
         if @db.get \settings
             # TODO: see save/settings
             @ractive.set \scriptName, that.scriptName
@@ -108,3 +102,9 @@ export class History
             else
                 @ractive.get \vlog .error "How come the history isn't empty?"
                 console.error "Commit history isn't empty: ", @commits
+
+        if @db.get \project
+            @load-project that
+
+        if @db.get \scripts
+            @load-scripts that
