@@ -41,40 +41,11 @@ export class History
             cb(err, res)
 
 
-    load-project: (data) ->
+    load-project: (data, name) ->
         # data: stringified JSON
         if data
             @parent.clear-canvas! # use (<= this) instead of (this =>) @project.clear!
-            @selection.clear!
-            @project.importJSON data
-
-            while true
-                needs-rerun = false
-                for layer in @project.layers
-                    unless layer
-                        # workaround for possible Paper.js bug
-                        # which can not handle more than a few
-                        # hundred layers
-                        console.warn "...we have an null layer!"
-                        needs-rerun = true
-                        continue
-                    if layer.getChildren!.length is 0
-                        console.log "removing layer..."
-                        layer.remove!
-                        continue
-
-                    if layer.name
-                        @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
-                    else
-                        layer.selected = yes
-
-                    for layer.getItems!
-                        ..selected = no
-                        if ..data?.tmp
-                            ..remove!
-                break unless needs-rerun
-                console.warn "Workaround for load-project works."
-            #console.log "Loaded project: ", @project
+            @parent.importLayout data, name
 
     reset-script-diffing: ->
         @ractive.set \scriptHashes, null

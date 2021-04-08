@@ -25,6 +25,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
             @canvas = opts.canvas
             @_scope = paper.setup @canvas
             for k, v of @_scope
+                # @project is assigned here
                 this[k] = v
 
             do resizeCanvas = ~>
@@ -47,6 +48,9 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
             window.addEventListener('resize', resizeCanvas, false);
 
             @ractive = opts.ractive
+
+            @_active_layout = @ractive.get \project.name
+            @layouts = {} # name: Layout
 
             # zooming
             $ @canvas .mousewheel (event) ~>

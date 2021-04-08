@@ -46,6 +46,15 @@ Ractive.components['pcb'] = Ractive.extend do
                 layer-info = @get('layers')[layer]
                 layer-info.name = layer
                 layer-info
+
+        activeLayout: 
+            get: -> 
+                @get \pcb .active-layout 
+
+        layouts: 
+            get: -> 
+                @get \pcb .layouts |> Object.keys 
+
     data: ->
         autoCompile: no
         selectAllLayer: no

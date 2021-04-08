@@ -164,7 +164,7 @@ export do
         b = new SignalBranch
         switch opts.format
         | 'json' =>
-            @project.importJSON data
+            @importLayout data
         | 'svg' =>
             #s = b.add!
             #err, json < ~ @svg-to-ast data
@@ -216,6 +216,49 @@ export do
         # inform the caller
         if typeof! callback is \Function
             callback err=null
+
+    importLayout: (json, name) -> 
+        name = name or @active-layout
+        @selection.clear!
+        @project.importJSON json
+        while true
+            needs-rerun = false
+            for layer in @project.layers
+                unless layer
+                    # workaround for possible Paper.js bug
+                    # which can not handle more than a few
+                    # hundred layers
+                    console.warn "...we have an null layer!"
+                    needs-rerun = true
+                    continue
+                if layer.getChildren!.length is 0
+                    console.log "removing layer..."
+                    layer.remove!
+                    continue
+
+                if layer.name
+                    @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
+                else
+                    layer.selected = yes
+
+                for layer.getItems!
+                    ..selected = no
+                    if ..data?.tmp
+                        ..remove!
+            break unless needs-rerun
+            console.warn "Workaround for load-project works."
+        #console.log "Loaded project: ", @project
+
+        @layouts[name] = json
+        @active-layout = name 
+
+    active-layout: ~
+        -> @_active_layout
+        (name) -> 
+            if name isnt @_active_layout
+                @_active_layout = name 
+                @ractive.update 'activeLayout'
+                @ractive.update 'layouts'
 
 importDXF2 = (ctx, file, next) ~>
     <~ @fire \activateLayer, ctx, \import
