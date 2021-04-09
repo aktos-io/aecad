@@ -87,7 +87,14 @@ export init = (pcb) ->
             libs = []
             script-name = @get \scriptName
             for name, src of @get \drawingLs
-                libs.push {name, src: "__main__ = #{name is script-name}\n" + src}
+                libs.push do
+                    name: name, 
+                    src: """
+                        __main__ = #{name is script-name}
+                        __name__ = "#{name}"
+                        #{src}
+                        """
+
             #console.log "drawingls (main script: #{script-name}): ", libs
 
             # Determine dependencies and provisions 
