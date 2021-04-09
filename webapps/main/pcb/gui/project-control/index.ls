@@ -108,9 +108,6 @@ export init = (pcb) ->
             create-download filename, res
 
         downloadProject: (ctx, project-name) ->
-            files = []
-            format = "json"
-
             unless project-name
                 pcb.vlog .error do
                     message: "You should supply a project name."
@@ -134,165 +131,182 @@ export init = (pcb) ->
                     _sd.cancel! 
                     PNotify.notice text: "Cancelled download."
             <~ dirty-confirm.joined
+
+
             PNotify.info text: "Preparing project file of #{project-name}..."
             <~ sleep 100ms 
-            err, res <~ pcb.export {format}
-            unless err
-                files.push ["pcb.#{format}", res]
-            else
-                PNotify.error text: err
-                return 
-
-            # compile once before generating current svg outputs.
-            pcb.ractive.fire \compileScript
-
-            # Fabrication
-            fabrication = "2_Fabrication"
-            err, res <~ prototypePrint {side: "F.Cu, Edge", +mirror}
-            unless err 
-                filename = "#{fabrication}_F.Cu.svg"
-                files.push [filename, res]
-            else 
-                PNotify.error text: err
-                return 
-
-            err, res <~ prototypePrint {side: "B.Cu, Edge"}
-            unless err 
-                filename = "#{fabrication}_B.Cu.svg"
-                files.push [filename, res]
-            else 
-                PNotify.error text: err
-                return 
-
-            # Empty file to invalidate the manually reduced fabrication file
-            files.push ["#{fabrication}_merged.svg", """
-                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-                <svg
-                   viewBox="0 0 210 297"
-                   height="297mm"
-                   width="210mm">
-                </svg>
-                """]
-
-            # Generate Gerbv project files for more visual inspection
-            # Usage: gerbv -p file.gvp
-            gen-gvp = (layers={}) -> 
-                '''
-                (gerbv-file-version! "2.0A")
-                (define-layer! 5 (cons 'filename "gerber/'''+layers.cu+'''")
-                    (cons 'visible #t)
-                    (cons 'color #(65535 65535 65535))
-                    (cons 'alpha #(51400))
-                )
-                (define-layer! 4 (cons 'filename "gerber/'''+layers.mask+'''")
-                    (cons 'inverted #t)
-                    (cons 'visible #t)
-                    (cons 'color #(34983 0 428))
-                    (cons 'alpha #(54741))
-                )
-                (define-layer! 3 (cons 'filename "gerber/Cut.Edge.GKO")
-                    (cons 'visible #t)
-                    (cons 'color #(65535 40745 0))
-                )
-                (define-layer! 0 (cons 'filename "gerber/drill.XLN")
-                    (cons 'visible #t)
-                    (cons 'color #(0 0 0))
-                    (cons 'attribs (list
-                        (list 'autodetect 'Boolean 1)
-                        (list 'zero_suppression 'Enum 1)
-                        (list 'units 'Enum 1)
-                        (list 'digits 'Integer 3)
-                    ))
-                )
-                (set-render-type! 3)
-                '''
-
-            sides = 
-                front: 
-                    cu: "F.Cu.GTL"
-                    mask: "F.Mask.GTS"
-                back: 
-                    cu: "B.Cu.GBL"
-                    mask: "B.Mask.GBS"
-
-            for side, f of sides
-                files.push ["gerber-#{side}.gvp", gen-gvp(f)]
-
-            # BoM            
-            schema = (new SchemaManager).active
-            bom-list = ""
-            for schema.get-bom-list!
-                bom-list += "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]\n"
-            files.push ["BOM.txt", bom-list]
-
-            # Testing
-            testing = "1_Testing"
-            err, res <~ prototypePrint {side: "F.Cu, Edge"}
-            unless err 
-                filename = "#{testing}_F.Cu.svg"
-                files.push [filename, res]
-            else 
-                PNotify.error text: err
-                return 
-
-            err, res <~ prototypePrint {side: "B.Cu, Edge", +mirror}
-            unless err 
-                filename = "#{testing}_B.Cu.svg"
-                files.push [filename, res]
-            else 
-                PNotify.error text: err
-                return 
-
-            <~ set-immediate
-            # Front Assembly
-            assembly = "3_Assembly"
-            err, res <~ prototypePrint {side: "F.Cu, Edge", scale: 2, trace-color: "lightgray"}
-            unless err 
-                filename = "#{assembly}_Front.svg"
-                files.push [filename, res]
-            else 
-                PNotify.error text: err
-                return 
-
-            <~ set-immediate
-            # Back Assembly
-            err, res <~ prototypePrint {side: "B.Cu, Edge", scale: 2, trace-color: "lightgray", +mirror}
-            unless err 
-                filename = "#{assembly}_Back.svg"
-                files.push [filename, res]
-            else 
-                PNotify.error text: err
-                return 
-
-            <~ set-immediate
-            # README 
-            files.push ["README.md", JSON.stringify require('app-version.json')]
 
             # create a zip file 
             zip = new jszip! 
-            for [name, content] in files 
-                zip.file name, content 
 
             # Save scripts 
             scripts = zip.folder "scripts"
             for name, content of (pcb.ractive.get \drawingLs)
                 scripts.file "#{name}.ls", content
 
-            # Create Gerber 
-            gerb = new GerberReducer
-            gerb.reset!
-            
-            # Every aeObj is responsible for registering its own 
-            # Gerber data. 
-            #console.log "aeObjs: ", pcb.get-aeobjs!
-            for aeobj in pcb.get-aeobjs!
-                aeobj.trigger \export-gerber
+            # README 
+            zip.file "README.md", JSON.stringify require('app-version.json')
 
-            for name, {content, ext} of gerb.export! 
-                zip.folder \gerber .file "#{name}.#{ext}", content 
+            layouts-dir = zip.folder "layouts"    
+            layouts = Object.keys pcb.layouts 
+            <~ :lo(op) ~> 
+                return op! if layouts.length is 0 
+
+                layout = layouts.shift!
+                layout-dir = layouts-dir.folder layout 
+                pcb.switch-layout layout 
+              
+                format = "json"
+
+                err, res <~ pcb.export {format}
+                unless err
+                    layout-dir.file "layout.#{format}", res
+                else
+                    PNotify.error text: err
+                    return 
+
+                # Fabrication
+                fabrication = "2_Fabrication"
+                err, res <~ prototypePrint {side: "F.Cu, Edge", +mirror}
+                unless err 
+                    layout-dir.file "#{fabrication}_F.Cu.svg", res
+                else 
+                    PNotify.error text: err
+                    return 
+
+                err, res <~ prototypePrint {side: "B.Cu, Edge"}
+                unless err 
+                    layout-dir.file "#{fabrication}_B.Cu.svg", res
+                else 
+                    PNotify.error text: err
+                    return 
+
+                # Empty file to invalidate the manually reduced fabrication file
+                layout-dir.file "#{fabrication}_merged.svg", """
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                    <svg
+                       viewBox="0 0 210 297"
+                       height="297mm"
+                       width="210mm">
+                    <use xlink:href="./#{fabrication}_F.Cu.svg" /></svg>
+                    <use xlink:href="./#{fabrication}_B.Cu.svg" /></svg>
+                    </svg>
+                    """
+
+                # Generate Gerbv project files for more visual inspection
+                # Usage: gerbv -p file.gvp
+                gen-gvp = (layers={}) -> 
+                    '''
+                    (gerbv-file-version! "2.0A")
+                    (define-layer! 5 (cons 'filename "gerber/'''+layers.cu+'''")
+                        (cons 'visible #t)
+                        (cons 'color #(65535 65535 65535))
+                        (cons 'alpha #(51400))
+                    )
+                    (define-layer! 4 (cons 'filename "gerber/'''+layers.mask+'''")
+                        (cons 'inverted #t)
+                        (cons 'visible #t)
+                        (cons 'color #(34983 0 428))
+                        (cons 'alpha #(54741))
+                    )
+                    (define-layer! 3 (cons 'filename "gerber/Cut.Edge.GKO")
+                        (cons 'visible #t)
+                        (cons 'color #(65535 40745 0))
+                    )
+                    (define-layer! 0 (cons 'filename "gerber/drill.XLN")
+                        (cons 'visible #t)
+                        (cons 'color #(0 0 0))
+                        (cons 'attribs (list
+                            (list 'autodetect 'Boolean 1)
+                            (list 'zero_suppression 'Enum 1)
+                            (list 'units 'Enum 1)
+                            (list 'digits 'Integer 3)
+                        ))
+                    )
+                    (set-render-type! 3)
+                    '''
+
+                sides = 
+                    front: 
+                        cu: "F.Cu.GTL"
+                        mask: "F.Mask.GTS"
+                    back: 
+                        cu: "B.Cu.GBL"
+                        mask: "B.Mask.GBS"
+
+                for side, f of sides
+                    layout-dir.file "gerber-#{side}.gvp", gen-gvp(f)
+
+                # BoM            
+                # compile scripts to generate Schema
+                pcb.ractive.fire \compileScript
+
+                schema = (new SchemaManager).active
+                bom-list = ""
+                for schema.get-bom-list!
+                    bom-list += "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]\n"
+                layout-dir.file "BOM.txt", bom-list
+
+                # Testing
+                testing = "1_Testing"
+                err, res <~ prototypePrint {side: "F.Cu, Edge"}
+                unless err 
+                    filename = "#{testing}_F.Cu.svg"
+                    layout-dir.file filename, res
+                else 
+                    PNotify.error text: err
+                    return 
+
+                err, res <~ prototypePrint {side: "B.Cu, Edge", +mirror}
+                unless err 
+                    filename = "#{testing}_B.Cu.svg"
+                    layout-dir.file filename, res
+                else 
+                    PNotify.error text: err
+                    return 
+
+                <~ set-immediate
+                # Front Assembly
+                assembly = "3_Assembly"
+                err, res <~ prototypePrint {side: "F.Cu, Edge", scale: 2, trace-color: "lightgray"}
+                unless err 
+                    filename = "#{assembly}_Front.svg"
+                    layout-dir.file filename, res
+                else 
+                    PNotify.error text: err
+                    return 
+
+                <~ set-immediate
+                # Back Assembly
+                err, res <~ prototypePrint {side: "B.Cu, Edge", scale: 2, trace-color: "lightgray", +mirror}
+                unless err 
+                    filename = "#{assembly}_Back.svg"
+                    layout-dir.file filename, res
+                else 
+                    PNotify.error text: err
+                    return 
+
+                <~ set-immediate
+
+                # Create Gerber 
+                # -------------
+                gerb = new GerberReducer
+                gerb.reset!
+                
+                # Every aeObj is responsible for registering its own 
+                # Gerber data. 
+                #console.log "aeObjs: ", pcb.get-aeobjs!
+                for aeobj in pcb.get-aeobjs!
+                    aeobj.trigger \export-gerber
+
+                gerbers = layout-dir.folder \gerber
+                for name, {content, ext} of gerb.export! 
+                    gerbers.file "#{name}.#{ext}", content 
+
+                lo(op)
 
             content <~ zip.generateAsync({type: "blob"}).then
-            create-download output-name, content
+            create-download "#{project-name}.zip", content
 
         uploadProject: (ctx, file, cb) ->
             try 
