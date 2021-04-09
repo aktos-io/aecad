@@ -283,5 +283,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
         (name) -> 
             if name isnt @_active_layout
                 @_active_layout = name 
-                @ractive.update 'activeLayout'
-                @ractive.update 'layouts'
+                
+                # order is important
+                @ractive.set 'layouts', Object.keys @layouts 
+                @ractive.set 'activeLayout', name  

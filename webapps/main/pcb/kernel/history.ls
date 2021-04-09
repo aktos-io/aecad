@@ -17,7 +17,7 @@ export class History
         json = @project.exportJSON {as-string: no}
         try
             backup = clone json
-            @commits.push backup
+            @commits.push {layout: backup, name: @parent.active-layout}
         catch
             @vlog.error "Huston, we have a problem: \n\n #{e.message}"
             return
@@ -31,7 +31,7 @@ export class History
         res=null 
         if @commits.pop!
             console.log "Going back in the history. Left: #{@commits.length}"
-            @load-project that
+            @load-project that.layout, that.name
             res = {left: @commits.length}
         else
             console.warn "No commits left, sorry."

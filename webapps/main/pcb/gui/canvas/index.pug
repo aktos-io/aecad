@@ -128,10 +128,12 @@ dropdown.mini(
 )
 
 dropdown.mini.green(
-    button
     simple-data="{{layouts}}"
     selected-key="{{activeLayout}}"
+    on-select="switchLayout"
+    on-add="addLayout"
+    listen-external="true"
 )
-    
+
 div
 canvas#draw

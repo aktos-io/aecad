@@ -42,19 +42,11 @@ Ractive.components['pcb'] = Ractive.extend do
     computed:
         currProps:
             get: ->
+                debugger 
                 layer = @get('currLayer')
                 layer-info = @get('layers')[layer]
                 layer-info.name = layer
                 layer-info
-
-        activeLayout: 
-            get: -> 
-                @get \pcb .active-layout 
-
-        layouts: 
-            get: -> 
-                @get \pcb .layouts |> Object.keys 
-
     data: ->
         autoCompile: no
         selectAllLayer: no
@@ -74,6 +66,8 @@ Ractive.components['pcb'] = Ractive.extend do
             layers: {}
             name: 'Project'
 
+        activeLayout: null
+        layouts: []
         activeLayer: 'gui'
         currLayer: 'F.Cu'
         currTrace:
@@ -84,6 +78,8 @@ Ractive.components['pcb'] = Ractive.extend do
             via:
                 outer: 1.5mm
                 inner: 0.5mm
+
+
         pointer: # mouse pointer coordinates
             x: 0
             y: 0

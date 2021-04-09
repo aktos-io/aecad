@@ -298,5 +298,18 @@ export init = (pcb) ->
                     pcb.selection.add {item: ..item}
             proceed!
 
+        switchLayout: (ctx, item, proceed) -> 
+            if item.id
+                if that isnt pcb.active-layout
+                    pcb.switchLayout item.id 
+                    ctx.ractive.fire 'fitAll'
+            proceed!
+
+        addLayout: (ctx, newKey, proceed) ->
+            # newKey is the search term
+            btn = ctx.button  # ack-button instance
+            pcb.switchLayout newKey
+            btn.state \done...
+            proceed!
 
     return handlers

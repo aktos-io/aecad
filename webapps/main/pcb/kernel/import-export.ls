@@ -207,10 +207,7 @@ export do
                 @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
             else
                 console.warn "No name layer: ", layer
-            for layer.getChildren! when ..?
-                ..selected = no
-                if ..data?.tmp
-                    ..remove!
+ 
         PNotify.success text: "#{name} imported."
 
         # inform the caller
@@ -249,8 +246,27 @@ export do
             console.warn "Workaround for load-project works."
         #console.log "Loaded project: ", @project
 
-        @layouts[name] = @project.exportJSON!
+        @layouts[name] = null
         @active-layout = name 
+
+    switchLayout: (layout-name) -> 
+        # save current layout in ractive.data.layouts
+        # load the target layout to the canvas
+        
+        # save current layout 
+        @layouts[@active-layout] = @project.exportJSON!
+        
+        # load target layout if exists
+        @clear-canvas!
+        if @layouts[layout-name]
+            @project.importJSON that
+        @register-layers!
+        @layouts[layout-name] = null 
+        @active-layout = layout-name 
+
+    removeLayout: (name) -> 
+        delete @layouts[name]
+
 
 importDXF2 = (ctx, file, next) ~>
     <~ @fire \activateLayer, ctx, \import

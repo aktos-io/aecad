@@ -137,6 +137,10 @@ export canvas-control =
         @ractive.delete 'project', 'layers'
         @ractive.set 'project.layers', {}
 
+    register-layers: -> 
+        for @project.layers when ..name 
+            @ractive.set "project.layers.#{Ractive.escapeKey ..name}", ..
+
     send-to-layer: (item, name) ->
         #set-keypath item, 'data.aecad.side', name # DO NOT DO THAT, LEAVE THIS TO COMPONENT
         @add-layer name  # add the layer if it doesn't exist
