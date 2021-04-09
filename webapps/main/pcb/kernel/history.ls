@@ -60,6 +60,8 @@ export class History
         # save current project
         data = @project.exportJSON!
         @db.set \project, data
+        @db.set \layouts, @parent.layouts 
+        @db.set \activeLayout, @parent.activeLayout
 
         # save scripts
         scripts = @ractive.get \drawingLs
@@ -102,6 +104,12 @@ export class History
             else
                 @ractive.get \vlog .error "How come the history isn't empty?"
                 console.error "Commit history isn't empty: ", @commits
+
+        if @db.get \layouts
+            @parent.layouts = that 
+
+        if @db.get \activeLayout
+            @parent.activeLayout = that 
 
         if @db.get \project
             @load-project that
