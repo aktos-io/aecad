@@ -42,7 +42,6 @@ Ractive.components['pcb'] = Ractive.extend do
     computed:
         currProps:
             get: ->
-                debugger 
                 layer = @get('currLayer')
                 layer-info = @get('layers')[layer]
                 layer-info.name = layer

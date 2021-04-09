@@ -236,7 +236,8 @@ export do
                 if layer.name
                     @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
                 else
-                    layer.selected = yes
+                    PNotify.notice text: "Problematic layer is highlighted."
+                    layer.selected = yes 
 
                 for layer.getItems!
                     ..selected = no
@@ -246,27 +247,35 @@ export do
             console.warn "Workaround for load-project works."
         #console.log "Loaded project: ", @project
 
-        @layouts[name] = null
+        unless name of @layouts 
+            @layouts[name] = null
         @active-layout = name 
 
-    switchLayout: (layout-name) -> 
+    switchLayout: (layout-name, script-name) -> 
         # save current layout in ractive.data.layouts
         # load the target layout to the canvas
         
         # save current layout 
-        @layouts[@active-layout] = @project.exportJSON!
+        @layouts{}[@active-layout].layout = @project.exportJSON!
+        if script-name 
+            @layouts{}[@active-layout].script-name = that
         
         # load target layout if exists
         @clear-canvas!
-        if @layouts[layout-name]
+        if @layouts[layout-name]?layout
             @project.importJSON that
         @register-layers!
-        @layouts[layout-name] = null 
+        unless layout-name of @layouts 
+            @layouts[layout-name] = null 
         @active-layout = layout-name 
 
     removeLayout: (name) -> 
+        layouts = Object.keys @layouts 
+        i = layouts.index-of name
+        new-i = (((i + 1) % layouts.length) + layouts.length) % layouts.length
+        @switch-layout layouts[new-i] 
         delete @layouts[name]
-
+        @ractive.set 'layouts', Object.keys @layouts
 
 importDXF2 = (ctx, file, next) ~>
     <~ @fire \activateLayer, ctx, \import

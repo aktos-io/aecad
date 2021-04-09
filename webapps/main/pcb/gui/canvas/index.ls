@@ -312,4 +312,8 @@ export init = (pcb) ->
             btn.state \done...
             proceed!
 
+        deleteActiveLayout: (ctx) !-> 
+            pcb.history.commit!
+            pcb.removeLayout pcb.active-layout
+
     return handlers

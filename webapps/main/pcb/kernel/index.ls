@@ -287,3 +287,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 # order is important
                 @ractive.set 'layouts', Object.keys @layouts 
                 @ractive.set 'activeLayout', name  
+
+    active-script: ~
+        -> 
+            @ractive.get \scriptName 

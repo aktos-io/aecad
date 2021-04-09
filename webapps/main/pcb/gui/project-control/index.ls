@@ -149,12 +149,31 @@ export init = (pcb) ->
 
             layouts-dir = zip.folder "layouts"    
             layouts = Object.keys pcb.layouts 
+            current-layout = pcb.active-layout 
             <~ :lo(op) ~> 
-                return op! if layouts.length is 0 
+                while true
+                    return op! if layouts.length is 0 
+                    layout = layouts.shift!
+                    if pcb.layouts[layout].scriptName
+                        scriptName = that 
+                        break 
+                    else 
+                        PNotify.notice do
+                            text: "Skipping layout: #{layout} as it does not have a script info."
 
-                layout = layouts.shift!
+                # Switch to appropriate layout 
                 layout-dir = layouts-dir.folder layout 
                 pcb.switch-layout layout 
+
+                # BoM            
+                # compile scripts to generate Schema
+                pcb.ractive.fire \compileScript, scriptName
+
+                schema = (new SchemaManager).active
+                bom-list = ""
+                for schema.get-bom-list!
+                    bom-list += "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]\n"
+                layout-dir.file "BOM.txt", bom-list
               
                 format = "json"
 
@@ -188,8 +207,6 @@ export init = (pcb) ->
                        viewBox="0 0 210 297"
                        height="297mm"
                        width="210mm">
-                    <use xlink:href="./#{fabrication}_F.Cu.svg" /></svg>
-                    <use xlink:href="./#{fabrication}_B.Cu.svg" /></svg>
                     </svg>
                     """
 
@@ -236,16 +253,6 @@ export init = (pcb) ->
 
                 for side, f of sides
                     layout-dir.file "gerber-#{side}.gvp", gen-gvp(f)
-
-                # BoM            
-                # compile scripts to generate Schema
-                pcb.ractive.fire \compileScript
-
-                schema = (new SchemaManager).active
-                bom-list = ""
-                for schema.get-bom-list!
-                    bom-list += "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]\n"
-                layout-dir.file "BOM.txt", bom-list
 
                 # Testing
                 testing = "1_Testing"
@@ -304,6 +311,8 @@ export init = (pcb) ->
                     gerbers.file "#{name}.#{ext}", content 
 
                 lo(op)
+
+            pcb.switch-layout current-layout
 
             content <~ zip.generateAsync({type: "blob"}).then
             create-download "#{project-name}.zip", content

@@ -77,15 +77,11 @@ export init = (pcb) ->
 
 
 
-    runScript = (code, opts={+clear}) ~>
+    runScript = (script-name, opts={+clear}) ~>
         compiled = no
         @set \output, ''
         try
-            if code and typeof! code isnt \String
-                throw new Error "Content is not string!"
-
             libs = []
-            script-name = @get \scriptName
             for name, src of @get \drawingLs
                 libs.push do
                     name: name, 
@@ -192,22 +188,16 @@ export init = (pcb) ->
                 # See https://github.com/ceremcem/aecad/issues/8
 
     # Register all classes on app load
-    runScript '# placeholder content', {-clear, name: 'Initialization run', +silent}
+    runScript @get('scriptName'), {-clear, name: 'Initialization run', +silent}
 
     h = @observe \editorContent, ((_new) ~>
-        if @get \autoCompile
-            runScript _new
-
-        sleep 0, ~>
-            if @get 'scriptName'
-                #console.log "SETTTING NEW!! in @observe editorcontent "
-                h.silence!
-                @set "drawingLs.#{Ractive.escapeKey that}", _new
-                <~ sleep 10
-                h.resume!
+        if @get 'scriptName'
+            #console.log "SETTTING NEW!! in @observe editorcontent "
+            h.silence!
+            @set "drawingLs.#{Ractive.escapeKey that}", _new
+            <~ sleep 10
+            h.resume!
     ), {-init}
-
-
 
     handlers =
         # gui/scripting.pug
@@ -221,8 +211,11 @@ export init = (pcb) ->
                 @get \project.layers.scripting ?.clear!
             progress!
 
-        compileScript: (ctx) ~>
-            runScript @get \editorContent
+        compileScript: (ctx, name) ~>
+            name = name or @get 'scriptName' 
+            runScript name 
+            pcb.layouts{}[pcb.active-layout].script-name = name 
+            console.log "layouts: ", pcb.layouts
 
         clearScriptLayer: (ctx) ~>
             @get \project.layers.scripting ?.clear!
