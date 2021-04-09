@@ -1,11 +1,30 @@
 require! '../../tools/lib': {get-aecad, get-parent-aecad}
-require! 'prelude-ls': {max}
+require! 'prelude-ls': {max, sort, join}
 require! 'aea': {create-download, ext}
 require! 'dcs/browser': {SignalBranch}
 require! 'jszip'
 require! '../../kernel/gerber-plotter': {GerberReducer}
 require! '../../tools/lib/schema/tests': {schema-tests}
 require! '../../tools/lib/schema/schema-manager': {SchemaManager}
+
+require! 'sha.js': shajs
+ 
+class GenMultiFingerprint
+    @hash = (input) -> 
+        sha = shajs \sha256
+        sha.update input, 'utf-8' .digest \hex .substring 0, 8
+
+    -> 
+        @checksums = []
+
+    add: (content) -> 
+        @checksums.push @@hash content
+
+    get: -> 
+        @checksums 
+            |> sort 
+            |> join '\n' 
+            |> @@hash 
 
 
 export init = (pcb) ->
@@ -91,7 +110,6 @@ export init = (pcb) ->
         downloadProject: (ctx, project-name) ->
             files = []
             format = "json"
-            output-name = "#{project-name}.zip"
 
             unless project-name
                 pcb.vlog .error do
@@ -116,7 +134,7 @@ export init = (pcb) ->
                     _sd.cancel! 
                     PNotify.notice text: "Cancelled download."
             <~ dirty-confirm.joined
-            PNotify.info text: "Preparing #{output-name}..."
+            PNotify.info text: "Preparing project file of #{project-name}..."
             <~ sleep 100ms 
             err, res <~ pcb.export {format}
             unless err
