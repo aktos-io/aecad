@@ -56,6 +56,9 @@ export do
         _svg = @__export_svg!
         err, svg <~ @svg-to-ast _svg
 
+        unless svg.attributes.viewBox
+            return callback err=null, res="Empty"
+
         # do postprocessing here
         # ------------------------------------------------------
         deps = require('app-version.json')
