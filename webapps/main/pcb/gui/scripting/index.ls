@@ -40,7 +40,10 @@ export init = (pcb) ->
                 text: markdown
                 addClass: 'nonblock'
 
-        standard: (sch) ->
+        layout: (name) -> 
+            pcb.switch-layout name
+
+        standard: (sch) ->            
             sch   
                 ..clear-guides!
                 ..compile!
@@ -66,6 +69,13 @@ export init = (pcb) ->
 
             if sch.data.disable-drc
                 PNotify.notice text: "DRC Disabled: #{that}"
+
+            bom = []
+            bom.push "; count, type: value [instances...]"
+            bom.push "; ---------------------------------"
+            for sch.get-bom-list!
+                bom.push "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]"
+            pcb.layouts{}[pcb.active-layout].bom = bom.join '\n'
 
             return sch
 
@@ -209,6 +219,9 @@ export init = (pcb) ->
             h.resume!
             unless item.content
                 @get \project.layers.scripting ?.clear!
+            unless pcb.layouts[pcb.active-layout]?type is "manual"
+                unless pcb.active-layout is item.id   
+                    pcb.switch-layout item.id   
             progress!
 
         compileScript: (ctx, name) ~>

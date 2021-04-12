@@ -139,6 +139,14 @@ export init = (pcb) ->
             # create a zip file 
             zip = new jszip! 
 
+            # Filename map 
+            filename-map = f = 
+                v1:
+                    "layout": "layout.json"
+                    "scriptName": "script-name"
+                    "bom": "BOM.txt"
+                    "type": "type"
+
             # Save scripts 
             scripts = zip.folder "scripts"
             for name, content of (pcb.ractive.get \drawingLs)
@@ -156,30 +164,28 @@ export init = (pcb) ->
                     layout = layouts.shift!
                     if pcb.layouts[layout].scriptName
                         scriptName = that 
-                        break 
+                        if scriptName of pcb.ractive.get('drawingLs')
+                            break 
+                        else
+                            PNotify.notice do 
+                                text: "Skipping layout: No script named \"#{scriptName}\" can be found."
                     else 
                         PNotify.notice do
-                            text: "Skipping layout: #{layout} as it does not have a script info."
+                            text: "Skipping layout: #{layout} has no scriptName."
 
                 # Switch to appropriate layout 
-                layout-dir = layouts-dir.folder layout 
                 pcb.switch-layout layout 
 
-                # BoM            
-                # compile scripts to generate Schema
-                pcb.ractive.fire \compileScript, scriptName
+                layout-dir = layouts-dir.folder layout 
 
-                schema = (new SchemaManager).active
-                bom-list = ""
-                for schema.get-bom-list!
-                    bom-list += "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]\n"
-                layout-dir.file "BOM.txt", bom-list
-              
+                for key in <[ bom scriptName type ]> 
+                    if pcb.layouts[layout][key]
+                        layout-dir.file f.v1[key], that
+
                 format = "json"
-
                 err, res <~ pcb.export {format}
                 unless err
-                    layout-dir.file "layout.#{format}", res
+                    layout-dir.file f.v1.layout, res
                 else
                     PNotify.error text: err
                     return 
@@ -299,6 +305,7 @@ export init = (pcb) ->
                 # -------------
                 gerb = new GerberReducer
                 gerb.reset!
+                gerb-version = new GenMultiFingerprint
                 
                 # Every aeObj is responsible for registering its own 
                 # Gerber data. 
@@ -309,6 +316,9 @@ export init = (pcb) ->
                 gerbers = layout-dir.folder \gerber
                 for name, {content, ext} of gerb.export! 
                     gerbers.file "#{name}.#{ext}", content 
+                    gerb-version.add content 
+
+                layout-dir.file "gerber-version", gerb-version.get!
 
                 lo(op)
 
@@ -323,6 +333,15 @@ export init = (pcb) ->
                 console.log "project name is: ", project-name
                 pcb.history.commit!
                 pcb.clear-canvas!
+                # Backup current scripts just in case 
+                console.log "Backup of current scripts:"
+                console.log "--------------------------------------------"
+                for name, content of pcb.ractive.get('drawingLs')
+                    console.log """
+                        # Script: #{name}
+                        #{content}
+                        """
+                console.log "--------------------------------------------"
                 pcb.ractive.set \editorContent, ""
                 pcb.ractive.set \scriptName, null
 
@@ -347,7 +366,7 @@ export init = (pcb) ->
                     x.substr(0, x.lastIndexOf('.'))
 
                 # import scripts
-                drawingLs = {}    # remove everything
+                drawingLs = {}   
                 for let file, prop of zip.files
                     if prop.dir 
                         console.log "Directory entry, skipping:", prop.name
