@@ -248,7 +248,6 @@ export do
                         ..remove!
             break unless needs-rerun
             console.warn "Workaround for load-project works."
-        #console.log "Loaded project: ", @project
 
         unless name of @layouts 
             @layouts[name] = null
@@ -257,6 +256,7 @@ export do
     switchLayout: (layout-name, script-name) -> 
         # save current layout in ractive.data.layouts
         # load the target layout to the canvas
+        return -1 unless layout-name?
         
         # save current layout 
         @layouts{}[@active-layout].layout = @project.exportJSON!
