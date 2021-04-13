@@ -76,16 +76,17 @@ export class Footprint extends Container
                     radius: 0.3
 
             center = @g.bounds.center
-            if (typeof! opts.centered is \Boolean) and not opts.centered
+            pos = if (typeof! opts.centered is \Boolean) and not opts.centered
                 if type is \Rectangle
-                    pos = 
+                    {
                         x: dimensions.size.x/2
                         y: dimensions.size.y/2
+                    }
                 else
-                    pos: {x:0, y: 0}
+                    {x:0, y: 0}
             else
                 # centered 
-                pos = {x: center.x, y: center.y}
+                {x: center.x, y: center.y}
 
 
 
@@ -95,23 +96,35 @@ export class Footprint extends Container
             if opts.offset-y?
                 pos.y += that |> mm2px
 
-            @add-part 'border', new @scope.Shape[type] dimensions <<< {position: pos} <<< center <<< do
-                stroke-color: 'DeepPink'
-                stroke-width: 0.2
-                parent: @g
+            i = 1
+            while true 
+                border = "border#{i}"
+                if @get-part border 
+                    i++
+                    continue 
+                else 
+                    @add-part border, new @scope.Shape[type] dimensions <<< {position: pos} <<< center <<< do
+                        stroke-color: 'DeepPink'
+                        stroke-width: 0.2
+                        parent: @g
+                    break 
 
     mirror: ->
         super ...
-        @border?.stroke-color = switch @side2
-            | 'F' => 'DeepPink'
-            | 'B' => 'LightSeaGreen'
+        switch @side2
+        | 'F' => @borders!.for-each (.stroke-color = 'DeepPink')
+        | 'B' => @borders!.for-each (.stroke-color = 'LightSeaGreen')
+        |_ => # this is an uninitialized component
+
+    borders: ->
+        @g.children.filter (.data?aecad?part?.match /^border[0-9]*$/)
 
     _loader: (item) ->
         console.warn "We have a stray item, selecting it: ", item
         item.selected = yes
 
     print-mode: ->
-        @border?.remove!
+        @borders!.for-each (.remove!)
         super ...
 
     on: (event, ...args) ->
@@ -120,7 +133,7 @@ export class Footprint extends Container
         | 'export-gerber' => 
             # Export Gerber Silkscreen data
             _round2 = -> it * 100 |> Math.round |> (/100)
-            if border=@owner.border
+            for border in @owner.borders!
                 w = px2mm border.size.width |> _round2
                 h = px2mm border.size.height |> _round2
                 t = border.type 
