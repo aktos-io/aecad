@@ -16,16 +16,12 @@ working_tree_clean(){
 }
 
 for zipfile in $(ls *.zip 2> /dev/null); do
-    [[ $zipfile == *.new.zip ]] && continue
+    [[ $zipfile == *.upload.zip ]] && continue
     [[ $zipfile == *.gerber.zip ]] && continue
-    outdir="${zipfile%.*}"
-    if working_tree_clean $outdir || $force; then
-        [[ $force = true ]] && echo "Force enabled: Removing $outdir"
-        rm -r "$outdir"
-        unzip $zipfile -d $outdir > /dev/null && rm "$zipfile"
-        info "aeCAD Extract" "\"$zipfile\" is extracted."
-        echo "Deleted \"$zipfile\""
-    else
-        error "aeCAD Extract ERROR!" "\"$outdir\" has unsaved work. Not extracting."
-    fi
+    outdir="${zipfile%.*}.tmp"
+    [[ -d "$outdir" ]] && rm -r "$outdir"
+    unzip $zipfile -d "$outdir" > /dev/null && mv "$zipfile" "${zipfile%.zip}.upload.zip"
+    rsync -a --delete --exclude ".git"  "$outdir"/ "${outdir%.tmp}"/
+    rm -r "$outdir"
+    info "aeCAD Extract" "\"$zipfile\" is extracted."
 done
