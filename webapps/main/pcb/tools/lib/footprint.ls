@@ -123,8 +123,11 @@ export class Footprint extends Container
         console.warn "We have a stray item, selecting it: ", item
         item.selected = yes
 
-    print-mode: ->
-        @borders!.for-each (.remove!)
+    print-mode: ({layers, trace-color, border-color}) ->
+        if border-color
+            @borders!.for-each (.stroke-color = that)
+        else
+            @borders!.for-each (.remove!)
         super ...
 
     on: (event, ...args) ->

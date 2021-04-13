@@ -36,6 +36,7 @@ export init = (pcb) ->
         mirror = opts.mirror 
         scale = opts.scale
         trace-color = opts.trace-color
+        border-color = opts.border-color
 
         aeitems = []
         for pcb.project.layers
@@ -49,7 +50,7 @@ export init = (pcb) ->
                 if item
                     #console.log "Found ae-obj:", item.data.aecad.type, "name: ", item.data.aecad.name
                     o = get-aecad item
-                        ..print-mode {layers, trace-color}
+                        ..print-mode {layers, trace-color, border-color}
                     aeitems.push o
                 else
                     ..remove!
@@ -281,7 +282,11 @@ export init = (pcb) ->
                 <~ set-immediate
                 # Front Assembly
                 assembly = "3_Assembly"
-                err, res <~ prototypePrint {side: "F.Cu, Edge", scale: 2, trace-color: "lightgray"}
+                err, res <~ prototypePrint {
+                    side: "F.Cu, Edge", 
+                    scale: 2, 
+                    trace-color: "lightgray", 
+                    border-color: "darkgray"}
                 unless err 
                     filename = "#{assembly}_Front.svg"
                     layout-dir.file filename, res
@@ -291,7 +296,12 @@ export init = (pcb) ->
 
                 <~ set-immediate
                 # Back Assembly
-                err, res <~ prototypePrint {side: "B.Cu, Edge", scale: 2, trace-color: "lightgray", +mirror}
+                err, res <~ prototypePrint {
+                    side: "B.Cu, Edge", 
+                    scale: 2, 
+                    trace-color: "lightgray", 
+                    border-color: "darkgray", 
+                    +mirror}
                 unless err 
                     filename = "#{assembly}_Back.svg"
                     layout-dir.file filename, res

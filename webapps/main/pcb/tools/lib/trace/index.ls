@@ -128,7 +128,7 @@ export class Trace extends Container implements follow, helpers, end
                         gerber: gerb.join('\n')
 
 
-    print-mode: ({layers, trace-color}) ->
+    print-mode: ({layers, trace-color, border-color}) ->
         super ...
         #console.log "trace is printing for: ", side, @pads
         for @paths
