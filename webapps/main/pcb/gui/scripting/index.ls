@@ -164,11 +164,29 @@ export init = (pcb) ->
             js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
             compiled = yes
         catch err
+            i = 1
+            problematic = []
+            files = []
+            :outer for {name, src} in ordered 
+                for line in src.split '\n'
+                    if err.hash.loc.first_line <= i
+                        problematic.push line 
+                        files.push name unless name in files 
+                    if err.hash.loc.last_line < i 
+                        break outer
+                    i++
+
             @set \output, "Compile error: #{err.to-string!}"
             @get \vlog .error do
                 title: 'Compile Error'
-                message: err.to-string!
+                message: """
+                    #{err.to-string!}
+                    ----------------------
+                    Responsible: "#{files.join ','}"
+                    Code: #{problematic.join '\n'}
+                    """
             console.error "Compile error: #{err.to-string!}"
+            console.log whole-src
 
         if compiled
             try
@@ -189,11 +207,11 @@ export init = (pcb) ->
                             """
                         addClass: 'nonblock'
 
-            catch
-                @set \output, "ERROR: \n\n" + (@get 'output') + "#{e}"
+            catch err 
+                @set \output, "ERROR: \n\n" + (@get 'output') + "#{err}"
                 @get \vlog .error do
                     title: 'Runtime Error'
-                    message: e
+                    message: err
                 console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
                 # See https://github.com/ceremcem/aecad/issues/8
 
