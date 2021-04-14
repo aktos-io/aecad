@@ -12,6 +12,7 @@ export class History
         @db = new BrowserStorage opts.name
         @commits = []
         @limit = 200
+        @history-limit = 5
 
     commit: ->
         json = @project.exportJSON {as-string: no}
@@ -77,7 +78,7 @@ export class History
             currTrace: @ractive.get \currTrace
 
         # save last 10 commits of history
-        @db.set \history, @commits.slice(-10)
+        @db.set \history, @commits.slice(- @history-limit)
 
         res = 
             message: "Saved at #{Date!}"
