@@ -57,7 +57,14 @@ export do
         err, svg <~ @svg-to-ast _svg
 
         unless svg.attributes.viewBox
-            return callback err=null, res="Empty"
+            return callback err=null, res='''
+                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <svg
+                   viewBox="0 0 210 297"
+                   height="297mm"
+                   width="210mm">
+                </svg>
+                '''
 
         # do postprocessing here
         # ------------------------------------------------------

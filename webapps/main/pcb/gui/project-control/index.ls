@@ -168,11 +168,9 @@ export init = (pcb) ->
                         if scriptName of pcb.ractive.get('drawingLs')
                             break 
                         else
-                            PNotify.notice do 
-                                text: "Skipping layout: No script named \"#{scriptName}\" can be found."
+                            console.log "Skipping layout: No script named \"#{scriptName}\" can be found."
                     else 
-                        PNotify.notice do
-                            text: "Skipping layout: #{layout} has no scriptName."
+                        console.log "Skipping layout: #{layout} has no scriptName."
 
                 # Switch to appropriate layout 
                 pcb.switch-layout layout 
@@ -194,7 +192,7 @@ export init = (pcb) ->
                 # Fabrication
                 fabrication = "2_Fabrication"
                 err, res <~ prototypePrint {side: "F.Cu, Edge", +mirror}
-                unless err 
+                unless err
                     layout-dir.file "#{fabrication}_F.Cu.svg", res
                 else 
                     PNotify.error text: err
@@ -279,6 +277,8 @@ export init = (pcb) ->
                     PNotify.error text: err
                     return 
 
+                BORDER_COLOR = "black"
+
                 <~ set-immediate
                 # Front Assembly
                 assembly = "3_Assembly"
@@ -286,7 +286,7 @@ export init = (pcb) ->
                     side: "F.Cu, Edge", 
                     scale: 2, 
                     trace-color: "lightgray", 
-                    border-color: "darkgray"}
+                    border-color: BORDER_COLOR}
                 unless err 
                     filename = "#{assembly}_Front.svg"
                     layout-dir.file filename, res
@@ -300,7 +300,7 @@ export init = (pcb) ->
                     side: "B.Cu, Edge", 
                     scale: 2, 
                     trace-color: "lightgray", 
-                    border-color: "darkgray", 
+                    border-color: BORDER_COLOR, 
                     +mirror}
                 unless err 
                     filename = "#{assembly}_Back.svg"

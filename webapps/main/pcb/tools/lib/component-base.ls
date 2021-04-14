@@ -22,7 +22,7 @@ export class ComponentBase
         @_schema_manager = new SchemaManager
         @pads = []
         @_next_id = 1 # will be used for enumerating pads
-        @blur-opacity = 0.3
+        @blur-opacity = 0.2
         # declare Pad.left, Pad.top, ...
         for <[ left right top bottom center ]>
             Object.defineProperty @, .., do

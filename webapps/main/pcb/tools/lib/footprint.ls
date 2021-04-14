@@ -106,7 +106,7 @@ export class Footprint extends Container
                     @add-part border, new @scope.Shape[type] dimensions <<< {position: pos} <<< center <<< do
                         stroke-color: 'DeepPink'
                         stroke-width: 0.2
-                        parent: @g
+                        parent: (@parent or this).g
                     break 
 
     mirror: ->
@@ -124,8 +124,8 @@ export class Footprint extends Container
         item.selected = yes
 
     print-mode: ({layers, trace-color, border-color}) ->
-        if border-color
-            @borders!.for-each (.stroke-color = that)
+        if border-color and @side in layers 
+            @borders!.for-each (.stroke-color = border-color)
         else
             @borders!.for-each (.remove!)
         super ...
