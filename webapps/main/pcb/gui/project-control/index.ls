@@ -163,7 +163,7 @@ export init = (pcb) ->
                 while true
                     return op! if layouts.length is 0 
                     layout = layouts.shift!
-                    if pcb.layouts[layout].scriptName
+                    if pcb.layouts[layout]?.scriptName
                         scriptName = that 
                         if scriptName of pcb.ractive.get('drawingLs')
                             break 
