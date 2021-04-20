@@ -148,13 +148,19 @@ export init = (pcb) ->
                     "bom": "BOM.txt"
                     "type": "type"
 
+            # File format version 
+            zip.file "format", "version-2"
+
+            # README 
+            zip.file "README.md", JSON.stringify require('app-version.json')
+
+            # Project name 
+            zip.file "project-name", pcb.ractive.get 'project.name'
+
             # Save scripts 
             scripts = zip.folder "scripts"
             for name, content of (pcb.ractive.get \drawingLs)
                 scripts.file "#{name}.ls", content
-
-            # README 
-            zip.file "README.md", JSON.stringify require('app-version.json')
 
             layouts-dir = zip.folder "layouts"    
             layouts = Object.keys pcb.layouts 
@@ -338,6 +344,10 @@ export init = (pcb) ->
             create-download "#{project-name}.zip", content
 
         uploadProject: (ctx, file, cb) ->
+            get-stem = get-filename = (f) -> 
+                x = f.split('/').pop()
+                x.substr(0, x.lastIndexOf('.')).trim()
+
             try 
                 project-name = file.basename.split('.')[0]
                 console.log "project name is: ", project-name
@@ -357,24 +367,32 @@ export init = (pcb) ->
 
                 b = new SignalBranch
                 zip <~ jszip.loadAsync(file.blob).then
-                if Boolean(zip.file("#{project-name}/pcb.json"))
-                    pfx = "#{project-name}/"
+                version = undefined 
+                if Boolean(zip.file("pcb.json"))
+                    version = 1 
+                else if Boolean(zip.file("format"))
+                    signal = b.add!
+                    contents <~ zip.file("format").async("string")
+                    version := contents.split '-' .1
                 else 
-                    pfx = ""
+                    throw new Error "aeCAD file format is wrong."
+                <~ b.joined
 
-                # import drawing 
-                signal = b.add!
-                zip.file("#{pfx}pcb.json").async("string").then (contents) ~> 
+                switch version 
+                | 1 => 
+                    # import drawing 
+                    signal = b.add!
+                    contents <~ zip.file("pcb.json").async("string").then
                     err <~ pcb.import contents, do
                         format: "json"
                         name: "pcb"
                     <~ pcb.ractive.fire \activateLayer, ctx, "gui"
                     signal.go err
+                | 2 => 
+                    ...
+                |_ => throw new Error "Format not implemented: version-#{version}"
 
-                get-filename = (f) -> 
-                    x = f.split('/').pop()
-                    x.substr(0, x.lastIndexOf('.'))
-
+                <~ b.joined 
                 # import scripts
                 drawingLs = {}   
                 for let file, prop of zip.files
@@ -385,18 +403,17 @@ export init = (pcb) ->
                     else if get-filename(file).trim() is ""
                         console.warn "SKIPPING EMPTY FILENAME"
                     else
-                        if file.starts-with "#{pfx}scripts/" 
+                        if file.starts-with "scripts/" 
                             console.log "Unpacking #{file}..."
                             signal = b.add!
                             contents <~ zip.file(file).async("string").then
-                            drawingLs[get-filename(file)] = contents 
+                            drawingLs[get-stem(file)] = contents 
                             signal.go!
                 <~ b.joined
                 # Assign relevant objects
                 pcb.ractive.set 'project.name', project-name
                 pcb.ractive.set \drawingLs, drawingLs
                 pcb.ractive.set \scriptName, project-name
-
                 return cb(null)
             catch err
                 @get \vlog .error do
