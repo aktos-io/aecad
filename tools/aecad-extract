@@ -15,13 +15,15 @@ working_tree_clean(){
     git status $1 | grep "nothing to commit, working tree clean" > /dev/null
 }
 
-for zipfile in $(ls *.zip 2> /dev/null); do
-    [[ $zipfile == *.upload.zip ]] && continue
-    [[ $zipfile == *.gerber.zip ]] && continue
-    outdir="${zipfile%.*}.tmp"
+processed=false
+for zipfile in $@; do
+    processed=true
+    outdir=$(mktemp -d "/tmp/${zipfile}-XXX")
     [[ -d "$outdir" ]] && rm -r "$outdir"
     unzip $zipfile -d "$outdir" > /dev/null && mv "$zipfile" "${zipfile%.zip}.upload.zip"
     rsync -a --delete --exclude ".git"  "$outdir"/ "${outdir%.tmp}"/
     rm -r "$outdir"
     info "aeCAD Extract" "\"$zipfile\" is extracted."
 done
+
+$processed || echo "No project supplied."
