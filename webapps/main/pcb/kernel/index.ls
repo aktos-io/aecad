@@ -237,6 +237,8 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                         _self._on_double_esc?!
                     esc.date0 = esc.date
 
+
+
     on-double-esc: (handler) ->
         @_on_double_esc = handler
 

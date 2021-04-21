@@ -225,9 +225,15 @@ export do
             callback err=null
 
     importLayout: (json, name) -> 
+        # json: is a stringified JSON
         name = name or @active-layout
         @selection.clear!
-        @project.importJSON json
+        try 
+            if typeof! json is \String 
+                JSON.parse json # verify that this is a JSON string 
+            @project.importJSON json
+        catch 
+            debugger 
         while true
             needs-rerun = false
             for layer in @project.layers
@@ -260,15 +266,17 @@ export do
             @layouts[name] = null
         @active-layout = name 
 
-    switchLayout: (layout-name, script-name) -> 
+    switchLayout: (layout-name, opts={}) -> 
         # save current layout in ractive.data.layouts
         # load the target layout to the canvas
         return -1 unless layout-name?
         
         # save current layout 
-        @layouts{}[@active-layout].layout = @project.exportJSON!
-        if script-name 
-            @layouts{}[@active-layout].script-name = that
+        if @active-layout?
+            unless opts.dont-save-current
+                @layouts{}[@active-layout].layout = @project.exportJSON!
+                if opts.script-name 
+                    @layouts{}[@active-layout].script-name = that
         
         # load target layout if exists
         @clear-canvas!

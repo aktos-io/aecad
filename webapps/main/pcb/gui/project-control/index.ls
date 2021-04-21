@@ -143,10 +143,10 @@ export init = (pcb) ->
             # Filename map 
             filename-map = f = 
                 v1:
-                    "layout": "layout.json"
-                    "scriptName": "script-name"
-                    "bom": "BOM.txt"
-                    "type": "type"
+                    "layout": "layout.json"     # set in multiple places, including gui/scripting/scriptSelected() function
+                    "scriptName": "script-name" # set by gui/scripting/compileScript() function
+                    "bom": "BOM.txt"            # set by gui/scripting/standard() function
+                    "type": "type"              # set by gui/scripting/scriptSelected() function
 
             # File format version 
             zip.file "format", "version-2"
@@ -184,8 +184,7 @@ export init = (pcb) ->
                 layout-dir = layouts-dir.folder layout 
 
                 for key in <[ bom scriptName type ]> 
-                    if pcb.layouts[layout][key]
-                        layout-dir.file f.v1[key], that
+                    layout-dir.file f.v1[key], (pcb.layouts[layout][key] or '')
 
                 format = "json"
                 err, res <~ pcb.export {format}
@@ -369,17 +368,18 @@ export init = (pcb) ->
                 zip <~ jszip.loadAsync(file.blob).then
                 version = undefined 
                 if Boolean(zip.file("pcb.json"))
-                    version = 1 
+                    version = "1" 
                 else if Boolean(zip.file("format"))
                     signal = b.add!
-                    contents <~ zip.file("format").async("string")
+                    contents <~ zip.file("format").async("string").then
                     version := contents.split '-' .1
+                    signal.go!
                 else 
                     throw new Error "aeCAD file format is wrong."
                 <~ b.joined
 
                 switch version 
-                | 1 => 
+                | "1" => 
                     # import drawing 
                     signal = b.add!
                     contents <~ zip.file("pcb.json").async("string").then
@@ -388,9 +388,41 @@ export init = (pcb) ->
                         name: "pcb"
                     <~ pcb.ractive.fire \activateLayer, ctx, "gui"
                     signal.go err
-                | 2 => 
-                    ...
-                |_ => throw new Error "Format not implemented: version-#{version}"
+                | "2" => 
+                    signal = b.add! 
+                    layouts = {}
+                    layout-names = Object.keys zip.files 
+                        .filter (.match /layouts\/[^\/]+\/$/)
+                        .map (.slice 0, -1)
+                        .map (.split '/' .pop!)
+
+                    b2 = new SignalBranch
+                    layout-names.for-each (layout-name) ->                     
+                        s2 = b2.add!
+                        layouts[layout-name] = {}
+                        contents <~ zip.files["layouts/#{layout-name}/layout.json"].async("string").then
+                        layouts[layout-name].layout = try
+                            JSON.parse contents # verify that this is a real JSON data 
+                            contents 
+                        catch 
+                            PNotify.notice text: "Unexpected JSON data for #{layout-name}/layout.json, see console."
+                            console.warn "Unexpected JSON data for #{layout-name}/layout.json: ", contents 
+                            null 
+                        contents <~ (zip.files["layouts/#{layout-name}/BOM.txt"]?async("string") or Promise.resolve!).then
+                        layouts[layout-name].bom = contents 
+                        contents <~ (zip.files["layouts/#{layout-name}/type"]?async("string") or Promise.resolve!).then
+                        layouts[layout-name].type = contents 
+                        contents <~ zip.files["layouts/#{layout-name}/script-name"].async("string").then
+                        layouts[layout-name].script-name = contents 
+                        s2.go!
+
+                    <~ b2.joined 
+                    contents <~ zip.file("project-name").async("string").then
+                    project-name := contents 
+                    pcb.layouts = layouts 
+                    pcb.switch-layout project-name, {+dont-save-current}
+                    signal.go!
+                | otherwise => throw new Error "Format not implemented: version-#{version}"
 
                 <~ b.joined 
                 # import scripts
