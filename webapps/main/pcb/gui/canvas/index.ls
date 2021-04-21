@@ -62,8 +62,13 @@ export init = (pcb) ->
             unless empty upgrades=(sch.get-upgrades!)
                 for upg in upgrades
                     for sel in selection.selected when upg.component.name is sel.aeobj.owner.name
-                        upgrade-count++
-                        upg.component.upgrade {type: upg.type}
+                        try 
+                            upg.component.upgrade {type: upg.type}
+                            upgrade-count++
+                        catch 
+                            PNotify.error do 
+                                text: "Error upgrading components: #{e}"
+                                hide: no
             selection.clear!
             PNotify.info text: "Upgraded #{upgrade-count} component(s)."
 
