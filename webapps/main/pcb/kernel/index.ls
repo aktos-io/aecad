@@ -187,7 +187,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 @ractive.set \pointer, event.point
 
             ..onKeyDown = (event) ~>
-                console.log "Pressed key: ", event.key, event.modifiers
+                #console.log "Pressed key: ", event.key, event.modifiers
 
                 switch event.key
                 | \delete =>

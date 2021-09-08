@@ -14,10 +14,6 @@ Ractive.components['pcb'] = Ractive.extend do
             background: '#252525'
             height: 400
 
-        console.log "Waiting for history to load"
-        <~ pcb.history.loaded context=this
-        console.log "History loaded"
-
         @set \pcb, pcb
 
         # Visual Logger client
@@ -39,6 +35,9 @@ Ractive.components['pcb'] = Ractive.extend do
 
         @on handlers
         pcb.view.center = [0,0]
+
+        <~ pcb.history.loaded context=this
+
         @fire 'fitAll'
 
         @fire 'runTests'

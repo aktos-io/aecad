@@ -1,6 +1,7 @@
 require! 'actors': {BrowserStorage}
 require! 'aea': {hash, clone}
 require! 'prelude-ls': {values, difference, keys, empty}
+require! './LdbStorage': {LdbStorage}
 
 export class History
     (opts) ->
@@ -10,6 +11,7 @@ export class History
         @selection = opts.selection
         @vlog = opts.vlog
         @db = new BrowserStorage opts.name
+        @db2 = new LdbStorage opts.name, ctx=this
         @commits = []
         @limit = 200
         @history-limit = 5
@@ -63,25 +65,26 @@ export class History
         # -----------------------------------------
         # save current project
         data = @project.exportJSON!
-        @db.set \project, data
-        @db.set \layouts, @parent.layouts 
-        @db.set \activeLayout, @parent.activeLayout
+        @db2.set \project, data
+        @db2.set \layouts, @parent.layouts 
+        @db2.set \activeLayout, @parent.activeLayout
 
         # save scripts
+        /*
         scripts = @ractive.get \drawingLs
-        @db.set \scripts, scripts
-        #@db.set \scriptHashes, @ractive.get \scriptHashes
+        @db2.set \scripts, scripts
+        */
 
         # Save settings
         # TODO: provide a proper way for this, it's too messy now
-        @db.set \settings, do
+        @db2.set \settings, do
             scriptName: @ractive.get \scriptName
             projectName: @ractive.get \project.name
             autoCompile: @ractive.get \autoCompile
             currTrace: @ractive.get \currTrace
 
         # save last 10 commits of history
-        @db.set \history, @commits.slice(- @history-limit)
+        @db2.set \history, @commits.slice(- @history-limit)
 
         res = 
             message: "Saved at #{Date!}"
@@ -95,12 +98,6 @@ export class History
     load: ->
         # Load from browser's local storage
         # --------------------------------------
-        if @db.get \settings
-            # TODO: see save/settings
-            @ractive.set \scriptName, that.scriptName
-            @ractive.set \project.name, that.projectName
-            @ractive.set \autoCompile, that.autoCompile
-            @ractive.set \currTrace, that.currTrace
 
         if commits=(@db.get \history)
             if @commits.length is 0 and typeof! commits is \Array
@@ -118,13 +115,21 @@ export class History
         if @db.get \project
             @load-project that
 
-        if @db.get \scripts
+        value <~ @db2.get \scripts
+        if value 
             @load-scripts that
 
+        if @db.get \settings
+            # TODO: see save/settings
+            @ractive.set \scriptName, that.scriptName
+            @ractive.set \project.name, that.projectName
+            @ractive.set \autoCompile, that.autoCompile
+            @ractive.set \currTrace, that.currTrace
+        
         unless @history-loaded
-            for let @loaded-callbacks
-                that?callback?call that.ctx 
-            @loaded-callbacks.length = 0
+            while @loaded-callbacks.length > 0
+                {callback, ctx} = @loaded-callbacks.shift!
+                callback?call ctx
 
         @history-loaded = yes 
 
@@ -138,3 +143,4 @@ export class History
             callback.call ctx
         else
             @loaded-callbacks.push {ctx, callback}
+        
