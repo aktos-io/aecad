@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eu
 info(){
     echo "$@"
     notify-send "$@"
@@ -16,12 +17,11 @@ working_tree_clean(){
 }
 
 processed=false
-for zipfile in $@; do
+for zipfile in "$@"; do
     processed=true
     outdir=$(mktemp -d "/tmp/${zipfile}-XXX")
-    [[ -d "$outdir" ]] && rm -r "$outdir"
-    unzip $zipfile -d "$outdir" > /dev/null && mv "$zipfile" "${zipfile%.zip}.upload.zip"
-    rsync -a --delete --exclude ".git"  "$outdir"/ "${outdir%.tmp}"/
+    unzip $zipfile -d "$outdir" > /dev/null && mv "$zipfile"{,.extracted}
+    rsync -a --delete --exclude ".git"  "$outdir"/ "${zipfile%.*}"/
     rm -r "$outdir"
     info "aeCAD Extract" "\"$zipfile\" is extracted."
 done
