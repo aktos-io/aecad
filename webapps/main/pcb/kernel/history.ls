@@ -14,6 +14,9 @@ export class History
         @limit = 200
         @history-limit = 5
 
+        @history-loaded = no 
+        @loaded-callbacks = []
+
     commit: ->
         json = @project.exportJSON {as-string: no}
         try
@@ -117,3 +120,21 @@ export class History
 
         if @db.get \scripts
             @load-scripts that
+
+        unless @history-loaded
+            for let @loaded-callbacks
+                that?callback?call that.ctx 
+            @loaded-callbacks.length = 0
+
+        @history-loaded = yes 
+
+    loaded: (ctx, callback) ->
+        # indicates that the history is loaded.
+        if typeof! ctx is \Function 
+            callback = ctx 
+            ctx = this 
+
+        if @history-loaded
+            callback.call ctx
+        else
+            @loaded-callbacks.push {ctx, callback}
