@@ -40,7 +40,10 @@ export init = (pcb) ->
                 text: markdown
                 addClass: 'nonblock'
 
-        standard: (sch) ->
+        layout: (name) -> 
+            pcb.switch-layout name
+
+        standard: (sch) ->            
             sch   
                 ..clear-guides!
                 ..compile!
@@ -67,6 +70,13 @@ export init = (pcb) ->
             if sch.data.disable-drc
                 PNotify.notice text: "DRC Disabled: #{that}"
 
+            bom = []
+            bom.push "; count, type: value [instances...]"
+            bom.push "; ---------------------------------"
+            for sch.get-bom-list!
+                bom.push "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]"
+            pcb.layouts{}[pcb.active-layout].bom = bom.join '\n'
+
             return sch
 
         run-unit-tests: -> 
@@ -77,15 +87,11 @@ export init = (pcb) ->
 
 
 
-    runScript = (code, opts={+clear}) ~>
+    runScript = (script-name, opts={+clear}) ~>
         compiled = no
         @set \output, ''
         try
-            if code and typeof! code isnt \String
-                throw new Error "Content is not string!"
-
             libs = []
-            script-name = @get \scriptName
             for name, src of @get \drawingLs
                 libs.push do
                     name: name, 
@@ -158,11 +164,29 @@ export init = (pcb) ->
             js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
             compiled = yes
         catch err
+            i = 1
+            problematic = []
+            files = []
+            :outer for {name, src} in ordered 
+                for line in src.split '\n'
+                    if err.hash.loc.first_line <= i
+                        problematic.push line 
+                        files.push name unless name in files 
+                    if err.hash.loc.last_line < i 
+                        break outer
+                    i++
+
             @set \output, "Compile error: #{err.to-string!}"
             @get \vlog .error do
                 title: 'Compile Error'
-                message: err.to-string!
+                message: """
+                    #{err.to-string!}
+                    ----------------------
+                    Responsible: "#{files.join ','}"
+                    Code: #{problematic.join '\n'}
+                    """
             console.error "Compile error: #{err.to-string!}"
+            console.log whole-src
 
         if compiled
             try
@@ -183,31 +207,27 @@ export init = (pcb) ->
                             """
                         addClass: 'nonblock'
 
-            catch
-                @set \output, "ERROR: \n\n" + (@get 'output') + "#{e}"
+            catch err 
+                @set \output, "ERROR: \n\n" + (@get 'output') + "#{err}"
                 @get \vlog .error do
                     title: 'Runtime Error'
-                    message: e
+                    message: err
                 console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
                 # See https://github.com/ceremcem/aecad/issues/8
 
-    # Register all classes on app load
-    runScript '# placeholder content', {-clear, name: 'Initialization run', +silent}
+    do 
+        <~ pcb.history.loaded context=this
+        # Register all classes on app load
+        runScript @get('scriptName'), {-clear, name: 'Initialization run', +silent}
 
     h = @observe \editorContent, ((_new) ~>
-        if @get \autoCompile
-            runScript _new
-
-        sleep 0, ~>
-            if @get 'scriptName'
-                #console.log "SETTTING NEW!! in @observe editorcontent "
-                h.silence!
-                @set "drawingLs.#{Ractive.escapeKey that}", _new
-                <~ sleep 10
-                h.resume!
+        if @get 'scriptName'
+            #console.log "SETTING NEW!! in @observe editorcontent "
+            h.silence!
+            @set "drawingLs.#{Ractive.escapeKey that}", _new
+            <~ sleep 10
+            h.resume!
     ), {-init}
-
-
 
     handlers =
         # gui/scripting.pug
@@ -219,10 +239,16 @@ export init = (pcb) ->
             h.resume!
             unless item.content
                 @get \project.layers.scripting ?.clear!
+            unless pcb.layouts[pcb.active-layout]?type is "manual"
+                unless pcb.active-layout is item.id   
+                    pcb.switch-layout item.id   
             progress!
 
-        compileScript: (ctx) ~>
-            runScript @get \editorContent
+        compileScript: (ctx, name) ~>
+            name = name or @get 'scriptName' 
+            runScript name 
+            pcb.layouts{}[pcb.active-layout].script-name = name 
+            console.log "layouts: ", pcb.layouts
 
         clearScriptLayer: (ctx) ~>
             @get \project.layers.scripting ?.clear!

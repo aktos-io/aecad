@@ -134,6 +134,10 @@ dropdown.mini.green(
     on-add="addLayout"
     listen-external="true"
 )
+ack-button.mini.icon(
+    on-click="deleteActiveLayout"
+    tooltip="Delete active layout: {{activeLayout}}"
+    ): icon.trash.purple
 
 div
 canvas#draw

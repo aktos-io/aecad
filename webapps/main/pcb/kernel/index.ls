@@ -106,9 +106,28 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
         # try to load if a project exists
         @history.load!
 
-        $ window .on \unload, ~>
-            @history.save!
-            
+        last-save-ok = no 
+        window.onbeforeunload = (event) ~> 
+            unless last-save-ok
+                e = event or window.event
+                e.preventDefault();
+                sleep 0, ~> 
+                    unless last-save-ok
+                        PNotify.info do
+                            title: "Saving current project"
+                            text: "Your project is being saved to IndexedDB..."
+
+                        <~ @history.save
+                        PNotify.success do
+                            title: "Save complete"
+                            text: "You can exit from or reload the page within 5 seconds."
+                        last-save-ok := yes 
+                        <~ sleep 5000ms
+                        last-save-ok := no 
+        
+                # Display a warning 
+                return ''
+
         do
             @vlog.clog "Starting autosave..."
             <~ :lo(op) ~> 
@@ -187,7 +206,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 @ractive.set \pointer, event.point
 
             ..onKeyDown = (event) ~>
-                console.log "Pressed key: ", event.key, event.modifiers
+                #console.log "Pressed key: ", event.key, event.modifiers
 
                 switch event.key
                 | \delete =>
@@ -236,6 +255,8 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     if esc.date - esc.date0 < 300ms
                         _self._on_double_esc?!
                     esc.date0 = esc.date
+
+
 
     on-double-esc: (handler) ->
         @_on_double_esc = handler
@@ -287,3 +308,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 # order is important
                 @ractive.set 'layouts', Object.keys @layouts 
                 @ractive.set 'activeLayout', name  
+
+    active-script: ~
+        -> 
+            @ractive.get \scriptName 

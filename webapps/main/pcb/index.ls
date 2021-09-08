@@ -35,6 +35,9 @@ Ractive.components['pcb'] = Ractive.extend do
 
         @on handlers
         pcb.view.center = [0,0]
+
+        <~ pcb.history.loaded context=this
+
         @fire 'fitAll'
 
         @fire 'runTests'
@@ -42,7 +45,6 @@ Ractive.components['pcb'] = Ractive.extend do
     computed:
         currProps:
             get: ->
-                debugger 
                 layer = @get('currLayer')
                 layer-info = @get('layers')[layer]
                 layer-info.name = layer

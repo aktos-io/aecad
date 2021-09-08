@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eu
 info(){
     echo "$@"
     notify-send "$@"
@@ -15,17 +16,14 @@ working_tree_clean(){
     git status $1 | grep "nothing to commit, working tree clean" > /dev/null
 }
 
-for zipfile in $(ls *.zip 2> /dev/null); do
-    [[ $zipfile == *.new.zip ]] && continue
-    [[ $zipfile == *.gerber.zip ]] && continue
-    outdir="${zipfile%.*}"
-    if working_tree_clean $outdir || $force; then
-        [[ $force = true ]] && echo "Force enabled: Removing $outdir"
-        rm -r "$outdir"
-        unzip $zipfile -d $outdir > /dev/null && rm "$zipfile"
-        info "aeCAD Extract" "\"$zipfile\" is extracted."
-        echo "Deleted \"$zipfile\""
-    else
-        error "aeCAD Extract ERROR!" "\"$outdir\" has unsaved work. Not extracting."
-    fi
+processed=false
+for zipfile in "$@"; do
+    processed=true
+    outdir=$(mktemp -d "/tmp/${zipfile}-XXX")
+    unzip $zipfile -d "$outdir" > /dev/null && mv "$zipfile"{,.extracted}
+    rsync -a --delete --exclude ".git"  "$outdir"/ "${zipfile%.*}"/
+    rm -r "$outdir"
+    info "aeCAD Extract" "\"$zipfile\" is extracted."
 done
+
+$processed || echo "No project supplied."

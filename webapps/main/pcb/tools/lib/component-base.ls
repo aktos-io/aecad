@@ -7,6 +7,8 @@ require! 'aea': {merge, clone}
 require! './lib': {prefix-keypath, get-rev}
 require! './component-manager': {ComponentManager}
 require! './schema': {SchemaManager}
+require! 'prelude-ls': {find}
+
 
 
 # Basic methods that every component should have
@@ -20,7 +22,7 @@ export class ComponentBase
         @_schema_manager = new SchemaManager
         @pads = []
         @_next_id = 1 # will be used for enumerating pads
-        @blur-opacity = 0.3
+        @blur-opacity = 0.2
         # declare Pad.left, Pad.top, ...
         for <[ left right top bottom center ]>
             Object.defineProperty @, .., do
@@ -235,7 +237,13 @@ export class ComponentBase
             ..on ...arguments
 
     add-part: (part-name, item) ->
+        # register given part (must be a child of @g, see @constructor)
+        # as an aecad part. 
         set-keypath item.data, "aecad.part", part-name
+
+    get-part: (part-name) -> 
+        # returns PaperJS item 
+        find (.data?aecad?part is part-name), @g.children
 
     schema: ~
         -> @_schema_manager.active

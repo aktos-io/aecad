@@ -2,11 +2,10 @@
 
 .ui.mini.buttons 
     btn.icon(on-click="clearScriptLayer" tooltip="Clear Output"): icon.eraser 
-    checkbox(checked="{{autoCompile}}" tooltip="Auto Compile")
     btn.green.icon(on-click="compileScript" tooltip="Compile"): icon.play
     
 +space
-dropdown(
+dropdown.mini(
     object-data="{{drawingLs}}" 
     selected-key="{{scriptName}}" 
     on-select="scriptSelected"

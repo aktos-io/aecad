@@ -62,8 +62,13 @@ export init = (pcb) ->
             unless empty upgrades=(sch.get-upgrades!)
                 for upg in upgrades
                     for sel in selection.selected when upg.component.name is sel.aeobj.owner.name
-                        upgrade-count++
-                        upg.component.upgrade {type: upg.type}
+                        try 
+                            upg.component.upgrade {type: upg.type}
+                            upgrade-count++
+                        catch 
+                            PNotify.error do 
+                                text: "Error upgrading components: #{e}"
+                                hide: no
             selection.clear!
             PNotify.info text: "Upgraded #{upgrade-count} component(s)."
 
@@ -301,6 +306,7 @@ export init = (pcb) ->
         switchLayout: (ctx, item, proceed) -> 
             if item.id
                 if that isnt pcb.active-layout
+                    <~ sleep 100ms
                     pcb.switchLayout item.id 
                     ctx.ractive.fire 'fitAll'
             proceed!
@@ -309,7 +315,32 @@ export init = (pcb) ->
             # newKey is the search term
             btn = ctx.button  # ack-button instance
             pcb.switchLayout newKey
+            pcb.layouts[newKey]?.type = "manual"
             btn.state \done...
             proceed!
+
+        deleteActiveLayout: (ctx) !-> 
+            action <~ @get \vlog .yesno do
+                title: 'Remove Layout'
+                icon: 'exclamation triangle'
+                message: "Do you want to remove #{pcb.active-layout}?"
+                closable: yes
+                buttons:
+                    delete:
+                        text: 'Delete'
+                        color: \red
+                        icon: \trash
+                    cancel:
+                        text: \Cancel
+                        color: \green
+                        icon: \remove
+
+            if action in [\hidden, \cancel]
+                console.log "Cancelled."
+                return
+
+            pcb.history.commit!
+            pcb.removeLayout pcb.active-layout
+
 
     return handlers
