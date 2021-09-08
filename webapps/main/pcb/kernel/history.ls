@@ -1,4 +1,3 @@
-require! 'actors': {BrowserStorage}
 require! 'aea': {hash, clone}
 require! 'prelude-ls': {values, difference, keys, empty}
 require! './LdbStorage': {LdbStorage}
@@ -10,7 +9,6 @@ export class History
         @ractive = opts.ractive
         @selection = opts.selection
         @vlog = opts.vlog
-        @db = new BrowserStorage opts.name
         @db2 = new LdbStorage opts.name, ctx=this
         @commits = []
         @limit = 200
@@ -99,27 +97,32 @@ export class History
         # Load from browser's local storage
         # --------------------------------------
 
-        if commits=(@db.get \history)
+        commits <~ @db2.get \history
+        if commits
             if @commits.length is 0 and typeof! commits is \Array
                 @commits = commits
             else
                 @ractive.get \vlog .error "How come the history isn't empty?"
                 console.error "Commit history isn't empty: ", @commits
 
-        if @db.get \layouts
+        value <~ @db2.get \layouts
+        if value
             @parent.layouts = that 
 
-        if @db.get \activeLayout
+        value <~ @db2.get \activeLayout
+        if value
             @parent.activeLayout = that 
 
-        if @db.get \project
+        value <~ @db2.get \project 
+        if value 
             @load-project that
 
         value <~ @db2.get \scripts
         if value 
             @load-scripts that
 
-        if @db.get \settings
+        value <~ @db2.get \settings 
+        if value
             # TODO: see save/settings
             @ractive.set \scriptName, that.scriptName
             @ractive.set \project.name, that.projectName
