@@ -134,7 +134,8 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                 period = 2min
                 <~ sleep period * 60_000
                 @vlog.clog "Running autosave after #{period}mins..."
-                @history.save!
+                PNotify.info text: "Autosave in progress..."
+                <~ @history.save
                 PNotify.info text: "Autosave complete."
                 lo(op) 
 
