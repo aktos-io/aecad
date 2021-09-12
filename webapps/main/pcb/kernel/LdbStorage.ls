@@ -76,7 +76,16 @@
   //   set: function(func, key, value) {
   //     keyValue.k = key;
   //     keyValue.v = value;
-  //     db.transaction('s', 'readwrite').objectStore('s').put(keyValue);
+
+  //    let txn = db.transaction('s', 'readwrite'); 
+  //    txn.oncomplete = function(event) {
+  //      var toString$ = {}.toString;
+  //      if (toString$.call(callback).slice(8, -1) === 'Function') {
+  //        callback();
+  //      }
+  //    }
+  //    txn.objectStore('s').put(keyValue);
+  //    txn.commit();
   //   }
   // });
 })();

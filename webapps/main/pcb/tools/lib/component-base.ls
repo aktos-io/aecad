@@ -76,6 +76,10 @@ export class ComponentBase
                 @set-data 'rev', rev
 
             # perform the actual drawing
+            if @_data.init?
+                # `data` MUST NOT contain `.init` object. 
+                # It should contain `value` and other direct data. 
+                debugger 
             unless data?.silent
                 try 
                     @create(@_data)
