@@ -25,14 +25,28 @@ export do
                 type = schema-data
                 schema-data = null 
 
-            for params, names of instances
-                for name in text2arr names
+            for value, names of instances
+                instance-names = {}
+                if typeof! names in <[ String Array ]>
+                    for text2arr names
+                        instance-names[..] = null # null means "use default labels"
+                else 
+                    # detect quick labels
+                    # keys: instance names (text2arr)
+                    # value: (Object) labels
+                    for i, labels of names 
+                        for text2arr i 
+                            instance-names[..] = labels 
+
+                console.log "instance names:", instance-names
+
+                for name, labels of instance-names
                     # create every #name with params: params
                     if name of bom
                         throw new Error "Duplicate instance: #{name}"
                     #console.log "Creating bom item: ", name, "as an instance of ", type, "params:", params
                     calculated-schema = if typeof! schema-data is \Function 
-                        schema-data params
+                        schema-data value, labels 
                     else 
                         schema-data
 
@@ -40,7 +54,8 @@ export do
                         throw new Error "Sub-circuit \"#{type}\" should be simple function, not a factory function. Did you forget to initialize it?"
                     bom[name] =
                         name: name
-                        params: params
+                        value: value
+                        labels: labels
                         parent: @name
                         data: calculated-schema
                         type: type
@@ -62,7 +77,7 @@ export do
 
     get-bom-list: -> 
         # group by type, and then value 
-        comp = [{..type, ..value, ..name} for values @components 
+        comp = [{..type, ..value, ..name, ..labels} for values @components 
             when (not ..name.match /(^|\.)_.+/) and (..value?0 isnt '_')]
         arr = comp 
         g1 = {}
@@ -113,7 +128,7 @@ export do
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
-                sample = new Component {value: args.params}
+                sample = new Component {args.value, args.labels}
                 #console.log ".iface of #{Component.name}: ", sample.iface
                 if Object.keys(sample.iface).length is 0
                     throw new Error "@iface can not be an empty object. If this is 
