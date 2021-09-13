@@ -96,6 +96,7 @@ export class Schema implements bom, footprints, netlist, guide
         @connection-list = {}           # key: trace-id, value: array of related Pads
         @sub-circuits = {}              # TODO: DOCUMENT THIS
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
+        @_labels = opts.labels
 
         @_iface = []                  # array of interface pins
         @_netlist = {}                # cached and post-processed {CONN_ID: [PADS]}
