@@ -44,6 +44,28 @@ iface: [
 
 ```
 
+### Quick Labels 
+
+You can assign quick labels to the circuits or components by simply replacing the instance name with `{instance: labels}` where `labels` is the object in `{pin_number: "new_label"}` format: 
+
+```
+bar =
+    # series resistors
+    iface: "a b"
+    schemas: {foo: foo!}
+    bom:
+        foo:
+            '500ohm':
+                "x":            # Here the sub-circuit uses new quick labels.
+                    1: "aaa"
+                    2: "bbb"
+            "3kohm": "y"
+    netlist:
+        a: "x.bbb"
+        b: "y.1"
+        1: "x.aaa y.2"
+```
+
 ### `.disable-drc`
 
 Disable Design Rule Checking for the provided functionalities. Supported switches: 

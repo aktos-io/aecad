@@ -25,14 +25,26 @@ export do
                 type = schema-data
                 schema-data = null 
 
-            for params, names of instances
-                for name in text2arr names
+            for value, names of instances
+                instance-names = {}
+                if typeof! names in <[ String Array ]>
+                    for text2arr names
+                        instance-names[..] = null # null means "use default labels"
+                else 
+                    # detect quick labels
+                    # keys: instance names (text2arr)
+                    # value: (Object) labels
+                    for i, labels of names 
+                        for text2arr i 
+                            instance-names[..] = labels 
+
+                for name, labels of instance-names
                     # create every #name with params: params
                     if name of bom
                         throw new Error "Duplicate instance: #{name}"
                     #console.log "Creating bom item: ", name, "as an instance of ", type, "params:", params
                     calculated-schema = if typeof! schema-data is \Function 
-                        schema-data params
+                        schema-data value, labels 
                     else 
                         schema-data
 
@@ -40,7 +52,8 @@ export do
                         throw new Error "Sub-circuit \"#{type}\" should be simple function, not a factory function. Did you forget to initialize it?"
                     bom[name] =
                         name: name
-                        params: params
+                        value: value
+                        labels: labels
                         parent: @name
                         data: calculated-schema
                         type: type
@@ -49,7 +62,7 @@ export do
 
         @find-unused bom
         #console.log "Compiled bom is: ", bom
-        @bom = bom
+        return @bom = bom
 
     get-bom-components: ->
         b = flatten [..name for filter (-> not it.data), values @get-bom!]
@@ -62,7 +75,7 @@ export do
 
     get-bom-list: -> 
         # group by type, and then value 
-        comp = [{..type, ..value, ..name} for values @components 
+        comp = [{..type, ..value, ..name, ..labels} for values @components 
             when (not ..name.match /(^|\.)_.+/) and (..value?0 isnt '_')]
         arr = comp 
         g1 = {}
@@ -106,14 +119,22 @@ export do
                 # Completely exclude double underscored components from 
                 # connections and bom
                 continue
-            pads = if args.data
-                # this is a sub-circuit, use its `iface` as `pad`s
+
+            if args.data
+                # this is a sub-circuit, use its quick labels or `iface` as `pad`s
                 #console.log "iface of subcircuit: ", that.iface
-                that.iface |> text2arr |> map (.replace /[^.]+\./, '')
+                if values args.labels .length > 0 
+                    # use quick labels 
+                    _pads = values args.labels
+                else 
+                    # use `iface`
+                    _pads = args.data.iface |> text2arr
+
+                pads = _pads |> map (.replace /[^.]+\./, '')
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
-                sample = new Component {value: args.params}
+                sample = new Component {args.value, args.labels}
                 #console.log ".iface of #{Component.name}: ", sample.iface
                 if Object.keys(sample.iface).length is 0
                     throw new Error "@iface can not be an empty object. If this is 
@@ -125,13 +146,13 @@ export do
                     values sample.iface
 
                 sample.remove!
-                iface
+                pads = iface
 
             for pad in pads or []
                 required-pads["#{instance}.#{pad}"] = null
 
         # Schema interface 
-        for @iface
+        for (if args.labels then values(that) else @iface)
             required-pads["#{..}"] = "iface"
 
         # find used iface pins
