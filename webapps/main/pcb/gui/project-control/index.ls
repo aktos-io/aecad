@@ -486,10 +486,12 @@ export init = (pcb) ->
         save: (ctx) ->
             # save project
             #pcb.history.commit! ### No need to bloat the history
+            ctx.component.state \doing
             err, res <~ pcb.history.save
             PNotify.info do
                 text: res.message
                 addClass: 'nonblock'
+            ctx.component.state \done...
 
         clear: (ctx) ->
             pcb.history.commit!

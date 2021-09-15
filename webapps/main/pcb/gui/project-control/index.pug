@@ -43,9 +43,10 @@
 
     .item
         .ui.buttons
-            btn.icon(
+            ack-button.icon(
                 on-click="save" 
                 tooltip="Save now in local storage (just in case)"
+                timeout="7000"
                 ): icon.save
             btn.icon.red(
                 on-click="clear" 

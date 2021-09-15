@@ -38,8 +38,6 @@ export do
                         for text2arr i 
                             instance-names[..] = labels 
 
-                console.log "instance names:", instance-names
-
                 for name, labels of instance-names
                     # create every #name with params: params
                     if name of bom
@@ -64,7 +62,7 @@ export do
 
         @find-unused bom
         #console.log "Compiled bom is: ", bom
-        @bom = bom
+        return @bom = bom
 
     get-bom-components: ->
         b = flatten [..name for filter (-> not it.data), values @get-bom!]
@@ -121,10 +119,18 @@ export do
                 # Completely exclude double underscored components from 
                 # connections and bom
                 continue
-            pads = if args.data
-                # this is a sub-circuit, use its `iface` as `pad`s
+
+            if args.data
+                # this is a sub-circuit, use its quick labels or `iface` as `pad`s
                 #console.log "iface of subcircuit: ", that.iface
-                that.iface |> text2arr |> map (.replace /[^.]+\./, '')
+                if values args.labels .length > 0 
+                    # use quick labels 
+                    _pads = values args.labels
+                else 
+                    # use `iface`
+                    _pads = args.data.iface |> text2arr
+
+                pads = _pads |> map (.replace /[^.]+\./, '')
             else
                 # outsourced component, use its iface (pads)
                 Component = get-class args.type
@@ -140,13 +146,13 @@ export do
                     values sample.iface
 
                 sample.remove!
-                iface
+                pads = iface
 
             for pad in pads or []
                 required-pads["#{instance}.#{pad}"] = null
 
         # Schema interface 
-        for @iface
+        for (if args.labels then values(that) else @iface)
             required-pads["#{..}"] = "iface"
 
         # find used iface pins

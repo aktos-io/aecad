@@ -125,6 +125,15 @@ export class Schema implements bom, footprints, netlist, guide
             else 
                 @_iface.push .. 
 
+        # if labels are declared, replace @_iface with @_labels 
+        if @_labels? 
+            for orig-iface, new-label of @_labels 
+                @data.netlist[]["__iface_#{orig-iface}__"]
+                    ..push orig-iface
+                    ..push new-label 
+            @_iface = values @_labels 
+
+
         # Reduce netlist
         :outer for connection-name, _net of @data.netlist
             net = text2arr _net
