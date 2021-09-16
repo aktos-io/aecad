@@ -32,16 +32,24 @@ export do
                         instance-names[..] = null # null means "use default labels"
                 else 
                     # detect quick labels
-                    # keys: instance names (text2arr)
-                    # value: (Object) labels
+                    # format:
+                    #   keys: instance names (text2arr)
+                    #   value: labels (Object or Array)
                     for i, labels of names 
-                        for text2arr i 
-                            instance-names[..] = labels 
+                        for _inst_ in text2arr i 
+                            switch typeof! labels
+                            | \Object => instance-names[_inst_] = labels
+                            | \Array => 
+                                instance-names[_inst_] = {}
+                                for k, v of labels 
+                                    instance-names[_inst_][(Number k)+1] = v 
+                            |_ => debugger 
 
                 for name, labels of instance-names
-                    # create every #name with params: params
                     if name of bom
                         throw new Error "Duplicate instance: #{name}"
+
+                    # create every #name with params: params
                     #console.log "Creating bom item: ", name, "as an instance of ", type, "params:", params
                     calculated-schema = if typeof! schema-data is \Function 
                         schema-data value, labels 
