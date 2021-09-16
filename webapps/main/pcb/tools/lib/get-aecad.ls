@@ -56,7 +56,13 @@ export get-aecad = (item-part, parent-ae) ->
     ae-obj = null
     if parent-type
         # an item for aeCAD object is detected
-        ae-obj = new (getClass parent-type) do
+        # We may need both `init` data and original data at the same time 
+        # while rehydrating the object (because the object may depend on the original
+        # data to override another class. It might use `data.value` before calling
+        # the `super` function.)
+        orig-data = {...parent-item.data.aecad}
+        
+        ae-obj = new (getClass parent-type) orig-data <<< do 
             init:
                 item: parent-item
                 parent: parent-ae
