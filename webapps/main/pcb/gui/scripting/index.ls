@@ -164,17 +164,22 @@ export init = (pcb) ->
             js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
             compiled = yes
         catch err
-            i = 1
-            problematic = []
-            files = []
-            :outer for {name, src} in ordered 
-                for line in src.split '\n'
-                    if err.hash.loc.first_line <= i
-                        problematic.push line 
-                        files.push name unless name in files 
-                    if err.hash.loc.last_line < i 
-                        break outer
-                    i++
+            try 
+                i = 1
+                problematic = []
+                files = []
+                :outer for {name, src} in ordered 
+                    for line in src.split '\n'
+                        if err.hash.loc.first_line <= i
+                            problematic.push line 
+                            files.push name unless name in files 
+                        if err.hash.loc.last_line < i 
+                            break outer
+                        i++
+            catch
+                problematic = <[ NA ]> 
+                responsible = <[ NA ]> 
+
 
             @set \output, "Compile error: #{err.to-string!}"
             @get \vlog .error do
