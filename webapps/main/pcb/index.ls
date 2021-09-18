@@ -40,7 +40,9 @@ Ractive.components['pcb'] = Ractive.extend do
 
         @fire 'fitAll'
 
-        @fire 'runTests'
+        # unless minified, run tests
+        if (``/comment/.test(function(){/* comment */})``)
+            @fire 'runTests'
 
     computed:
         currProps:
