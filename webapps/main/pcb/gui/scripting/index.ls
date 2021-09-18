@@ -208,7 +208,7 @@ export init = (pcb) ->
                 unless opts.silent
                     PNotify.info do
                         text: """
-                            Script: #{name}
+                            Compiled: #{name}
                             """
                         addClass: 'nonblock'
 
