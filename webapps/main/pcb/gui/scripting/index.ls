@@ -220,11 +220,6 @@ export init = (pcb) ->
                 console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
                 # See https://github.com/ceremcem/aecad/issues/8
 
-    do 
-        <~ pcb.history.loaded context=this
-        # Register all classes on app load
-        runScript @get('scriptName'), {-clear, name: 'Initialization run', +silent}
-
     h = @observe \editorContent, ((_new) ~>
         if @get 'scriptName'
             #console.log "SETTING NEW!! in @observe editorcontent "
@@ -249,9 +244,9 @@ export init = (pcb) ->
                     pcb.switch-layout item.id   
             progress!
 
-        compileScript: (ctx, name) ~>
+        compileScript: (ctx, name, opts={+clear}) ~>
             name = name or @get 'scriptName' 
-            runScript name 
+            runScript name, opts 
             pcb.layouts{}[pcb.active-layout].script-name = name 
             console.log "layouts: ", pcb.layouts
 

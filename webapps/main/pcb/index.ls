@@ -36,13 +36,17 @@ Ractive.components['pcb'] = Ractive.extend do
         @on handlers
         pcb.view.center = [0,0]
 
+        PNotify.info text: "Loading project from storage."
         <~ pcb.history.loaded context=this
 
         @fire 'fitAll'
 
+        @fire 'compileScript', @get('scriptName'), {-clear, name: 'Initialization run', +silent}
+
         # unless minified, run tests
         if (``/comment/.test(function(){/* comment */})``)
             @fire 'runTests'
+
 
     computed:
         currProps:

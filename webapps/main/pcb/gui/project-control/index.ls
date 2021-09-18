@@ -65,9 +65,12 @@ export init = (pcb) ->
 
     handlers =
         runTests: (ctx, callback) -> 
+            PNotify.info text: "Running unit tests."
+            start-time = new Date! .getTime()
             schema-tests (err) ->
                 unless err
-                    PNotify.success text: "All schema tests are passed."
+                    end-time = new Date! .getTime()
+                    PNotify.success text: "All schema tests are passed in #{end-time - start-time}ms."
                 else
                     PNotify.error hide: no, text: """
                         Failed Schema test: #{err.test-name}
