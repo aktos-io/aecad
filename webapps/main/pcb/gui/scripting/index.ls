@@ -146,10 +146,11 @@ export init = (pcb) ->
 
             #console.log "libs: ", libs
             for ([main-script] ++ libs)
-                insert-dep ..
+                insert-dep .. if .. 
 
             # add main script
-            ordered.push main-script
+            if main-script
+                ordered.push that
 
             # This is a debug output
             debug = no; if debug
@@ -179,6 +180,8 @@ export init = (pcb) ->
             catch
                 problematic = <[ NA ]> 
                 responsible = <[ NA ]> 
+                console.error err 
+                debugger 
 
 
             @set \output, "Compile error: #{err.to-string!}"
