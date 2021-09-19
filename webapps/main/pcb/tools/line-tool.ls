@@ -19,7 +19,7 @@ export LineTool = (scope) ->
             line?.follow event.point
             marker-put = no
             for scope.hitTestAll event.point
-                if ..segment and line.is-moving-segment ..segment
+                if ..segment and line?is-moving-segment ..segment
                     continue
                 console.log "hit: ", .., ..segment?parent
                 spoint = ..segment?point or ..location?segment.point

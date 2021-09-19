@@ -180,7 +180,10 @@ export class Schema implements bom, footprints, netlist, guide
         ->
             by-name = {}
             for @components
-                by-name[..component.name] = ..component
+                if ..component 
+                    by-name[..component.name] = ..component
+                else 
+                    console.error "No component object was found:", ..
             by-name
 
     is-link: (name) ->

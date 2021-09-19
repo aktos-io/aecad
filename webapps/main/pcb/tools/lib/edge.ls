@@ -74,6 +74,10 @@ export class Edge extends Container
                     x: coord-to-gerber (px2mm p.x)
                     y: coord-to-gerber (mirror-offset - px2mm p.y)
 
+            if @paths.length is 1 and @paths[0].children?
+                console.warn "Edge workaround is performed"
+                @paths = @paths[0]
+
             for path in @paths
                 #if path.data.aecad.side not in layers
 
