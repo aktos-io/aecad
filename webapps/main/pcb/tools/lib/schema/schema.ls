@@ -105,8 +105,8 @@ export class Schema implements bom, footprints, netlist, guide
 
     post-process-data: (data) -> 
         # Check for netlist errors 
-        flatten-netlist = flatten-obj @data.netlist 
-        for conn, net of flatten-netlist
+        data-netlist = flatten-obj @data.netlist 
+        for conn, net of data-netlist
             for comp in text2arr net 
                 if comp.match /([^.]+)\.$/
                     throw new Error "Netlist Error: Empty pins are not allowed. 
@@ -136,7 +136,7 @@ export class Schema implements bom, footprints, netlist, guide
             @_iface = values @_labels 
 
         # Reduce netlist
-        :outer for connection-name, _net of flatten-netlist
+        :outer for connection-name, _net of data-netlist
             net = text2arr _net
             # check if we have an indirectly connected net 
             for _c, _n of @_netlist
@@ -144,6 +144,7 @@ export class Schema implements bom, footprints, netlist, guide
                     # we have such a net already, merge into it
                     @_netlist[_c] = (@_netlist[_c] ++ [connection-name] ++ net)
                         |> reject (.starts-with '__iface_')     # virtual interface entries 
+                        |> reject (.match /^[0-9]+\..*$/)
                         |> unique
                     continue outer 
 
