@@ -209,9 +209,9 @@ export init = (pcb) ->
 
                 name = opts.name or @get \scriptName
                 unless opts.silent
-                    PNotify.info do
+                    PNotify.success do
                         text: """
-                            Compiled: #{name}
+                            Compiled schema: #{name}
                             """
                         addClass: 'nonblock'
 
