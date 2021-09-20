@@ -8,7 +8,7 @@ require! 'aea': {merge}
 
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
-require! './lib': {parse-name, next-id}
+require! './lib': {parse-name, next-id, flatten-obj}
 
 # Class parts
 require! './bom'
@@ -17,6 +17,7 @@ require! './netlist'
 require! './guide'
 require! './schema-manager': {SchemaManager}
 require! '../text2arr': {text2arr}
+
 
 # Recursively walk through links
 get-net = (netlist, id, included=[], mark) ~>
@@ -58,14 +59,14 @@ the-one-in = (arr) ->
     the-only-value
 
 prefix-value = (o, pfx) ->
-            res = {}
-            for k, v of o 
-                if typeof! v is \Object 
-                    v2 = prefix-value v, pfx
-                    res[k] = v2 
-                else 
-                    res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
-            return res 
+    res = {}
+    for k, v of o 
+        if typeof! v is \Object 
+            v2 = prefix-value v, pfx
+            res[k] = v2 
+        else 
+            res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
+    return res 
 
 
 export class Schema implements bom, footprints, netlist, guide
@@ -104,7 +105,8 @@ export class Schema implements bom, footprints, netlist, guide
 
     post-process-data: (data) -> 
         # Check for netlist errors 
-        for conn, net of @data.netlist 
+        flatten-netlist = flatten-obj @data.netlist 
+        for conn, net of flatten-netlist
             for comp in text2arr net 
                 if comp.match /([^.]+)\.$/
                     throw new Error "Netlist Error: Empty pins are not allowed. 
@@ -133,9 +135,8 @@ export class Schema implements bom, footprints, netlist, guide
                     ..push new-label 
             @_iface = values @_labels 
 
-
         # Reduce netlist
-        :outer for connection-name, _net of @data.netlist
+        :outer for connection-name, _net of flatten-netlist
             net = text2arr _net
             # check if we have an indirectly connected net 
             for _c, _n of @_netlist
@@ -161,16 +162,16 @@ export class Schema implements bom, footprints, netlist, guide
                 unless .. of netlist
                     netlist[..] = []
 
-            for c-name, circuit of @sub-circuits
-                #console.log "adding sub-circuit #{c-name} to netlist:", circuit
+            for circuit-name, circuit of @sub-circuits
+                #console.log "adding sub-circuit #{circuit-name} to netlist:", circuit
                 for trace-id, net of circuit.flatten-netlist
-                    prefixed = "#{c-name}.#{trace-id}"
+                    prefixed = "#{circuit-name}.#{trace-id}"
                     #console.log "...added #{trace-id} as #{prefixed}: ", net
-                    netlist[prefixed] = net .map (-> "#{c-name}.#{it}")
+                    netlist[prefixed] = net .map (-> "#{circuit-name}.#{it}")
 
                 for circuit.iface
                     # interfaces are null nets
-                    prefixed = "#{c-name}.#{..}"
+                    prefixed = "#{circuit-name}.#{..}"
                     unless prefixed of netlist
                         netlist[prefixed] = []
             #console.log "FLATTEN NETLIST: ", netlist
