@@ -1,5 +1,6 @@
 require! 'aea': {VLogger, hash}
 require! './kernel': {PaperDraw}
+require! 'prelude-ls': {Obj}
 
 Ractive.components['pcb'] = Ractive.extend do
     template: require('./index.pug')
@@ -17,7 +18,7 @@ Ractive.components['pcb'] = Ractive.extend do
         @set \pcb, pcb
 
         # Visual Logger client
-        @set \vlog, new VLogger this
+        @set \vlog, vlog=(new VLogger this)
 
         # Initial layers
         pcb.add-layer \scripting
@@ -37,7 +38,14 @@ Ractive.components['pcb'] = Ractive.extend do
         pcb.view.center = [0,0]
 
         PNotify.info text: "Loading project from storage."
-        <~ pcb.history.loaded context=this
+        <~ pcb.history.loaded context=this                
+
+        if Obj.empty @get 'drawingLs'
+            # This is the user's first time 
+            vlog.info do 
+                icon: "heart outline"
+                title: "Hello there!" 
+                message: "You must be new here. (There is no saved project found.) You can checkout the \"Example\" project."
 
         @fire 'fitAll'
 
