@@ -46,6 +46,35 @@ export do
         sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
 
         expect (-> sch.compile!)
+        .to-throw "Unconnected iface: test.A.Input, test.A.Output"
+
+        # cleanup canvas
+        sch.remove-footprints!
+
+    "in sub-circuit unused": ->
+        open-collector =
+            # open collector output
+            iface: "Input, Output, gnd"
+            bom:
+                NPN: 'Q1'
+                "SMD1206": "R1"
+            netlist:
+                1: "Q1.b R1.1"
+                in: "R1.2 Input"
+                gnd: "Q1.e"
+                out: "Q1.c Output"
+
+        some-parent =
+            schemas: {open-collector}
+            netlist:
+                1: "A.in"
+            bom:
+                open-collector: 'A'
+
+
+        sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
+
+        expect (-> sch.compile!)
         .to-throw "Unused pads: test.A.Input, test.A.Output, test.A.gnd"
 
         # cleanup canvas
