@@ -66,6 +66,31 @@ bar =
         1: "x.aaa y.2"
 ```
 
+### `.cables`
+
+Cable connections can be defined under this property. Two forms are possible: 
+
+1. Whole connector 
+2. Pin by pin 
+
+```ls
+    ...
+    cables: 
+        "j1": "j2"
+
+```
+
+Above definition declares that "Every pin of `j1` is connected to `j2` outside of the circuit". 
+
+```ls
+    ...
+    cables:
+        "j1.1": "j2.2"
+        "j1.2": "j2.3"
+```
+
+Now only 2 pins are connected via cable.
+
 ### `.disable-drc`
 
 Disable Design Rule Checking for the provided functionalities. Supported switches: 

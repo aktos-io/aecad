@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, unique-by, compact, map, intersection, reject
+    first, unique-by, compact, map, intersection, reject, or-list, Obj
 }
 
 require! 'aea': {merge}
@@ -98,12 +98,15 @@ export class Schema implements bom, footprints, netlist, guide
         @sub-circuits = {}              # TODO: DOCUMENT THIS
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
         @_labels = opts.labels
+        @_cables = @data.cables or {}
+        @_cables_connected = []         # Virtual connections
 
         @_iface = []                  # array of interface pins
         @_netlist = {}                # cached and post-processed {CONN_ID: [PADS]}
-        @post-process-data!
 
-    post-process-data: (data) -> 
+        # -----------------------------------------------------------
+        # Post process the netlist 
+        # -----------------------------------------------------------
         # Check for netlist errors 
         data-netlist = flatten-obj @data.netlist 
         for conn, net of data-netlist
@@ -211,6 +214,40 @@ export class Schema implements bom, footprints, netlist, guide
 
         # add needed footprints
         @add-footprints!
+
+        # Component list is created at this moment. 
+        # Process the `cables` property. 
+        _components_by_name = @components-by-name
+        cable-connections = []
+        for i, j of @_cables 
+            connection = text2arr j
+                ..push i 
+            # if this is a simple pin-to-pin connection, just append it
+            if or-list connection.map (.match /^[a-zA-Z_][^.]*\.[^.]+$/)
+                cable-connections.push connection 
+            else 
+                # this is a connector match
+                _connectors = connection.map (-> _components_by_name[it])
+                _reference_conn = _connectors.shift!
+                for _connectors
+                    if Object.keys(..).length isnt Object.keys(_reference_conn).length
+                            throw new Error "Pin counts of cable interfaces do not match: #{..name} and #{_reference_conn.name}" 
+
+                for pin-num, pin-name of _reference_conn.iface
+                    _connection = ["#{_reference_conn.name}.#{pin-name}"]
+                    for conn in _connectors
+                        _connection.push "#{conn.name}.#{conn.iface[pin-num]}"
+                    cable-connections.push _connection
+
+        unless Obj.empty @_cables
+            for jumpers in cable-connections
+                for k, net of @_netlist
+                    unless empty intersection net, jumpers 
+                        @_netlist[k] = unique (net ++ jumpers)
+                        @_cables_connected.push jumpers 
+
+        # Detect unconnected pins and false unused pins
+        @find-unused @bom
 
         # compile netlist
         # -----------------

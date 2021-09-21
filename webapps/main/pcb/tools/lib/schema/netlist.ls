@@ -113,6 +113,8 @@ export do
                 connected ++= ["trace-id::#{..id}" for _traces when "#{..phy-netid}" is "#{phy}"]
                 named-connections.push connected
 
+            # Virtually connect the pins defined in ".cables"
+            named-connections ++= @_cables_connected
 
             state.reduced = net-merge named-connections, [get-pin-name(..) for net]
 

@@ -68,9 +68,8 @@ export do
                         schema-name: "#{@name}-#{name}" # for convenience in constructor
                         prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
 
-        @find-unused bom
         #console.log "Compiled bom is: ", bom
-        return @bom = bom
+        return @bom=bom
 
     get-bom-components: ->
         b = flatten [..name for filter (-> not it.data), values @get-bom!]
