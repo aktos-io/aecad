@@ -243,14 +243,14 @@ export class Schema implements bom, footprints, netlist, guide
             for jumpers in cable-connections
                 injection-point = null 
                 for k, net of @_netlist
-                    unless empty intersection net, jumpers 
+                    unless empty intersection ([k] ++ net), jumpers 
                         unless injection-point?
                             injection-point = k 
                             @_netlist[k] = unique (net ++ jumpers)
                             @_cables_connected.push jumpers 
                         else
                             # cables are already injected, "re-reduce" the netlist
-                            @_netlist[injection-point] = unique (@_netlist[injection-point] ++ @_netlist[k])
+                            @_netlist[injection-point] = unique (@_netlist[injection-point] ++ @_netlist[k] ++ [k])
                             delete @_netlist[k]
 
         # Detect unconnected pins and false unused pins
