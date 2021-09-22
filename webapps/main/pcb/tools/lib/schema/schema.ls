@@ -230,7 +230,7 @@ export class Schema implements bom, footprints, netlist, guide
                 _connectors = connection.map (-> _components_by_name[it])
                 _reference_conn = _connectors.shift!
                 for _connectors
-                    if Object.keys(..).length isnt Object.keys(_reference_conn).length
+                    if Object.keys(..iface).length isnt Object.keys(_reference_conn.iface).length
                             throw new Error "Pin counts of cable interfaces do not match: #{..name} and #{_reference_conn.name}" 
 
                 for pin-num, pin-name of _reference_conn.iface
