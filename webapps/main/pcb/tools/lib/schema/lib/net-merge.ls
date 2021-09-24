@@ -60,7 +60,7 @@ export net-merge = (conn-tree, net) ->
     if net
         stray-pads = net `difference` flatten merged-tree
         # append the additional pads to merged tree as 1-element-array
-        merged-tree ++= [[..] for stray-pads]
+        merged-tree ++= [[..] for unique stray-pads]
 
     return merged-tree
 
