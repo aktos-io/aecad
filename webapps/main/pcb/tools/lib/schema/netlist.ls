@@ -41,7 +41,11 @@ get-pin-name = (pad) ->
     if pad.is-via 
         "via::#{pad.owner.tid}"
     else
-        pad.pin 
+        if pad.label in pad.owner.interconnected-pins
+            pad.pin
+        else 
+            # add virtual enumeration 
+            "#{pad.pin}____#{pad.num}"
 
 export do
     get-netlist-components: ->
@@ -94,7 +98,7 @@ export do
         # Calculate connections
         for netid, net of @connection-list
             state = connection-states.{}[netid]
-                ..total = unique [..pin for net] .length - 1    # Number of possible connections
+                ..total = unique [get-pin-name(..) for net] .length - 1    # Number of possible connections
                 ..unconnected-pads = []
 
             # create the connection tree
@@ -125,7 +129,7 @@ export do
             if discrete-pads.length is 1
                 discrete-pads.length = 0
 
-            state.unconnected-pads = [.. for net when ..pin in discrete-pads]
+            state.unconnected-pads = [.. for net when get-pin-name(..) in discrete-pads]
 
             # report the unconnected trace count
             state.unconnected = if empty state.unconnected-pads
