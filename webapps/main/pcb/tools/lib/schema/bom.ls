@@ -43,6 +43,9 @@ export do
                                 instance-names[_inst_] = {}
                                 for k, v of labels 
                                     instance-names[_inst_][(Number k)+1] = v 
+                            | \Null => 
+                                # use default labels 
+                                instance-names[_inst_] = null 
                             |_ => debugger 
 
                 for name, labels of instance-names
