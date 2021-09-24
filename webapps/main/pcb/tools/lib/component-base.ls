@@ -8,6 +8,7 @@ require! './lib': {prefix-keypath, get-rev}
 require! './component-manager': {ComponentManager}
 require! './schema': {SchemaManager}
 require! 'prelude-ls': {find}
+require! './text2arr': {text2arr}
 
 
 
@@ -134,6 +135,9 @@ export class ComponentBase
 
     allow-duplicate-labels: ~
         -> @overrides.allow-duplicate-labels
+
+    interconnected-pins: ~
+        -> (text2arr @overrides.interconnected-pins) or []
 
     disallow-pin-numbers: ~
         -> @overrides.disallow-pin-numbers
