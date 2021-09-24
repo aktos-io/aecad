@@ -74,6 +74,8 @@ add-class class ExampleFootprint extends Footprint
             * Top-left point of a rectangular pad.
 
         @allow-duplicate-labels: (Boolean)
+
+        @is-virtual: (Boolean) Exclude from BOM if true
         '''
         
         ...
