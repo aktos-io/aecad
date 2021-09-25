@@ -137,7 +137,12 @@ export class ComponentBase
         -> @overrides.allow-duplicate-labels
 
     interconnected-pins: ~
-        -> (text2arr @overrides.interconnected-pins) or []
+        -> 
+            switch typeof! x=(@overrides.interconnected-pins)
+            | \Array => return x 
+            |_ => text2arr @overrides.interconnected-pins
+        (x) -> 
+            @overrides.interconnected-pins = x 
 
     disallow-pin-numbers: ~
         -> @overrides.disallow-pin-numbers

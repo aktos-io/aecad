@@ -41,10 +41,18 @@ get-pin-name = (pad) ->
     if pad.is-via 
         "via::#{pad.owner.tid}"
     else
-        if pad.label in pad.owner.interconnected-pins
+        interconnected = pad.owner.interconnected-pins
+        if (typeof! first interconnected) in <[ String Number ]> and pad.label in interconnected
+            # Found interconnected pin 
+            #console.log "NETLIST: Found interconnected pin: ", pad.pin
             pad.pin
+        else if (typeof! first interconnected) is \Array and pair=find((-> pad.num in it.map((Number))), interconnected)
+            # Found partially interconnected pin, see https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140
+            #console.log "NETLIST: Found partially interconnected pin: ", "#{pad.pin}___#{pair.join "____"}"
+            "#{pad.pin}___#{pair.join "____"}"
         else 
-            # add virtual enumeration 
+            # Add virtual enumeration, this pin is NOT interconnected. 
+            #console.log "NETLIST: Found unique pin: ", "#{pad.pin}____#{pad.num}"
             "#{pad.pin}____#{pad.num}"
 
 export do
