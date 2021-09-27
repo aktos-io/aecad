@@ -96,13 +96,15 @@ export class Schema implements bom, footprints, netlist, guide
         @compiled = false
         @connection-list = {}           # key: trace-id, value: array of related Pads
         @sub-circuits = {}              # TODO: DOCUMENT THIS
+
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
+        @_netlist = {}                  # cached and post-processed version of original .netlist {CONN_ID: [pad_names...]}
+
         @_labels = opts.labels
         @_cables = @data.cables or {}
         @_cables_connected = []         # Virtual connections
 
         @_iface = []                  # array of interface pins
-        @_netlist = {}                # cached and post-processed {CONN_ID: [PADS]}
 
         # -----------------------------------------------------------
         # Post process the netlist 
@@ -239,19 +241,22 @@ export class Schema implements bom, footprints, netlist, guide
                         _connection.push "#{conn.name}.#{conn.iface[pin-num]}"
                     cable-connections.push _connection
 
-        unless Obj.empty @_cables
-            for jumpers in cable-connections
-                injection-point = null 
-                for k, net of @_netlist
-                    unless empty intersection ([k] ++ net), jumpers 
-                        unless injection-point?
-                            injection-point = k 
-                            @_netlist[k] = unique (net ++ jumpers)
-                            @_cables_connected.push jumpers 
-                        else
-                            # cables are already injected, "re-reduce" the netlist
-                            @_netlist[injection-point] = unique (@_netlist[injection-point] ++ @_netlist[k] ++ [k])
-                            delete @_netlist[k]
+        get-pad-from-pin = (pin-name) -> 
+            [_, component, pin] = pin-name.match /^([^.]+)\.(.+)$/
+            _components_by_name[component].get({pin})
+
+        for jumpers in cable-connections
+            injection-point = null 
+            for k, net of @_netlist
+                unless empty intersection ([k] ++ net), jumpers 
+                    unless injection-point?
+                        injection-point = k 
+                        @_netlist[k] = unique (net ++ jumpers)
+                        @_cables_connected.push flatten jumpers.map(get-pad-from-pin) 
+                    else
+                        # cables are already injected, "re-reduce" the netlist
+                        @_netlist[injection-point] = unique (@_netlist[injection-point] ++ @_netlist[k] ++ [k])
+                        delete @_netlist[k]
 
         # Detect unconnected pins and false unused pins
         @find-unused @bom
@@ -320,7 +325,23 @@ export class Schema implements bom, footprints, netlist, guide
         unless @parent
             #console.log "Flatten netlist:", @flatten-netlist
             #console.log "Netlist (raw) (includes links and cross-links): ", netlist
-            @reduce netlist
+
+            # Create the cleaned up @netlist (arrays of arrays of Pad objects)
+            @netlist.length = 0
+            for id of netlist
+                net = get-net netlist, id
+                unless empty net
+                    @netlist.push net
+
+            # build the @connection-list
+            @build-connection-list!
+
+            # Check errors
+            @post-check!
+
+            # Output the generated report
+            #console.log "... Schema: #{@name}, Connection list:", @connection-list
+            #console.log "... Schema: #{@name}, Netlist:", @netlist
 
     get-required-pads: ->
         all-pads = {}
@@ -360,11 +381,11 @@ export class Schema implements bom, footprints, netlist, guide
                 # error if there are conflicting netid's already existing
                 dump = "#{net.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
                 console.error dump
-                throw new Error "Multiple netid's assigned to the pads in the same net: (format: pin-name(pin-no)[netid] ) \n\n #{dump}"
+                throw new Error "Multiple netid's assigned to the pads in the same net (#{unique compact [pad.netid for pad in net] .join ','}): (format: pin-name(pin-no)[netid] ) \n\n #{dump}"
 
             # use existing netid extracted from one of the pads
             if existing-netid?.match /[0-9]+/
-                if existing-netid of @connection-list
+                if existing-netid of @connection-list and "duplicate-netid" not in text2arr @data.disable-drc
                     # this netid seems already occupied.
                     existing = @connection-list[existing-netid].map (.uname) .join ', '
                     curr = net.map (.uname) .join ', '
@@ -389,24 +410,6 @@ export class Schema implements bom, footprints, netlist, guide
             @connection-list[netid] = net
             for pad in net
                 pad.netid = netid
-
-    reduce: (netlist) ->
-        # Create reduced netlist
-        @netlist.length = 0
-        for id of netlist
-            net = get-net netlist, id
-            unless empty net
-                @netlist.push net
-
-        # build the @connection-list
-        @build-connection-list!
-
-        # Check errors
-        @post-check!
-
-        # Output the generated report
-        #console.log "... Schema: #{@name}, Connection list:", @connection-list
-        #console.log "... Schema: #{@name}, Netlist:", @netlist
 
     post-check: ->
         # Error report (will stay while aeCAD is in Alpha stage)

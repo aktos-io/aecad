@@ -25,7 +25,7 @@ export do
         @guide-for!
 
     guide-unconnected: ->
-        unconnecteds = [o.unconnected-pads for i, o of @get-connection-states!]
+        unconnecteds = [o.unconnected-pads for i, o of @calc-connection-states!]
         @guide-for null, unconnecteds
 
     create-guide: (pad1, pad2, _opts={}) ->

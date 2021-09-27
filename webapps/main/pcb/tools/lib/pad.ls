@@ -1,7 +1,7 @@
 require! '../../kernel': {PaperDraw}
 require! './component-base': {ComponentBase}
 require! 'aea/do-math': {mm2px, px2mm}
-require! 'prelude-ls': {empty, sort-by}
+require! 'prelude-ls': {empty, sort-by, first, find}
 
 /* -------------------------------------------------
 
@@ -227,6 +227,26 @@ export class Pad extends ComponentBase
     pin: ~
         # Get fully qualified pin label (eg. "P.C1.gnd")
         -> "#{@owner.name}.#{@label}"
+
+    logical-pin: ~
+        ->         
+            _self = this 
+            if @is-via 
+                "via::#{@owner.tid}"
+            else
+                interconnected = @owner.interconnected-pins
+                if (typeof! first interconnected) in <[ String Number ]> and @label in interconnected
+                    # Found interconnected pin 
+                    #console.log "NETLIST: Found interconnected pin: ", pad.pin
+                    @pin
+                else if (typeof! first interconnected) is \Array and pair=find((-> _self.num in it.map((Number))), interconnected)
+                    # Found partially interconnected pin, see https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140
+                    #console.log "NETLIST: Found partially interconnected pin: ", "#{pad.pin}___#{pair.join "____"}"
+                    "#{@pin}___#{pair.join "____"}"
+                else 
+                    # Add virtual enumeration, this pin is NOT interconnected. 
+                    #console.log "NETLIST: Found unique pin: ", "#{pad.pin}____#{pad.num}"
+                    "#{@pin}____#{@num}"
 
     uname: ~
         # Unique display name in the project (eg. "P.C1.gnd(3)")

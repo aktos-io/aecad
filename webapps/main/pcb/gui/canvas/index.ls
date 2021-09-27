@@ -123,7 +123,7 @@ export init = (pcb) ->
             console.log "------------ Performing DRC ------------"
             if schema-manager.active
                 try
-                    conn-states = that.get-connection-states!
+                    conn-states = that.calc-connection-states!
                 catch
                     PNotify.error text: e.message
                     pcb.ractive.set 'totalConnections', "--"
