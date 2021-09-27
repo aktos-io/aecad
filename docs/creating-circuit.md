@@ -129,6 +129,21 @@ Double underscore prefixed components (`__x`) are exclude both from BOM and the 
 
 Call `run-unit-tests!` in your circuit script. 
 
+# Virtual Traces
+
+It's useful to declare virtual traces to write tests. Example: 
+
+```ls
+my-circuit = 
+    bom: ...
+    netlist: ...
+    virtual-traces:
+        1: "c4.SWCLK debug.swclk"
+        2: "c4.GND debug.gnd"
+        3: "c4.NRST debug.nrst"
+
+```
+
 # Example Circuit
 
 ```ls
