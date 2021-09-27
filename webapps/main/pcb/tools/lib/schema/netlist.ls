@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, tail, unique-by, intersection, union
+    first, tail, unique-by, intersection, union, reject
 }
 
 # deps
@@ -36,25 +36,6 @@ is-connected = (item, pad) ->
                     return true
     return false
 
-
-get-pin-name = (pad) -> 
-    if pad.is-via 
-        "via::#{pad.owner.tid}"
-    else
-        interconnected = pad.owner.interconnected-pins
-        if (typeof! first interconnected) in <[ String Number ]> and pad.label in interconnected
-            # Found interconnected pin 
-            #console.log "NETLIST: Found interconnected pin: ", pad.pin
-            pad.pin
-        else if (typeof! first interconnected) is \Array and pair=find((-> pad.num in it.map((Number))), interconnected)
-            # Found partially interconnected pin, see https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140
-            #console.log "NETLIST: Found partially interconnected pin: ", "#{pad.pin}___#{pair.join "____"}"
-            "#{pad.pin}___#{pair.join "____"}"
-        else 
-            # Add virtual enumeration, this pin is NOT interconnected. 
-            #console.log "NETLIST: Found unique pin: ", "#{pad.pin}____#{pad.num}"
-            "#{pad.pin}____#{pad.num}"
-
 export do
     get-netlist-components: ->
         components = []
@@ -81,8 +62,8 @@ export do
         #console.log "netlist raw components found: ", components
         return components
 
-    get-connection-states: ->
-        # see docs/Scheme.md/get-connection-states
+    calc-connection-states: ->
+        # see docs/Scheme.md#calc-connection-states
         marker = (rect) ~>
             console.warn "Placing a tmp marker:", rect
             new @scope.Path.Rectangle {
@@ -103,41 +84,46 @@ export do
         for netid, pads of vias 
             @connection-list[][netid] ++= pads 
 
-        # Calculate connections
+        # Calculate pad connections
+        # ------------------------------------------------
+        # 
+        #    See: docs/schema-api.md#How the circuits are created
+        #
+        # ------------------------------------------------
+        externally-connected = @_cables_connected.map((.map (.logical-pin)))
+
         for netid, net of @connection-list
+            logical-pin-net = unique [..logical-pin for net]
             state = connection-states.{}[netid]
-                ..total = unique [get-pin-name(..) for net] .length - 1    # Number of possible connections
+                ..total = logical-pin-net.length - 1    # Number of possible connections
                 ..unconnected-pads = []
 
-            # create the connection tree
+            # Find out which traces connect which Pad's. 
             connected-elements = {}
             for pad in net
-                for trace-item in _traces
-                    if trace-item `is-connected` pad
-                        connected-elements[][trace-item.phy-netid].push pad
+                for trace in _traces when trace `is-connected` pad
+                    unless connected-elements[trace.phy-netid]
+                        connected-elements[trace.phy-netid] = ["trace-id::#{trace.id}"]
+                    connected-elements[trace.phy-netid].push pad.logical-pin
 
-            named-connections = []
-            for phy, elements of connected-elements
-                # at this point, "elements" are Pad instances, use their ".pin" property
-                connected = []
-                for elements 
-                    connected.push get-pin-name(..) 
-                connected ++= ["trace-id::#{..id}" for _traces when "#{..phy-netid}" is "#{phy}"]
-                named-connections.push connected
+            # create "named-connections" to reduce via `net-merge` function.
+            named-connections = values connected-elements
 
-            # Virtually connect the pins defined in ".cables"
-            named-connections ++= @_cables_connected
+            # Virtually connect the externally connected pins defined in ".cables"
+            for cable in externally-connected
+                for pin in logical-pin-net when pin in cable
+                    named-connections.push cable  
 
-            state.reduced = net-merge named-connections, [get-pin-name(..) for net]
+            state.reduced = net-merge named-connections, [..logical-pin for net]
 
             # generate the list of unconnected Pad instances
             # TODO: determine discrete-pads by closest point, not by the first
             # pad in the array (which is somewhat random)
-            discrete-pads = [first .. for state.reduced]
+            discrete-pads = [first reject((.match /^trace-id::/), ..) for state.reduced]
             if discrete-pads.length is 1
                 discrete-pads.length = 0
 
-            state.unconnected-pads = [.. for net when get-pin-name(..) in discrete-pads]
+            state.unconnected-pads = [.. for net when ..logical-pin in discrete-pads]
 
             # report the unconnected trace count
             state.unconnected = if empty state.unconnected-pads
