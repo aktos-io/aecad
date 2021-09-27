@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, tail, unique-by, intersection, union, reject
+    first, tail, unique-by, intersection, union, reject, map
 }
 
 # deps
@@ -105,6 +105,18 @@ export do
                     unless connected-elements[trace.phy-netid]
                         connected-elements[trace.phy-netid] = ["trace-id::#{trace.id}"]
                     connected-elements[trace.phy-netid].push pad.logical-pin
+
+            # Add virtual connections 
+            if vtrace=@data.virtual-traces
+                for v-trace-id, pad-names of vtrace
+                    trace-id = "trace-id::virtual-#{v-trace-id}"
+                    unless connected-elements[trace-id]
+                        connected-elements[trace-id] = [trace-id]
+                    connected-elements[trace-id] ++= (pad-names 
+                        |> text2arr
+                        |> map (~> @get-pad-from-pin(it).map((.logical-pin)))
+                        |> flatten
+                        |> unique)
 
             # create "named-connections" to reduce via `net-merge` function.
             named-connections = values connected-elements

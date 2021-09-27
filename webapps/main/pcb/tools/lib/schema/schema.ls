@@ -185,13 +185,15 @@ export class Schema implements bom, footprints, netlist, guide
 
     components-by-name: ~
         ->
-            by-name = {}
-            for @components
-                if ..component 
-                    by-name[..component.name] = ..component
-                else 
-                    console.error "No component object was found:", ..
-            by-name
+            unless @_components_by_name
+                # fill the cache
+                @_components_by_name = {}
+                for @components
+                    if ..component 
+                        @_components_by_name[..component.name] = ..component
+                    else 
+                        console.error "No component object was found:", ..
+            return @_components_by_name
 
     is-link: (name) ->
         if name of @flatten-netlist
@@ -204,6 +206,10 @@ export class Schema implements bom, footprints, netlist, guide
             
     no-connect: ~
         -> text2arr @data.no-connect
+
+    get-pad-from-pin: (pin-name) -> 
+        [_, component, pin] = pin-name.match /^([^.]+)\.(.+)$/
+        @components-by-name[component].get({pin})
 
     compile: !->
         @compiled = true
@@ -219,7 +225,6 @@ export class Schema implements bom, footprints, netlist, guide
 
         # Component list is created at this moment. 
         # Process the `cables` property. 
-        _components_by_name = @components-by-name
         cable-connections = []
         for i, j of @_cables 
             connection = text2arr j
@@ -229,7 +234,7 @@ export class Schema implements bom, footprints, netlist, guide
                 cable-connections.push connection 
             else 
                 # this is a connector match
-                _connectors = connection.map (-> _components_by_name[it])
+                _connectors = connection.map (~> @components-by-name[it])
                 _reference_conn = _connectors.shift!
                 for _connectors
                     if Object.keys(..iface).length isnt Object.keys(_reference_conn.iface).length
@@ -241,10 +246,6 @@ export class Schema implements bom, footprints, netlist, guide
                         _connection.push "#{conn.name}.#{conn.iface[pin-num]}"
                     cable-connections.push _connection
 
-        get-pad-from-pin = (pin-name) -> 
-            [_, component, pin] = pin-name.match /^([^.]+)\.(.+)$/
-            _components_by_name[component].get({pin})
-
         for jumpers in cable-connections
             injection-point = null 
             for k, net of @_netlist
@@ -252,7 +253,7 @@ export class Schema implements bom, footprints, netlist, guide
                     unless injection-point?
                         injection-point = k 
                         @_netlist[k] = unique (net ++ jumpers)
-                        @_cables_connected.push flatten jumpers.map(get-pad-from-pin) 
+                        @_cables_connected.push flatten jumpers.map(~> @get-pad-from-pin it) 
                     else
                         # cables are already injected, "re-reduce" the netlist
                         @_netlist[injection-point] = unique (@_netlist[injection-point] ++ @_netlist[k] ++ [k])

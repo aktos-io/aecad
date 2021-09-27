@@ -23,6 +23,8 @@ export do
             throw new Error "Components missing in BOM: #{missing.join(',')}"
 
         @components = []
+        @_components_by_name = null 
+        
         # add sub-circuit components
         for name, sch of @sub-circuits
             for sch.components
