@@ -210,12 +210,12 @@ export class Trace extends Container implements follow, helpers, end
             for elements in sections
                 switch @first-target.type
                 | 'Pad' =>
-                    continue if @first-target.pin in elements
+                    continue if @first-target.logical-pin in elements
                 | 'Trace'
                     continue if "trace-id::#{@first-target.g.id}" in elements
                 uncoupled ++= elements
 
-            for @net when ..pin in uncoupled
+            for @net when ..logical-pin in uncoupled
                 ..selected = true
 
 
