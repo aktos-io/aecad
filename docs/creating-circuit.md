@@ -66,6 +66,8 @@ bar =
         1: "x.aaa y.2"
 ```
 
+Quick labels overrides the `allow-duplicate-labels` property and allows duplicate labels. 
+
 ### `.cables`
 
 Cable connections can be defined under this property. Two forms are possible: 

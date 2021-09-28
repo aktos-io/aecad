@@ -312,8 +312,9 @@ export class Schema implements bom, footprints, netlist, guide
                             console.error err 
                             throw new Error  "#{err} (check the console output)"
 
+                    uses-quick-labels = @bom[(full-name.replace /\..+/, '')].labels?
 
-                    unless comp.allow-duplicate-labels
+                    unless comp.allow-duplicate-labels or uses-quick-labels
                         if pads.length > 1
                             if comp.type not in [..type for @get-upgrades!]
                                 throw new Error "Multiple pins found: '#{pin}' of '#{name}' (#{comp.type}) in #{@name}"
