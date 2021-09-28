@@ -43,7 +43,11 @@ export init = (pcb) ->
         layout: (name) -> 
             pcb.switch-layout name
 
-        standard: (sch) ->            
+        standard: (opts, sch) ->         
+            unless sch 
+                sch = opts  
+                opts = {}  
+
             sch   
                 ..clear-guides!
                 ..compile!
@@ -76,6 +80,17 @@ export init = (pcb) ->
             for sch.get-bom-list!
                 bom.push "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]"
             pcb.layouts{}[pcb.active-layout].bom = bom.join '\n'
+
+            # debug output 
+            if opts.debug 
+                console.log "Connection List: {netid: pads-to-be-connected}"
+                console.log "----------------------------------------------"
+                console.log sch.connectionListTxt
+                console.log ""
+
+                console.log "Connection States (Reduced): {netid: currently-connected-pads[, stray pads]}"
+                console.log "----------------------------------------------"
+                console.log sch.connection-states-reduced
 
             return sch
 

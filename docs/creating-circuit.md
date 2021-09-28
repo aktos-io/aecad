@@ -144,6 +144,17 @@ my-circuit =
 
 ```
 
+# Debugging 
+
+Some debug output will be printed to the console when `{debug: true}` is passed as an option to the function `standard`:
+
+```ls
+standard {+debug}, new Schema {
+        name: 'my-circuit'
+        data: bar
+        }
+```
+
 # Example Circuit
 
 ```ls

@@ -362,7 +362,6 @@ export class Schema implements bom, footprints, netlist, guide
         # see docs/Schema.md/Schema.connection-list for documentation.
         #
         @connection-list = {}
-        @connection-list-txt = {}
         # Collect already assigned netid's
 
         # double-check the @netlist. it shouldn't contain same uname in different nets:
@@ -417,9 +416,32 @@ export class Schema implements bom, footprints, netlist, guide
             for pad in net
                 pad.netid = netid
 
+    connection-list-txt: ~
         # For debugging purposes
-        for netid, conn of @connection-list
-            @connection-list-txt[netid] = conn.map (.pin)
+        -> 
+            txt = {}
+            # For debugging purposes
+            for netid, net of @connection-list
+                for pad in net when not pad.is-via
+                    txt[][netid].push pad.uname
+            return txt
+
+    netlist_txt: ~
+        -> 
+            netlist-txt = []
+            for net in @netlist
+                netlist-txt.push net.map (.uname)
+            return netlist-txt
+
+    connection-states-reduced: ~
+        -> 
+            out = {}
+            for netid, state of @_connection_states
+                if state.reduced.length > 1 
+                    out[netid] = state.reduced
+                else 
+                    out[netid] = state.reduced.0
+            out
 
     post-check: ->
         # Error report (will stay while aeCAD is in Alpha stage)
