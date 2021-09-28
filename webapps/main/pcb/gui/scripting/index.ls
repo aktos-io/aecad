@@ -103,6 +103,7 @@ export init = (pcb) ->
 
 
     runScript = (script-name, opts={+clear}) ~>
+        start-time = new Date! .getTime()
         compiled = no
         @set \output, ''
         try
@@ -224,9 +225,11 @@ export init = (pcb) ->
 
                 name = opts.name or @get \scriptName
                 unless opts.silent
+                    end-time = new Date! .getTime()
+
                     PNotify.success do
                         text: """
-                            Compiled schema: #{name}
+                            Compiled schema: #{name} in #{oneDecimal (end-time - start-time)/1000}s
                             """
                         addClass: 'nonblock'
 
