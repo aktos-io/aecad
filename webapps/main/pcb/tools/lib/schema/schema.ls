@@ -209,7 +209,11 @@ export class Schema implements bom, footprints, netlist, guide
 
     get-pad-from-pin: (pin-name) -> 
         [_, component, pin] = pin-name.match /^([^.]+)\.(.+)$/
-        @components-by-name[component].get({pin})
+        try
+            @components-by-name["#{@prefix}#{component}"].get({pin})
+        catch 
+            debugger 
+            throw e 
 
     compile: !->
         @compiled = true
@@ -358,6 +362,7 @@ export class Schema implements bom, footprints, netlist, guide
         # see docs/Schema.md/Schema.connection-list for documentation.
         #
         @connection-list = {}
+        @connection-list-txt = {}
         # Collect already assigned netid's
 
         # double-check the @netlist. it shouldn't contain same uname in different nets:
@@ -411,6 +416,10 @@ export class Schema implements bom, footprints, netlist, guide
             @connection-list[netid] = net
             for pad in net
                 pad.netid = netid
+
+        # For debugging purposes
+        for netid, conn of @connection-list
+            @connection-list-txt[netid] = conn.map (.pin)
 
     post-check: ->
         # Error report (will stay while aeCAD is in Alpha stage)
