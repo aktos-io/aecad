@@ -10,6 +10,7 @@ require! 'diff': jsDiff
 require! 'mathjs'
 require! 'jszip'
 require! 'dcs/browser': {SignalBranch}
+require! '../../tools/lib/schema/lib/flatten-obj': {flatten-obj}
 
 
 get-filename = (f) -> f.substr(0, f.lastIndexOf('.'))
@@ -25,6 +26,8 @@ export init = (pcb) ->
     modules <<< tool-lib
     # include all prelude-ls functions
     modules <<< prelude-ls
+
+    modules <<< {flatten-obj}
     # modules from pcb
     pcb-modules = """
         Group Path Rectangle PointText Point Shape
