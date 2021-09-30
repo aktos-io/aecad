@@ -140,14 +140,14 @@ export class Schema implements bom, footprints, netlist, guide
                     ..push new-label 
             @_iface = values @_labels 
 
-        # Reduce netlist
+        # Reduce netlist, so that indirect connections will appear on the same array
         :outer for connection-name, _net of data-netlist
             net = text2arr _net
             # check if we have an indirectly connected net 
             for _c, _n of @_netlist
                 if not empty intersection ([_c] ++ _n), ([connection-name] ++ net)
                     # we have such a net already, merge into it
-                    @_netlist[_c] = (@_netlist[_c] ++ [connection-name] ++ net)
+                    @_netlist[_c] = (_n ++ [connection-name] ++ net)
                         |> reject (.starts-with '__iface_')     # virtual interface entries 
                         |> reject (.match /^[0-9]+\..*$/)
                         |> unique
