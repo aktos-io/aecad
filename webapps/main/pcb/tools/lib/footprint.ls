@@ -142,3 +142,12 @@ export class Footprint extends Container
                 t = border.type 
                 console.log "TODO: export-gerber border size: #{w}mm, #{h}mm, #t", border
             return
+
+    labels: ~
+        -> @get-data '_labels'
+        (x) -> @set-data '_labels', x 
+
+    orig-labels: ~
+        -> @get-data 'orig_labels'
+        (x) -> @set-data 'orig_labels', x 
+

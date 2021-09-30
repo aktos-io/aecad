@@ -37,16 +37,20 @@ export do
             #console.log "...adding component: #{name} type: #{type} params: ", params
             if pfx-name not in [..name for curr]
                 # This component hasn't been created yet, create it
+                component = new _Component {name: pfx-name, value, labels}
+                    ..orig-labels = labels 
                 @components.push do
-                    component: new _Component {name: pfx-name, value, labels}
+                    component: component
                     type: type 
                     name: pfx-name
                     value: value 
                     labels: labels
             else
                 existing = find (.name is pfx-name), curr
+                component = get-aecad existing.item
+                    ..orig-labels = labels 
                 @components.push comp =
-                    component: get-aecad existing.item
+                    component: component
                     existing: yes
                     upgrade-needed: ''
                     type: existing.type
