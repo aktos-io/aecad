@@ -61,8 +61,9 @@ export init = (pcb) ->
             # from the "component selection dropdown", located above of drawing area:
             pcb.ractive.set \currComponentNames, sch.get-component-names!
 
-            # Detect component upgrades
+            # Detect and mark component upgrades
             unless modules.empty upgrades=(sch.get-upgrades!)
+                pcb.selection.clear!
                 msg = ''
                 for upgrades
                     msg += ..reason + '\n\n'
