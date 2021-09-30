@@ -18,7 +18,13 @@ export do
             ..component.remove!
 
     add-footprints: (opts) !->
-        missing = @get-netlist-components! `difference` @get-bom-components!
+        current-components = flatten [..name for filter (-> not it.data), values @get-bom!]
+        required-components = @get-netlist-components!
+        missing = required-components `difference` current-components
+
+        console.log "required-components", required-components
+        console.log "current-components", current-components
+
         unless empty missing
             throw new Error "Components missing in BOM: #{missing.join(',')}"
 

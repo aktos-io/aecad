@@ -59,7 +59,7 @@ export init = (pcb) ->
             # Populate component-selection dropdown
             # Any component can be highlighted by selecting it
             # from the "component selection dropdown", located above of drawing area:
-            pcb.ractive.set \currComponentNames, sch.get-component-names!
+            pcb.ractive.set \currComponentNames, [{id: v.name, name: v.name} for k, v of sch.components]
 
             # Detect and mark component upgrades
             unless modules.empty upgrades=(sch.get-upgrades!)
