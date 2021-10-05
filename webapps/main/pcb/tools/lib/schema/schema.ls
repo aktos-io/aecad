@@ -151,7 +151,7 @@ export class Schema implements bom, footprints, netlist, guide
                     # we have such a net already, merge into it
                     @_netlist[_c] = (_n ++ [connection-name] ++ net)
                         |> reject (.starts-with '__iface_')     # virtual interface entries 
-                        |> reject (.match /^[0-9]+\..*$/)
+                        |> reject (.match /^[0-9]+/)            # numeric node labels
                         |> unique
                     continue outer 
 
