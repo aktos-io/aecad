@@ -70,13 +70,14 @@ prefix-value = (o, pfx) ->
 
 
 export class Schema implements bom, footprints, netlist, guide
-    (opts) ->
+    (@opts) ->
         '''
         opts:
             name: Name of schema
             prefix: *Optional* Prefix of components
             data: (see docs/schema-usage.md)
         '''
+        opts = @opts 
         unless opts
             throw new Error "Data should be provided on init."
 
@@ -87,6 +88,7 @@ export class Schema implements bom, footprints, netlist, guide
             opts.data 
             
         @data.bom `merge` (opts.bom or {})
+        @debug = @opts.debug
 
         @prefix = opts.prefix or ''
         @parent = opts.parent
@@ -300,8 +302,8 @@ export class Schema implements bom, footprints, netlist, guide
                             # This is a connection name, silently skip it 
                             continue
                         else
-                            console.error "Current components: ", @components-by-name
-                            console.warn "Current netlist: ", @flatten-netlist
+                            console.error "#{name} can not be found within current components: ", @components-by-name
+                            console.warn "Current flatten netlist: ", @flatten-netlist
                             throw new Error "No such component found: '#{name}' (full name: #{full-name}), pfx: #{@prefix}"
 
                     pads = (comp.get {pin}) or []

@@ -2,13 +2,13 @@
 
 A circuit is a simple JSON object with `iface`, `netlist`, `bom` and optional `schemas`, `no-connect` and `notes` fields. 
 
-A subcircuit is a simple schema JSON or a function that takes `value` as an argument (while being initiated within the `bom` section) which returns a schema JSON. Subcircuits are registered in `schemas` section. 
+A subcircuit is a simple schema JSON or a function that takes `value` as the first argument and `labels` as the second argument (when initialized in `bom.ls`) which returns a schema JSON. Subcircuits are registered in `schemas` section. 
 
 Generally it's wise to declare a function that returns the subcircuit function. In this way you can easily provide parameters to get the proper variant of the subcircuit during registration in the `schemas` section.
 
 ```ls
 foo = (config) -> # provides this 
-	(value) -> 
+	(value[, labels]) -> 
 		iface: "1 2" 
 		netlist:
 			1: "r1.1 r2.1"
@@ -148,10 +148,11 @@ my-circuit =
 
 # Debugging 
 
-Some debug output will be printed to the console when `{debug: true}` is passed as an option to the function `standard`:
+Some debug output will be printed to the console when `{debug: true}` is passed as an option to the `new Schema` constructor:
 
 ```ls
-standard {+debug}, new Schema {
+standard new Schema {
+		debug: yes 
         name: 'my-circuit'
         data: bar
         }

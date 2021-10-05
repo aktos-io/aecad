@@ -21,24 +21,20 @@ export parse-name = (full-name, opts) ->
         res.name = "#{that}#{res.name}"
     return res
 
-tests =
-    1:
-        full-name: "a.b.c.d"
-        expected: {name: "a.b.c", pin: 'd'}
-    2:
-        full-name: "a"
-        expected: {name: "a", link: yes}
-    3:
-        full-name: "a"
-        opts: {prefix: 'hello.'}
-        expected: {name: "hello.a", link: yes, raw: 'a'}
-    4:
-        full-name: "a.b"
-        opts: {prefix: 'hello.'}
-        expected: {name: "hello.a", pin: 'b', raw: 'a'}
+require! 'dcs/lib/test-utils': {make-tests}
 
-for k, test of tests
-    res = parse-name(test.full-name, test.opts)
-    unless JSON.stringify(res) is JSON.stringify(test.expected)
-        console.error "Expected: ", test.expected, "Got: ", res
-        throw new Error "Test failed for 'parse-name': at test num: #{k}"
+make-tests "net-merge", do
+    1: -> 
+        expect parse-name "test.circuit-1.c1.PA15"
+        .to-equal {name: "test.circuit-1.c1", pin: 'PA15'}
+    2: -> 
+        # "link" is 
+        expect parse-name "a"
+        .to-equal {name: "a", link: yes}
+    3: -> 
+        expect parse-name "a", {prefix: 'hello.'}
+        .to-equal {name: "hello.a", link: yes, raw: 'a'}
+    4: -> 
+
+        expect parse-name "a.b", {prefix: 'hello.'}
+        .to-equal {name: "hello.a", pin: 'b', raw: 'a'}

@@ -86,7 +86,7 @@ export init = (pcb) ->
             pcb.layouts{}[pcb.active-layout].bom = bom.join '\n'
 
             # debug output 
-            if opts.debug 
+            if sch.debug 
                 console.log "Connection List: {netid: pads-to-be-connected}"
                 console.log "----------------------------------------------"
                 console.log sch.connectionListTxt
