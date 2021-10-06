@@ -9,10 +9,10 @@ require! '../../../../kernel': {PaperDraw}
 export schema-tests = (handler) ->
     try
         PaperDraw.instance.use-layer \testing
-        make-tests "schema", simple 
-        make-tests "schema", errors 
-        make-tests "schema", unused 
-        make-tests "schema", parametric 
+        make-tests "schema-simple", simple 
+        make-tests "schema-errors", errors 
+        make-tests "schema-unused", unused 
+        make-tests "schema-parametric", parametric 
         PaperDraw.instance.remove-layer \testing
         sm = new SchemaManager
             ..clear!
