@@ -8,7 +8,7 @@ require! 'aea': {merge}
 
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
-require! './lib': {parse-name, next-id, flatten-obj}
+require! './lib': {parse-name, next-id, flatten-obj, net-merge}
 
 # Class parts
 require! './bom'
@@ -70,7 +70,7 @@ prefix-value = (o, pfx) ->
 
 
 export class Schema implements bom, footprints, netlist, guide
-    (@opts) ->
+    (@opts) !->
         '''
         opts:
             name: Name of schema
@@ -82,10 +82,16 @@ export class Schema implements bom, footprints, netlist, guide
             throw new Error "Data should be provided on init."
 
         @name = opts.schema-name or opts.name or "main"
-        @data = if typeof! opts.data is \Function 
-            opts.data(opts.value) 
+
+        @name = if @opts.parent
+            "#{that}-#{@opts.name}"
         else 
-            opts.data 
+            @opts.name or "main"
+
+        @data = if typeof! @opts.data is \Function 
+            @opts.data(@opts.value, @opts.labels) 
+        else 
+            @opts.data 
             
         @data.bom `merge` (opts.bom or {})
         @debug = @opts.debug
@@ -101,6 +107,7 @@ export class Schema implements bom, footprints, netlist, guide
 
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
         @_netlist = {}                  # cached and post-processed version of original .netlist {CONN_ID: [pad_names...]}
+        @_data_netlist = []             # Post processed and array version of @data.netlist
 
         @_labels = opts.labels
         @_cables = @data.cables or {}
@@ -111,13 +118,21 @@ export class Schema implements bom, footprints, netlist, guide
         # -----------------------------------------------------------
         # Post process the netlist 
         # -----------------------------------------------------------
-        # Check for netlist errors 
-        data-netlist = flatten-obj @data.netlist 
-        for conn, net of data-netlist
-            for comp in text2arr net 
-                if comp.match /([^.]+)\.$/
-                    throw new Error "Netlist Error: Empty pins are not allowed. 
-                        Check \"#{comp}\" pin at netlist[\"#{conn}\"] connection."
+        # Check for netlist errors
+        for key, _net of flatten-obj @data.netlist 
+            # LABEL's can be numeric or alphanumeric and MUST be declared 
+            # within the key section of @data.netlist. 
+            # Component pads should only follow "COMPONENT.PIN" syntax.
+
+            net = ["__netid:#{key}"]
+            for text2arr _net
+                if ..match /([^.]+)\.$/
+                    # PIN is forgotten
+                    throw new Error "Netlist Error: Pin declaration is forgotten. 
+                        Check \"#{..}\" component at netlist[\"#{key}\"] connection."
+                net.push .. 
+            @_data_netlist.push net 
+
         # Build interface
         for text2arr @data.iface
             if ..match /([^.]+)\.(.+)/
@@ -126,36 +141,57 @@ export class Schema implements bom, footprints, netlist, guide
                 component = that.1
                 pin = that.2
 
-                # Expose this pin as an interface
+                # Connect the interface pin to the corresponding net  
+                # and expose this pin as an interface:
+                @_data_netlist.push ["__iface:#{pin}", pin, pad]
                 @_iface.push pin 
-
-                # connect the interface pin to the corresponding net  
-                @data.netlist["__iface_#{pad}__"] = [pin, pad]
             else 
                 @_iface.push .. 
 
         # if labels are declared, replace @_iface with @_labels 
         if @_labels? 
             for orig-iface, new-label of @_labels 
-                @data.netlist[]["__iface_#{orig-iface}__"]
-                    ..push orig-iface
-                    ..push new-label 
+                @_data_netlist.push ["__iface:#{orig-iface}", "__label:#{new-label}"]
             @_iface = values @_labels 
 
-        # Reduce netlist, so that indirect connections will appear on the same array
-        :outer for connection-name, _net of data-netlist
-            net = text2arr _net
-            # check if we have an indirectly connected net 
-            for _c, _n of @_netlist
-                if not empty intersection ([_c] ++ _n), ([connection-name] ++ net)
-                    # we have such a net already, merge into it
-                    @_netlist[_c] = (_n ++ [connection-name] ++ net)
-                        |> reject (.starts-with '__iface_')     # virtual interface entries 
-                        |> reject (.match /^[0-9]+/)            # numeric node labels
-                        |> unique
-                    continue outer 
+        # TEMPORARY SECTION: Create a @_netlist object now
+        # ------------------------------------------------
+        for net in x=(net-merge @_data_netlist)
+            # We no longer need numeric labels and interface descriptions.
+            netlabel = null     # only one label is allowed for a net 
+            _net = []
+            for elem in net 
+                if label=(elem.match /^__label:(.+)$/)?.1
+                    # Use labels if labels are present
+                    netlabel = label 
+                    continue 
 
-            @_netlist[connection-name] = net
+                if iface=(elem.match /^__iface:(.+)$/)?.1
+                    # Remove temporary interface entries
+                    unless netlabel 
+                        netlabel = iface 
+                    continue 
+
+                if netid=(elem.match /^__netid:(.+)$/)?.1
+                    # this is an alphanumeric label 
+                    if netid.match /^[0-9]+$/
+                        # that's a number  
+                        unless netlabel
+                            netlabel = netid 
+                        continue 
+                    else 
+                        # that's an alphanumeric label, replace with current label 
+                        netlabel = netid 
+                        continue 
+                    throw new Error "Only one netlabel is allowed for a logical net. You should choose \"#{netid}\" or \"#{netlabel}\"."
+                else
+                    _net.push elem 
+            @_netlist[netlabel] = _net
+        # ------------------------------------------------
+        # End of temporary section
+        if @debug 
+            debugger 
+                
 
     external-components: ~
         # Current schema's external components
@@ -163,6 +199,11 @@ export class Schema implements bom, footprints, netlist, guide
 
     flatten-netlist: ~
         ->
+            /* 
+            Every "simple component" within the circuit, 
+            including the sub-circuit components.
+            */
+
             netlist = @_netlist
 
             # unconnected interface pins will be treated as null nets
@@ -223,7 +264,7 @@ export class Schema implements bom, footprints, netlist, guide
         # Compile sub-circuits first
         for sch in values @get-bom! when sch.data
             #console.log "Initializing sub-circuit: #{sch.name} ", sch
-            @sub-circuits[sch.name] = new Schema sch
+            @sub-circuits[sch.name] = new Schema (sch <<<< {@debug})
                 ..compile!
 
         # add needed footprints
