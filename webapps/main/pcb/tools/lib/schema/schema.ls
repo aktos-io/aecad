@@ -103,7 +103,8 @@ export class Schema implements bom, footprints, netlist, guide
             ..register this
         @compiled = false
         @connection-list = {}           # key: trace-id, value: array of related Pads
-        @sub-circuits = {}              # TODO: DOCUMENT THIS
+        @sub-circuits = {}              # sub-circuits if @data.bom contains a component defined in @data.schemas.
+                                        # {type_declared_in_BOM: Schema Object} 
 
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
         @_netlist = {}                  # cached and post-processed version of original .netlist {CONN_ID: [pad_names...]}

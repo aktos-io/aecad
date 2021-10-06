@@ -4,15 +4,16 @@ require! './errors'
 require! './unused'
 require! './parametric'
 require! '../schema-manager': {SchemaManager}
-
-tests = ->
-    make-tests "schema", {
-        simple, errors, unused, parametric
-    }
+require! '../../../../kernel': {PaperDraw}
 
 export schema-tests = (handler) ->
     try
-        tests!
+        PaperDraw.instance.use-layer \testing
+        make-tests "schema", simple 
+        make-tests "schema", errors 
+        make-tests "schema", unused 
+        make-tests "schema", parametric 
+        PaperDraw.instance.remove-layer \testing
         sm = new SchemaManager
             ..clear!
         handler!
