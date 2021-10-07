@@ -403,10 +403,12 @@ export class Schema implements bom, footprints, netlist, guide
 
         {@_data_netlist, @_iface, @_netlist} = post-process-netlist {@data.netlist, @data.iface, @opts.labels}
 
+        @calc-bom!
+
         # Compile sub-circuits first
-        for sch in values @get-bom! when sch.data
+        for instance-name, schema of @bom when schema.data
             #console.log "Initializing sub-circuit: #{sch.name} ", sch
-            @sub-circuits[sch.name] = new Schema (sch <<<< {@debug})
+            @sub-circuits[instance-name] = new Schema (schema <<<< {@debug})
                 ..compile!
 
         # add needed footprints
@@ -422,7 +424,7 @@ export class Schema implements bom, footprints, netlist, guide
             if or-list connection.map (.match /^[a-zA-Z_][^.]*\.[^.]+$/)
                 cable-connections.push connection 
             else 
-                # this is a connector match
+                # this is a whole connector match, reveal all pins 
                 _connectors = connection.map (~> @components-by-name[it])
                 _reference_conn = _connectors.shift!
                 for _connectors

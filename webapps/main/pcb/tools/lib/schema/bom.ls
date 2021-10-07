@@ -9,10 +9,11 @@ require! 'aea': {clone, merge}
 
 
 export do
-    get-bom: ->
-        bom = {}
+    calc-bom: ->
         if typeof! @data.bom is \Array
             throw new Error "BOM should be Object, not Array"
+
+        @bom = {}
 
         for type, instances of @data.bom 
             if typeof! instances is 'String'
@@ -49,7 +50,7 @@ export do
                             |_ => debugger 
 
                 for name, labels of instance-names
-                    if name of bom
+                    if name of @bom
                         throw new Error "Duplicate instance: #{name}"
 
                     # create every #name with params: params
@@ -61,7 +62,7 @@ export do
 
                     if typeof! calculated-schema is \Function 
                         throw new Error "Sub-circuit \"#{type}\" should be simple function, not a factory function. Did you forget to initialize it?"
-                    bom[name] =
+                    @bom[name] =
                         name: name
                         value: value
                         labels: labels
@@ -71,8 +72,6 @@ export do
                         schema-name: "#{@name}-#{name}" # for convenience in constructor
                         prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
 
-        #console.log "Compiled bom is: ", bom
-        return @bom=bom
 
     get-bom-list: -> 
         # group by type, and then value 
