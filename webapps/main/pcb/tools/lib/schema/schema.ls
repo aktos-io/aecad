@@ -191,7 +191,7 @@ export class Schema implements bom, footprints, netlist, guide
         # Compile sub-circuits first
         for instance-name, schema of @bom when schema.data
             #console.log "Initializing sub-circuit: #{sch.name} ", sch
-            @sub-circuits[instance-name] = new Schema (schema <<<< {@debug})
+            @sub-circuits[instance-name] = new Schema (schema <<< {debug: (@debug is \all)})
                 ..compile!
 
         # add needed footprints

@@ -13,7 +13,8 @@ export do
         [.. for @components when ..upgrade-needed]
 
     remove-footprints: ->
-        console.log "Removing created components by this schema (#{@name})"
+        if @debug 
+            console.log "Removing created components by this schema (#{@name})"
         for @components or []
             ..component.remove!
 
@@ -22,8 +23,9 @@ export do
         required-components = @get-netlist-components!
         missing = required-components `difference` current-components
 
-        console.log "#{@name}: required-components", required-components
-        console.log "#{@name}: current-components", current-components
+        if @debug 
+            console.log "#{@name}: required-components", required-components
+            console.log "#{@name}: current-components", current-components
 
         unless empty missing
             throw new Error "Components missing in BOM: #{missing.join(',')}"
