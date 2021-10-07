@@ -156,7 +156,7 @@ export class Schema implements bom, footprints, netlist, guide
 
     prefix2: ~
         -> 
-            if @parent => "#{@parent}." else ''
+            if @parent => "#{@name}." else ''
 
     components-by-name: ~
         ->
@@ -194,6 +194,11 @@ export class Schema implements bom, footprints, netlist, guide
         @compiled = true
 
         {@_data_netlist, @_iface, @_netlist} = post-process-netlist {@data.netlist, @data.iface, @opts.labels}
+
+        if @debug 
+            console.log "#{@name}: @_data_netlist: ", @_data_netlist
+            console.log "#{@name}: @_iface: ", @_iface
+            console.log "#{@name}: @_netlist: ", @_netlist
 
         @calc-bom!
 
@@ -275,8 +280,8 @@ export class Schema implements bom, footprints, netlist, guide
                         if name in @iface
                             console.log "Found an interface handle: #{name}. Silently skipping."
                             continue
-                        else if name of @data.netlist
-                            # This is a connection name, silently skip it 
+                        else if name.match /^_[0-9]+/
+                            # This is an internal connection name, silently skip it 
                             continue
                         else
                             console.error "#{name} can not be found within current components: ", @components-by-name
