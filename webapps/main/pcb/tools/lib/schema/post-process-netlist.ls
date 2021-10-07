@@ -206,3 +206,20 @@ make-tests "post-process-netlist", do
                 aa: <[ r1.1 r4.2 ]>
                 bb: <[ r3.1 r2.2 ]>
             _iface: <[ aa bb ]> 
+
+    "multiple iface definition for the same net": ->  
+        # TODO: 
+        # ------
+        # What should be the correct behavior when user wanted to 
+        # assign multiple labels to the same net?
+        return false 
+
+        {_netlist, _iface, _data_netlist} = post-process-netlist do 
+            iface: "c1.1a,c1.1y,c1.1z,c1.2z,
+                c1.2y,c1.2a,c1.3a,c1.3y,c1.3z,
+                c1.4z,c1.4y,c1.4a c1.vcc c1.gnd,
+                c1.g c1.n_g"
+
+            netlist:
+                "vcc": "c1.vcc c2.a"
+                "gnd": "c1.gnd c2.c c1.g c1.n_g" 
