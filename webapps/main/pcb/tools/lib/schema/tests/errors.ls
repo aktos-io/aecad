@@ -43,8 +43,6 @@ export do
 
     'duplicate instance': ->
         circuit2 =
-            # open collector output
-            iface: "Input, Output, gnd"
             bom:
                 FOO: 'Q1'
                 "SMD1206": "R1 Q1"
