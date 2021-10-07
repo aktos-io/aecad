@@ -287,8 +287,6 @@ export class Schema implements bom, footprints, netlist, guide
         unless opts
             throw new Error "Data should be provided on init."
 
-        @name = opts.schema-name or opts.name or "main"
-
         @name = if @opts.parent
             "#{that}-#{@opts.name}"
         else 

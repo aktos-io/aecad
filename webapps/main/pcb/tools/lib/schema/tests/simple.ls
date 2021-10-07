@@ -27,7 +27,41 @@ push-pull =
         4: "Q1.b R2.1"
 
 export do
-    1: ->
+    "correct bom report": -> 
+        sch = new Schema do 
+            name: "test"
+            data: 
+                bom: 
+                    x: "c1, c2"
+                netlist: 
+                    1: "c1.1 c2.a"
+                    gnd: "c1.2"
+
+        sch.calc-bom!
+        
+        expect sch.bom
+        .to-equal {
+            "c1": {
+                "data": undefined, 
+                "labels": null, 
+                "name": "c1", 
+                "parent": "test", 
+                "prefix": "c1.", 
+                "type": "x", 
+                "value": ""
+            }, 
+            "c2": {
+                "data": undefined, 
+                "labels": null, "
+                name": "c2", 
+                "parent": "test", 
+                "prefix": "c2.", 
+                "type": "x", 
+                "value": ""
+            }
+        }
+
+    "flatten netlist": ->
         sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
             ..compile!
 

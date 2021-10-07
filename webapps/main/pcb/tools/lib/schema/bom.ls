@@ -69,7 +69,6 @@ export do
                         parent: @name
                         data: calculated-schema
                         type: type
-                        schema-name: "#{@name}-#{name}" # for convenience in constructor
                         prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
 
 
