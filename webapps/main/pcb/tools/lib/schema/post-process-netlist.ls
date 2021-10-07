@@ -167,7 +167,6 @@ make-tests "post-process-netlist", do
             1: <[ d.2 c.2 d.1 ]>       
 
     "iface definition with numeric like label": -> 
-        debugger 
         {_netlist} = post-process-netlist do         
             netlist: 
                 1: "a.1 b.2 c.1"

@@ -273,7 +273,6 @@ export init = (pcb) ->
             name = name or @get 'scriptName' 
             runScript name, opts 
             pcb.layouts{}[pcb.active-layout].script-name = name 
-            console.log "layouts: ", pcb.layouts
 
         clearScriptLayer: (ctx) ~>
             @get \project.layers.scripting ?.clear!
