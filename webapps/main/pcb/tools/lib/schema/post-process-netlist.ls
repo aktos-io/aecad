@@ -163,6 +163,21 @@ make-tests "post-process-netlist", do
             2: <[ a.1 b.2 c.1 ]>
             1: <[ d.2 c.2 d.1 ]>       
 
+    "iface definition within the sub-object": -> 
+        return false 
+        {_netlist} = post-process-netlist do 
+            netlist: 
+                1: "a.1 b.2 c.1"
+                3: 
+                    x: "c.2 d.1"
+                2: "d.2 x"
+            iface: "1 x"
+
+        expect _netlist
+        .to-equal do 
+            2: <[ a.1 b.2 c.1 ]>
+            1: <[ d.2 c.2 d.1 ]>       
+
     "numeric iface": ->  
         {_netlist} = post-process-netlist do 
             netlist: 
