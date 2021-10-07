@@ -13,11 +13,14 @@ export post-process-netlist = ({netlist, iface, labels}) ->
     # -----------------------------------------------------------
     internal-numeric = (x) -> 
         # convert numeric keys to semi-numeric (underscore prefixed)
-        if x.match /^[0-9]+/
-            "_#{x}"
+        if _rest=(x.match /^[0-9]+(.*)$/)
+            # match with numbered nodes, like 
+            if _rest.1?match /[a-zA-Z_]/ 
+                x 
+            else 
+                "_#{x}"
         else
             x
-
 
     # Check for netlist errors
     for key, _net of flatten-obj netlist 
@@ -156,6 +159,20 @@ make-tests "post-process-netlist", do
                 1: "a.1 b.2 c.1"
                 x: "c.2 d.1"
                 2: "d.2 x"
+            iface: "d.1 b.2"
+
+        expect _netlist
+        .to-equal do 
+            2: <[ a.1 b.2 c.1 ]>
+            1: <[ d.2 c.2 d.1 ]>       
+
+    "iface definition with numeric like label": -> 
+        debugger 
+        {_netlist} = post-process-netlist do         
+            netlist: 
+                1: "a.1 b.2 c.1"
+                "5v": "c.2 d.1"
+                2: "d.2 5v"
             iface: "d.1 b.2"
 
         expect _netlist
