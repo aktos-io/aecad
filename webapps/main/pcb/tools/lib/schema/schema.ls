@@ -122,10 +122,9 @@ export class Schema implements bom, footprints, netlist, guide
         ->
             /* 
             `flatten-obj` like function that returns flatten version of 
-            all sub-circuits' netlists. Simple components of sub-circuits are 
-            prefixed with their parent circuit name. 
+            current @_netlist and all sub-circuits' @_netlist's. 
+            Simple components of sub-circuits are '@prefix'ed. 
             */
-
             netlist = @_netlist
 
             # unconnected interface pins will be treated as null nets
@@ -144,19 +143,8 @@ export class Schema implements bom, footprints, netlist, guide
                     # interfaces are null nets
                     prefixed = "#{circuit-name}.#{..}"
                     unless prefixed of netlist
-                        netlist[prefixed] = []
-            #console.log "FLATTEN NETLIST: ", netlist
+                        netlist[prefixed] = []            
             netlist
-
-
-    prefixed-netlist: ~
-        -> 
-            for netid, net of @_netlist 
-                "#{@prefix2}#{netid}": net.map (~> "#{@prefix2}#{it}") 
-
-    prefix2: ~
-        -> 
-            if @parent => "#{@name}." else ''
 
     components-by-name: ~
         ->
@@ -169,12 +157,6 @@ export class Schema implements bom, footprints, netlist, guide
                     else 
                         console.error "No component object was found:", ..
             return @_components_by_name
-
-    is-link: (name) ->
-        if name of @flatten-netlist
-            yes
-        else
-            no
 
     iface: ~
         -> @_iface
@@ -196,9 +178,13 @@ export class Schema implements bom, footprints, netlist, guide
         {@_data_netlist, @_iface, @_netlist} = post-process-netlist {@data.netlist, @data.iface, @opts.labels}
 
         if @debug 
+            console.log "#{@name}: -----------------------------------------"
             console.log "#{@name}: @_data_netlist: ", @_data_netlist
             console.log "#{@name}: @_iface: ", @_iface
             console.log "#{@name}: @_netlist: ", @_netlist
+            console.log "#{@name}: @flatten-netlist: ", @flatten-netlist
+            console.log "#{@name}: -----------------------------------------"
+
 
         @calc-bom!
 
@@ -254,7 +240,8 @@ export class Schema implements bom, footprints, netlist, guide
         # -----------------
         netlist = {}
         #console.log "* Compiling schema: #{@name}"
-        for id, conn-list of @flatten-netlist
+
+        for id, conn-list of _flatten_netlist=@flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
             net = [] # cache (list of connected nodes)
@@ -263,7 +250,7 @@ export class Schema implements bom, footprints, netlist, guide
                     prefix: @prefix
                     external: @external-components
                 #console.log "Searching for entity: #{name} and pin: #{pin}, pfx: #{@prefix}"
-                if @is-link full-name
+                if full-name of _flatten_netlist
                     # Merge into parent net
                     # IMPORTANT: Links must be key of netlist in order to prevent accidental namings
                     #console.warn "HANDLE LINK: #{full-name}"
@@ -315,9 +302,6 @@ export class Schema implements bom, footprints, netlist, guide
             netlist[id] ++= net  # it might be already created by cross-link
 
         unless @parent
-            #console.log "Flatten netlist:", @flatten-netlist
-            #console.log "Netlist (raw) (includes links and cross-links): ", netlist
-
             # Create the cleaned up @netlist (arrays of arrays of Pad objects)
             @netlist.length = 0
             for id of netlist
