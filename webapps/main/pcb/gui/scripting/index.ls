@@ -11,7 +11,7 @@ require! 'mathjs'
 require! 'jszip'
 require! 'dcs/browser': {SignalBranch}
 require! '../../tools/lib/schema/lib/flatten-obj': {flatten-obj}
-
+require! '../../lib/chronometer': {Chronometer}
 
 get-filename = (f) -> f.substr(0, f.lastIndexOf('.'))
 get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
@@ -20,6 +20,8 @@ get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
 {keys, values, map, filter, find} = prelude-ls
 
 export init = (pcb) ->
+    chrono = new Chronometer
+
     # Modules to be included into dynamic scripts
     modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on, mathjs, px2mm}
     # include all tools
@@ -51,10 +53,15 @@ export init = (pcb) ->
                 sch = opts  
                 opts = {}  
 
-            sch   
-                ..clear-guides!
-                ..compile!
-                ..guide-unconnected!  
+            chrono.start!
+            sch.clear-guides!
+            console.log "standard new Schema: clear-guides() took: #{chrono.end!}"
+            chrono.start!
+            sch.compile!
+            console.log "standard new Schema: compile() took: #{chrono.end!}"
+            chrono.start!
+            sch.guide-unconnected!  
+            console.log "standard new Schema: guide-unconnected() took: #{chrono.end!}"
             
             # Calculate unconnected count
             pcb.ractive.fire 'calcUnconnected', {}, {+cached}
@@ -110,6 +117,7 @@ export init = (pcb) ->
         start-time = new Date! .getTime()
         compiled = no
         @set \output, ''
+        c1 = new Chronometer
         try
             libs = []
             for name, src of @get \drawingLs
@@ -122,6 +130,7 @@ export init = (pcb) ->
                         """
 
             #console.log "drawingls (main script: #{script-name}): ", libs
+            c1.start!
 
             # Determine dependencies and provisions 
             for lib in libs
@@ -137,6 +146,7 @@ export init = (pcb) ->
                     if (a=..match /^#!?\s*[Rr]equires:?\s*(.+)\b/) or (b=..match /^#\s*[Dd]epends:?\s*(.+)\b/)
                         lib.[]depends ++= (a or b).1.split(',').map (.trim!)
                         #console.log "----> #{lib.name} depends #{that.1}"
+            console.log "runScript: dependency determination took: #{c1.end!}"
 
             # Sort by dependency order
             ordered = []
@@ -164,9 +174,11 @@ export init = (pcb) ->
                         ordered.push lib
                         console.log "...inserting #{lib.name} to the ordered list."
 
+            c1.start!
             #console.log "libs: ", libs
             for ([main-script] ++ libs)
                 insert-dep .. if .. 
+            console.log "runScript: dependency insertion took: #{c1.end!}"
 
             # add main script
             if main-script
@@ -182,7 +194,9 @@ export init = (pcb) ->
             
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
+            c1.start!
             js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
+            console.log "runScript: lsc.compile(whole-src) took: #{c1.end!}"
             compiled = yes
         catch err
             try 
@@ -218,14 +232,22 @@ export init = (pcb) ->
 
         if compiled
             try
+                c1.start!
                 layer = pcb.use-layer \scripting
                 if opts.clear
                     layer.clear!
+                console.log "runScript: layer cleared: #{c1.end!}"
+
 
                 #console.log "Added global modules: ", keys modules
+                c1.start!
                 func = new Function ...(keys modules), js.code
+                console.log "runScript: new Function creation took: #{c1.end!}"
+                c1.start!
                 func.call pcb, ...(values modules)
+                console.log "runScript: func.call() took: #{c1.end!}"
                 #pcb._scope.execute js
+
 
                 name = opts.name or @get \scriptName
                 unless opts.silent

@@ -123,10 +123,9 @@ export init = (pcb) ->
             console.log "------------ Performing DRC (opts: #{JSON.stringify opts}) ------------"
             if sch=schema-manager.active
                 try
-                    conn-states = if opts.cached
-                        sch._connection_states 
-                    else 
+                    unless opts.cached 
                         sch.calc-connection-states!
+                    conn-states = sch._connection_states 
                     sch
                         ..clear-guides!
                         ..guide-unconnected {+cached}

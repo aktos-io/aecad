@@ -18,6 +18,7 @@ require! './netlist'
 require! './guide'
 require! './schema-manager': {SchemaManager}
 require! '../text2arr': {text2arr}
+require! '../../../lib/chronometer': {Chronometer}
 
 # Recursively walk through links
 get-net = (netlist, id, included=[], mark) ~>
@@ -68,20 +69,6 @@ prefix-value = (o, pfx) ->
             res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
     return res 
 
-class Chronometer
-    -> 
-        @start-time = null
-        @duration = null 
-    start: ->
-        @start-time = new Date! .getTime()
-
-
-    end: -> 
-        @duration = (new Date! .getTime()) - @start-time 
-
-    measurement: ~
-        -> 
-            "#{oneDecimal @duration/1000}s" 
 
 export class Schema implements bom, footprints, netlist, guide
     (@opts) !->
@@ -205,10 +192,7 @@ export class Schema implements bom, footprints, netlist, guide
     compile: !->
         @compiled = true
 
-        @chrono-reset!
         {@_data_netlist, @_iface, @_netlist} = post-process-netlist {@data.netlist, @data.iface, @opts.labels}
-
-        @chrono-log "post-process-netlist"
 
         if @debug 
             console.log "#{@name}: -----------------------------------------"
