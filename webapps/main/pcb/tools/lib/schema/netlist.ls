@@ -76,8 +76,10 @@ export do
             }
 
         connection-states = {}
+        @chrono-start!
         # List of trace items with physically connected states are calculated
         {trace-items: _traces, vias} = @get-traces! 
+        @chrono-log "@get-traces()"
 
         # Adding vias to connection list
         #console.log "vias:", vias
@@ -145,6 +147,7 @@ export do
 
         #console.log ":::: Connection states: ", connection-states
         @_connection_states = connection-states
+        @chrono-log "calc-connection-states (total)"
         return connection-states
 
     get-traces: ->

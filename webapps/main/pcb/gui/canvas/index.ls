@@ -121,9 +121,12 @@ export init = (pcb) ->
 
         calcUnconnected: (ctx, opts={}) ->
             console.log "------------ Performing DRC ------------"
-            if schema-manager.active
+            if sch=schema-manager.active
                 try
-                    conn-states = that.calc-connection-states!
+                    conn-states = sch.calc-connection-states!
+                    sch
+                        ..clear-guides!
+                        ..guide-unconnected {+cached}
                 catch
                     PNotify.error text: e.message
                     pcb.ractive.set 'totalConnections', "--"

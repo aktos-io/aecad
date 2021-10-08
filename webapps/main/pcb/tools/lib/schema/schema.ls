@@ -68,6 +68,20 @@ prefix-value = (o, pfx) ->
             res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
     return res 
 
+class Chronometer
+    -> 
+        @start-time = null
+        @duration = null 
+    start: ->
+        @start-time = new Date! .getTime()
+
+
+    end: -> 
+        @duration = (new Date! .getTime()) - @start-time 
+
+    measurement: ~
+        -> 
+            "#{oneDecimal @duration/1000}s" 
 
 export class Schema implements bom, footprints, netlist, guide
     (@opts) !->
@@ -112,7 +126,20 @@ export class Schema implements bom, footprints, netlist, guide
         @_cables = @data.cables or {}
         @_cables_connected = []         # Virtual connections
         @_iface = []                    # array of interface pins
-                
+
+        @_chrono = new Chronometer
+
+    chrono-start: -> 
+        @chrono-reset!
+
+    chrono-reset: -> 
+        if @debug 
+            @_chrono.start!
+
+    chrono-log: (message) ->      
+        if @debug 
+            @_chrono.end!
+            console.log "#{@name}: Chronometer #{message}: took #{@_chrono.measurement}"
 
     external-components: ~
         # Current schema's external components
@@ -125,6 +152,8 @@ export class Schema implements bom, footprints, netlist, guide
             current @_netlist and all sub-circuits' @_netlist's. 
             Simple components of sub-circuits are '@prefix'ed. 
             */
+            @chrono-reset!
+
             netlist = @_netlist
 
             # unconnected interface pins will be treated as null nets
@@ -143,7 +172,8 @@ export class Schema implements bom, footprints, netlist, guide
                     # interfaces are null nets
                     prefixed = "#{circuit-name}.#{..}"
                     unless prefixed of netlist
-                        netlist[prefixed] = []            
+                        netlist[prefixed] = []   
+            @chrono-log "flatten-netlist"       
             netlist
 
     components-by-name: ~
@@ -175,7 +205,10 @@ export class Schema implements bom, footprints, netlist, guide
     compile: !->
         @compiled = true
 
+        @chrono-reset!
         {@_data_netlist, @_iface, @_netlist} = post-process-netlist {@data.netlist, @data.iface, @opts.labels}
+
+        @chrono-log "post-process-netlist"
 
         if @debug 
             console.log "#{@name}: -----------------------------------------"
@@ -318,6 +351,8 @@ export class Schema implements bom, footprints, netlist, guide
             # Output the generated report
             #console.log "... Schema: #{@name}, Connection list:", @connection-list
             #console.log "... Schema: #{@name}, Netlist:", @netlist
+
+        @chrono-log "compile (total)"
 
     get-required-pads: ->
         all-pads = {}

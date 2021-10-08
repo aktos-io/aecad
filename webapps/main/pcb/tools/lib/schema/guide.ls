@@ -24,9 +24,15 @@ export do
     guide-all: ->
         @guide-for!
 
-    guide-unconnected: ->
-        unconnecteds = [o.unconnected-pads for i, o of @calc-connection-states!]
+    guide-unconnected: (opts={}) !->
+        @chrono-start!
+        conn-states = if opts.cached
+            @_connection_states
+        else
+            @calc-connection-states!
+        unconnecteds = [o.unconnected-pads for i, o of conn-states]
         @guide-for null, unconnecteds
+        @chrono-log "guide-unconnected"
 
     create-guide: (pad1, pad2, _opts={}) ->
         opts = {+selected} <<< _opts

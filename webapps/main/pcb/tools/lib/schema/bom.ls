@@ -10,6 +10,27 @@ require! 'aea': {clone, merge}
 
 export do
     calc-bom: ->
+        /* Description: 
+
+        Creates an object with {instance-name: {SCHEMA}} for every instance
+        declared in `.bom` section
+
+        {SCHEMA} is *directly passed* to `new Schema` within `.compile()` method. Fields are:
+
+            name        : The name of the instance, eg. "c1"
+
+            value       : The value declared by that instance's key field within the .bom section 
+
+            labels      : `null` for default labels or a valid object if quick labels are used 
+
+            parent      : The parent circuit name (@name)
+
+            data        : If this is a component supplied by a class, then `null`. If this is a sub-circuit, 
+                        then this is another valid schema.
+
+            type        : Type of the component, as declared in the `.bom`
+
+        */
         if typeof! @data.bom is \Array
             throw new Error "BOM should be Object, not Array"
 
