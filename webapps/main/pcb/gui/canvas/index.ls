@@ -116,14 +116,17 @@ export init = (pcb) ->
                 catch
                     console.error "Something went wrong here.", e
 
-            <~ @fire \refreshLayer
+            <~ @fire \refreshLayer, {}
             proceed?!
 
         calcUnconnected: (ctx, opts={}) ->
-            console.log "------------ Performing DRC ------------"
+            console.log "------------ Performing DRC (opts: #{JSON.stringify opts}) ------------"
             if sch=schema-manager.active
                 try
-                    conn-states = sch.calc-connection-states!
+                    conn-states = if opts.cached
+                        sch._connection_states 
+                    else 
+                        sch.calc-connection-states!
                     sch
                         ..clear-guides!
                         ..guide-unconnected {+cached}

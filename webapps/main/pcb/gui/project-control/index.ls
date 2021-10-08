@@ -480,7 +480,7 @@ export init = (pcb) ->
                 PNotify.info do
                     text: "Changes reverted. (left: #{res.left})"
                     addClass: 'nonblock'
-                pcb.ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
+                pcb.ractive.fire \calcUnconnected, {}, {+silent}  # TODO: Unite this action
             else 
                 PNotify.notice do 
                     text: "No commits left."

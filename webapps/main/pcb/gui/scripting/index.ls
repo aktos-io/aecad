@@ -57,7 +57,7 @@ export init = (pcb) ->
                 ..guide-unconnected!  
             
             # Calculate unconnected count
-            pcb.ractive.fire 'calcUnconnected'
+            pcb.ractive.fire 'calcUnconnected', {}, {+cached}
 
             # Populate component-selection dropdown
             # Any component can be highlighted by selecting it
@@ -100,7 +100,7 @@ export init = (pcb) ->
 
         run-unit-tests: -> 
             unless unit-tests-passed
-                err <~ pcb.ractive.fire \runTests
+                err <~ pcb.ractive.fire \runTests, {}
                 unit-tests-passed := not err 
 
 
