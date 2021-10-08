@@ -116,17 +116,18 @@ export class Schema implements bom, footprints, netlist, guide
 
         @_chrono = new Chronometer
 
-    chrono-start: -> 
-        @chrono-reset!
-
-    chrono-reset: -> 
+    chrono-start: (id) -> 
         if @debug 
-            @_chrono.start!
+            @_chrono.start id 
 
-    chrono-log: (message) ->      
+    chrono-reset: (id) -> 
+        @chrono-start(id)
+
+    chrono-log: (id, message) ->      
         if @debug 
-            @_chrono.end!
-            console.log "#{@name}: Chronometer #{message}: took #{@_chrono.measurement}"
+            unless message
+                message = id 
+            console.log "#{@name}: Chronometer #{message}: took #{@_chrono.measure id}"
 
     external-components: ~
         # Current schema's external components
@@ -139,7 +140,7 @@ export class Schema implements bom, footprints, netlist, guide
             current @_netlist and all sub-circuits' @_netlist's. 
             Simple components of sub-circuits are '@prefix'ed. 
             */
-            @chrono-reset!
+            @chrono-start 'flatten-netlist'
 
             netlist = @_netlist
 
@@ -191,6 +192,8 @@ export class Schema implements bom, footprints, netlist, guide
 
     compile: !->
         @compiled = true
+        @chrono-start "@compile()"
+
 
         {@_data_netlist, @_iface, @_netlist} = post-process-netlist {@data.netlist, @data.iface, @opts.labels}
 
@@ -212,10 +215,14 @@ export class Schema implements bom, footprints, netlist, guide
                 ..compile!
 
         # add needed footprints
+        @chrono-start "@compile/add-footprints"
         @add-footprints!
+        @chrono-log "@compile/add-footprints"
 
         # Component list is created at this moment. 
         # Process the `cables` property. 
+
+        @chrono-start "@compile/cable-connections"
         cable-connections = []
         for i, j of @_cables 
             connection = text2arr j
@@ -249,15 +256,20 @@ export class Schema implements bom, footprints, netlist, guide
                         # cables are already injected, "re-reduce" the netlist
                         @_netlist[injection-point] = unique (@_netlist[injection-point] ++ @_netlist[k] ++ [k])
                         delete @_netlist[k]
+        @chrono-log "@compile/cable-connections"
 
         # Detect unconnected pins and false unused pins
+        @chrono-start "@compile/find-unused"
         @find-unused @bom
+        @chrono-log "@compile/find-unused"
+
 
         # compile netlist
         # -----------------
+        @chrono-start "@compile/generate @netlist"
+
         netlist = {}
         #console.log "* Compiling schema: #{@name}"
-
         for id, conn-list of _flatten_netlist=@flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
@@ -318,6 +330,8 @@ export class Schema implements bom, footprints, netlist, guide
                 netlist[id] = []
             netlist[id] ++= net  # it might be already created by cross-link
 
+        @chrono-log "@compile/generate @netlist"
+
         unless @parent
             # Create the cleaned up @netlist (arrays of arrays of Pad objects)
             @netlist.length = 0
@@ -327,7 +341,9 @@ export class Schema implements bom, footprints, netlist, guide
                     @netlist.push net
 
             # build the @connection-list
+            @chrono-start "@compile/@build-connection-list!"
             @build-connection-list!
+            @chrono-log "@compile/@build-connection-list!"
 
             # Check errors
             @post-check!
@@ -336,7 +352,7 @@ export class Schema implements bom, footprints, netlist, guide
             #console.log "... Schema: #{@name}, Connection list:", @connection-list
             #console.log "... Schema: #{@name}, Netlist:", @netlist
 
-        @chrono-log "compile (total)"
+        @chrono-log "@compile()"
 
     get-required-pads: ->
         all-pads = {}

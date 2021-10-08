@@ -25,7 +25,7 @@ export do
         @guide-for!
 
     guide-unconnected: (opts={}) !->
-        @chrono-start!
+        @chrono-start "guide-unconnected"
         conn-states = if opts.cached
             @_connection_states
         else

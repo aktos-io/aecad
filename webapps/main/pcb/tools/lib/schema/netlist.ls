@@ -64,6 +64,7 @@ export do
 
     calc-connection-states: ->
         # see docs/Scheme.md#calc-connection-states
+        @chrono-start "@calc-connection-states()"
         marker = (rect) ~>
             console.warn "Placing a tmp marker:", rect
             new @scope.Path.Rectangle {
@@ -76,7 +77,7 @@ export do
             }
 
         connection-states = {}
-        @chrono-start!
+        @chrono-start "@get-traces()"
         # List of trace items with physically connected states are calculated
         {trace-items: _traces, vias} = @get-traces! 
         @chrono-log "@get-traces()"
@@ -147,7 +148,7 @@ export do
 
         #console.log ":::: Connection states: ", connection-states
         @_connection_states = connection-states
-        @chrono-log "calc-connection-states (total)"
+        @chrono-log "@calc-connection-states()"
         return connection-states
 
     get-traces: ->
