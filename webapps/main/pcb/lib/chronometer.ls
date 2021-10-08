@@ -1,23 +1,33 @@
 export class Chronometer
     -> 
         @start-time = null
-        @duration = null 
         @_start_time = {}
+        @_pause = {}
+
+    now: ~
+        -> 
+            new Date! .getTime()
 
     start: (id) ->
-        @start-time = new Date! .getTime()
+        @start-time = @now
         if id?
-            @_start_time[id] = @start-time
+            @_start_time[id] = @now
 
     measure: (id) -> 
-        duration = (new Date! .getTime()) - @_start_time[id]
+        duration = @now - @_start_time[id]
         delete @_start_time[id]
         "#{oneDecimal duration/1000}s" 
 
     end: -> 
-        @duration = (new Date! .getTime()) - @start-time 
-        return @measurement
+        "#{oneDecimal (@now - @start-time)/1000}s"  
 
-    measurement: ~
-        -> 
-            "#{oneDecimal @duration/1000}s" 
+    pause: (id) -> 
+        @_pause[id] = @now 
+
+    resume: (id) -> 
+        unless id of @_start_time
+            @start id 
+        else 
+            @_start_time[id] += (@now - @_pause[id])
+
+

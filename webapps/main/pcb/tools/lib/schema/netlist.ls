@@ -77,10 +77,10 @@ export do
             }
 
         connection-states = {}
-        @chrono-start "@get-traces()"
+        @chrono-start "@calc-connection-states()/@get-traces()"
         # List of trace items with physically connected states are calculated
         {trace-items: _traces, vias} = @get-traces! 
-        @chrono-log "@get-traces()"
+        @chrono-log "@calc-connection-states()/@get-traces()"
 
         # Adding vias to connection list
         #console.log "vias:", vias
@@ -102,14 +102,17 @@ export do
                 ..unconnected-pads = []
 
             # Find out which traces connect which Pad's. 
+            @chrono-resume "@calc-connection-states()/is-connected"
             connected-elements = {}
             for pad in net
                 for trace in _traces when trace `is-connected` pad
                     unless connected-elements[trace.phy-netid]
                         connected-elements[trace.phy-netid] = ["trace-id::#{trace.id}"]
                     connected-elements[trace.phy-netid].push pad.logical-pin
+            @chrono-pause "@calc-connection-states()/is-connected"
 
             # Add virtual connections 
+            @chrono-resume "@calc-connection-states()/add virtual connections"
             if vtrace=@data.virtual-traces
                 for v-trace-id, pad-names of vtrace
                     trace-id = "trace-id::virtual-#{v-trace-id}"
@@ -121,6 +124,8 @@ export do
                         |> flatten
                         |> unique)
 
+            @chrono-pause "@calc-connection-states()/add virtual connections"
+
             # create "named-connections" to reduce via `net-merge` function.
             named-connections = values connected-elements
 
@@ -129,7 +134,9 @@ export do
                 for pin in logical-pin-net when pin in cable
                     named-connections.push cable  
 
+            @chrono-resume "@calc-connection-states()/net-merge"
             state.reduced = net-merge named-connections, [..logical-pin for net]
+            @chrono-pause "@calc-connection-states()/net-merge"
 
             # generate the list of unconnected Pad instances
             # TODO: determine discrete-pads by closest point, not by the first
@@ -148,6 +155,9 @@ export do
 
         #console.log ":::: Connection states: ", connection-states
         @_connection_states = connection-states
+        @chrono-log "@calc-connection-states()/add virtual connections"
+        @chrono-log "@calc-connection-states()/net-merge"
+        @chrono-log "@calc-connection-states()/is-connected"
         @chrono-log "@calc-connection-states()"
         return connection-states
 
