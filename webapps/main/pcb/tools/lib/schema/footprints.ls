@@ -19,6 +19,16 @@ export do
             ..component.remove!
 
     add-footprints: (opts) !->
+        /* Description: 
+        ----------------
+
+        * Reports missing components in BOM
+        * Dehydrates existing components only if that components belong to this Schema 
+        * Creates non existing components 
+        * Detects component upgrades due to type or revision changes
+        * Performs initial placements
+
+        */
         current-components = flatten [name for name, sch of @bom when not sch.data]
         required-components = @get-netlist-components!
         missing = required-components `difference` current-components
@@ -39,7 +49,7 @@ export do
                 @components.push .. <<< {source: sch}
 
         curr = @scope.get-components {exclude: <[ Trace ]>}
-        for _, {name, type, data, value, labels} of @bom when not data # loop through only raw components
+        for _, {name, type, data, value, labels} of @bom when not data # loop through only simple components
             pfx-name = "#{@prefix}#{name}"
             _Component = getClass(type)
             #console.log "...adding component: #{name} type: #{type} params: ", params

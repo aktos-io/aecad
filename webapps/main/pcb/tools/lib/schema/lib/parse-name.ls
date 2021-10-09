@@ -28,7 +28,7 @@ make-tests "net-merge", do
         expect parse-name "test.circuit-1.c1.PA15"
         .to-equal {name: "test.circuit-1.c1", pin: 'PA15'}
     2: -> 
-        # "link" is 
+        # "link" is "netlabel"
         expect parse-name "a"
         .to-equal {name: "a", link: yes}
     3: -> 

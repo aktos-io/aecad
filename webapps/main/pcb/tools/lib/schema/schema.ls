@@ -102,7 +102,7 @@ export class Schema implements bom, footprints, netlist, guide
         @manager = new SchemaManager
             ..register this
         @compiled = false
-        @connection-list = {}           # key: trace-id, value: array of related Pads
+        @connection-list = {}           # key: netid, value: array of related Pads
         @sub-circuits = {}              # sub-circuits if @data.bom contains a component defined in @data.schemas.
                                         # {type_declared_in_BOM: Schema Object} 
 
@@ -147,24 +147,20 @@ export class Schema implements bom, footprints, netlist, guide
             Simple components of sub-circuits are '@prefix'ed. 
             */
             @chrono-start 'flatten-netlist'
-
             netlist = @_netlist
-
             # unconnected interface pins will be treated as null nets
             for @iface
                 unless .. of netlist
                     netlist[..] = []
 
-            for circuit-name, circuit of @sub-circuits
-                #console.log "adding sub-circuit #{circuit-name} to netlist:", circuit
-                for trace-id, net of circuit.flatten-netlist
-                    prefixed = "#{circuit-name}.#{trace-id}"
-                    #console.log "...added #{trace-id} as #{prefixed}: ", net
-                    netlist[prefixed] = net .map (-> "#{circuit-name}.#{it}")
+            for instance, circuit of @sub-circuits
+                #console.log "adding sub-circuit #{instance} to netlist:", circuit
+                for netid, net of circuit.flatten-netlist
+                    netlist["#{instance}.#{netid}"] = net .map (-> "#{instance}.#{it}")
 
                 for circuit.iface
                     # interfaces are null nets
-                    prefixed = "#{circuit-name}.#{..}"
+                    prefixed = "#{instance}.#{..}"
                     unless prefixed of netlist
                         netlist[prefixed] = []   
             @chrono-log "flatten-netlist"       

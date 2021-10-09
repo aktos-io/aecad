@@ -14,10 +14,12 @@ export post-process-netlist = ({netlist, iface, labels}) ->
     internal-numeric = (x) -> 
         # convert numeric keys to semi-numeric (underscore prefixed)
         if _rest=(x.match /^[0-9]+(.*)$/)
-            # match with numbered nodes, like 
+            # match with numbered nodes
             if _rest.1?match /[a-zA-Z_]/ 
+                # "5V" like strings (numbers followed by letters) are not numbers.
                 x 
             else 
+                # prefix numbers with underscore
                 "_#{x}"
         else
             x
