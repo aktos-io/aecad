@@ -137,7 +137,8 @@ export class Schema implements bom, footprints, netlist, guide
 
     external-components: ~
         # Current schema's external components
-        -> [.. for values @bom when ..data]
+        -> 
+            Object.keys @sub-circuits
 
     flatten-netlist: ~
         ->

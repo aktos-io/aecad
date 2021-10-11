@@ -4,9 +4,7 @@ export parse-name = (full-name, opts) ->
     [...name, pin] = full-name.split '.'
     name = name.join '.'
     res = {name, pin}
-    ext = [..name for (opts.external or [])]
-    #console.log "externals: ", ext
-    if name in ext
+    if name in (opts.external or [])
         res.link = yes
         res.name = full-name
 
