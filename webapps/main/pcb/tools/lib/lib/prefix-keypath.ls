@@ -29,4 +29,4 @@ for k, test of tests
     res = prefix-keypath(test.prefix, test.keypath)
     unless JSON.stringify(res) is JSON.stringify(test.expected)
         console.error "Expected: ", test.expected, "Got: ", res
-        throw new Error "Test failed for 'parse-name': at test num: #{k}"
+        throw new Error "Test failed for 'prefix-path': at test num: #{k}"
