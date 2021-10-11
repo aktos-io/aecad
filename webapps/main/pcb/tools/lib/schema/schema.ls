@@ -95,7 +95,19 @@ export class Schema implements bom, footprints, netlist, guide
         @data.bom `merge` (opts.bom or {})
         @debug = @opts.debug or @data.debug
 
-        @prefix = @opts.prefix or ''
+        # used for converting component names to FQDN
+        @prefix = if @opts._parent 
+            if parent-pfx=that.prefix
+                "#{parent-pfx}#{@opts.name}."
+            else
+                "#{@opts.name}."
+        else
+            ""
+
+        if @opts.namespace
+            # prevent conflicting object creation by prefixing them
+            # useful for tests
+            @prefix = "#{that}.#{@prefix}"            
 
         @parent = opts.parent
         @scope = new PaperDraw
@@ -214,7 +226,7 @@ export class Schema implements bom, footprints, netlist, guide
         # Compile sub-circuits first
         for instance-name, schema of @bom when schema.data
             #console.log "Initializing sub-circuit: #{sch.name} ", sch
-            @sub-circuits[instance-name] = new Schema (schema <<< {debug: (@debug is \all)})
+            @sub-circuits[instance-name] = new Schema (schema <<< {debug: (@debug is \all), _parent: this})
                 ..compile!
 
         # add needed footprints

@@ -14,7 +14,7 @@ export do
                 gnd: 'Q1.e'
                 Output: 'Q1.c'
 
-        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: open-collector,  namespace: 'test'}
 
         expect (-> sch.compile!)
         .to-throw "Unused pads: test.R1.2"
@@ -43,7 +43,7 @@ export do
                 open-collector: 'A'
 
 
-        sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: some-parent,  namespace: 'test'}
 
         expect (-> sch.compile!)
         .to-throw "Unconnected iface: test.A.Input, test.A.Output"
@@ -72,7 +72,7 @@ export do
                 open-collector: 'A'
 
 
-        sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: some-parent,  namespace: 'test'}
 
         expect (-> sch.compile!)
         .to-throw "Unused pads: test.A.Output, test.A.gnd"
@@ -95,7 +95,7 @@ export do
             no-connect: 
                 'R1.2'
 
-        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: open-collector,  namespace: 'test'}
 
         expect (-> sch.compile!)
         .to-throw "False unused pads: test.R1.2"

@@ -46,7 +46,6 @@ export do
                 "labels": null, 
                 "name": "c1", 
                 "parent": "test", 
-                "prefix": "c1.", 
                 "type": "x", 
                 "value": ""
             }, 
@@ -55,14 +54,13 @@ export do
                 "labels": null, "
                 name": "c2", 
                 "parent": "test", 
-                "prefix": "c2.", 
                 "type": "x", 
                 "value": ""
             }
         }
 
     "flatten netlist": ->
-        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: open-collector,  namespace: 'test'}
             ..compile!
 
         flatten-netlist =
@@ -78,7 +76,7 @@ export do
         sch.remove-footprints!
 
     'sub-circuit': ->
-        sch = new Schema {name: 'test', data: push-pull, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: push-pull,  namespace: 'test'}
             ..compile!
 
         expect sch.flatten-netlist
@@ -114,7 +112,7 @@ export do
                 4: "D1.c R2.1"
                 5: "R2.2 Q1.c"
 
-        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: open-collector,  namespace: 'test'}
 
         expect sch.compile!
         .to-equal undefined

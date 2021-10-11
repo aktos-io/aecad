@@ -90,7 +90,6 @@ export do
                         parent: @name
                         data: calculated-schema
                         type: type
-                        prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
 
 
     get-bom-list: -> 

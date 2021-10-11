@@ -26,7 +26,7 @@ circuit2 =
 
 export do
     "missing component in bom": ->
-        sch = new Schema {name: 'test', data: circuit1, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: circuit1,  namespace: 'test'}
         expect (-> sch.compile!)
         .to-throw "Components missing in BOM: Q1"
 
@@ -34,7 +34,7 @@ export do
         sch.remove-footprints!
 
     "component not found": ->
-        sch = new Schema {name: 'test', data: circuit2, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: circuit2,  namespace: 'test'}
         expect (-> sch.compile!)
         .to-throw "Can not find type: FOO"
 
@@ -47,7 +47,7 @@ export do
                 FOO: 'Q1'
                 "SMD1206": "R1 Q1"
 
-        sch = new Schema {name: 'test', data: circuit2, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: circuit2,  namespace: 'test'}
         expect (-> sch.compile!)
         .to-throw "Duplicate instance: Q1"
 
@@ -66,7 +66,7 @@ export do
                     "100nF": "C1"
                     "1uF": "C2"
 
-        sch = new Schema {name: 'test', data: parasitic, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: parasitic,  namespace: 'test'}
         expect (-> sch.compile!)
         .to-throw "Unconnected iface: test.a"
 
@@ -100,7 +100,7 @@ export do
         compile-schema = -> 
             sch := new Schema {
                 name: 'mytest'
-                prefix: 'test.'
+                namespace: 'test'
                 data: bar
                 }
                 ..compile!
@@ -145,7 +145,7 @@ export do
         compile-schema = -> 
             sch := new Schema {
                 name: 'mytest'
-                prefix: 'test.'
+                namespace: 'test'
                 data: example
                 }
                 ..compile!
