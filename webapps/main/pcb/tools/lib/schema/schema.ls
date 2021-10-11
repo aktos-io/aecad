@@ -135,7 +135,7 @@ export class Schema implements bom, footprints, netlist, guide
     chrono-resume: (id) -> 
         @_chrono.resume id 
 
-    external-components: ~
+    sub-circuit-instances: ~
         # Current schema's external components
         -> 
             Object.keys @sub-circuits
@@ -273,14 +273,14 @@ export class Schema implements bom, footprints, netlist, guide
 
         netlist = {}
         #console.log "* Compiling schema: #{@name}"
-        for id, conn-list of _flatten_netlist=@flatten-netlist
+        for id, _net of _flatten_netlist=@flatten-netlist
             # TODO: performance improvement:
             # use find-comp for each component only one time
             net = [] # cache (list of connected nodes)
-            for full-name in conn-list
+            for full-name in _net
                 {name, pin, link, raw} = parse-name full-name, do
                     prefix: @prefix
-                    external: @external-components
+                    external: @sub-circuit-instances
                 #console.log "Searching for entity: #{name} and pin: #{pin}, pfx: #{@prefix}"
                 if full-name of _flatten_netlist
                     # Merge into parent net
