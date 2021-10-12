@@ -8,7 +8,7 @@ require! 'aea': {merge}
 
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
-require! './lib': {parse-name, next-id}
+require! './lib': {parse-name, next-id, net-merge}
 require! './post-process-netlist': {post-process-netlist}
 
 # Class parts
@@ -69,6 +69,16 @@ prefix-value = (o, pfx) ->
             res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
     return res 
 
+# Component syntax is "[maybe.some.prefix.]COMPONENT.PIN"
+# -------------------------
+# pin               : PIN
+# component-name    : [maybe.some.prefix.]COMPONENT
+# pad               : [maybe.some.prefix.]COMPONENT.PIN
+# -------------------------
+# usage: 
+# [pad, comp-name, pin] = elem.match component-syntax
+#
+component-syntax = new RegExp /^([a-zA-Z].*)\.([^.]+)$/
 
 export class Schema implements bom, footprints, netlist, guide
     (@opts) !->
@@ -162,6 +172,8 @@ export class Schema implements bom, footprints, netlist, guide
             @chrono-start 'flatten-netlist'
             netlist = @_netlist
             # unconnected interface pins will be treated as null nets
+            # because we will use them to connect other nets from the parent circuit 
+            # to those interface pins when this circuit is used as a sub-circuit.
             for @iface
                 unless .. of netlist
                     netlist[..] = []
@@ -279,15 +291,49 @@ export class Schema implements bom, footprints, netlist, guide
         @chrono-log "@compile/find-unused"
 
 
+        if @debug   
+           console.log "#{@name}: merged-netlist: ", @merged-netlist
+           console.log "#{@name}: components-by-name: ", @components-by-name
+
+        # Generate array of PadObjects from @merged-netlist
+        try
+            unless @parent 
+                @netlist2 = []
+                # Create netlist of PadObjects 
+                for netid, net of @merged-netlist
+                    _net = []
+                    for elem in net when _match=(elem.match component-syntax)
+                        [pad, comp-name, pin] = _match
+                        component = @components-by-name[comp-name]
+                        unless component 
+                            console.error "#{comp-name} can not be found within current components: ", @components-by-name
+                            console.warn "Current merged netlist: ", @merged-netlist
+                            if @debug 
+                                debugger 
+                            throw new Error "No such component found: '#{comp-name}'"
+
+                        pads = component.get({pin})
+                        if empty pads
+                            if comp.type not in flatten [[..type, ..component.type] for @get-upgrades!]
+                                console.error "Current iface:", comp, comp.iface
+                                err = "No such pin found: '#{pin}' of '#{name}'"
+                                console.error err 
+                                throw new Error  "#{err} (check the console output)"
+                        else
+                            _net ++= pads 
+                    @netlist2.push _net 
+        catch
+            debugger 
+        
+
+
         # compile netlist
         # -----------------
         @chrono-start "@compile/generate @netlist"
 
+        # Merge multiple netlists (sub-circuit's netlists) into the parent netlist
         netlist = {}
-        #console.log "* Compiling schema: #{@name}"
         for id, _net of _flatten_netlist=@flatten-netlist
-            # TODO: performance improvement:
-            # use find-comp for each component only one time
             net = [] # cache (list of connected nodes)
             for full-name in _net
                 {name, pin, link, raw} = parse-name full-name, do
@@ -355,6 +401,10 @@ export class Schema implements bom, footprints, netlist, guide
                 unless empty net
                     @netlist.push net
 
+            if @debug 
+                console.log "@netlist:", net-merge @netlist.map (.map (.uname))
+                console.log "@netlist2:", net-merge @netlist2.map (.map (.uname))
+
             # build the @connection-list
             @chrono-start "@compile/@build-connection-list!"
             @build-connection-list!
@@ -368,6 +418,68 @@ export class Schema implements bom, footprints, netlist, guide
             #console.log "... Schema: #{@name}, Netlist:", @netlist
 
         @chrono-log "@compile()"
+
+    merged-netlist: ~
+        -> 
+            /* 
+                Description: 
+
+                At the beginnig, there is only @_netlist. When `this` circuit contains 
+                sub-circuits, we need to: 
+
+                1. Add their netlists (thereby their components) to the current netlist (@merged-netlist)
+                2. Connect (merge) the pins that points to the corresponding sub-circuit's nets. 
+
+                Procedure: 
+
+-               1. Walk through every element in every net within @_netlist. 
+
+                ....
+                3. If we could find a component that matches with a "sub-netlists" key, then it's a 
+                    sub-circuit connection (merge) point. Append that sub-net into the current net 
+                    and delete that sub-net. That pad must be an interface of that sub-circuit. As `@iface` 
+                    pins are already assigned as `key`s of @_netlist inside `post-process-netlist()`, an "Iface Pad"
+                    is equal to a "prefixed-netid".
+                4. If that component can not be found within "sub-netlists", then it's a simple-component, 
+                    use that component as is. 
+                5. Append rest of the sub-netlists into the merged-netlist. 
+            */
+            @_merged_netlist @prefix
+
+    _merged_netlist: (parent-prefix) -> 
+        relative-pfx = @prefix.replace parent-prefix, ''
+        #console.log "#{@name}: relative pfx:", relative-pfx
+        merged-netlist = {}
+        mark = {}
+        #console.log "* Compiling schema: #{@name}"
+        for netid, net of @_netlist 
+            _net = [] # Array of Pad strings
+            for elem in net
+                if _match=(elem.match component-syntax)
+                    [pad, comp-name, pin] = _match
+                    if @sub-circuits[comp-name]
+                        # This component is from a sub-circuit. 
+                        # 1. Merge the corresponding net into this net 
+                        # 2. Mark that net to exclude from "rest of the netlists" section 
+                        #console.log "#{@name}: Found sub-circuit interface: #{pad}, merging into the parent net"
+                        _net ++= that._merged_netlist(@prefix)[pad]
+                        mark[comp-name] = pad # means "this net is already merged"
+                    else
+                        # this instance points a simple component, 
+                        # store it as is 
+                        _net.push "#{@prefix}#{elem}" 
+                else 
+                    console.log "#{@name}: element is a netid: #{@prefix}#{elem}"
+            merged-netlist["#{relative-pfx}#{netid}"] = _net 
+
+        # Append unmerged nets from sub-circuits as is 
+        for instance, schema of @sub-circuits
+            for netid, net of schema._merged_netlist(@prefix)
+                unless mark["#{relative-pfx}#{instance}"] is netid 
+                    merged-netlist["#{relative-pfx}#{netid}"] = net
+
+        #console.log "#{@name}: merged-netlist:", merged-netlist
+        return merged-netlist
 
     get-required-pads: ->
         all-pads = {}

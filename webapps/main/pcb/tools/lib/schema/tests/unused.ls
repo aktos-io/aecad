@@ -46,7 +46,7 @@ export do
         sch = new Schema {name: 'test', data: some-parent,  namespace: 'test'}
 
         expect (-> sch.compile!)
-        .to-throw "Unconnected interface pins: A.Input, A.Output"
+        .to-throw "Unconnected interface pins: Input, Output"
 
         # cleanup canvas
         sch.remove-footprints!
