@@ -7,10 +7,10 @@ circuit1 =
         #NPN: 'Q1'
         "SMD1206": "R1"
     netlist:
-        1: 'R1.1 Input'
+        Input: 'R1.1'
         2: 'Q1.b R1.2'
         gnd: 'Q1.e'
-        3: 'Q1.c Output'
+        Output: 'Q1.c'
 
 circuit2 =
     # open collector output
@@ -19,10 +19,10 @@ circuit2 =
         FOO: 'Q1'
         "SMD1206": "R1"
     netlist:
-        1: 'R1.1 Input'
+        Input: 'R1.1'
         2: 'Q1.b R1.2'
         gnd: 'Q1.e'
-        3: 'Q1.c Output'
+        Output: 'Q1.c '
 
 export do
     "missing component in bom": ->
@@ -68,7 +68,7 @@ export do
 
         sch = new Schema {name: 'test', data: parasitic,  namespace: 'test'}
         expect (-> sch.compile!)
-        .to-throw "Unconnected iface: test.a"
+        .to-throw 'Unconnected interface pin: a'
 
     "improper schematic declaration": -> 
         foo = (args) -> 

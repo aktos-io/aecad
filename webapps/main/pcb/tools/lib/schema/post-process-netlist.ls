@@ -114,6 +114,14 @@ export post-process-netlist = ({netlist, iface, labels}) ->
     # ------------------------------------------------
     # End of temporary section
 
+    unconnected = [] # unconnected interface pins 
+    for i in _iface when i not of _netlist
+        unconnected.push i
+
+    if unconnected.length > 0
+        s = if unconnected.length > 1 => "s" else ""
+        throw new Error "Unconnected interface pin#{s}: #{unconnected.join ", "}"
+
     return {_data_netlist, _iface, _netlist}
 
 make-tests "post-process-netlist", do 
@@ -206,22 +214,7 @@ make-tests "post-process-netlist", do
         expect _netlist
         .to-equal do 
             1: <[ r1.1 r4.2 ]>
-            2: <[ r3.1 r2.2 ]>
-
-    "undeclared iface pin": ->  
-        {_netlist, _iface} = post-process-netlist do 
-            netlist: 
-                a: "x.1 y.1"
-                2: "z.1 t.1"
-            iface: "a c"
-
-        expect _netlist
-        .to-equal do 
-            a: <[ x.1 y.1 ]>
-            _2: <[ z.1 t.1 ]> 
-
-        expect _iface
-        .to-equal <[ a c ]>            
+            2: <[ r3.1 r2.2 ]>    
          
     "labels": ->  
         {_netlist, _iface} = post-process-netlist do 
@@ -256,3 +249,25 @@ make-tests "post-process-netlist", do
             netlist:
                 "vcc": "c1.vcc c2.a"
                 "gnd": "c1.gnd c2.c c1.g c1.n_g" 
+
+    "unconnected iface": ->  
+        func = -> 
+            {_netlist, _iface} = post-process-netlist do 
+                netlist: 
+                    a: "r1.1 r4.2"
+                    2: "r3.1 r2.2"
+                iface: "a b"
+
+        expect func
+        .to-throw 'Unconnected interface pin: b'
+
+    "multiple unconnected iface": ->  
+        func = -> 
+            {_netlist, _iface} = post-process-netlist do 
+                netlist: 
+                    a: "r1.1 r4.2"
+                    2: "r3.1 r2.2"
+                iface: "a b c"
+
+        expect func
+        .to-throw 'Unconnected interface pins: b, c'
