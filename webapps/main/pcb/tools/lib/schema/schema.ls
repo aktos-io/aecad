@@ -322,9 +322,13 @@ export class Schema implements bom, footprints, netlist, guide
         if @debug   
             make-tests "merged netlist generation", do
                 "output is optimized": ~>
-                    return false 
                     expect net-merge values @merged-netlist
                     .to-equal values @merged-netlist
+
+        @chrono-start "@compile/calc @merged-netlist"
+        @merged-netlist
+        @chrono-log "@compile/calc @merged-netlist"
+        
 
         # Generate array of PadObjects from @merged-netlist
         unless @parent 
@@ -483,6 +487,12 @@ export class Schema implements bom, footprints, netlist, guide
 
         relative-pfx = remove-string-from-beginning @prefix, parent-pfx
         prefix-it = -> "#{relative-pfx}#{it}"
+
+        # prepare sub-merged-netlists
+        sub-merged-netlists = {}
+        for instance, schema of @sub-circuits
+            sub-merged-netlists[instance] = schema._merged_netlist(@prefix)
+
         merged-netlist = {}
         for netid, net of @_netlist 
             _net = [] # Array of Pad strings
@@ -490,11 +500,8 @@ export class Schema implements bom, footprints, netlist, guide
                 if _match=(elem.match component-syntax)
                     [pad, comp-name, pin] = _match
                     if @sub-circuits[comp-name]
-                        # This component is from a sub-circuit. 
-                        # 1. Merge the corresponding net into this net 
-                        # 2. Mark that net to exclude from "rest of the netlists" section 
-                        x=that._merged_netlist(@prefix)[pad]
-                        _net ++= x
+                        # This component is from a sub-circuit. Merge the corresponding net into this net 
+                        _net ++= sub-merged-netlists[comp-name][pad]
                     else
                         # this instance points a simple component, 
                         # store it as is 
@@ -505,14 +512,14 @@ export class Schema implements bom, footprints, netlist, guide
             merged-netlist[prefix-it netid] = _net.map prefix-it 
 
         # Append unmerged nets from sub-circuits as is 
-        lookup-table = {}
+        lookup-table = {} # key: elem, value: the netid that elem belongs to
         for netid, net of merged-netlist
             for elem in net 
                lookup-table[elem] = netid 
         all-elems = Object.keys lookup-table
 
-        for instance, schema of @sub-circuits
-            :next_net for netid, net of schema._merged_netlist(@prefix)
+        for instance, sub-merged-netlist of sub-merged-netlists
+            :next_net for netid, net of sub-merged-netlist
                 _net = net.map(prefix-it)
                 for elem in _net when elem in all-elems
                     # we need to merge this net into the corresponding parent net
