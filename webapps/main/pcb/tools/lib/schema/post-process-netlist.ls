@@ -1,7 +1,7 @@
 require! './deps': {text2arr}
 require! './lib': {flatten-obj, net-merge}
 require! 'dcs/lib/test-utils': {make-tests}
-require! 'prelude-ls': {values}
+require! 'prelude-ls': {values, flatten, unique}
 
 
 export post-process-netlist = ({netlist, iface, labels}) -> 
@@ -23,6 +23,8 @@ export post-process-netlist = ({netlist, iface, labels}) ->
                 "_#{x}"
         else
             x
+
+    internal-numeric-netid-syntax = new RegExp /^_[0-9]+/
 
     # Check for netlist errors
     for key, _net of flatten-obj netlist 
@@ -88,34 +90,35 @@ export post-process-netlist = ({netlist, iface, labels}) ->
 
             if netid=(elem.match /^__netid:(.+)$/)?.1
                 # this is an alphanumeric label 
-                if netid.match /^_[0-9]+/
+                if netid.match internal-numeric-netid-syntax
                     # that's a number  
                     unless netlabel
                         netlabel = netid
                     continue 
                 else 
                     # that's an alphanumeric label, replace with current label 
-                    if not netlabel or netlabel.match /^_[0-9]+/
+                    if not netlabel or netlabel.match internal-numeric-netid-syntax
                         netlabel = netid 
                         continue 
                     else 
-                        throw new Error "Only one netlabel is allowed for a logical net. You should choose \"#{netid}\" or \"#{netlabel}\"."
+                        # Add additional netlabel's to the net
+                        _net.push netid 
+                        continue 
             
-            if elem.match /^_[0-9]+/
+            if elem.match internal-numeric-netid-syntax
                 # no need for numerical netlabels
                 continue 
 
-            unless elem.match /\./
-                # no need for labels 
-                continue
-
             _net.push elem 
-        _netlist[iface-label or iface or netlabel] = _net
+
+        netid = iface-label or iface or netlabel
+        _netlist[netid] = _net.filter (isnt netid) |> unique 
     # ------------------------------------------------
     # End of temporary section
 
     unconnected = [] # unconnected interface pins 
-    for i in _iface when i not of _netlist
+    all-elems = flatten [[k, ...v] for k, v of _netlist]
+    for i in _iface when i not in all-elems
         unconnected.push i
 
     if unconnected.length > 0
@@ -153,15 +156,16 @@ make-tests "post-process-netlist", do
 
 
     "conflicting netlabel": -> 
-        func = ->  
-            {_netlist} = post-process-netlist do 
-                netlist: 
-                    1: "a.1 b.2 c.1"
-                    x: "c.2 d.1"
-                    y: "d.2 x"
+        {_netlist} = post-process-netlist do 
+            netlist: 
+                1: "a.1 b.2 c.1"
+                x: "c.2 d.1"
+                y: "d.2 x"
 
-        expect func
-        .to-throw 'Only one netlabel is allowed for a logical net. You should choose "y" or "x".'
+        expect _netlist
+        .to-equal do 
+            _1: <[ a.1 b.2 c.1 ]>
+            x: <[ c.2 d.1 y d.2 ]> 
 
     "iface definition": -> 
         {_netlist} = post-process-netlist do 
@@ -174,7 +178,7 @@ make-tests "post-process-netlist", do
         expect _netlist
         .to-equal do 
             2: <[ a.1 b.2 c.1 ]>
-            1: <[ d.2 c.2 d.1 ]>       
+            1: <[ d.2 x c.2 d.1 ]>       
 
     "iface definition with numeric like label": -> 
         {_netlist} = post-process-netlist do         
@@ -187,7 +191,7 @@ make-tests "post-process-netlist", do
         expect _netlist
         .to-equal do 
             2: <[ a.1 b.2 c.1 ]>
-            1: <[ d.2 c.2 d.1 ]>       
+            1: <[ d.2 5v c.2 d.1 ]>       
 
     "iface definition within the sub-object": -> 
         return false 
@@ -234,12 +238,7 @@ make-tests "post-process-netlist", do
             _iface: <[ aa bb ]> 
 
     "multiple iface definition for the same net": ->  
-        # TODO: 
-        # ------
-        # What should be the correct behavior when user wanted to 
-        # assign multiple labels to the same net?
-        return false 
-
+        # User wants to assign multiple labels to the same net
         {_netlist, _iface, _data_netlist} = post-process-netlist do 
             iface: "c1.1a,c1.1y,c1.1z,c1.2z,
                 c1.2y,c1.2a,c1.3a,c1.3y,c1.3z,
@@ -248,7 +247,27 @@ make-tests "post-process-netlist", do
 
             netlist:
                 "vcc": "c1.vcc c2.a"
-                "gnd": "c1.gnd c2.c c1.g c1.n_g" 
+                "gnd": "c1.gnd c2.c" 
+                "n_g": "c1.n_g gnd"
+                "g": "c1.g gnd"
+
+        expect _netlist
+        .to-equal {
+            "vcc":["c1.vcc","c2.a"],
+            "n_g":["gnd","c1.gnd","c2.c","c1.n_g","g","c1.g"],
+            "1a":["c1.1a"],
+            "1y":["c1.1y"],
+            "1z":["c1.1z"],
+            "2z":["c1.2z"],
+            "2y":["c1.2y"],
+            "2a":["c1.2a"],
+            "3a":["c1.3a"],
+            "3y":["c1.3y"],
+            "3z":["c1.3z"],
+            "4z":["c1.4z"],
+            "4y":["c1.4y"],
+            "4a":["c1.4a"]
+        }
 
     "unconnected iface": ->  
         func = -> 
