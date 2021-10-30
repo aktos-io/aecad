@@ -468,21 +468,15 @@ export class Schema implements bom, footprints, netlist, guide
             sub-circuits, we need to: 
 
             1. Add their netlists (thereby their components) to the current netlist (@merged-netlist)
-            2. Connect (merge) the pins that points to the corresponding sub-circuit's nets. 
+            2. Connect (merge) the interface pins that points to the corresponding sub-circuit's nets. 
 
             Procedure: 
 
 -               1. Walk through every element in every net within @_netlist. 
-
-            ....
-            3. If we could find a component that matches with a "sub-netlists" key, then it's a 
-                sub-circuit connection (merge) point. Append that sub-net into the current net 
-                and delete that sub-net. That pad must be an interface of that sub-circuit. As `@iface` 
-                pins are already assigned as `key`s of @_netlist inside `post-process-netlist()`, an "Iface Pad"
-                is equal to a "prefixed-netid".
-            4. If that component can not be found within "sub-netlists", then it's a simple-component, 
-                use that component as is. 
-            5. Append rest of the sub-netlists into the merged-netlist. 
+                2. If the component is from a sub-circuit, then it's an iface. Merge that sub-net into the current net.
+                3. Add unmerged sub-circuit nets into the current merged netlist.
+                4. Merge the split nets (like net-merge does) that maybe created by these operations.
+                5. Replace any complex component (sub-circuit instance) with its corresponding simple components.
         */
 
         relative-pfx = remove-string-from-beginning @prefix, parent-pfx
@@ -497,21 +491,21 @@ export class Schema implements bom, footprints, netlist, guide
         for netid, net of @_netlist 
             _net = [] # Array of Pad strings
             for elem in net
-                if _match=(elem.match component-syntax)
-                    [pad, comp-name, pin] = _match
+                if elem.match component-syntax
+                    [pad, comp-name, pin] = that
                     if @sub-circuits[comp-name]
-                        # This component is from a sub-circuit. Merge the corresponding net into this net 
+                        # This component is from a sub-circuit. Merge the corresponding sub-net into this net 
                         _net ++= sub-merged-netlists[comp-name][pad]
                     else
-                        # this instance points a simple component, 
-                        # store it as is 
+                        # this instance points a simple component, use it as is 
                         _net.push elem 
                 else 
                     #console.log "#{@name}: element is a netid: #{@prefix}#{elem}"
                     continue 
             merged-netlist[prefix-it netid] = _net.map prefix-it 
 
-        # Append unmerged nets from sub-circuits as is 
+        # Append unmerged nets from sub-circuits while merging split nets into 
+        # each other within the process. We'll use a lookup table for speed up.
         lookup-table = {} # key: elem, value: the netid that elem belongs to
         for netid, net of merged-netlist
             for elem in net 
@@ -525,18 +519,12 @@ export class Schema implements bom, footprints, netlist, guide
                     # we need to merge this net into the corresponding parent net
                     _netid = lookup-table[elem]
                     merged-netlist[_netid] = unique (merged-netlist[_netid] ++ _net)
-                    if @debug 
-                        console.log "#{@name}: merging netid: #{_netid} with net:", _net
                     continue next_net
                 
                 # append this subnet if no elem intersects with other nets
-                if @debug 
-                    console.log "#{@name}: adding extra subnet: #{prefix-it netid}"
                 merged-netlist[prefix-it netid] = net.map prefix-it
 
-
-
-        # Replace complex components with simple components
+        # Replace complex components with simple components (nets)
         merged-netlist2 = {}
         mark-for-removal = []
         for netid, net of merged-netlist
@@ -551,10 +539,6 @@ export class Schema implements bom, footprints, netlist, guide
         for netid in unique mark-for-removal
             delete merged-netlist2[netid] if netid of merged-netlist2
 
-        if @debug 
-            console.log "#{@name}: merged-netlist:", merged-netlist
-            console.log "#{@name}: merged-netlist2:", merged-netlist2
-            console.log "-----------------------------==============----------------------------------"
         return merged-netlist2
 
     get-required-pads: ->
