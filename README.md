@@ -4,7 +4,7 @@
 
 ## What is it?
 
-Electronic Design Automation software, like [KiCAD](http://kicad-pcb.org/), but using the web technologies (runs in the browser or desktop via [ElectronJS](https://electronjs.org/)) like [EasyEDA](https://easyeda.com/), with offline installation support. It will be like [Onshape](https://www.onshape.com/) to [Solidworks](http://www.solidworks.com/).
+Electronic Design Automation software, like [KiCAD](http://kicad.org/), but using the web technologies (runs in the browser or desktop via [ElectronJS](https://electronjs.org/)) like [EasyEDA](https://easyeda.com/), with offline installation support. It will be like [Onshape](https://www.onshape.com/) to [Solidworks](http://www.solidworks.com/).
 
 Basically a software to create schematics and real-world drawings for physical production (and/or machining).
 
