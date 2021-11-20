@@ -98,6 +98,19 @@ make-tests "component syntax", do
         .to-equal undefined
 
 
+get-top-component = (.replace /\..+/, '')
+make-tests "component syntax", do 
+    '': -> 
+        expect get-top-component "a.b.c.d.e"
+        .to-equal "a"
+
+        expect get-top-component "a.b"
+        .to-equal "a"
+
+        expect get-top-component "a"
+        .to-equal "a"
+
+
 # from: https://stackoverflow.com/a/9310752/1952991
 escapeRegExp = (.replace /[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
 
@@ -157,6 +170,7 @@ export class Schema implements bom, footprints, netlist, guide
                                         # {type_declared_in_BOM: Schema Object} 
 
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
+        @netlist2 = []                  # New version of @netlist
         @_netlist = {}                  # cached and post-processed version of original .netlist {CONN_ID: [pad_names...]}
         @_data_netlist = []             # Post processed and array version of @data.netlist
         @_labels = @opts.labels
@@ -318,21 +332,15 @@ export class Schema implements bom, footprints, netlist, guide
         @find-unused @bom
         @chrono-log "@compile/find-unused"
 
-
         if @debug   
             make-tests "merged netlist generation", do
                 "output is optimized": ~>
                     expect net-merge values @merged-netlist
                     .to-equal values @merged-netlist
-
-        @chrono-start "@compile/calc @merged-netlist"
-        @merged-netlist
-        @chrono-log "@compile/calc @merged-netlist"
         
-
         # Generate array of PadObjects from @merged-netlist
         unless @parent 
-            @netlist2 = []
+            @netlist2.length = 0 # make @netlist2 empty 
             # Create netlist of PadObjects 
             for netid, net of @merged-netlist
                 _net = []
@@ -353,15 +361,23 @@ export class Schema implements bom, footprints, netlist, guide
                             err = "No such pin found: '#{pin}' of '#{name}'"
                             console.error err 
                             throw new Error  "#{err} (check the console output)"
-                    else
-                        _net ++= pads 
+                    
+                    uses-quick-labels = @bom[get-top-component comp-name].labels?
+                    unless component.allow-duplicate-labels or uses-quick-labels
+                        if pads.length > 1
+                            if component.type not in [..type for @get-upgrades!]
+                                throw new Error "Multiple pins found: '#{pin}' of '#{comp-name}' (#{component.type}) in #{@name}"
+
+                    # find duplicate pads (shouldn't be)
+                    if (unique-by (.uname), pads).length isnt pads.length
+                        console.info "INFO: FOUND DUPLICATE PADS in ", comp-name
+
+                    _net ++= pads 
                 @netlist2.push _net 
         
 
-        # compile netlist
-        # -----------------
+        # TODO: REMOVE "generate @netlist" CODE 
         @chrono-start "@compile/generate @netlist"
-
         # Merge multiple netlists (sub-circuit's netlists) into the parent netlist
         netlist = {}
         for id, _net of _flatten_netlist=@flatten-netlist
@@ -422,8 +438,6 @@ export class Schema implements bom, footprints, netlist, guide
                 netlist[id] = []
             netlist[id] ++= net  # it might be already created by cross-link
 
-        @chrono-log "@compile/generate @netlist"
-
         unless @parent
             # Create the cleaned up @netlist (arrays of arrays of Pad objects)
             @netlist.length = 0
@@ -431,16 +445,20 @@ export class Schema implements bom, footprints, netlist, guide
                 net = get-net netlist, id
                 unless empty net
                     @netlist.push net
+            @chrono-log "@compile/generate @netlist"
 
-            if @debug 
-                console.log "@netlist:", @netlist.map (.map (.uname))
-                console.log "@netlist2:", @netlist2.map (.map (.uname))
-                console.log "net-merge'd @netlist2:", net-merge @netlist2.map (.map (.uname))
-
+            try 
                 make-tests "netlist", do
                     "netlist and netlist2 comparison": ~>
                         expect @netlist2.map (.map (.uname) .sort!)
                         .to-equal @netlist.map (.map (.uname) .sort!)
+            catch 
+                debugger 
+                throw e 
+
+            # Replace @netlist with @netlist2 until we remove the old code 
+            @netlist.length = 0 
+            @netlist = @netlist2 
 
             # build the @connection-list
             @chrono-start "@compile/@build-connection-list!"
@@ -496,6 +514,7 @@ export class Schema implements bom, footprints, netlist, guide
                     if @sub-circuits[comp-name]
                         # This component is from a sub-circuit. Merge the corresponding sub-net into this net 
                         _net ++= sub-merged-netlists[comp-name][pad]
+                        delete sub-merged-netlists[comp-name][pad]
                     else
                         # this instance points a simple component, use it as is 
                         _net.push elem 
@@ -504,24 +523,9 @@ export class Schema implements bom, footprints, netlist, guide
                     continue 
             merged-netlist[prefix-it netid] = _net.map prefix-it 
 
-        # Append unmerged nets from sub-circuits while merging split nets into 
-        # each other within the process. We'll use a lookup table for speed up.
-        lookup-table = {} # key: elem, value: the netid that elem belongs to
-        for netid, net of merged-netlist
-            for elem in net 
-               lookup-table[elem] = netid 
-        all-elems = Object.keys lookup-table
-
+        # Append unmerged nets from sub-circuits 
         for instance, sub-merged-netlist of sub-merged-netlists
-            :next_net for netid, net of sub-merged-netlist
-                _net = net.map(prefix-it)
-                for elem in _net when elem in all-elems
-                    # we need to merge this net into the corresponding parent net
-                    _netid = lookup-table[elem]
-                    merged-netlist[_netid] = unique (merged-netlist[_netid] ++ _net)
-                    continue next_net
-                
-                # append this subnet if no elem intersects with other nets
+            for netid, net of sub-merged-netlist                
                 merged-netlist[prefix-it netid] = net.map prefix-it
 
         # Replace complex components with simple components (nets)
@@ -537,7 +541,21 @@ export class Schema implements bom, footprints, netlist, guide
                     _net.push elem 
             merged-netlist2[netid] = _net
         for netid in unique mark-for-removal
-            delete merged-netlist2[netid] if netid of merged-netlist2
+            if netid of merged-netlist2
+                delete merged-netlist2[netid] 
+
+        # Merge split nets with each other. Create a lookup table for a faster operation
+        lookup-table = {}
+        :next-net for netid, net of merged-netlist2
+            for elem in net
+                unless elem of lookup-table
+                    lookup-table[elem] = netid 
+                else 
+                    # this element is detected on another net before. merge it. 
+                    parent-netid = lookup-table[elem]
+                    merged-netlist2[parent-netid] = unique (merged-netlist2[parent-netid] ++ net)
+                    delete merged-netlist2[netid]
+                    continue next-net 
 
         return merged-netlist2
 
