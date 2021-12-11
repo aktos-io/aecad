@@ -3,7 +3,82 @@ require! './lib': {flatten-obj, net-merge}
 require! 'dcs/lib/test-utils': {make-tests}
 require! 'prelude-ls': {values, flatten, unique}
 
+internal-numeric-netid-syntax = new RegExp /^_[0-9]+.*/
 
+internal-numeric = (x) -> 
+    # convert numeric keys to semi-numeric (underscore prefixed)
+    if _rest=(x.match /^[0-9]+(.*)$/)
+        # match with numbered nodes
+        if _rest.1?match /^[a-zA-Z_]/ 
+            # "5V" like strings (numbers followed by letters) are not numbers.
+            x 
+        else 
+            # prefix numbers with underscore
+            "_#{x}"
+    else
+        x
+
+make-tests "internal-numeric", do 
+    '': -> 
+        expect internal-numeric "5V"
+        .to-equal "5V"
+
+        expect internal-numeric "5_V"
+        .to-equal "5_V"
+
+        expect internal-numeric "a.b.c"
+        .to-equal "a.b.c"
+
+        expect internal-numeric "a"
+        .to-equal "a"
+
+        expect internal-numeric "5"
+        .to-equal "_5"
+
+        expect internal-numeric "5.a"
+        .to-equal "_5.a"
+
+        expect internal-numeric "5.3"
+        .to-equal "_5.3"
+
+# Component syntax is "[maybe.some.prefix.]COMPONENT.PIN"
+# -------------------------
+# pin               : PIN
+# component-name    : [maybe.some.prefix.]COMPONENT
+# pad               : [maybe.some.prefix.]COMPONENT.PIN
+# -------------------------
+# usage: 
+# [pad, comp-name, pin] = elem.match component-syntax
+#
+export component-syntax = new RegExp /^(_?[a-zA-Z].*)\.([^._][^.]*)$/
+make-tests "component syntax", do 
+    "match component part": -> 
+        match-component = (.match component-syntax ?.1)
+        expect match-component "a.b.c"
+        .to-equal "a.b"
+
+        expect match-component "a.b.c.d.e.f"
+        .to-equal "a.b.c.d.e"
+
+        expect match-component "a.b"
+        .to-equal "a"
+
+        expect match-component "_a.b"
+        .to-equal "_a"
+
+        expect match-component "a"
+        .to-equal undefined
+
+        expect match-component "3"
+        .to-equal undefined
+
+        expect match-component "_3"
+        .to-equal undefined
+
+        expect match-component "3.a"
+        .to-equal undefined
+
+              
 export post-process-netlist = ({netlist, iface, labels}) -> 
     _data_netlist = []
     _iface = []
@@ -11,20 +86,6 @@ export post-process-netlist = ({netlist, iface, labels}) ->
     # -----------------------------------------------------------
     # Post process the netlist 
     # -----------------------------------------------------------
-    internal-numeric = (x) -> 
-        # convert numeric keys to semi-numeric (underscore prefixed)
-        if _rest=(x.match /^[0-9]+(.*)$/)
-            # match with numbered nodes
-            if _rest.1?match /[a-zA-Z_]/ 
-                # "5V" like strings (numbers followed by letters) are not numbers.
-                x 
-            else 
-                # prefix numbers with underscore
-                "_#{x}"
-        else
-            x
-
-    internal-numeric-netid-syntax = new RegExp /^_[0-9]+/
 
     # Check for netlist errors
     for key, _net of flatten-obj netlist 
@@ -43,12 +104,8 @@ export post-process-netlist = ({netlist, iface, labels}) ->
 
     # Build interface
     for iface-pin in text2arr iface
-        if iface-pin.match /([^.]+)\.(.+)/
-            # {{COMPONENT}}.{{PIN}} syntax 
-            pad = that.0 # pad is {{COMPONENT}}.{{PIN}}
-            component = that.1
-            pin = that.2
-
+        if iface-pin.match component-syntax
+            [pad, component, pin] = that
             # Connect the interface pin to the corresponding net  
             # and expose this pin as an interface:
             _data_netlist.push ["__iface:#{pad}", pin, pad]
@@ -154,7 +211,6 @@ make-tests "post-process-netlist", do
             _1: <[ a.1 b.2 c.1 ]>
             x: <[ c.2 d.1 d.2 ]>
 
-
     "conflicting netlabel": -> 
         {_netlist} = post-process-netlist do 
             netlist: 
@@ -194,19 +250,23 @@ make-tests "post-process-netlist", do
             1: <[ d.2 5v c.2 d.1 ]>       
 
     "iface definition within the sub-object": -> 
-        return false 
-        {_netlist} = post-process-netlist do 
-            netlist: 
-                1: "a.1 b.2 c.1"
-                3: 
-                    x: "c.2 d.1"
-                2: "d.2 x"
-            iface: "1 x"
+        /* 
+            We should not support netid's from sub-objects 
+            because it might be more than 2 levels deep. How do we 
+            handle them? It makes things more complicated.
+        */
 
-        expect _netlist
-        .to-equal do 
-            2: <[ a.1 b.2 c.1 ]>
-            1: <[ d.2 c.2 d.1 ]>       
+        func = -> 
+            {_netlist} = post-process-netlist do 
+                netlist: 
+                    1: "a.1 b.2 c.1"
+                    3: 
+                        x: "c.2 d.1"
+                    2: "d.2 x"
+                iface: "1 3.x"
+
+        expect func
+        .to-throw "Unconnected interface pin: 3.x"    
 
     "numeric iface": ->  
         {_netlist} = post-process-netlist do 

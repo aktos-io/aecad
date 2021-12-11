@@ -9,7 +9,7 @@ require! 'aea': {merge}
 # deps
 require! './deps': {find-comp, PaperDraw, text2arr, get-class, get-aecad, parse-params}
 require! './lib': {parse-name, next-id, net-merge}
-require! './post-process-netlist': {post-process-netlist}
+require! './post-process-netlist': {post-process-netlist, component-syntax}
 
 # Class parts
 require! './bom'
@@ -72,34 +72,9 @@ prefix-value = (o, pfx) ->
             res[k] = text2arr v .map ((x) -> "#{pfx}#{x}")
     return res 
 
-# Component syntax is "[maybe.some.prefix.]COMPONENT.PIN"
-# -------------------------
-# pin               : PIN
-# component-name    : [maybe.some.prefix.]COMPONENT
-# pad               : [maybe.some.prefix.]COMPONENT.PIN
-# -------------------------
-# usage: 
-# [pad, comp-name, pin] = elem.match component-syntax
-#
-component-syntax = new RegExp /^([a-zA-Z].*)\.([^._][^.]*)$/
-make-tests "component syntax", do 
-    "match component part": -> 
-        match-component = (.match component-syntax ?.1)
-        expect match-component "a.b.c"
-        .to-equal "a.b"
-
-        expect match-component "a.b.c.d.e.f"
-        .to-equal "a.b.c.d.e"
-
-        expect match-component "a.b"
-        .to-equal "a"
-
-        expect match-component "a"
-        .to-equal undefined
-
 
 get-top-component = (.replace /\..+/, '')
-make-tests "component syntax", do 
+make-tests "get-top-component", do 
     '': -> 
         expect get-top-component "a.b.c.d.e"
         .to-equal "a"
@@ -373,7 +348,7 @@ export class Schema implements bom, footprints, netlist, guide
                         console.info "INFO: FOUND DUPLICATE PADS in ", comp-name
 
                     _net ++= pads 
-                @netlist2.push _net 
+                @netlist2.push _net unless empty _net
         
 
         # TODO: REMOVE "generate @netlist" CODE 
@@ -454,7 +429,7 @@ export class Schema implements bom, footprints, netlist, guide
                         .to-equal @netlist.map (.map (.uname) .sort!)
             catch 
                 debugger 
-                throw e 
+                throw e
 
             # Replace @netlist with @netlist2 until we remove the old code 
             @netlist.length = 0 
