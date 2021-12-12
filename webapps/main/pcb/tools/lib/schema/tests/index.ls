@@ -3,11 +3,12 @@ require! './simple'
 require! './errors'
 require! './unused'
 require! './parametric'
+require! './unconnected'
 require! '../schema-manager': {SchemaManager}
 
 tests = ->
     make-tests "schema", {
-        simple, errors, unused, parametric
+        simple, errors, unused, parametric, unconnected
     }
 
 export schema-tests = (handler) ->
