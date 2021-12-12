@@ -2,6 +2,10 @@
 
 A circuit is a simple JSON object with `iface`, `netlist`, `bom` and optional `schemas`, `no-connect` and `notes` fields. 
 
+Single underscore prefixed components (`_x`) are excluded from BOM, but included into the netlist. (See `.get-bom-list()` and `component-syntax` in `post-process-netlist.ls`)
+
+Double underscore prefixed components (`__x`) are exclude both from BOM and the netlist. (See `.find-unused()`)
+
 A subcircuit is a simple schema JSON or a function that takes `value` as the first argument and `labels` as the second argument when initialized in `bom.ls` and returns a schema JSON. Subcircuits are registered in `schemas` section of the parent circuit. 
 
 Generally it's wise to declare a function that returns the subcircuit function. In this way you can easily provide parameters to get the proper variant of the subcircuit during registration in the `schemas` section.
@@ -137,12 +141,6 @@ This indicator makes this function (subcircuit) added to the "`.[]exposes`" arra
 dependent can explicitly require this function by `# depends: foo` syntax. 
 
 If omitted, the script of subcircuit is loaded anyway, so it's normally found. It's only useful to detect/resolve a circular dependency. When a circular dependency is detected, the dependent is not loaded.
-
-# Excluding from BOM and connection list
-
-Single underscore prefixed components (`_x`) are excluded from BOM, but included into the netlist. (See `.get-bom-list()` and `component-syntax` in `post-process-netlist.ls`)
-
-Double underscore prefixed components (`__x`) are exclude both from BOM and the netlist. (See `.find-unused()`)
 
 # Unit tests
 
