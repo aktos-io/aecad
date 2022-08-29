@@ -234,7 +234,7 @@ export do
             @project.importJSON json
         catch 
             debugger 
-        while true
+        for i from 0 to 10
             needs-rerun = false
             for layer in @project.layers
                 unless layer
@@ -261,6 +261,8 @@ export do
                         ..remove!
             break unless needs-rerun
             console.warn "Workaround for load-project works."
+        if i > 0
+            PNotify.notice text: "importLayout rerun count: #{i+1}"
 
         unless name of @layouts 
             @layouts[name] = null

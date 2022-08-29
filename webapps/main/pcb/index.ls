@@ -7,7 +7,7 @@ Ractive.components['pcb'] = Ractive.extend do
     onrender: (ctx) ->
         # output container
         canvas = @find '#draw'
-
+        
         # scope
         pcb = new PaperDraw do
             ractive: this
@@ -37,11 +37,12 @@ Ractive.components['pcb'] = Ractive.extend do
         @on handlers
         pcb.view.center = [0,0]
 
-        PNotify.info text: "Loading project from storage."
+        popup = PNotify.info text: "Loading project from storage."
         <~ pcb.history.loaded context=this                
 
         if Obj.empty @get 'drawingLs'
             # This is the user's first time 
+            popup.close!
             vlog.info do 
                 icon: "heart outline"
                 title: "Hello there!" 
@@ -53,7 +54,8 @@ Ractive.components['pcb'] = Ractive.extend do
 
         # unless minified, run tests
         if (``/comment/.test(function(){/* comment */})``)
-            @fire 'runTests'
+            unless Obj.empty @get 'drawingLs'
+                @fire 'runTests'
 
 
     computed:

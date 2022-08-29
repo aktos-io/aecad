@@ -146,10 +146,13 @@ export init = (pcb) ->
             # Filename map 
             filename-map = f = 
                 v1:
-                    "layout": "layout.json"     # set in multiple places, including gui/scripting/scriptSelected() function
-                    "scriptName": "script-name" # set by gui/scripting/compileScript() function
-                    "bom": "BOM.txt"            # set by gui/scripting/standard() function
-                    "type": "type"              # set by gui/scripting/scriptSelected() function
+                    # key: filename             Where this variable is actually assigned
+                    # ---------------           --------------------------------------------
+                    "layout": "layout.json"     # multiple places, including gui/scripting/scriptSelected() function
+                    "scriptName": "script-name" # gui/scripting/compileScript() function
+                    "bom": "BOM.txt"            # gui/scripting/standard() function
+                    "type": "type"              # gui/scripting/scriptSelected() function
+                    "connectionList": "connection-list.txt" # gui/scripting/standard() function
 
             # File format version 
             zip.file "format", "version-2"
@@ -186,7 +189,7 @@ export init = (pcb) ->
 
                 layout-dir = layouts-dir.folder layout 
 
-                for key in <[ bom scriptName type ]> 
+                for key in <[ bom scriptName type connectionList ]> 
                     layout-dir.file f.v1[key], (pcb.layouts[layout][key] or '')
 
                 format = "json"

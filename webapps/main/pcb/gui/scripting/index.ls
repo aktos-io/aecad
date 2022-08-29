@@ -48,7 +48,9 @@ export init = (pcb) ->
         layout: (name) -> 
             pcb.switch-layout name
 
-        standard: (opts, sch) ->         
+        standard: (opts, sch) ->  
+            # This function performs the "standard" actions for a given Schema instance. 
+            # Use this function within the scripting window.
             unless sch 
                 sch = opts  
                 opts = {}  
@@ -91,6 +93,11 @@ export init = (pcb) ->
             for sch.get-bom-list!
                 bom.push "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]"
             pcb.layouts{}[pcb.active-layout].bom = bom.join '\n'
+
+            connectionListTxt = []
+            for k, v of sch.connectionListTxt
+                connectionListTxt.push v.join ',\t'
+            pcb.layouts{}[pcb.active-layout].connectionList = connectionListTxt.join '\n'
 
             # debug output 
             if sch.debug 
