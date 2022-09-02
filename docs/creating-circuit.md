@@ -118,6 +118,7 @@ Now only 2 pins are connected via cable.
 Disable Design Rule Checking for the provided functionalities. Supported switches: 
 
 * `unused`: Disable unused pad detection. 
+* `duplicate-netid`: Disable checking duplicate netid for the pads in the same net.
 
 Example: 
 
