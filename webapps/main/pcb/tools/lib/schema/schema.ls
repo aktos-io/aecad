@@ -1,7 +1,7 @@
 # global imports
 require! 'prelude-ls': {
     find, empty, unique, difference, max, keys, flatten, filter, values
-    first, unique-by, compact, map, intersection, reject, or-list, Obj
+    first, unique-by, compact, map, intersection, reject, or-list, Obj, count-by
 }
 
 require! 'aea': {merge}
@@ -569,11 +569,30 @@ export class Schema implements bom, footprints, netlist, guide
             try
                 existing-netid = '' + the-one-in [pad.netid for pad in net]
             catch
-                # error if there are conflicting netid's already existing
-                dump = "#{net.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
-                console.error dump
-                throw new Error "Multiple netid's assigned to the pads in the same net (#{unique compact [pad.netid for pad in net] .join ','}): (format: pin-name(pin-no)[netid] ) \n\n #{dump}"
+                # Removing the "Multiple netid's has been assigned to the pads in the same net" error.
+                # This type of confliction is actually a very common case and occurs when the user 
+                # changes the .netlist dramatically.
+                most-used = 0
+                existing-netid = null
+                for netid, count of (netid-counts = count-by (.netid), net)
+                    if count > most-used
+                        existing-netid = netid
+                        most-used = count 
 
+                processed-pads = for pad in net when pad.netid isnt existing-netid
+                    pad.netid = null 
+                    pad
+
+                # error if there are conflicting netid's already existing
+                dump = "#{processed-pads.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
+                console.warn "Reset the following netid's: ", dump
+                PNotify.notice do
+                    hide: no
+                    text: """
+                        Multiple netid's was assigned to the pads, auto reset. See console for more.\n\n
+                        Please recompile your schema.
+                        """
+ 
             # use existing netid extracted from one of the pads
             if existing-netid?.match /[0-9]+/
                 if existing-netid of @connection-list and "duplicate-netid" not in text2arr @data.disable-drc

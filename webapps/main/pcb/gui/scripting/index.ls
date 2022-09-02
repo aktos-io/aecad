@@ -270,7 +270,7 @@ export init = (pcb) ->
                 @set \output, "ERROR: \n\n" + (@get 'output') + "#{err}"
                 @get \vlog .error do
                     title: 'Runtime Error'
-                    message: err
+                    message: err.message
                 console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
                 # See https://github.com/ceremcem/aecad/issues/8
 
