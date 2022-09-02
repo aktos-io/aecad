@@ -83,7 +83,7 @@ export SelectTool = ->
 
             else
                 # Select the clicked item
-                if aeobj=hit.aeobj
+                if (aeobj=hit.aeobj) and not event.modifiers.shift
                     if aeobj.owner@@name is \Trace
                         # this is related to a trace, handle specially
                         #PNotify.info text: "We hit a trace. This is: #{aeobj@@name}"
