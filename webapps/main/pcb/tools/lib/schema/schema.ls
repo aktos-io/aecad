@@ -331,8 +331,8 @@ export class Schema implements bom, footprints, netlist, guide
 
                     pads = component.get({pin})
                     if empty pads
-                        if comp.type not in flatten [[..type, ..component.type] for @get-upgrades!]
-                            console.error "Current iface:", comp, comp.iface
+                        if component.type not in flatten [[..type, ..component.type] for @get-upgrades!]
+                            console.error "Current iface:", component, component.iface
                             err = "No such pin found: '#{pin}' of '#{name}'"
                             console.error err 
                             throw new Error  "#{err} (check the console output)"
