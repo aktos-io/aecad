@@ -81,6 +81,15 @@ export init = (pcb) ->
 
                 if typeof! callback is \Function 
                     callback err 
+
+        cleanupLayers: (ctx) ->> 
+            PNotify.info text: "Cleaning up empty layers within #{pcb.project.layers.length} layers"
+            for index, layer of pcb.project.layers
+                if layer.getChildren!.length is 0
+                    console.warn "removing empty layer:", layer
+                    layer.remove!
+                    PNotify.notice text: "Removed empty layer: #{index}"
+                await sleep 10ms
            
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do

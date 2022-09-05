@@ -244,10 +244,6 @@ export do
                     console.warn "...we have an null layer!"
                     needs-rerun = true
                     continue
-                if layer.getChildren!.length is 0
-                    console.warn "removing empty layer..."
-                    layer.remove!
-                    continue
 
                 if layer.name
                     @ractive.set "project.layers.#{Ractive.escapeKey layer.name}", layer
