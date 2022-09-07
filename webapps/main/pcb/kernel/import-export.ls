@@ -78,12 +78,20 @@ export do
         svg.attributes.data = project-info
    
         # Cleanup empty layers (layers that we never created)
+        cleanup-limit = 10
         for i in reverse [til svg.children.length]
             child = svg.children[i]
             # first level is treated as "Layers"
             if empty (child?.children or [])
                 console.warn "Deleting Layer?: ", child
                 svg.children.splice i, 1
+                cleanup-limit --
+
+            if cleanup-limit is 0
+                PNotify.notice text: """
+                    We still need to remove empty layers from SVG (there were #{svg.children.length} layers). 
+                    Fix this."""
+                break
 
         scale = opts.scale or 1
 
@@ -279,6 +287,7 @@ export do
         # load target layout if exists
         @clear-canvas!
         if @layouts[layout-name]?layout
+            @project.clear!
             @project.importJSON that
         @register-layers!
         unless layout-name of @layouts 

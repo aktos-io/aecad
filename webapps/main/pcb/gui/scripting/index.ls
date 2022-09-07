@@ -286,10 +286,10 @@ export init = (pcb) ->
     handlers =
         # gui/scripting.pug
         # ------------------------
-        scriptSelected: (ctx, item, progress) ~>
+        scriptSelected: (ctx, item, progress) ~>> 
             #console.log "script is selected, app handler called: ", item
             h.silence!
-            @set \editorContent, item.content
+            await @set \editorContent, item.content
             h.resume!
             unless item.content
                 @get \project.layers.scripting ?.clear!

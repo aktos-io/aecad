@@ -1,5 +1,5 @@
 require! '../../tools/lib': {get-aecad, get-parent-aecad}
-require! 'prelude-ls': {max, sort, join}
+require! 'prelude-ls': {max, sort, join, empty}
 require! 'aea': {create-download, ext}
 require! 'dcs/browser': {SignalBranch}
 require! 'jszip'
@@ -84,12 +84,21 @@ export init = (pcb) ->
 
         cleanupLayers: (ctx) ->> 
             PNotify.info text: "Cleaning up empty layers within #{pcb.project.layers.length} layers"
-            for index, layer of pcb.project.layers
-                if layer.getChildren!.length is 0
-                    console.warn "removing empty layer:", layer
-                    layer.remove!
-                    PNotify.notice text: "Removed empty layer: #{index}"
-                await sleep 10ms
+            await sleep 100ms
+            # Cleanup empty layers (is this a PaperJS import/export JSON bug?)
+            removed-layers = []
+            do
+                needs-recheck = no
+                for index, layer of pcb.project.layers
+                    if layer.getChildren!.length is 0
+                        layer.remove!
+                        needs-recheck = yes
+                        removed-layers.push index
+                    await sleep 10ms
+                removed-layers.push '\n' if needs-recheck
+            while needs-recheck
+            unless empty removed-layers
+                PNotify.notice text: "Removed empty layers: #{removed-layers.join ','}"
            
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do
@@ -199,7 +208,7 @@ export init = (pcb) ->
                 layout-dir = layouts-dir.folder layout 
 
                 for key in <[ bom scriptName type connectionList ]> 
-                    layout-dir.file f.v1[key], (pcb.layouts[layout][key] or '')
+                    layout-dir.file f.v1[key], (pcb.layouts[layout]?[key] or '')
 
                 format = "json"
                 err, res <~ pcb.export {format}
@@ -350,11 +359,12 @@ export init = (pcb) ->
 
                 layout-dir.file "gerber-version", gerb-version.get!
 
+                <~ sleep 100ms 
                 lo(op)
 
             pcb.switch-layout current-layout
 
-            content <~ zip.generateAsync({type: "blob"}).then
+            content <~ zip.generateAsync({type: "blob", compression: "DEFLATE"}).then
             create-download "#{project-name}.zip", content
 
         uploadProject: (ctx, file, cb) ->

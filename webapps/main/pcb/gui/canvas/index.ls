@@ -311,9 +311,8 @@ export init = (pcb) ->
         switchLayout: (ctx, item, proceed) -> 
             if item.id
                 if that isnt pcb.active-layout
-                    <~ sleep 100ms
                     pcb.switchLayout item.id 
-                    ctx.ractive.fire 'fitAll'
+                    #ctx.ractive.fire 'fitAll'
             proceed!
 
         addLayout: (ctx, newKey, proceed) ->
