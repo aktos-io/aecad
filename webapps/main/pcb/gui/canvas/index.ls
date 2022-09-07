@@ -312,7 +312,7 @@ export init = (pcb) ->
             if item.id
                 if that isnt pcb.active-layout
                     pcb.switchLayout item.id 
-                    #ctx.ractive.fire 'fitAll'
+                    #ctx.ractive.fire 'fitAll' # <- this brings an overhead while performing download pre-processes
             proceed!
 
         addLayout: (ctx, newKey, proceed) ->

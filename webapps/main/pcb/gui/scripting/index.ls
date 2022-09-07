@@ -296,6 +296,8 @@ export init = (pcb) ->
             unless pcb.layouts[pcb.active-layout]?type is "manual"
                 unless pcb.active-layout is item.id   
                     pcb.switch-layout item.id   
+                    @fire 'fitAll'
+                    @fire 'cleanupLayers'
             progress!
 
         compileScript: (ctx, name, opts={+clear}) ~>

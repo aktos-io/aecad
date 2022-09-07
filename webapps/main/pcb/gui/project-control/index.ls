@@ -83,7 +83,8 @@ export init = (pcb) ->
                     callback err 
 
         cleanupLayers: (ctx) ->> 
-            PNotify.info text: "Cleaning up empty layers within #{pcb.project.layers.length} layers"
+            #PNotify.info text: "Cleaning up empty layers within #{pcb.project.layers.length} layers"
+            total-layers = pcb.project.layers.length
             await sleep 100ms
             # Cleanup empty layers (is this a PaperJS import/export JSON bug?)
             removed-layers = []
@@ -98,7 +99,7 @@ export init = (pcb) ->
                 removed-layers.push '\n' if needs-recheck
             while needs-recheck
             unless empty removed-layers
-                PNotify.notice text: "Removed empty layers: #{removed-layers.join ','}"
+                PNotify.notice text: "Cleaned up #{total-layers} layers, removed empty layers: #{removed-layers.join ','}"
            
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do
