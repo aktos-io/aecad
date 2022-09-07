@@ -63,7 +63,7 @@ export init = (pcb) ->
                 for upg in upgrades
                     for sel in selection.selected when upg.component.name is sel.aeobj.owner.name
                         try 
-                            upg.component.upgrade {type: upg.type}
+                            upg.component.upgrade {type: upg.type, value: upg.value}
                             upgrade-count++
                         catch 
                             PNotify.error do 
