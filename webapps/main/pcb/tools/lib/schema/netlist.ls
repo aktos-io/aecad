@@ -51,7 +51,7 @@ export do
                     # this is only a cross reference, ignore it
                     continue
 
-                if name of @sub-circuits 
+                if name.split('.').0 of @sub-circuits 
                     # this is a sub-circuit element, it has been handled in its Schema
                     #console.log "Handling #{name} with its schema:", @sub-circuits[name]
                     continue
