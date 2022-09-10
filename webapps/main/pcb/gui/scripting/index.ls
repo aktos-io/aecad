@@ -355,49 +355,6 @@ export init = (pcb) ->
             #console.log "default content is: ", default-content
             @set \editorContent, default-content
 
-        removeScript: (ctx) ~>
-            script-name = @get \scriptName
-            unless script-name
-                console.log "No script selected."
-                return
-            action <~ @get \vlog .yesno do
-                title: 'Remove Script'
-                icon: 'exclamation triangle'
-                message: "Do you want to remove #{script-name}?"
-                closable: yes
-                buttons:
-                    delete:
-                        text: 'Delete'
-                        color: \red
-                        icon: \trash
-                    cancel:
-                        text: \Cancel
-                        color: \green
-                        icon: \remove
-                    everything:
-                        text: \Everything
-                        color: \violet
-                        icon: \danger 
-
-            if action in [\hidden, \cancel]
-                console.log "Cancelled."
-                return
-
-            avail = Object.keys(@get 'drawingLs')
-            script-pos = avail.index-of script-name
-            next-script = avail[if script-pos > 0 then script-pos - 1 else 1]
-
-            # select next script
-            if action is \everything
-                @set \scriptName, null
-                @set \editorContent, ''
-                @set \drawingLs, {}
-            else 
-                @set \scriptName, next-script
-                @delete 'drawingLs', script-name
-
-            console.warn "Deleted #{script-name}..."
-
         downloadScripts: (ctx) ->            
             # workaround: to include JSON (or CSON) files with Browserify
             #content = "export {\n#{content}\n}"

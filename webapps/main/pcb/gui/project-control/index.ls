@@ -519,12 +519,47 @@ export init = (pcb) ->
                 addClass: 'nonblock'
             ctx.component.state \done...
 
-        clear: (ctx) ->
+        deleteCurrent: (ctx) !-> 
+            script-name = @get \scriptName
+
+            action <~ @get \vlog .yesno do
+                title: 'Remove Layout'
+                icon: 'exclamation triangle'
+                message: "Do you want to remove #{pcb.active-layout} and #{scriptName}.ls?"
+                closable: yes
+                buttons:
+                    delete:
+                        text: 'Delete'
+                        color: \red
+                        icon: \trash
+                    cancel:
+                        text: \Cancel
+                        color: \green
+                        icon: \remove
+
+            if action in [\hidden, \cancel]
+                console.log "Cancelled."
+                return
+
             pcb.history.commit!
-            pcb.clear-canvas!
-            PNotify.info do
-                text: "Project cleared."
-                addClass: 'nonblock'
+            pcb.removeLayout pcb.active-layout
+
+            unless script-name
+                console.log "No script selected."
+                return
+
+            avail = Object.keys(@get 'drawingLs')
+            script-pos = avail.index-of script-name
+            next-script = avail[if script-pos > 0 then script-pos - 1 else 1]
+
+            # select next script
+            @set \scriptName, next-script # this will also set the relevant layout
+
+            # delete current script
+            @delete 'drawingLs', script-name
+
+            console.warn "Deleted #{script-name}..."
+
 
         showHelp: (ctx) ->
             @get \vlog .info do

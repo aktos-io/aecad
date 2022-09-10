@@ -323,28 +323,5 @@ export init = (pcb) ->
             btn.state \done...
             proceed!
 
-        deleteActiveLayout: (ctx) !-> 
-            action <~ @get \vlog .yesno do
-                title: 'Remove Layout'
-                icon: 'exclamation triangle'
-                message: "Do you want to remove #{pcb.active-layout}?"
-                closable: yes
-                buttons:
-                    delete:
-                        text: 'Delete'
-                        color: \red
-                        icon: \trash
-                    cancel:
-                        text: \Cancel
-                        color: \green
-                        icon: \remove
-
-            if action in [\hidden, \cancel]
-                console.log "Cancelled."
-                return
-
-            pcb.history.commit!
-            pcb.removeLayout pcb.active-layout
-
 
     return handlers
