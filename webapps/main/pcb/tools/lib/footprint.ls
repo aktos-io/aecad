@@ -62,52 +62,62 @@ export class Footprint extends Container
 
     make-border: (data) ->
         opts=data?.border
-        if opts
-            if opts.dia
-                type = 'Circle'
-                dimensions =
-                    radius: mm2px opts.dia / 2
+        /* 
+    
+        Either  .dia: Creates a circular border
+        or      .width, .height: Creates a rectangular border
+
+        .offset-x: Shifts border that much starting from first pin
+        .offset-y: Similar to offset-x
+
+        */
+        return unless opts 
+
+        if opts.dia
+            type = 'Circle'
+            dimensions =
+                radius: mm2px opts.dia / 2
+        else
+            type = 'Rectangle'
+            dimensions =
+                size:
+                    x: mm2px opts.width
+                    y: mm2px opts.height
+                radius: 0.3
+
+        center = @g.bounds.center
+        pos = if (typeof! opts.centered is \Boolean) and not opts.centered
+            if type is \Rectangle
+                {
+                    x: dimensions.size.x/2
+                    y: dimensions.size.y/2
+                }
             else
-                type = 'Rectangle'
-                dimensions =
-                    size:
-                        x: mm2px opts.width
-                        y: mm2px opts.height
-                    radius: 0.3
-
-            center = @g.bounds.center
-            pos = if (typeof! opts.centered is \Boolean) and not opts.centered
-                if type is \Rectangle
-                    {
-                        x: dimensions.size.x/2
-                        y: dimensions.size.y/2
-                    }
-                else
-                    {x:0, y: 0}
-            else
-                # centered 
-                {x: center.x, y: center.y}
+                {x:0, y: 0}
+        else
+            # centered 
+            {x: center.x, y: center.y}
 
 
 
-            if opts.offset-x?
-                pos.x += that |> mm2px
-            
-            if opts.offset-y?
-                pos.y += that |> mm2px
+        if opts.offset-x?
+            pos.x += that |> mm2px
+        
+        if opts.offset-y?
+            pos.y += that |> mm2px
 
-            i = 1
-            while true 
-                border = "border#{i}"
-                if @get-part border 
-                    i++
-                    continue 
-                else 
-                    @add-part border, new @scope.Shape[type] dimensions <<< {position: pos} <<< center <<< do
-                        stroke-color: 'DeepPink'
-                        stroke-width: 0.2
-                        parent: (@parent or this).g
-                    break 
+        i = 1
+        while true 
+            border = "border#{i}"
+            if @get-part border 
+                i++
+                continue 
+            else 
+                @add-part border, new @scope.Shape[type] dimensions <<< {position: pos} <<< center <<< do
+                    stroke-color: 'DeepPink'
+                    stroke-width: 0.2
+                    parent: (@parent or this).g
+                break 
 
     mirror: ->
         super ...
