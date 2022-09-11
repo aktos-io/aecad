@@ -12,9 +12,8 @@ touch-app-version:
 development:
 	./uidev.service
 
-install-deps:
+install-deps-development:
 	@( cd scada.js; \
-	[[ ! -d ./nodeenv ]] && make create-venv;\
 	source ./venv; \
 	make install-deps CONF=../dcs-modules.txt; \
 	cd ..; \
