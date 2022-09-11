@@ -35,19 +35,6 @@ radio-buttons#toolChanger(value="{{currTool}}")
             ) / 
 
 +space
-.ui.buttons.mini 
-    //-
-        checkbox(
-            checked="{{selectGroup}}"
-            tooltip="Select the parent group"
-            ) G
-    
-    ack-button.icon(
-        on-click="groupSelected" 
-        tooltip="Group all selected items"
-        ): icon.object.group.outline        
-
-+space
 .ui.mini.buttons 
     +each('layers as val')
         ack-button.icon(
@@ -102,6 +89,13 @@ radio-buttons(on-select="switchLayer")
         on-click="measureDistance" 
         tooltip="Measure Distance from last saved coordinates"
         ): icon(svg="flat_ruler.svg")
+
++space
+.ui.buttons.mini 
+    ack-button.icon.disabled(
+        on-click="groupSelected" 
+        tooltip="Group all selected items"
+        ): icon.object.group.outline        
 
 +space
 .ui.mini.buttons

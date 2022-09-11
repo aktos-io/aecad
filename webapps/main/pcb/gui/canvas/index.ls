@@ -213,14 +213,14 @@ export init = (pcb) ->
                     aeobj.send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
+            PNotify.info text: "Grouping is WIP ATM. UX should be decided."
+            return 
             pcb.history.commit!
-            g = new pcb.Group pcb.selection.selected
+            g = new pcb.Group pcb.selection.get-as-aeobj().map((.g))
             console.log "Selected items are grouped:", g
-            ctx.component.state \done...
 
         explode: (ctx) ->
-            exploded = pcb.explode {+recursive}, pcb.selection.selected
-            # WIP
+            # Ungroup may be done by this: https://groups.google.com/g/paperjs/c/DOf1vxTfM50/m/ya0BKSDGswsJ
 
         saveBounds: (ctx) ->
             if empty selection.selected
