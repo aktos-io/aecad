@@ -136,26 +136,6 @@ export init = (pcb) ->
                     message: "You should supply a project name."
                 return 
 
-            dirty-confirm = new SignalBranch
-            if require('app-version.json').dirty
-                _sd = dirty-confirm.add!
-                answer <~ pcb.vlog .info do
-                    title: "Dirty state of aeCAD"
-                    icon: 'warning sign'
-                    message: "
-                        aeCAD has uncommitted changes. 
-                        \n\n
-                        If your project depends on a new feature, you can't compile the same project 
-                        in the future by using the version information embedded into the project's README.
-                        "
-                if answer is \ok
-                    _sd.go!
-                else
-                    _sd.cancel! 
-                    PNotify.notice text: "Cancelled download."
-            <~ dirty-confirm.joined
-
-
             PNotify.info text: "Preparing project file of #{project-name}..."
             <~ sleep 100ms 
 
