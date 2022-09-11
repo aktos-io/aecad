@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 
 release:
-	cd scada.js && make release APP=main
+	cd scada.js && make release APP=main ES_CHECK=skip
 
 release-push:
 	cd scada.js && make release-push
