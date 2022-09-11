@@ -304,8 +304,9 @@ export init = (pcb) ->
 
         selectComponent: (ctx, item, proceed) -> 
             if item.id 
-                for pcb.get-components! when ..name is item.id
+                for pcb.get-components! when ..?name is item.id
                     pcb.selection.add {item: ..item}
+                    break
             proceed!
 
         switchLayout: (ctx, item, proceed) -> 
