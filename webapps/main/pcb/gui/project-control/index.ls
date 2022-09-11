@@ -83,6 +83,7 @@ export init = (pcb) ->
                     callback err 
 
         cleanupLayers: (ctx) ->> 
+            ctx.component?state? \doing
             #PNotify.info text: "Cleaning up empty layers within #{pcb.project.layers.length} layers"
             total-layers = pcb.project.layers.length
             await sleep 100ms
@@ -100,6 +101,7 @@ export init = (pcb) ->
             while needs-recheck
             unless empty removed-layers
                 PNotify.notice text: "Cleaned up #{total-layers} layers, removed empty layers: #{removed-layers.join ','}"
+            ctx.component?state? \done...
            
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do
