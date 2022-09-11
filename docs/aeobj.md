@@ -1,16 +1,13 @@
 # What is `aeobj`
 
 An `aeobj` is a JS object where:
-- "on-disk-data" is a plain Paper.js JSON (`[TYPE_STRING, ARGS_OBJECT]`) where `ARGS_OBJECT.data.aecad.type` is one of the known component types[1].
-- it is the "rehydrated" (resumed) (or a newly created) instance of `data.aecad.type` class.
-
-Rehydration is done by `new THAT_CLASS data.aecad`
+- "On-disk-data" is a valid Paper.js JSON where the component/rehydration data is stored in `.data.aecad`.
+- It is the "rehydrated" (resumed) (or a newly created) instance of `data.aecad.type` class. Rehydration is performed by `new THAT_CLASS data.aecad`. `THAT_CLASS` is a class which is registered via `get-class/add-class` method.
+- The plain PaperJS object on the canvas can be get via `aeobj.g`.
 
 See `get-aecad.ls/get-aecad` for the details.
 
-Properties of an aeCAD object (aeobj) will be displayed in the "Properties" window.
-
-[1]: Known types are the classes that are registered via `get-class/add-class` method.
+aeCAD specific properties is displayed in the "Properties" window.
 
 # aeCAD Data
 
