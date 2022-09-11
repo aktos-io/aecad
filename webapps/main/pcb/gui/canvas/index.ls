@@ -218,19 +218,6 @@ export init = (pcb) ->
             console.log "Selected items are grouped:", g
             ctx.component.state \done...
 
-        cleanupDrawing: (ctx) !->
-            pcb.history.commit!
-            i = 0
-            for pcb.search!
-                if ..item.getClassName?! in <[ Group Layer ]>
-                    for ..item.children or []
-                        if ..getClassName! is \Path and ..segments.length < 2
-                            ..remove!
-                    if empty ..item.[]children
-                        console.log "#{..keypath.join('.')} should be deleted. (\##{++i})", ..item
-                        ..item.remove!
-            pcb.vlog.info "Removed #{i} items. Use Ctrl+Z for undo."
-
         explode: (ctx) ->
             exploded = pcb.explode {+recursive}, pcb.selection.selected
             # WIP
