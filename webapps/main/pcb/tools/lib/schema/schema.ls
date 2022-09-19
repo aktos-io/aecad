@@ -580,7 +580,7 @@ export class Schema implements bom, footprints, netlist, guide
                         most-used = count 
 
                 processed-pads = for pad in net when pad.netid isnt existing-netid
-                    pad.netid = null 
+                    pad.netid = '' 
                     pad
 
                 # error if there are conflicting netid's already existing
@@ -599,8 +599,10 @@ export class Schema implements bom, footprints, netlist, guide
                     # this netid seems already occupied.
                     existing = @connection-list[existing-netid].map (.uname) .join ', '
                     curr = net.map (.uname) .join ', '
+                    for net 
+                        ..netid = ''
                     throw new Error "Duplicate netid found: #{existing-netid} (
-                        #{curr} already occupied by #{existing}"
+                        #{curr} already occupied by #{existing}\n\n(Did auto reset)"
                 else
                     # create the connection list with that existing netid
                     @connection-list[existing-netid] = net
