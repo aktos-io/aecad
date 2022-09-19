@@ -333,7 +333,7 @@ export class Schema implements bom, footprints, netlist, guide
                     if empty pads
                         if component.type not in flatten [[..type, ..component.type] for @get-upgrades!]
                             console.error "Current iface:", component, component.iface
-                            err = "No such pin found: '#{pin}' of '#{name}'"
+                            err = "No such pin found: #{elem}"
                             console.error err 
                             throw new Error  "#{err} (check the console output)"
                     
