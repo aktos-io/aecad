@@ -35,7 +35,9 @@ export SelectTool = ->
                     items = scope.project.getItems opts
                     console.log "Selection box includes items: ", items
                     console.log "Selected items in layer:", unique ["#{..layer?.id} (#{..layer?.name})" for items]
-                    selection.add items
+                    for items 
+                        if ..data?aecad?side is scope.ractive.get \currLayer 
+                            selection.add ..
                 sel.box.remove!
 
         ..onMouseDown = (event) ~>
