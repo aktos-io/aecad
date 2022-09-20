@@ -36,7 +36,7 @@ export SelectTool = ->
                     console.log "Selection box includes items: ", items
                     console.log "Selected items in layer:", unique ["#{..layer?.id} (#{..layer?.name})" for items]
                     for items 
-                        if ..data?aecad?side is scope.ractive.get \currLayer 
+                        if ..data?aecad?side in [scope.ractive.get('currLayer'), 'Edge']
                             selection.add ..
                 sel.box.remove!
 
