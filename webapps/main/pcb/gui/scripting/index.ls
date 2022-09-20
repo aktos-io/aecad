@@ -283,11 +283,15 @@ export init = (pcb) ->
             h.resume!
     ), {-init}
 
+    script_selected_busy = false
     handlers =
         # gui/scripting.pug
         # ------------------------
         scriptSelected: (ctx, item, progress) ~>> 
             #console.log "script is selected, app handler called: ", item
+            if script_selected_busy
+                return progress err="scriptSelected is run too frequently"
+            script_selected_busy := true
             h.silence!
             await @set \editorContent, item.content
             h.resume!
@@ -298,6 +302,7 @@ export init = (pcb) ->
                     pcb.switch-layout item.id   
                     @fire 'fitAll'
                     @fire 'cleanupLayers'
+            script_selected_busy := false
             progress!
 
         compileScript: (ctx, name, opts={+clear}) ~>
