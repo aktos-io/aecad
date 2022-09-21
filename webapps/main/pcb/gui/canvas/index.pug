@@ -47,7 +47,8 @@ radio-buttons#toolChanger(value="{{currTool}}")
 radio-buttons(on-select="switchLayer")
     .ui.mini.buttons
         radio-button.icon(
-            default value="F.Cu" 
+            default 
+            value="F.Cu" 
             true-color="red"
             tooltip="Trace on F.Cu"
             ) #[.ui.circular.red.mini.empty.label]
@@ -56,6 +57,16 @@ radio-buttons(on-select="switchLayer")
             true-color="green"
             tooltip="Trace on B.Cu"
             ) #[.ui.circular.green.mini.empty.label]
+        radio-button.icon(
+            value="Edge" 
+            true-color="orange"
+            tooltip="Edge Layer"
+            ) #[.ui.circular.orange.mini.empty.label]
+        radio-button.icon(
+            value="pcb_layout" 
+            true-color="blue"
+            tooltip="PCB Layout (Background)"
+            ) #[.ui.circular.blue.mini.empty.label]
 
 +space
 //-
