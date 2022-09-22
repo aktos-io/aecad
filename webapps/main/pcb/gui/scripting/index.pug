@@ -49,5 +49,5 @@ dropdown.mini(
         ol
             +each('Object.keys(drawingLs)')
                 li {{.}}
-ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%")
+ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%" on-focus="editorFocused")
 pre {{output}}

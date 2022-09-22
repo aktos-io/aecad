@@ -441,4 +441,7 @@ export init = (pcb) ->
                 data:
                     diff: sdiff_
 
+        editorFocused: (ctx) -> 
+            @set 'currTool', 'sl'
+
     return handlers
