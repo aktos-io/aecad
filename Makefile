@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 
 release:
-	cd scada.js && make release APP=main
+	cd scada.js && make release APP=main ES_CHECK=skip
 
 release-push:
 	cd scada.js && make release-push
@@ -12,9 +12,8 @@ touch-app-version:
 development:
 	./uidev.service
 
-install-deps:
+install-deps-development:
 	@( cd scada.js; \
-	[[ ! -d ./nodeenv ]] && make create-venv;\
 	source ./venv; \
 	make install-deps CONF=../dcs-modules.txt; \
 	cd ..; \

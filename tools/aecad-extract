@@ -22,9 +22,10 @@ for zipfile in "$@"; do
     processed=true
     outdir=$(mktemp -d "/tmp/${zipfile}-XXX")
     unzip $zipfile -d "$outdir" > /dev/null && mv "$zipfile"{,.extracted}
-    rsync -a --delete --exclude ".git"  "$outdir"/ "${zipfile%.*}"/
+    destination="${zipfile%.*}"
+    rsync -a --delete --exclude ".git"  "$outdir"/ "$destination"/
     rm -r "$outdir"
-    info "aeCAD Extract" "\"$zipfile\" is extracted."
+    info "aeCAD Extract" "\"$zipfile\" is extracted into \"$destination\"."
 done
 
 $processed || echo "There is no project to extract."

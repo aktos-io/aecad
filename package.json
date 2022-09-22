@@ -22,7 +22,7 @@
     "dxf-writer": "^1.2.0",
     "json-stringify-pretty-compact": "^1.2.0",
     "jszip": "^3.2.1",
-    "paper": "^0.11.8",
+    "paper": "^0.12.15",
     "pretty": "^2.0.0",
     "shortid": "^2.2.13",
     "svg-path-parser": "^1.1.0",

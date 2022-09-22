@@ -13,12 +13,30 @@ export do
         [.. for @components when ..upgrade-needed]
 
     remove-footprints: ->
-        console.log "Removing created components by this schema (#{@name})"
+        if @debug 
+            console.log "Removing created components by this schema (#{@name})"
         for @components or []
             ..component.remove!
 
     add-footprints: (opts) !->
-        missing = @get-netlist-components! `difference` @get-bom-components!
+        /* Description: 
+        ----------------
+
+        * Reports missing components in BOM
+        * Dehydrates existing components only if that components belong to this Schema 
+        * Creates non existing components 
+        * Detects component upgrades due to type or revision changes
+        * Performs initial placements
+
+        */
+        current-components = flatten [name for name, sch of @bom when not sch.data]
+        required-components = @get-netlist-components!
+        missing = required-components `difference` current-components
+
+        if @debug 
+            console.log "#{@name}: required-components", required-components
+            console.log "#{@name}: current-components", current-components
+
         unless empty missing
             throw new Error "Components missing in BOM: #{missing.join(',')}"
 
@@ -31,22 +49,26 @@ export do
                 @components.push .. <<< {source: sch}
 
         curr = @scope.get-components {exclude: <[ Trace ]>}
-        for {name, type, data, value, labels} in values @get-bom! when not data # loop through only raw components
+        for _, {name, type, data, value, labels} of @bom when not data # loop through only simple components
             pfx-name = "#{@prefix}#{name}"
             _Component = getClass(type)
             #console.log "...adding component: #{name} type: #{type} params: ", params
             if pfx-name not in [..name for curr]
                 # This component hasn't been created yet, create it
+                component = new _Component {name: pfx-name, value, labels}
+                    ..orig-labels = labels 
                 @components.push do
-                    component: new _Component {name: pfx-name, value, labels}
+                    component: component
                     type: type 
                     name: pfx-name
                     value: value 
                     labels: labels
             else
                 existing = find (.name is pfx-name), curr
+                component = get-aecad existing.item
+                    ..orig-labels = labels 
                 @components.push comp =
-                    component: get-aecad existing.item
+                    component: component
                     existing: yes
                     upgrade-needed: ''
                     type: existing.type

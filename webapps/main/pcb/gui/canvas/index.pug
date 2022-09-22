@@ -35,19 +35,6 @@ radio-buttons#toolChanger(value="{{currTool}}")
             ) / 
 
 +space
-.ui.buttons.mini 
-    //-
-        checkbox(
-            checked="{{selectGroup}}"
-            tooltip="Select the parent group"
-            ) G
-    
-    ack-button.icon(
-        on-click="groupSelected" 
-        tooltip="Group all selected items"
-        ): icon.object.group.outline        
-
-+space
 .ui.mini.buttons 
     +each('layers as val')
         ack-button.icon(
@@ -60,7 +47,8 @@ radio-buttons#toolChanger(value="{{currTool}}")
 radio-buttons(on-select="switchLayer")
     .ui.mini.buttons
         radio-button.icon(
-            default value="F.Cu" 
+            default 
+            value="F.Cu" 
             true-color="red"
             tooltip="Trace on F.Cu"
             ) #[.ui.circular.red.mini.empty.label]
@@ -69,10 +57,16 @@ radio-buttons(on-select="switchLayer")
             true-color="green"
             tooltip="Trace on B.Cu"
             ) #[.ui.circular.green.mini.empty.label]
-+space
-ack-button.mini.icon(
-    on-click="cleanupDrawing" 
-    tooltip="Cleanup drawing"): icon.erase
+        radio-button.icon(
+            value="Edge" 
+            true-color="orange"
+            tooltip="Edge Layer"
+            ) #[.ui.circular.orange.mini.empty.label]
+        radio-button.icon(
+            value="pcb_layout" 
+            true-color="blue"
+            tooltip="PCB Layout (Background)"
+            ) #[.ui.circular.blue.mini.empty.label]
 
 +space
 //-
@@ -108,6 +102,13 @@ ack-button.mini.icon(
         ): icon(svg="flat_ruler.svg")
 
 +space
+.ui.buttons.mini 
+    ack-button.icon.disabled(
+        on-click="groupSelected" 
+        tooltip="Group all selected items"
+        ): icon.object.group.outline        
+
++space
 .ui.mini.buttons
     ack-button.icon(
         on-click="calcUnconnected"
@@ -116,15 +117,21 @@ ack-button.mini.icon(
         ) {{unconnectedCount}}/{{totalConnections}}
         
 +space
-ack-button.mini.icon(
-    on-click="upgradeComponents"
-    tooltip="Upgrade selected components"
-    ): icon.angle.double.up
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="upgradeComponents"
+        tooltip="Upgrade selected components"
+        ): icon.angle.double.up
+    ack-button.icon(
+        on-click="selectStrayComponents"
+        tooltip="Select the components that are not in the schema"
+        ): icon.blind
 
-dropdown.mini(
+dropdown.mini.scrolling(
     button
     data="{{currComponentNames}}"
     on-select="selectComponent"
+    listen-external="false"
 )
 
 dropdown.mini.green(
@@ -132,12 +139,8 @@ dropdown.mini.green(
     selected-key="{{activeLayout}}"
     on-select="switchLayout"
     on-add="addLayout"
-    listen-external="true"
+    listen-external="false"
 )
-ack-button.mini.icon(
-    on-click="deleteActiveLayout"
-    tooltip="Delete active layout: {{activeLayout}}"
-    ): icon.trash.purple
 
 div
 canvas#draw

@@ -6,7 +6,7 @@ dig-for-aecad = (item) ->
 export do
     get-components: (opts) ->
         '''
-        Returns all aeCAD components in {item, type, name, rev} form
+        Returns all aeCAD components in {item, type, name, rev} form within the drawing area.
 
         opts:
             include: Array of Component.type's that should be included to the search

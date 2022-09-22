@@ -1,39 +1,57 @@
 # How the circuits are created
 
-1. Original netlist is manually created by the user in the runtime, by the .netlist (@_netlist) property. 
-2. Indirect connections, shorthand interface (.iface) definitions and quick labels are postprocessed and
-   injected into the @_netlist. 
-3. .cables property is processed inside the @compile method. Appropriate pads are injected into the @_netlist.
-4. Within @compile method of the top circuit, all subcircuits are processed and 
-   the Array of "Array of connected Pad objects" are calculated (@netlist).
+##### Legend: 
+
+----------------------
+
+* Pad	 	  : `c1.PA15`
+* Component	  : `c1`
+* Pin		  : `PA15`
+* PadObject	  : Pad `Object` related to that `Pad`. `.name` is Pad (`c1.PA15`)
+* Net 		  : The logical group of pads which are supposed to be connected.
+* Netid		  : ID or label of a net. 
+* Netlist components: Components that are used within `.netlist`.
+* Bom components : Components that are declared within `.bom`.
+
+---------------------
+
+
+1. Original netlist `Object` is manually created by the user in the runtime within the `.netlist` property. It contains numeric or alphanumeric `LABEL`s and `COMPONENT.PIN` formatted pad definitions.
+2. Indirect connections, interface or shorthand interface (`.iface`) definitions and quick labels are postprocessed and assigned to the `@_netlist`. See `post-process-netlist()` function's tests for examples.
+3. `.cables` property is processed inside the `@compile()` method. Appropriate pads are injected into the `@_netlist`.
+4. Within `@compile()` method of the top circuit, all subcircuits are processed and 
+   the Array of "Array of connected Pad objects" are calculated (`@netlist`).
 5. Internal connection ID's (`netid`) are read from existing Pads or newly assigned. 
-   @netlist "Array" is now converted into @connection-list "Object" where the key is the valid connection ID of that net and 
-   the value is the array of Pad objects on that net.
+   `@netlist` array is now converted into `@connection-list` "Object" where the key is the physical connection ID of that net and the value is the array of Pad objects on that net.
+6. `.add-footprints()` method creates physical objects for each instance.
+
+	Different actions have been taken for different set of components: 
+
+	1. Circuit components: (`@components-by-name`) The component declared in the netlist, either pointing a Footprint-derived class or a sub-circuit instance.
+	2. All components: (@all-components) All components including the components from subcircuits. Key is the FQDN. 
+	3. Sub-circuit-instances: (`@sub-circuits`) Components that refers to a sub-circuit. `{instance-name: Schema Object}`
+	4. Simple components: (@simple-components) Components that only belongs to this schema and points to a Footprint-derived class. Any sub-circuit instances and footprint components from sub-circuits are excluded.
 
 > Troubleshooting: Verify that all `interconnected` pads and appropriate jumper pads are correctly present 
 > in @connection-list: 
-> 
+>
 >    conn-list-txt = []
 >    for id, net of sch.connection-list
 >        conn-list-txt.push "#{id}: #{net.filter((-> not it.is-via)).map (.uname) .join(',')}"
 >    console.log conn-list-txt.join '\n\n'
->
 
-
-Building the @connection-list is the end of the compilation process. To make aeCAD actually useful, 
-unconnected count and connection guides must be calculated. This is where @calc-connection-states() 
-method comes into play. 
+Building the `@connection-list` is the end of the compilation process. After this point, unconnected count and connection guides must be calculated to make aeCAD actually useful. This is where `@calc-connection-states()` method comes into play. 
 
 For each net (`@connection-list[netid]`): 
 
-6. Relevant via's are appended by the `@calc-connection-states()` method. 
-7. Traces are processed to determine which pad is connected to what pad. To make that happen,
+7. Relevant via's are appended by the `@calc-connection-states()` method. 
+8. Traces are processed to determine which pad is connected to what pad. To make that happen,
    `named-connections` array is created. Every element is an array of connected pads ID's and trace ID's. 
-8. Relevant external cable pairs are injected into `named-connections`. 
+9. Relevant external cable pairs are injected into `named-connections`. 
 
-9. Unconnected logical-pins are calculated by `net-merge` function. 
+10. Unconnected logical-pins are calculated by `net-merge` function. 
 
-10. @_connection_states object is calculated where the key is the `netid` and value is:
+11. `@_connection_states` object is calculated where the key is the `netid` and value is:
 
 
         {
@@ -58,6 +76,10 @@ sm = new SchemaManager
 ```
 
 Returns the `SchemaManager` singleton. Use `sm.active` to get active `Schema` instance.
+
+## `Schema.name`
+
+Name of the schema that is passed by the constructor: `new Schema {name: "myschema", ...}`. Sub-circuit names will be prefixed with `parent-`. 
 
 ## `Schema.netlist`
 

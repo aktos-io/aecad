@@ -214,7 +214,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     # delete an item with Delete key
                     @history.commit!
                     @selection.delete!
-                    @ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
+                    @ractive.fire \calcUnconnected, {}, {+silent}  # TODO: Unite this action
                 | \z =>
                     if event.modifiers.control
                         # Undo changes 

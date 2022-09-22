@@ -76,14 +76,6 @@ export do
                 aecad: deps.commit
 
         svg.attributes.data = project-info
-   
-        # Cleanup empty layers (layers that we never created)
-        for i in reverse [til svg.children.length]
-            child = svg.children[i]
-            # first level is treated as "Layers"
-            if empty (child?.children or [])
-                console.warn "Deleting Layer?: ", child
-                svg.children.splice i, 1
 
         scale = opts.scale or 1
 
@@ -231,10 +223,11 @@ export do
         try 
             if typeof! json is \String 
                 JSON.parse json # verify that this is a JSON string 
+            @project.clear!
             @project.importJSON json
         catch 
             debugger 
-        while true
+        for i from 0 to 10
             needs-rerun = false
             for layer in @project.layers
                 unless layer
@@ -243,10 +236,6 @@ export do
                     # hundred layers
                     console.warn "...we have an null layer!"
                     needs-rerun = true
-                    continue
-                if layer.getChildren!.length is 0
-                    console.warn "removing empty layer..."
-                    layer.remove!
                     continue
 
                 if layer.name
@@ -261,6 +250,8 @@ export do
                         ..remove!
             break unless needs-rerun
             console.warn "Workaround for load-project works."
+        if i > 0
+            PNotify.notice text: "importLayout rerun count: #{i+1}"
 
         unless name of @layouts 
             @layouts[name] = null
@@ -281,6 +272,7 @@ export do
         # load target layout if exists
         @clear-canvas!
         if @layouts[layout-name]?layout
+            @project.clear!
             @project.importJSON that
         @register-layers!
         unless layout-name of @layouts 

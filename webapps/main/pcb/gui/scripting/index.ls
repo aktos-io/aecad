@@ -10,7 +10,8 @@ require! 'diff': jsDiff
 require! 'mathjs'
 require! 'jszip'
 require! 'dcs/browser': {SignalBranch}
-
+require! '../../tools/lib/schema/lib/flatten-obj': {flatten-obj}
+require! '../../lib/chronometer': {Chronometer}
 
 get-filename = (f) -> f.substr(0, f.lastIndexOf('.'))
 get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
@@ -19,12 +20,16 @@ get-ext = (f) -> f.substr(f.lastIndexOf('.') + 1)
 {keys, values, map, filter, find} = prelude-ls
 
 export init = (pcb) ->
+    chrono = new Chronometer
+
     # Modules to be included into dynamic scripts
     modules = {aea, lib, lsc, PaperDraw, mm2px, pcb, based-on: aea.based-on, mathjs, px2mm}
     # include all tools
     modules <<< tool-lib
     # include all prelude-ls functions
     modules <<< prelude-ls
+
+    modules <<< {flatten-obj}
     # modules from pcb
     pcb-modules = """
         Group Path Rectangle PointText Point Shape
@@ -43,26 +48,34 @@ export init = (pcb) ->
         layout: (name) -> 
             pcb.switch-layout name
 
-        standard: (opts, sch) ->         
+        standard: (opts, sch) ->  
+            # This function performs the "standard" actions for a given Schema instance. 
+            # Use this function within the scripting window.
             unless sch 
                 sch = opts  
                 opts = {}  
 
-            sch   
-                ..clear-guides!
-                ..compile!
-                ..guide-unconnected!  
+            chrono.start!
+            sch.clear-guides!
+            console.log "standard new Schema: clear-guides() took: #{chrono.end!}"
+            chrono.start!
+            sch.compile!
+            console.log "standard new Schema: compile() took: #{chrono.end!}"
+            chrono.start!
+            sch.guide-unconnected!  
+            console.log "standard new Schema: guide-unconnected() took: #{chrono.end!}"
             
             # Calculate unconnected count
-            pcb.ractive.fire 'calcUnconnected'
+            pcb.ractive.fire 'calcUnconnected', {}, {+cached}
 
             # Populate component-selection dropdown
             # Any component can be highlighted by selecting it
             # from the "component selection dropdown", located above of drawing area:
-            pcb.ractive.set \currComponentNames, sch.get-component-names!
+            pcb.ractive.set \currComponentNames, [{id: v.name, name: v.name} for k, v of sch.components]
 
-            # Detect component upgrades
+            # Detect and mark component upgrades
             unless modules.empty upgrades=(sch.get-upgrades!)
+                pcb.selection.clear!
                 msg = ''
                 for upgrades
                     msg += ..reason + '\n\n'
@@ -81,8 +94,13 @@ export init = (pcb) ->
                 bom.push "#{..count},\t#{..type}:\t#{..value}\t[#{..instances}]"
             pcb.layouts{}[pcb.active-layout].bom = bom.join '\n'
 
+            connectionListTxt = []
+            for k, v of sch.connectionListTxt
+                connectionListTxt.push v.join ',\t'
+            pcb.layouts{}[pcb.active-layout].connectionList = connectionListTxt.join '\n'
+
             # debug output 
-            if opts.debug 
+            if sch.debug 
                 console.log "Connection List: {netid: pads-to-be-connected}"
                 console.log "----------------------------------------------"
                 console.log sch.connectionListTxt
@@ -96,7 +114,7 @@ export init = (pcb) ->
 
         run-unit-tests: -> 
             unless unit-tests-passed
-                err <~ pcb.ractive.fire \runTests
+                err <~ pcb.ractive.fire \runTests, {}
                 unit-tests-passed := not err 
 
 
@@ -106,6 +124,7 @@ export init = (pcb) ->
         start-time = new Date! .getTime()
         compiled = no
         @set \output, ''
+        c1 = new Chronometer
         try
             libs = []
             for name, src of @get \drawingLs
@@ -118,6 +137,7 @@ export init = (pcb) ->
                         """
 
             #console.log "drawingls (main script: #{script-name}): ", libs
+            c1.start!
 
             # Determine dependencies and provisions 
             for lib in libs
@@ -133,6 +153,7 @@ export init = (pcb) ->
                     if (a=..match /^#!?\s*[Rr]equires:?\s*(.+)\b/) or (b=..match /^#\s*[Dd]epends:?\s*(.+)\b/)
                         lib.[]depends ++= (a or b).1.split(',').map (.trim!)
                         #console.log "----> #{lib.name} depends #{that.1}"
+            console.log "runScript: dependency determination took: #{c1.end!}"
 
             # Sort by dependency order
             ordered = []
@@ -160,9 +181,11 @@ export init = (pcb) ->
                         ordered.push lib
                         console.log "...inserting #{lib.name} to the ordered list."
 
+            c1.start!
             #console.log "libs: ", libs
             for ([main-script] ++ libs)
                 insert-dep .. if .. 
+            console.log "runScript: dependency insertion took: #{c1.end!}"
 
             # add main script
             if main-script
@@ -178,7 +201,9 @@ export init = (pcb) ->
             
             # compile livescript code
             whole-src = [..src for ordered].join('\n')
+            c1.start!
             js = lsc.compile whole-src, {+bare, -header, map: 'embedded', filename: 'dynamic.ls'}
+            console.log "runScript: lsc.compile(whole-src) took: #{c1.end!}"
             compiled = yes
         catch err
             try 
@@ -214,14 +239,22 @@ export init = (pcb) ->
 
         if compiled
             try
+                c1.start!
                 layer = pcb.use-layer \scripting
                 if opts.clear
                     layer.clear!
+                console.log "runScript: layer cleared: #{c1.end!}"
+
 
                 #console.log "Added global modules: ", keys modules
+                c1.start!
                 func = new Function ...(keys modules), js.code
+                console.log "runScript: new Function creation took: #{c1.end!}"
+                c1.start!
                 func.call pcb, ...(values modules)
+                console.log "runScript: func.call() took: #{c1.end!}"
                 #pcb._scope.execute js
+
 
                 name = opts.name or @get \scriptName
                 unless opts.silent
@@ -237,7 +270,7 @@ export init = (pcb) ->
                 @set \output, "ERROR: \n\n" + (@get 'output') + "#{err}"
                 @get \vlog .error do
                     title: 'Runtime Error'
-                    message: err
+                    message: err.message
                 console.warn "Use 'Pause on exceptions' checkbox to hit the exception line"
                 # See https://github.com/ceremcem/aecad/issues/8
 
@@ -250,26 +283,32 @@ export init = (pcb) ->
             h.resume!
     ), {-init}
 
+    script_selected_busy = false
     handlers =
         # gui/scripting.pug
         # ------------------------
-        scriptSelected: (ctx, item, progress) ~>
+        scriptSelected: (ctx, item, progress) ~>> 
             #console.log "script is selected, app handler called: ", item
+            if script_selected_busy
+                return progress err="scriptSelected is run too frequently"
+            script_selected_busy := true
             h.silence!
-            @set \editorContent, item.content
+            await @set \editorContent, item.content
             h.resume!
             unless item.content
                 @get \project.layers.scripting ?.clear!
             unless pcb.layouts[pcb.active-layout]?type is "manual"
                 unless pcb.active-layout is item.id   
                     pcb.switch-layout item.id   
+                    @fire 'fitAll'
+                    @fire 'cleanupLayers'
+            script_selected_busy := false
             progress!
 
         compileScript: (ctx, name, opts={+clear}) ~>
             name = name or @get 'scriptName' 
             runScript name, opts 
             pcb.layouts{}[pcb.active-layout].script-name = name 
-            console.log "layouts: ", pcb.layouts
 
         clearScriptLayer: (ctx) ~>
             @get \project.layers.scripting ?.clear!
@@ -320,49 +359,6 @@ export init = (pcb) ->
 
             #console.log "default content is: ", default-content
             @set \editorContent, default-content
-
-        removeScript: (ctx) ~>
-            script-name = @get \scriptName
-            unless script-name
-                console.log "No script selected."
-                return
-            action <~ @get \vlog .yesno do
-                title: 'Remove Script'
-                icon: 'exclamation triangle'
-                message: "Do you want to remove #{script-name}?"
-                closable: yes
-                buttons:
-                    delete:
-                        text: 'Delete'
-                        color: \red
-                        icon: \trash
-                    cancel:
-                        text: \Cancel
-                        color: \green
-                        icon: \remove
-                    everything:
-                        text: \Everything
-                        color: \violet
-                        icon: \danger 
-
-            if action in [\hidden, \cancel]
-                console.log "Cancelled."
-                return
-
-            avail = Object.keys(@get 'drawingLs')
-            script-pos = avail.index-of script-name
-            next-script = avail[if script-pos > 0 then script-pos - 1 else 1]
-
-            # select next script
-            if action is \everything
-                @set \scriptName, null
-                @set \editorContent, ''
-                @set \drawingLs, {}
-            else 
-                @set \scriptName, next-script
-                @delete 'drawingLs', script-name
-
-            console.warn "Deleted #{script-name}..."
 
         downloadScripts: (ctx) ->            
             # workaround: to include JSON (or CSON) files with Browserify
@@ -444,5 +440,8 @@ export init = (pcb) ->
                 template: require('./diff.pug')
                 data:
                     diff: sdiff_
+
+        editorFocused: (ctx) -> 
+            @set 'currTool', 'sl'
 
     return handlers

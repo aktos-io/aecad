@@ -14,7 +14,7 @@ export do
                 gnd: 'Q1.e'
                 Output: 'Q1.c'
 
-        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: open-collector,  namespace: 'test'}
 
         expect (-> sch.compile!)
         .to-throw "Unused pads: test.R1.2"
@@ -43,10 +43,10 @@ export do
                 open-collector: 'A'
 
 
-        sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: some-parent,  namespace: 'test'}
 
         expect (-> sch.compile!)
-        .to-throw "Unconnected iface: test.A.Input, test.A.Output"
+        .to-throw "Unconnected interface pins: Input, Output"
 
         # cleanup canvas
         sch.remove-footprints!
@@ -60,22 +60,22 @@ export do
                 "SMD1206": "R1"
             netlist:
                 1: "Q1.b R1.1"
-                in: "R1.2 Input"
+                Input: "R1.2"
                 gnd: "Q1.e"
-                out: "Q1.c Output"
+                Output: "Q1.c"
 
         some-parent =
             schemas: {open-collector}
             netlist:
-                1: "A.in"
+                1: "A.Input"
             bom:
                 open-collector: 'A'
 
 
-        sch = new Schema {name: 'test', data: some-parent, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: some-parent,  namespace: 'test'}
 
         expect (-> sch.compile!)
-        .to-throw "Unused pads: test.A.Input, test.A.Output, test.A.gnd"
+        .to-throw "Unused pads: test.A.Output, test.A.gnd"
 
         # cleanup canvas
         sch.remove-footprints!
@@ -95,7 +95,7 @@ export do
             no-connect: 
                 'R1.2'
 
-        sch = new Schema {name: 'test', data: open-collector, prefix: 'test.'}
+        sch = new Schema {name: 'test', data: open-collector,  namespace: 'test'}
 
         expect (-> sch.compile!)
         .to-throw "False unused pads: test.R1.2"

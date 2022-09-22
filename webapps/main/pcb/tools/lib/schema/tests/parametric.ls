@@ -33,7 +33,7 @@ export do
 
         sch = new Schema {
             name: 'mytest'
-            prefix: 'test.'
+            namespace: 'test'
             data: bar
             }
             ..compile!
@@ -91,7 +91,7 @@ export do
 
         sch = new Schema {
             name: 'mytest'
-            prefix: 'test.'
+            namespace: 'test'
             data: bar
             }
             ..compile!
@@ -146,7 +146,7 @@ export do
 
         sch = new Schema {
             name: 'mytest'
-            prefix: 'test.'
+            namespace: 'test'
             data: bar
             }
             ..compile!
@@ -192,7 +192,7 @@ export do
 
         sch = new Schema {
             name: 'mytest'
-            prefix: 'test.'
+            namespace: 'test'
             data: bar
             }
             ..compile!
@@ -235,7 +235,7 @@ export do
 
         sch = new Schema {
             name: 'mytest'
-            prefix: 'test.'
+            namespace: 'test'
             data: bar
             }
 

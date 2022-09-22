@@ -1,5 +1,5 @@
 require! '../../tools/lib': {get-aecad, get-parent-aecad}
-require! 'prelude-ls': {max, sort, join}
+require! 'prelude-ls': {max, sort, join, empty}
 require! 'aea': {create-download, ext}
 require! 'dcs/browser': {SignalBranch}
 require! 'jszip'
@@ -81,6 +81,27 @@ export init = (pcb) ->
 
                 if typeof! callback is \Function 
                     callback err 
+
+        cleanupLayers: (ctx) ->> 
+            ctx.component?state? \doing
+            #PNotify.info text: "Cleaning up empty layers within #{pcb.project.layers.length} layers"
+            total-layers = pcb.project.layers.length
+            await sleep 100ms
+            # Cleanup empty layers (is this a PaperJS import/export JSON bug?)
+            removed-layers = []
+            do
+                needs-recheck = no
+                for index, layer of pcb.project.layers
+                    if layer.getChildren!.length is 0
+                        layer.remove!
+                        needs-recheck = yes
+                        removed-layers.push index
+                    await sleep 10ms
+                removed-layers.push '\n' if needs-recheck
+            while needs-recheck
+            unless empty removed-layers
+                PNotify.notice text: "Cleaned up #{total-layers} layers, removed empty layers: #{removed-layers.join ','}"
+            ctx.component?state? \done...
            
         exportDrawing: (ctx) -> 
             action, data <~ pcb.vlog .yesno do
@@ -117,26 +138,6 @@ export init = (pcb) ->
                     message: "You should supply a project name."
                 return 
 
-            dirty-confirm = new SignalBranch
-            if require('app-version.json').dirty
-                _sd = dirty-confirm.add!
-                answer <~ pcb.vlog .info do
-                    title: "Dirty state of aeCAD"
-                    icon: 'warning sign'
-                    message: "
-                        aeCAD has uncommitted changes. 
-                        \n\n
-                        If your project depends on a new feature, you can't compile the same project 
-                        in the future by using the version information embedded into the project's README.
-                        "
-                if answer is \ok
-                    _sd.go!
-                else
-                    _sd.cancel! 
-                    PNotify.notice text: "Cancelled download."
-            <~ dirty-confirm.joined
-
-
             PNotify.info text: "Preparing project file of #{project-name}..."
             <~ sleep 100ms 
 
@@ -146,10 +147,13 @@ export init = (pcb) ->
             # Filename map 
             filename-map = f = 
                 v1:
-                    "layout": "layout.json"     # set in multiple places, including gui/scripting/scriptSelected() function
-                    "scriptName": "script-name" # set by gui/scripting/compileScript() function
-                    "bom": "BOM.txt"            # set by gui/scripting/standard() function
-                    "type": "type"              # set by gui/scripting/scriptSelected() function
+                    # key: filename             Where this variable is actually assigned
+                    # ---------------           --------------------------------------------
+                    "layout": "layout.json"     # multiple places, including gui/scripting/scriptSelected() function
+                    "scriptName": "script-name" # gui/scripting/compileScript() function
+                    "bom": "BOM.txt"            # gui/scripting/standard() function
+                    "type": "type"              # gui/scripting/scriptSelected() function
+                    "connectionList": "connection-list.txt" # gui/scripting/standard() function
 
             # File format version 
             zip.file "format", "version-2"
@@ -186,8 +190,8 @@ export init = (pcb) ->
 
                 layout-dir = layouts-dir.folder layout 
 
-                for key in <[ bom scriptName type ]> 
-                    layout-dir.file f.v1[key], (pcb.layouts[layout][key] or '')
+                for key in <[ bom scriptName type connectionList ]> 
+                    layout-dir.file f.v1[key], (pcb.layouts[layout]?[key] or '')
 
                 format = "json"
                 err, res <~ pcb.export {format}
@@ -338,11 +342,12 @@ export init = (pcb) ->
 
                 layout-dir.file "gerber-version", gerb-version.get!
 
+                <~ sleep 100ms 
                 lo(op)
 
             pcb.switch-layout current-layout
 
-            content <~ zip.generateAsync({type: "blob"}).then
+            content <~ zip.generateAsync({type: "blob", compression: "DEFLATE"}).then
             create-download "#{project-name}.zip", content
 
         uploadProject: (ctx, file, cb) ->
@@ -480,7 +485,7 @@ export init = (pcb) ->
                 PNotify.info do
                     text: "Changes reverted. (left: #{res.left})"
                     addClass: 'nonblock'
-                pcb.ractive.fire \calcUnconnected, {+silent}  # TODO: Unite this action
+                pcb.ractive.fire \calcUnconnected, {}, {+silent}  # TODO: Unite this action
             else 
                 PNotify.notice do 
                     text: "No commits left."
@@ -496,12 +501,47 @@ export init = (pcb) ->
                 addClass: 'nonblock'
             ctx.component.state \done...
 
-        clear: (ctx) ->
+        deleteCurrent: (ctx) !-> 
+            script-name = @get \scriptName
+
+            action <~ @get \vlog .yesno do
+                title: 'Remove Layout'
+                icon: 'exclamation triangle'
+                message: "Do you want to remove #{pcb.active-layout} and #{scriptName}.ls?"
+                closable: yes
+                buttons:
+                    delete:
+                        text: 'Delete'
+                        color: \red
+                        icon: \trash
+                    cancel:
+                        text: \Cancel
+                        color: \green
+                        icon: \remove
+
+            if action in [\hidden, \cancel]
+                console.log "Cancelled."
+                return
+
             pcb.history.commit!
-            pcb.clear-canvas!
-            PNotify.info do
-                text: "Project cleared."
-                addClass: 'nonblock'
+            pcb.removeLayout pcb.active-layout
+
+            unless script-name
+                console.log "No script selected."
+                return
+
+            avail = Object.keys(@get 'drawingLs')
+            script-pos = avail.index-of script-name
+            next-script = avail[if script-pos > 0 then script-pos - 1 else 1]
+
+            # select next script
+            @set \scriptName, next-script # this will also set the relevant layout
+
+            # delete current script
+            @delete 'drawingLs', script-name
+
+            console.warn "Deleted #{script-name}..."
+
 
         showHelp: (ctx) ->
             @get \vlog .info do

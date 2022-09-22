@@ -29,11 +29,6 @@ dropdown.mini(
         tooltip="New script"
         ): icon.file.alternate(add="top left corner add")
     ack-button.icon(
-        on-click="removeScript" 
-        tooltip="Delete current script"
-        enabled="{{scriptName}}"
-        ): icon.trash 
-    ack-button.icon(
         on-click="downloadScripts" 
         tooltip="Download all scripts"
         ): icon.download 
@@ -54,5 +49,5 @@ dropdown.mini(
         ol
             +each('Object.keys(drawingLs)')
                 li {{.}}
-ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%")
+ace-editor(code="{{editorContent}}" mode="livescript" style="height: 400px; width: 100%" on-focus="editorFocused")
 pre {{output}}

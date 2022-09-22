@@ -35,7 +35,12 @@ export SelectTool = ->
                     items = scope.project.getItems opts
                     console.log "Selection box includes items: ", items
                     console.log "Selected items in layer:", unique ["#{..layer?.id} (#{..layer?.name})" for items]
-                    selection.add items
+                    for items 
+                        if ..data?aecad?side is scope.ractive.get('currLayer')
+                            selection.add ..
+
+                        if ..layer?.name is scope.ractive.get('currLayer')
+                            selection.add ..
                 sel.box.remove!
 
         ..onMouseDown = (event) ~>
@@ -83,7 +88,7 @@ export SelectTool = ->
 
             else
                 # Select the clicked item
-                if aeobj=hit.aeobj
+                if (aeobj=hit.aeobj) and not event.modifiers.shift
                     if aeobj.owner@@name is \Trace
                         # this is related to a trace, handle specially
                         #PNotify.info text: "We hit a trace. This is: #{aeobj@@name}"

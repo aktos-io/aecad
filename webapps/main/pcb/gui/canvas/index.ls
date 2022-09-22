@@ -63,7 +63,7 @@ export init = (pcb) ->
                 for upg in upgrades
                     for sel in selection.selected when upg.component.name is sel.aeobj.owner.name
                         try 
-                            upg.component.upgrade {type: upg.type}
+                            upg.component.upgrade {type: upg.type, value: upg.value}
                             upgrade-count++
                         catch 
                             PNotify.error do 
@@ -116,14 +116,19 @@ export init = (pcb) ->
                 catch
                     console.error "Something went wrong here.", e
 
-            <~ @fire \refreshLayer
+            <~ @fire \refreshLayer, {}
             proceed?!
 
         calcUnconnected: (ctx, opts={}) ->
-            console.log "------------ Performing DRC ------------"
-            if schema-manager.active
+            console.log "------------ Performing DRC (opts: #{JSON.stringify opts}) ------------"
+            if sch=schema-manager.active
                 try
-                    conn-states = that.calc-connection-states!
+                    unless opts.cached 
+                        sch.calc-connection-states!
+                    conn-states = sch._connection_states 
+                    sch
+                        ..clear-guides!
+                        ..guide-unconnected {+cached}
                 catch
                     PNotify.error text: e.message
                     pcb.ractive.set 'totalConnections', "--"
@@ -208,27 +213,14 @@ export init = (pcb) ->
                     aeobj.send-to-layer 'gui' # TODO: find a more beautiful name
 
         groupSelected: (ctx) ->
+            PNotify.info text: "Grouping is WIP ATM. UX should be decided."
+            return 
             pcb.history.commit!
-            g = new pcb.Group pcb.selection.selected
+            g = new pcb.Group pcb.selection.get-as-aeobj().map((.g))
             console.log "Selected items are grouped:", g
-            ctx.component.state \done...
-
-        cleanupDrawing: (ctx) !->
-            pcb.history.commit!
-            i = 0
-            for pcb.search!
-                if ..item.getClassName?! in <[ Group Layer ]>
-                    for ..item.children or []
-                        if ..getClassName! is \Path and ..segments.length < 2
-                            ..remove!
-                    if empty ..item.[]children
-                        console.log "#{..keypath.join('.')} should be deleted. (\##{++i})", ..item
-                        ..item.remove!
-            pcb.vlog.info "Removed #{i} items. Use Ctrl+Z for undo."
 
         explode: (ctx) ->
-            exploded = pcb.explode {+recursive}, pcb.selection.selected
-            # WIP
+            # Ungroup may be done by this: https://groups.google.com/g/paperjs/c/DOf1vxTfM50/m/ya0BKSDGswsJ
 
         saveBounds: (ctx) ->
             if empty selection.selected
@@ -299,16 +291,16 @@ export init = (pcb) ->
 
         selectComponent: (ctx, item, proceed) -> 
             if item.id 
-                for pcb.get-components! when ..name is item.id
+                for pcb.get-components! when ..?name is item.id
                     pcb.selection.add {item: ..item}
+                    break
             proceed!
 
         switchLayout: (ctx, item, proceed) -> 
             if item.id
                 if that isnt pcb.active-layout
-                    <~ sleep 100ms
                     pcb.switchLayout item.id 
-                    ctx.ractive.fire 'fitAll'
+                    #ctx.ractive.fire 'fitAll' # <- this brings an overhead while performing download pre-processes
             proceed!
 
         addLayout: (ctx, newKey, proceed) ->
@@ -319,28 +311,15 @@ export init = (pcb) ->
             btn.state \done...
             proceed!
 
-        deleteActiveLayout: (ctx) !-> 
-            action <~ @get \vlog .yesno do
-                title: 'Remove Layout'
-                icon: 'exclamation triangle'
-                message: "Do you want to remove #{pcb.active-layout}?"
-                closable: yes
-                buttons:
-                    delete:
-                        text: 'Delete'
-                        color: \red
-                        icon: \trash
-                    cancel:
-                        text: \Cancel
-                        color: \green
-                        icon: \remove
+        selectStrayComponents: (ctx) -> 
+            canvas-components = pcb.get-components {exclude: <[ Trace Edge RefCross ]>} 
+            if schema-manager.active?.components-by-name
+                schema-components = Object.keys that
+            else 
+                return PNotify.notice text: "No schema components found. Did you compile your schema?"
 
-            if action in [\hidden, \cancel]
-                console.log "Cancelled."
-                return
-
-            pcb.history.commit!
-            pcb.removeLayout pcb.active-layout
+            for canvas-components when ..name not in schema-components
+                pcb.selection.add {item: ..item}
 
 
     return handlers

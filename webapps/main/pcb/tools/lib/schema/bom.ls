@@ -9,10 +9,32 @@ require! 'aea': {clone, merge}
 
 
 export do
-    get-bom: ->
-        bom = {}
+    calc-bom: ->
+        /* Description: 
+
+        Creates an object with {instance-name: {SCHEMA}} for every instance
+        declared in `.bom` section
+
+        {SCHEMA} is *directly passed* to `new Schema` within `.compile()` method. Fields are:
+
+            name        : The name of the instance, eg. "c1"
+
+            value       : The value declared by that instance's key field within the .bom section 
+
+            labels      : `null` for default labels or a valid object if quick labels are used 
+
+            parent      : The parent circuit name (@name)
+
+            data        : If this is a component supplied by a class, then `null`. If this is a sub-circuit, 
+                        then this is another valid schema.
+
+            type        : Type of the component, as declared in the `.bom`
+
+        */
         if typeof! @data.bom is \Array
             throw new Error "BOM should be Object, not Array"
+
+        @bom = {}
 
         for type, instances of @data.bom 
             if typeof! instances is 'String'
@@ -49,7 +71,7 @@ export do
                             |_ => debugger 
 
                 for name, labels of instance-names
-                    if name of bom
+                    if name of @bom
                         throw new Error "Duplicate instance: #{name}"
 
                     # create every #name with params: params
@@ -61,27 +83,14 @@ export do
 
                     if typeof! calculated-schema is \Function 
                         throw new Error "Sub-circuit \"#{type}\" should be simple function, not a factory function. Did you forget to initialize it?"
-                    bom[name] =
+                    @bom[name] =
                         name: name
                         value: value
                         labels: labels
                         parent: @name
                         data: calculated-schema
                         type: type
-                        schema-name: "#{@name}-#{name}" # for convenience in constructor
-                        prefix: [@prefix.replace(/\.$/, ''), name, ""].join '.' .replace /^\./, ''
 
-        #console.log "Compiled bom is: ", bom
-        return @bom=bom
-
-    get-bom-components: ->
-        b = flatten [..name for filter (-> not it.data), values @get-bom!]
-        #console.log "bom raw components found:", b
-        return b
-        
-    get-component-names: -> 
-        # Returns component names in {id, name} format  
-        [{id: v.name, name: v.name} for k, v of @components]
 
     get-bom-list: -> 
         # group by type, and then value 

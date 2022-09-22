@@ -2,3 +2,6 @@ node_modules
 package-lock.json
 tmp
 editor
+
+deploy.sh
+virtual-env-path.sh
