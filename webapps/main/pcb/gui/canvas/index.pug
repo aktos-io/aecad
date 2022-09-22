@@ -117,10 +117,15 @@ radio-buttons(on-select="switchLayer")
         ) {{unconnectedCount}}/{{totalConnections}}
         
 +space
-ack-button.mini.icon(
-    on-click="upgradeComponents"
-    tooltip="Upgrade selected components"
-    ): icon.angle.double.up
+.ui.mini.buttons
+    ack-button.icon(
+        on-click="upgradeComponents"
+        tooltip="Upgrade selected components"
+        ): icon.angle.double.up
+    ack-button.icon(
+        on-click="selectStrayComponents"
+        tooltip="Select the components that are not in the schema"
+        ): icon.blind
 
 dropdown.mini.scrolling(
     button

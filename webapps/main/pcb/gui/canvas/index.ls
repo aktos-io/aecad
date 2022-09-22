@@ -311,5 +311,15 @@ export init = (pcb) ->
             btn.state \done...
             proceed!
 
+        selectStrayComponents: (ctx) -> 
+            canvas-components = pcb.get-components {exclude: <[ Trace Edge RefCross ]>} 
+            if schema-manager.active?.components-by-name
+                schema-components = Object.keys that
+            else 
+                return PNotify.notice text: "No schema components found. Did you compile your schema?"
+
+            for canvas-components when ..name not in schema-components
+                pcb.selection.add {item: ..item}
+
 
     return handlers
