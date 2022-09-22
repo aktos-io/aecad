@@ -223,6 +223,7 @@ export do
         try 
             if typeof! json is \String 
                 JSON.parse json # verify that this is a JSON string 
+            @project.clear!
             @project.importJSON json
         catch 
             debugger 
