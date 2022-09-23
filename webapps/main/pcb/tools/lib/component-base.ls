@@ -137,6 +137,7 @@ export class ComponentBase
         -> @overrides.allow-duplicate-labels
 
     interconnected-pins: ~
+        # internally connected pins of the component. See https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140
         -> 
             switch typeof! x=(@overrides.interconnected-pins)
             | \Array => return x 

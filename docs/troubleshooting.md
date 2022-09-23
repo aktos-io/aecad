@@ -2,7 +2,9 @@
 
 ## Wrong unconnected count
 
-1. Get `connection-list` and verify the relevant pads are calculated in the same net: 
+1. Verify that your footprint has the correct `interconnected-pins` definition, if needed. See [this issue](https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140).
+
+2. Get `connection-list` and verify the relevant pads are calculated in the same net: 
 
   ```ls
   conn-list-txt = []
@@ -11,7 +13,7 @@
   console.log conn-list-txt.join '\n\n'
   ```
 
-2. Get the "connection states" to determine which pads are connected by what traces and vias:
+3. Get the "connection states" to determine which pads are connected by what traces and vias:
 
   ```ls
   for netid, i of sch._connection_states
