@@ -129,13 +129,15 @@ export class History
             @ractive.set \project.name, that.projectName
             @ractive.set \autoCompile, that.autoCompile
             @ractive.set \currTrace, that.currTrace
-        
+
         unless @history-loaded
             while @loaded-callbacks.length > 0
                 {callback, ctx} = @loaded-callbacks.shift!
                 callback?call ctx
 
         @history-loaded = yes 
+
+        @ractive.fire 'switchLayer', {}, @ractive.get('currLayer')
 
     loaded: (ctx, callback) ->
         # indicates that the history is loaded.
