@@ -48,10 +48,11 @@ For each net (`@connection-list[netid]`):
 8. Traces are processed to determine which pad is connected to what pad. To make that happen,
    `named-connections` array is created. Every element is an array of connected pads ID's and trace ID's. 
 9. Relevant external cable pairs are injected into `named-connections`. 
+10. Footprints' internally connected (interconnected) pins are processed. See [this](https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140).
 
-10. Unconnected logical-pins are calculated by `net-merge` function. 
+11. Unconnected logical-pins are calculated by `net-merge` function. 
 
-11. `@_connection_states` object is calculated where the key is the `netid` and value is:
+12. `@_connection_states` object is calculated where the key is the `netid` and value is:
 
 
         {

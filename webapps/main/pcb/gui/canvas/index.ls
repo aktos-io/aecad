@@ -318,8 +318,13 @@ export init = (pcb) ->
             else 
                 return PNotify.notice text: "No schema components found. Did you compile your schema?"
 
+            selected-any-comp = no 
             for canvas-components when ..name not in schema-components
                 pcb.selection.add {item: ..item}
+                selected-any-comp = yes
+
+            unless selected-any-comp
+                PNotify.info text: "No stray components found." 
 
 
     return handlers

@@ -76,11 +76,16 @@ add-class class ExampleFootprint extends Footprint
         @allow-duplicate-labels: (Boolean)
 
         @is-virtual: (Boolean) Exclude from BOM if true
+
         '''
         
         ...
         
 ```
+
+# Internally Connected Pins 
+
+Some footprints have multiple physical pins for the same logical pad, such as `GND`. These pins must be declared via `.interconnected-pins` property. See [this issue](https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140) for more explanation. 
 
 # Inheriting 
 
