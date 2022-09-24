@@ -187,9 +187,10 @@ export MoveTool = ->
                 # rotate the top level group
                 scope.history.commit!
                 angle = if event.modifiers.shift => 45 else 90
+                center-point = selection.bounds!.center
                 for selection.selected
-                    if ..aeobj
-                        that.owner.rotate angle 
+                    if (..aeobj or get-aecad(..))
+                        that.owner.rotate angle, {around: center-point}
 
             | \a =>
                 unless move.picked
