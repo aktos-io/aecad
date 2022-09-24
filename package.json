@@ -27,6 +27,6 @@
     "shortid": "^2.2.13",
     "svg-path-parser": "^1.1.0",
     "svgson": "^3.0.0",
-    "three": "^0.98.0"
+    "three": "^0.144.0"
   }
 }
