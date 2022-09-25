@@ -16,6 +16,8 @@ require! './text2arr': {text2arr}
 # -----------------------------------------------
 export class ComponentBase
     (data, overrides) ->
+        @cid = null # Component id, assigned by ComponentManager. 
+                    # For the exact id of a present component, use @gcid property instead. 
         @scope = new PaperDraw
         @ractive = @scope.ractive
         @manager = new ComponentManager

@@ -5,7 +5,7 @@ require! 'prelude-ls': {reverse}
 export do
     guide-for: (ref, targets) ->
         guides = []
-        for pads in targets or @netlist
+        for pads in (targets or [])
             for index til pads.length - 1
                 line =
                     pads[index]
@@ -22,17 +22,23 @@ export do
         return guides
 
     guide-all: ->
-        @guide-for!
+        @guide-for null, @netlist2
 
     guide-unconnected: (opts={}) !->
+        # Options: 
+        # cached: (Boolean) Use previous calculation, do not re-calculate the connection states. 
         @chrono-start "guide-unconnected"
-        conn-states = if opts.cached
+        @guide-for null, @get-unconnected-pads(opts)
+        @chrono-log "guide-unconnected"
+
+    get-unconnected-pads: (opts={}) -> 
+        # Options: 
+        # cached: (Boolean) Use previous calculation, do not re-calculate the connection states. 
+        conn-states = if opts.cached and @_connection_states?
             @_connection_states
         else
             @calc-connection-states!
         unconnecteds = [o.unconnected-pads for i, o of conn-states]
-        @guide-for null, unconnecteds
-        @chrono-log "guide-unconnected"
 
     create-guide: (pad1, pad2, _opts={}) ->
         opts = {+selected} <<< _opts
