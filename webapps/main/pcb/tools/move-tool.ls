@@ -192,6 +192,8 @@ export MoveTool = ->
                     if (..aeobj or get-aecad(..))
                         that.owner.rotate angle, {around: center-point}
 
+                ractive.fire 'calcUnconnected'
+
             | \a =>
                 unless move.picked
                     point = scope.ractive.get('pointer')
