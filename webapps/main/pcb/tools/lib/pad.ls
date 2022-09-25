@@ -318,7 +318,7 @@ export class Pad extends ComponentBase
         -> @_guides
 
     on-move: (disp, opts) ->
-        @create-guides!
+        @create-guides(3)
         for @guides
             ..first-segment.point = @g-pos
 
