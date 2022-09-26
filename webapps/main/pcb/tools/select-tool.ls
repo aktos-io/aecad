@@ -36,7 +36,12 @@ export SelectTool = ->
                     console.log "Selection box includes items: ", items
                     console.log "Selected items in layer:", unique ["#{..layer?.id} (#{..layer?.name})" for items]
                     for items 
+                        # add if this aeobj is on the current side
                         if ..data?aecad?side is scope.ractive.get('currLayer')
+                            selection.add ..
+
+                        # allow selecting through hole elements 
+                        if ..data?aecad?drill?
                             selection.add ..
 
                         if ..layer?.name is scope.ractive.get('currLayer')
