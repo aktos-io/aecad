@@ -587,7 +587,6 @@ export class Schema implements bom, footprints, netlist, guide
                 dump = "#{processed-pads.map ((p) -> "#{p.uname}[#{p.netid}]") .join ', '}"
                 console.warn "Reset the following netid's: ", dump
                 PNotify.notice do
-                    hide: no
                     text: """
                         Multiple netid's was assigned to the pads, auto reset. See console for more.\n\n
                         Please recompile your schema.

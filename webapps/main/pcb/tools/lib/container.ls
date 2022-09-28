@@ -26,7 +26,7 @@ export class Container extends ComponentBase
     rotate: (angle, opts={}) ->
         # rotate this item and inform children
         @add-data \rotation, angle, (% 360)
-        @g.rotate angle
+        @g.rotate angle, opts.around
         for @pads
             ..rotated? angle
 

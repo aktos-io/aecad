@@ -187,9 +187,11 @@ export MoveTool = ->
                 # rotate the top level group
                 scope.history.commit!
                 angle = if event.modifiers.shift => 45 else 90
-                for selection.selected
-                    if ..aeobj
-                        that.owner.rotate angle 
+                center-point = selection.bounds!.center
+                for selection.get-as-aeobj()
+                    ..owner.rotate angle, {around: center-point}
+
+                ractive.fire 'calcUnconnected'
 
             | \a =>
                 unless move.picked

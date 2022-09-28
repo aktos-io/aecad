@@ -126,9 +126,31 @@ export init = (pcb) ->
                     unless opts.cached 
                         sch.calc-connection-states!
                     conn-states = sch._connection_states 
-                    sch
-                        ..clear-guides!
-                        ..guide-unconnected {+cached}
+                    sch.clear-guides!
+                    unconnected-nets = sch.get-unconnected-pads {+cached}
+                    if empty selection.selected
+                        sch.guide-for null, unconnected-nets
+                    else 
+                        selection-object-ids = selection.get-as-aeobj!.map (.gcid)
+
+                        selected-unconnected-nets = []
+                        for net in unconnected-nets 
+                            pads-in-selection = []
+                            for pad in net when pad.owner.gcid in selection-object-ids
+                                pads-in-selection.push pad 
+                            unless empty pads-in-selection
+                                # filter out too many guides, probably for gnd and vcc connections 
+                                connection-guide-extra-pads-limit = 2
+                                for pad in net when pad.gcid not in pads-in-selection.map((.gcid))
+                                    pads-in-selection.push pad 
+                                    if pads-in-selection.length >= connection-guide-extra-pads-limit
+                                        break
+                                selected-unconnected-nets.push pads-in-selection
+                        # calculated pads in selection. 
+                        sch.guide-for null, selected-unconnected-nets
+
+
+
                 catch
                     PNotify.error text: e.message
                     pcb.ractive.set 'totalConnections', "--"

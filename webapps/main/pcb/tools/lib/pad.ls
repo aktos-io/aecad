@@ -242,7 +242,7 @@ export class Pad extends ComponentBase
                 else if (typeof! first interconnected) is \Array and pair=find((-> _self.num in it.map((Number))), interconnected)
                     # Found partially interconnected pin, see https://github.com/aktos-io/aecad/issues/80#issuecomment-926849140
                     #console.log "NETLIST: Found partially interconnected pin: ", "#{pad.pin}___#{pair.join "____"}"
-                    "#{@pin}___#{pair.join "____"}"
+                    "___#{pair.join "____"}"
                 else 
                     # Add virtual enumeration, this pin is NOT interconnected. 
                     #console.log "NETLIST: Found unique pin: ", "#{pad.pin}____#{pad.num}"
@@ -318,7 +318,7 @@ export class Pad extends ComponentBase
         -> @_guides
 
     on-move: (disp, opts) ->
-        @create-guides!
+        @create-guides(3)
         for @guides
             ..first-segment.point = @g-pos
 

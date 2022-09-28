@@ -121,7 +121,7 @@ export post-process-netlist = ({netlist, iface, labels}) ->
             _data_netlist.push ["__iface:#{orig-iface}", "__label:#{new-label}"]
         _iface = values labels 
 
-    # TEMPORARY SECTION: Create a @_netlist object now
+    # Create _netlist object (see below tests for data format)
     # ------------------------------------------------
     for net in x=(net-merge _data_netlist)
         # We no longer need numeric labels and interface descriptions.

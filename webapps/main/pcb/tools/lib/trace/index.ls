@@ -303,7 +303,8 @@ export class Trace extends Container implements follow, helpers, end
                 else if hit.location
                     # this is a curve, use nearest point on path
                     console.log "snapping to curve: ", hit.location
-                    snap = that.path.getNearestPoint point.clone!
+                    snap = (x=that.path.clone!).transform(hit.item._globalMatrix).getNearestPoint point.clone! 
+                    x.remove!
                 else
                     # this is an item (pad, etc.)
                     console.log "snapping to item: ", hit.item

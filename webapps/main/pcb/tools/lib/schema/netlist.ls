@@ -12,7 +12,6 @@ is-connected = (item, pad) ->
     pad-bounds = pad.cu-bounds
     trace-netid = "#{item.data.aecad.netid}"
     trace-netid = trace-netid.replace /[^0-9]/g, ''
-    trace-global = item.localToGlobal()
 
     # Check if item is **properly** connected to the rectangle
     for item.children or []
@@ -24,13 +23,15 @@ is-connected = (item, pad) ->
             continue
         for {point} in ..segments
             # check all segments of the path
-            if point.add(trace-global).is-inside pad-bounds
+            if point.transform(item._globalMatrix).is-inside pad-bounds
                 # Detect short circuits
                 if "#{trace-netid}" isnt "#{pad.netid}"
                     item.selected = true
                     pad.selected = true
                     console.warn "Short circuit item: ", item, item.position, "Pad is:", pad, pad.gpos                   
-                    console.error "Short circuit: #{pad.uname} (n:#{pad.netid}) with #{item.data.aecad.tid} (n:#{trace-netid})"
+                    PNotify.notice do
+                        hide: yes
+                        text: "Short circuit: #{pad.uname} (n:#{pad.netid}) with #{item.data.aecad.tid} (netid:#{trace-netid})"
                 else
                     #console.log "Pad #{pad.uname} seems to be connected with Trace tid: #{item.data.aecad.tid}"
                     return true
@@ -218,6 +219,14 @@ export do
                             # they are physically on the same side
                             isec = c.getIntersections o
                             if isec.length > 0
+                                if curr.data.aecad.netid isnt other.data.aecad.netid
+                                    PNotify.notice do
+                                        hide: yes
+                                        text: "Trace short circuit: #{curr.data.aecad.tid} and #{other.data.aecad.tid}"
+
+                                    curr.selected = yes 
+                                    other.selected = yes 
+
                                 #console.warn "We found an intersection:", curr.data.aecad.tid, other.data.aecad.tid, isec
                                 conn-traces.push ["#{curr.id}", "#{other.id}"]
                                 continue search
