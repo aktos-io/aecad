@@ -44,6 +44,10 @@ export do
             aeobjs.push get-aecad ..item
         aeobjs
 
+    get-traces: -> 
+        return for @get-components {include: ['Trace'], exclude: ['*']}
+            get-aecad ..item 
+
     vertex-marker: (point) ->
         @_prev_vertex_marker?remove!
         @_prev_vertex_marker = new @Shape.Circle do

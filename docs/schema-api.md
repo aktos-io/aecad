@@ -96,6 +96,10 @@ The final calculation of the `.netlist`. An `Object` where key: `trace-id`, valu
 
 (see [Troubleshooting](./troubleshooting.md) for more)
 
+## `Schema.scope.getTraces()`
+
+Returns all `Trace`s as aeObj's.
+
 
 # Short circuit detection
 

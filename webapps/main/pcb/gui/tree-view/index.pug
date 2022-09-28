@@ -38,6 +38,14 @@ table
                     tr
                         td {{@key}}
                         td: s-input(value="{{value}}")
+
+            +if('selectedAeobj.data.type === "Trace"')
+                //- This is a trace 
+                tr
+                    td Thickness
+                    td
+                        s-input(value="{{selectedAeobj.thickness}}")
+
     +if('Object.keys(aecadOwnerData).length > 0')
         .ui.segment(style="padding: 2px")
             table 
@@ -45,8 +53,7 @@ table
                     +if('! @key.startsWith("_")')
                         tr
                             td {{@key}}
-                            td: s-input(value="{{value}}")
-        
+                            td: s-input(value="{{value}}")        
     .ui.segment                                        
         radio-buttons(value="{{activeLayer}}" on-select="activateLayer")
             .ui.buttons.vertical

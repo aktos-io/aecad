@@ -218,6 +218,24 @@ export class Trace extends Container implements follow, helpers, end
             for @net when ..logical-pin in uncoupled
                 ..selected = true
 
+    thickness:~
+        (x) -> 
+            # set 
+            if x > 0 
+                @g.strokeWidth = x |> parse-float |> mm2px
+
+        -> 
+            # get 
+            width = null 
+            for @g.children when ..getClassName() is \Path 
+                unless width?
+                    width = ..strokeWidth
+                else if ..strokeWidth isnt width
+                    console.warn "Thickness varies:", @g.children.map (.strokeWidth)
+                    return width = -1
+
+            return width |> px2mm |> oneDecimal |> Number
+
 
     add-segment: (point, flip-side=false) !->
         if @paused

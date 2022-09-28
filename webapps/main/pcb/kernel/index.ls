@@ -77,6 +77,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
                     unless "userDefined" of aeobj.data
                         aeobj.data.userDefined = ""
                     @ractive.set \aecadData, aeobj.data
+                    @ractive.set \selectedAeobj, aeobj.owner
                     observer := @ractive.observe \aecadData, (_new, _old) ~> 
                         aeobj.finish?!
 
@@ -95,6 +96,7 @@ export class PaperDraw implements canvas-control, aecad-methods, import-export
             ..on \cleared, ~>
                 @ractive.set \aecadData, {}
                 @ractive.set \aecadOwnerData, {}
+                @ractive.set \selectedAeobj, {}
                 observer?cancel?!
 
         # visual logger
