@@ -188,9 +188,8 @@ export MoveTool = ->
                 scope.history.commit!
                 angle = if event.modifiers.shift => 45 else 90
                 center-point = selection.bounds!.center
-                for selection.selected
-                    if (..aeobj or get-aecad(..))
-                        that.owner.rotate angle, {around: center-point}
+                for selection.get-as-aeobj()
+                    ..owner.rotate angle, {around: center-point}
 
                 ractive.fire 'calcUnconnected'
 
