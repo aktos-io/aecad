@@ -44,6 +44,10 @@ export SelectTool = ->
                         if ..data?aecad?drill?
                             selection.add ..
 
+                        # allow selecting newly generated components
+                        unless ..data?aecad?side?
+                            selection.add ..
+
                         if ..layer?.name is scope.ractive.get('currLayer')
                             selection.add ..
                 sel.box.remove!
