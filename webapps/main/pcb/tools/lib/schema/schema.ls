@@ -145,7 +145,6 @@ export class Schema implements bom, footprints, netlist, guide
                                         # {type_declared_in_BOM: Schema Object} 
 
         @netlist = []                   # array of "array of `Pad` objects (aeobj) on the same net"
-        @netlist2 = []                  # New version of @netlist
         @_netlist = {}                  # cached and post-processed version of original .netlist {CONN_ID: [pad_names...]}
         @_data_netlist = []             # Post processed and array version of @data.netlist
         @_labels = @opts.labels
@@ -315,7 +314,7 @@ export class Schema implements bom, footprints, netlist, guide
         
         # Generate array of PadObjects from @merged-netlist
         unless @parent 
-            @netlist2.length = 0 # make @netlist2 empty 
+            @netlist.length = 0 # make @netlist empty 
             # Create netlist of PadObjects 
             for netid, net of @merged-netlist
                 _net = []
@@ -348,93 +347,8 @@ export class Schema implements bom, footprints, netlist, guide
                         console.info "INFO: FOUND DUPLICATE PADS in ", comp-name
 
                     _net ++= pads 
-                @netlist2.push _net unless empty _net
+                @netlist.push _net unless empty _net
         
-
-        # TODO: REMOVE "generate @netlist" CODE 
-        @chrono-start "@compile/generate @netlist"
-        # Merge multiple netlists (sub-circuit's netlists) into the parent netlist
-        netlist = {}
-        for id, _net of _flatten_netlist=@flatten-netlist
-            net = [] # cache (list of connected nodes)
-            for full-name in _net
-                {name, pin, link, raw} = parse-name full-name, do
-                    prefix: @prefix
-                    external: @sub-circuit-instances
-                #console.log "Searching for entity: #{name} and pin: #{pin}, pfx: #{@prefix}"
-                if full-name of _flatten_netlist
-                    # Merge into parent net
-                    # IMPORTANT: Links must be key of netlist in order to prevent accidental namings
-                    #console.warn "HANDLE LINK: #{full-name}"
-                    net.push {link: yes, target: full-name}
-
-                    # create a cross link
-                    unless full-name of netlist
-                        netlist[full-name] = []
-                    netlist[full-name].push {link: yes, target: id, type: \cross-link}
-                    continue
-                else
-                    comp = @components-by-name[name]
-                    unless comp
-                        if name in @iface
-                            console.log "Found an interface handle: #{name}. Silently skipping."
-                            continue
-                        else if name.match /^_[0-9]+/
-                            # This is an internal connection name, silently skip it 
-                            continue
-                        else
-                            console.error "#{name} can not be found within current components: ", @components-by-name
-                            console.warn "Current flatten netlist: ", @flatten-netlist
-                            if @debug 
-                                debugger 
-                            throw new Error "No such component found: '#{name}' (full name: #{full-name}), pfx: #{@prefix}"
-
-                    pads = (comp.get {pin}) or []
-                    if empty pads
-                        if comp.type not in flatten [[..type, ..component.type] for @get-upgrades!]
-                            console.error "Current iface:", comp, comp.iface
-                            err = "No such pin found: '#{pin}' of '#{name}'"
-                            console.error err 
-                            throw new Error  "#{err} (check the console output)"
-
-                    uses-quick-labels = @bom[(full-name.replace /\..+/, '')].labels?
-
-                    unless comp.allow-duplicate-labels or uses-quick-labels
-                        if pads.length > 1
-                            if comp.type not in [..type for @get-upgrades!]
-                                throw new Error "Multiple pins found: '#{pin}' of '#{name}' (#{comp.type}) in #{@name}"
-
-                    # find duplicate pads (shouldn't be)
-                    if (unique-by (.uname), pads).length isnt pads.length
-                        console.info "INFO: FOUND DUPLICATE PADS in ", name
-
-                    net.push {name, pads}
-            unless id of netlist
-                netlist[id] = []
-            netlist[id] ++= net  # it might be already created by cross-link
-
-        unless @parent
-            # Create the cleaned up @netlist (arrays of arrays of Pad objects)
-            @netlist.length = 0
-            for id of netlist
-                net = get-net netlist, id
-                unless empty net
-                    @netlist.push net
-            @chrono-log "@compile/generate @netlist"
-
-            try 
-                make-tests "netlist", do
-                    "netlist and netlist2 comparison": ~>
-                        expect @netlist2.map (.map (.uname) .sort!)
-                        .to-equal @netlist.map (.map (.uname) .sort!)
-            catch 
-                debugger 
-                throw e
-
-            # Replace @netlist with @netlist2 until we remove the old code 
-            @netlist.length = 0 
-            @netlist = @netlist2 
-
             # build the @connection-list
             @chrono-start "@compile/@build-connection-list!"
             @build-connection-list!

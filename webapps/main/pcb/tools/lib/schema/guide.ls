@@ -22,7 +22,7 @@ export do
         return guides
 
     guide-all: ->
-        @guide-for null, @netlist2
+        @guide-for null, @netlist
 
     guide-unconnected: (opts={}) !->
         # Options: 
