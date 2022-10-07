@@ -166,6 +166,8 @@ export init = (pcb) ->
 
                 pcb.ractive.fire \refreshLayer
 
+                PNotify.success text: "Re-calculated unconnected"
+
             else if not opts.silent
                 PNotify.notice text: "No schema present at the moment."
             console.log "------------ End of DRC ------------"
