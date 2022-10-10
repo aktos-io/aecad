@@ -150,7 +150,7 @@ export class Footprint extends Container
                 w = px2mm border.size.width |> _round2
                 h = px2mm border.size.height |> _round2
                 t = border.type 
-                console.log "TODO: export-gerber border size: #{w}mm, #{h}mm, #t", border
+                console.log "TODO: export-gerber Silkscreen: border size: #{w}mm, #{h}mm, #t", border
             return
 
     labels: ~
