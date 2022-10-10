@@ -191,7 +191,7 @@ export MoveTool = ->
                 for selection.get-as-aeobj()
                     ..owner.rotate angle, {around: center-point}
 
-                ractive.fire 'calcUnconnected'
+                #ractive.fire 'calcUnconnected' # <= this causes performance issues
 
             | \a =>
                 unless move.picked
