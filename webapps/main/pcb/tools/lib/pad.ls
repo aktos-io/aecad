@@ -336,6 +336,10 @@ export class Pad extends ComponentBase
             else
                 @g.opacity = @blur-opacity
         | 'export-gerber' => 
+            unless @side? or @owner.data.tid 
+                # skip if side is undefined and this is not a via
+                console.warn "Unknown side for:", @owner.name, "in", @ractive.get 'activeLayout'
+                return 
             coord-to-gerber = (-> (it * 1e5) |>  parse-int)
             x-pos = coord-to-gerber px2mm @gpos.x 
             mirror-offset = 200mm # FIXME: remove this offset properly
