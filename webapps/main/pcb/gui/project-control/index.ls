@@ -441,7 +441,7 @@ export init = (pcb) ->
                     else if prop.name.starts-with '.'
                         console.log "Skipping hidden file"
                     else if get-filename(file).trim() is ""
-                        console.warn "SKIPPING EMPTY FILENAME"
+                        console.warn "SKIPPING EMPTY FILENAME:", file
                     else
                         if file.starts-with "scripts/" 
                             console.log "Unpacking #{file}..."
