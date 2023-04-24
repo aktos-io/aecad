@@ -6,21 +6,37 @@ table
         td y: {{pointer.y.toFixed(1)}}
     tr 
         td Zoom 
-        td: input(value="{{pcb.view.zoom}}" style="max-width: 40px; overflow-x: hidden")
+        td
+            input-button.ui.mini.label(value="{{pcb.view.zoom}}" title="Zoom" decimal="1") 
 +if('currTool === "tr"')
     table
         tr 
             td Trace width
-            td: s-input(value="{{currTrace.width}}")            
+            td
+                input-button.ui.mini.label(
+                    value="{{currTrace.width}}" 
+                    title="Trace width"
+                    decimal="1"
+                    min="0"
+                    unit="mm")
         tr 
             td Via Outer dia.
-            td: s-input(value="{{currTrace.via.outer}}")            
+            td          
+                input-button.ui.mini.label(
+                    value="{{currTrace.via.outer}}" 
+                    title="Via Outer diameter"
+                    decimal="1"
+                    min="0"
+                    unit="mm")
+
         tr 
             td Signal T.
-            td: s-input(value="{{currTrace.signal}}" readonly)
+            td
+                ui.mini.label {{oneDecimal(currTrace.signal)}} mm 
         tr 
             td Power T.
-            td: s-input(value="{{currTrace.power}}" readonly)
+            td
+                ui.mini.label {{oneDecimal(currTrace.power)}} mm
 
 //- # Property window 
 
