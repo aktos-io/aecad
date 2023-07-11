@@ -35,10 +35,10 @@
 > Troubleshooting: Verify that all `interconnected` pads and appropriate jumper pads are correctly present 
 > in @connection-list: 
 >
->    conn-list-txt = []
->    for id, net of sch.connection-list
->        conn-list-txt.push "#{id}: #{net.filter((-> not it.is-via)).map (.uname) .join(',')}"
->    console.log conn-list-txt.join '\n\n'
+>      conn-list-txt = []
+>      for id, net of sch.connection-list
+>          conn-list-txt.push "#{id}: #{net.filter((-> not it.is-via)).map (.uname) .join(',')}"
+>      console.log conn-list-txt.join '\n\n'
 
 Building the `@connection-list` is the end of the compilation process. After this point, unconnected count and connection guides must be calculated to make aeCAD actually useful. This is where `@calc-connection-states()` method comes into play. 
 
@@ -99,6 +99,14 @@ The final calculation of the `.netlist`. An `Object` where key: `trace-id`, valu
 ## `Schema.scope.getTraces()`
 
 Returns all `Trace`s as aeObj's.
+
+> Example: Select all traces with specific width and update their thickness:
+>
+>       for sch.scope.getTraces()
+>         if ..thickness < 0.40
+>             pcb.selection.add {aeobj: ..}
+>             ..thickness = 0.40
+
 
 
 # Short circuit detection

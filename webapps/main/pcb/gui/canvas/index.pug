@@ -44,62 +44,49 @@ radio-buttons#toolChanger(value="{{currTool}}")
             ): icon.paper.plane(class="{{val.color}}")
 
 +space
-radio-buttons(on-select="switchLayer")
+radio-buttons(on-select="switchLayer" value="{{currLayer}}")
     .ui.mini.buttons
-        radio-button.icon(
-            default 
-            value="F.Cu" 
-            true-color="red"
-            tooltip="Trace on F.Cu"
-            ) #[.ui.circular.red.mini.empty.label]
-        radio-button.icon(
-            value="B.Cu" 
-            true-color="green"
-            tooltip="Trace on B.Cu"
-            ) #[.ui.circular.green.mini.empty.label]
-        radio-button.icon(
-            value="Edge" 
-            true-color="orange"
-            tooltip="Edge Layer"
-            ) #[.ui.circular.orange.mini.empty.label]
-        radio-button.icon(
-            value="pcb_layout" 
-            true-color="blue"
-            tooltip="PCB Layout (Background)"
-            ) #[.ui.circular.blue.mini.empty.label]
+        +each('layer_buttons_order as layer')
+            radio-button.icon(
+                default="{{layers[layer].default}}"
+                value="{{layer}}" 
+                true-color="{{layers[layer].color}}"
+                tooltip="{{layers[layer].tooltip}}"
+                ) #[.ui.circular.mini.empty.label(class="{{layers[layer].color}}")]
 
 +space
 //-
     ack-button.mini.icon(
         on-click="explode" 
         tooltip="Explode selected"): icon.bomb
-.ui.mini.buttons
-    ack-button.icon(
-        on-click="saveBounds" 
-        tooltip="Save selection bounds coordinate"
-        ): icon.map.marker.alternate.blue
+div(style="display: inline-block") 
+    .ui.mini.buttons
+        ack-button.icon(
+            on-click="saveBounds" 
+            tooltip="Save selection bounds coordinate"
+            ): icon.map.marker.alternate.blue
 
-+space
-.ui.mini.buttons
-    ack-button.icon(
-        on-click="moveToCenter" 
-        tooltip="Move selected to last saved coordinates"
-        ): icon.magnet.green
+    +space
+    .ui.mini.buttons
+        ack-button.icon(
+            on-click="moveToCenter" 
+            tooltip="Move selected to last saved coordinates"
+            ): icon.magnet.green
 
-    ack-button.icon(
-        on-click="alignVertical" 
-        tooltip="Vertically align with last selected coordinates"
-        ): icon.ellipsis.vertical.green
+        ack-button.icon(
+            on-click="alignVertical" 
+            tooltip="Vertically align with last selected coordinates"
+            ): icon.ellipsis.vertical.green
 
-    ack-button.icon(
-        on-click="alignHorizontal" 
-        tooltip="Horizontally align with last selected coordinates"
-        ): icon.ellipsis.horizontal.green
+        ack-button.icon(
+            on-click="alignHorizontal" 
+            tooltip="Horizontally align with last selected coordinates"
+            ): icon.ellipsis.horizontal.green
 
-    ack-button.icon(
-        on-click="measureDistance" 
-        tooltip="Measure Distance from last saved coordinates"
-        ): icon(svg="flat_ruler.svg")
+        ack-button.icon(
+            on-click="measureDistance" 
+            tooltip="Measure Distance from last saved coordinates"
+            ): icon(svg="flat_ruler.svg")
 
 +space
 .ui.buttons.mini 

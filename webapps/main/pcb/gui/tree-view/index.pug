@@ -16,27 +16,29 @@ table
                 input-button.ui.mini.label(
                     value="{{currTrace.width}}" 
                     title="Trace width"
-                    decimal="1"
-                    min="0"
-                    unit="mm")
+                    decimal="2"
+                    min="0.01"
+                    unit="mm"
+                    close-on-accept)
         tr 
             td Via Outer dia.
             td          
                 input-button.ui.mini.label(
                     value="{{currTrace.via.outer}}" 
                     title="Via Outer diameter"
-                    decimal="1"
-                    min="0"
-                    unit="mm")
+                    decimal="2"
+                    min="0.01"
+                    unit="mm"
+                    close-on-accept)
 
         tr 
             td Signal T.
             td
-                ui.mini.label {{oneDecimal(currTrace.signal)}} mm 
+                ui.mini.label {{oneDecimal(currTrace.signal, 2)}} mm 
         tr 
             td Power T.
             td
-                ui.mini.label {{oneDecimal(currTrace.power)}} mm
+                ui.mini.label {{oneDecimal(currTrace.power, 2)}} mm
 
 //- # Property window 
 
@@ -60,7 +62,14 @@ table
                 tr
                     td Thickness
                     td
-                        s-input(value="{{selectedAeobj.thickness}}")
+                        input-button.ui.mini.label(
+                            value="{{selectedAeobj.thickness}}" 
+                            title="Trace width"
+                            decimal="2"
+                            min="0.01"
+                            unit="mm"
+                            close-on-accept)
+
 
     +if('Object.keys(aecadOwnerData).length > 0')
         .ui.segment(style="padding: 2px")

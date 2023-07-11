@@ -222,10 +222,25 @@ export do
                                 if curr.data.aecad.netid isnt other.data.aecad.netid
                                     PNotify.notice do
                                         hide: yes
-                                        text: "Trace short circuit: #{curr.data.aecad.tid} and #{other.data.aecad.tid}"
+                                        text: """
+                                            Trace short circuit: #{curr.data.aecad.tid} (netid:#{curr.data.aecad.netid}) and
+                                             #{other.data.aecad.tid} (netid: #{other.data.aecad.netid}) at #{isec.map (.point)}. 
+                                            """
 
-                                    curr.selected = yes 
-                                    other.selected = yes 
+                                    isec.for-each (.point.selected = yes)
+                                    for isec 
+                                        new @scope.Path.Circle {
+                                            center: ..point
+                                            radius: 4
+                                            stroke-color: 'white'
+                                            stroke-width: 0.2
+                                            fill-color: 'blue'
+                                            opacity: 0.5
+                                            data: {+tmp}
+                                            selected: true
+                                        }
+                                        c.selected = true 
+                                        o.selected = true 
 
                                 #console.warn "We found an intersection:", curr.data.aecad.tid, other.data.aecad.tid, isec
                                 conn-traces.push ["#{curr.id}", "#{other.id}"]

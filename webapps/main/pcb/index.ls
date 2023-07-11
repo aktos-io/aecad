@@ -71,14 +71,35 @@ Ractive.components['pcb'] = Ractive.extend do
         selectGroup: yes
         drawingLs: {}
         scriptName: ''
+        layer_buttons_order: <[ 
+            F.Cu 
+            Signal.1 
+            Signal.2 
+            B.Cu 
+            Edge 
+            pcb_layout 
+            ]>
         layers:
             'F.Cu':
                 color: 'red'
+                tooltip: "Trace on F.Cu"
+                default: yes
             'B.Cu':
                 color: 'green'
+                tooltip: "Trace on F.Cu"
+            "Signal.1":
+                color: "pink"
+                tooltip: "Signal layer 1"
+            "Signal.2": 
+                color: "yellow"
+                tooltip: "Signal layer 2"
             'Edge':
                 # appears both sides
                 color: 'orange'
+                tooltip: "Edge Layer"
+            "pcb_layout":
+                color: "blue"
+                tooltip: "PCB Layout (Background)"
         project:
             # logical layers
             layers: {}

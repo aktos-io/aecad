@@ -234,7 +234,7 @@ export class Trace extends Container implements follow, helpers, end
                     console.warn "Thickness varies:", @g.children.map (.strokeWidth)
                     return width = -1
 
-            return width |> px2mm |> oneDecimal |> Number
+            return width |> px2mm |> oneDecimal(_, 2) |> Number
 
 
     add-segment: (point, flip-side=false) !->
