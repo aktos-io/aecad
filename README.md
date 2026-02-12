@@ -23,6 +23,17 @@ Basically a software to create schematics and real-world drawings for physical p
 
 Pre-beta: We, as [Aktos Electronics](https://aktos.io), are using aeCAD in production. However [some cruical features](https://github.com/aktos-io/aecad/issues?q=is%3Aopen+is%3Aissue+milestone%3ABeta) are still missing.
 
+## Screenshots
+
+<img width="1366" height="730" alt="Image" src="https://github.com/user-attachments/assets/7ada4160-1233-4590-85db-3019d3c2f8cc" />
+<img width="1366" height="730" alt="image" src="https://github.com/user-attachments/assets/4e456539-2de3-4d3f-87ed-ccea86564a81" />
+
+![Peek 2026-02-12 07-10](https://github.com/user-attachments/assets/d4012a0e-b2b3-4098-9b85-f8640af75edc)
+
+![Image](https://github.com/user-attachments/assets/a26eb606-effd-404a-ac34-d829e990fb6c)
+
+
+
 ## Why Another Software?
 
 - See [What is wrong with Kicad](./problems-with-others.md#what-is-wrong-with-kicad)
